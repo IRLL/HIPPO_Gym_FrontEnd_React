@@ -1,0 +1,12 @@
+.forumContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-left: 5%;
+    margin-right : 5%;
+    min-height: 700px;
+}
+
+.Loader {
+    font-size: 18px;
+}
