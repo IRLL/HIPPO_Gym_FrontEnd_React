@@ -1,14 +1,12 @@
 import React from 'react';
 import 'antd/dist/antd.css';
 import './game.css';
-import {CaretRightOutlined,PauseOutlined,ArrowUpOutlined,ArrowDownOutlined,ArrowLeftOutlined,
-    ArrowRightOutlined, ReloadOutlined, UpOutlined, DownOutlined, StopOutlined,
-    CloudUploadOutlined,CloudDownloadOutlined, SendOutlined} from '@ant-design/icons';
-import { Button,message, Input, Spin, Tooltip, Modal, Row, Col } from 'antd';
+import {message, Spin, Modal } from 'antd';
 import { w3cwebsocket as W3CWebSocket } from "websocket";
 import {browserName,osName,browserVersion,osVersion} from 'react-device-detect';
 import getKeyInput from '../utils/getKeyInput';
 import {WS_URL,USER_ID, PROJECT_ID} from '../utils/constants';
+import ControlPanel from './control';
 
 class Game extends React.Component{
     
@@ -21,7 +19,7 @@ class Game extends React.Component{
         isLoading : true,
         isEnd : false,
         isVisible : false,
-        UIlist : []
+        UIlist : [],
     }
 
     componentDidMount() {
@@ -119,7 +117,7 @@ class Game extends React.Component{
     }
 
     //send game control commands to the websocket server
-    handleCommand(status){
+    handleCommand = (status) => {
         if(this.state.isLoading){
             message.error("Please wait the connection to be established first!")
             return;
@@ -165,7 +163,8 @@ class Game extends React.Component{
     }
 
     render() {
-        const {isLoading, frameSrc, isStart, frameRate, isEnd} = this.state;
+        const {isLoading, frameSrc, isStart, frameRate, isEnd, UIlist} = this.state;
+
         return (
             <div>
                 <div className="gameWindow">
@@ -181,65 +180,24 @@ class Game extends React.Component{
                     onCancel={this.handleCancel}
                     >
                     <p>The game has ended</p>
-                    <p>Press <b>Cancel</b> to stay on this page</p>
-                    <p>Press <b>OK</b> to move to next step</p>
+                    <p>Press <b>"Cancel"</b> to stay on this page</p>
+                    <p>Press <b>"OK"</b> to move to next step</p>
                 </Modal>
-                
-                <div className="controlPanel">
-                    <div className="panelContainer">
-                    <Row gutter={[4, 8]}>
-                        <Col span={2} />
-                        <Col span={4} >
-                            <Tooltip placement="left" title="Move Up" arrowPointAtCenter>
-                                <Button shape="round" size="large" icon={<ArrowUpOutlined />} onClick={() => this.sendMessage({actionType : "mousedonw",action : "up"})}/>
-                            </Tooltip></Col>
-                        <Col span={5} >
-                        {isStart ? <Button shape="round" type="danger" icon={<PauseOutlined  />} size='large' onClick={() => this.handleCommand("pause")}>Pause</Button> 
-                            : <Button shape="round" type="primary"  icon={<CaretRightOutlined />} size='large' onClick={() => this.handleCommand("start")}>Start</Button>
-                        }
-                        </Col>
-                        <Col span={5} ><Button shape="round" type="danger" icon={<StopOutlined  />} size='large' onClick={() => this.handleCommand("stop")}>Stop</Button></Col>
-                        <Col span={4} ><Button shape="round" type="primary" className="resetButton"  icon={<ReloadOutlined />} size='large' onClick={() => this.handleCommand("reset")}>Reset</Button></Col>
-                        <Col span={2} ><Button className="badButton" shape="round" type="primary" size='large' icon={<CloudDownloadOutlined />} onClick={() => this.handleCommand("bad")}>Bad</Button></Col>
-                    </Row>
-                    <Row gutter={[4, 8]}>
-                        <Col span={4} >
-                            <Tooltip placement="bottom" title="Move Left" arrowPointAtCenter>
-                                <Button shape="round" size="large" icon={<ArrowLeftOutlined />} onClick={() => this.sendMessage({actionType : "mousedown", action :"left"})}/>
-                            </Tooltip>
-                        </Col>
-                        <Col span={2} >
-                            <Tooltip placement="top" title="Move Right" arrowPointAtCenter>
-                                <Button shape="round" size="large" icon={<ArrowRightOutlined />} onClick={() => this.sendMessage({actionType : "mousedown" , action : "right"})}/>
-                            </Tooltip></Col>
-                        <Col span={5} ><Button className="onlineButton" shape="round" icon={<CloudUploadOutlined />} type="primary" size='large' onClick={() => this.handleCommand("trainOnline")}>Train Online</Button></Col>
-                        <Col span={5} ><Button className="offlineButton" shape="round" type="primary" size='large' icon={<CloudDownloadOutlined />} onClick={() => this.handleCommand("trainOffline")}>Train Offline</Button></Col>
-                        <Col span={4} ><Button className="goodButton" shape="round" type="primary" size='large' icon={<CloudDownloadOutlined />} onClick={() => this.handleCommand("good")}>Good</Button></Col>                    </Row>
-                    <Row gutter={[4,8]}>
-                        <Col span={2} />
-                        <Col span={4} >
-                            <Tooltip placement="right" title="Move Down" arrowPointAtCenter>
-                                <Button shape="round" size="large" icon={<ArrowDownOutlined />} onClick={() => this.sendMessage({actionType : "mousedown",action : "down"})}/>
-                            </Tooltip></Col>
-                            <Col span={5}><Input className="fpsInput" defaultValue={30} value={frameRate} suffix="FPS"/></Col>
-                            <Col span={5}>
-                                <Tooltip placement="bottom" title="Increase the FPS" arrowPointAtCenter>
-                                    <Button shape="round" size="large" icon={<UpOutlined />} onClick={() => this.handleFPS("faster")}/>
-                                </Tooltip>
-                                <Tooltip placement="bottom" title="Decrease the FPS" arrowPointAtCenter>
-                                    <Button shape="round" size="large" icon={<DownOutlined />} onClick={() => this.handleFPS("slower")}/>
-                                </Tooltip>
-                            </Col>
-                            <Col span={4}>
-                                {isEnd ? <Tooltip placement="bottom" title="Move to next step" arrowPointAtCenter>
-                                            <Button type="primary" shape="round" size="large" icon={<SendOutlined />} onClick={this.handleOk}>Next</Button>
-                                        </Tooltip> : null}
-                            </Col>
-                    </Row>
-                    </div>
-                </div>
+                {!isLoading ? 
+                    <ControlPanel 
+                    isStart={isStart} 
+                    isEnd={isEnd} 
+                    frameRate={frameRate} 
+                    UIlist={UIlist} 
+                    handleOk={this.handleOk} 
+                    handleFPS={this.handleFPS}
+                    handleCommand={this.handleCommand} 
+                    sendMessage={this.sendMessage}
+                /> : null
+                }
             </div>
-        )}
+        )
+    }
 }
 
 export default Game;
