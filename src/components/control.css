@@ -23,24 +23,24 @@
     border-color: #73d13d;
 }
 
-.onlineButton{
+.trainOnlineButton{
     background-color: #faad14;
     color : white;
     border-color: #faad14;   
 }
 
-.onlineButton:hover{
+.trainOnlineButton:hover{
     background-color: #ffc53d;
     border-color:#ffc53d;
 }
 
-.offlineButton{
+.trainOfflineButton{
     background-color: #13c2c2;
     color : white;
     border-color: #13c2c2;
 }
 
-.offlineButton:hover{
+.trainOfflineButton:hover{
     background-color: #36cfc9;
     border-color: #36cfc9;
 
