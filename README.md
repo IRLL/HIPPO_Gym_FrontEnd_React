@@ -53,6 +53,8 @@ You need to install the following software:
 
 * react 
 > The main Javascript library we are using for building user interfaces.
+* react-icons
+> npm package that allows us to include only the popular icons that our project is using.
 * react-device-detect
 > npm package that used to detect the type of device of user for better user experience
 * react-html-parser
