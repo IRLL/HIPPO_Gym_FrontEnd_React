@@ -3,13 +3,14 @@ import 'antd/dist/antd.css';
 import './control.css';
 import { Button, Input, Tooltip, Row, Col } from 'antd';
 import {icons} from '../utils/icons';
+import capitalize from '../utils/capitalize';
 
 class ControlPanel extends React.Component{
 
     render(){
         const {isStart,isEnd, frameRate, UIlist} = this.props;
         const directions = ['left','leftUp','up','rightUp','down','leftDown','rightDown','fire','right'];
-        const commands = ['reset','good','bad','trainOnline','trainOffline']
+        const commands = ['stop','reset','good','bad','trainOnline','trainOffline']
 
         const elements = {
             start : <Col>
@@ -17,7 +18,6 @@ class ControlPanel extends React.Component{
                             : <Button shape="round" type="primary"  icon={icons['start']} size='large' onClick={() => this.props.handleCommand("start")}>Start</Button>
                         }
                     </Col>,
-            stop :  <Col><Button shape="round" type="danger" icon={icons['stop']} size='large' onClick={() => this.props.handleCommand("stop")}>Stop</Button></Col>,
             fpsSet : <Col><Input className="fpsInput" defaultValue={30} value={frameRate} suffix="FPS"/></Col>,
             fpsUp : <Col>
                         <Tooltip placement="bottom" title="Increase the FPS by 5" arrowPointAtCenter>
@@ -39,13 +39,13 @@ class ControlPanel extends React.Component{
         commands.forEach((command) => {
             elements[command] =
                 <Col>
-                    <Button shape="round" type="primary" className={`${command}Button`}  icon={icons[command]} size='large' onClick={() => this.props.handleCommand(command)}>{command}</Button>
+                    <Button shape="round" type="primary" className={`${command}Button`}  icon={icons[command]} size='large' onClick={() => this.props.handleCommand(command)}>{capitalize(command)}</Button>
                 </Col>
         })
 
-        const firstRow = [elements['leftUp'],elements['up'],elements['rightUp']];
-        const secondRow = [elements['left'],elements['fire'],elements['right']];
-        const thirdRow = [elements['leftDown'],elements['down'],elements['rightDown']];
+        const firstRow = [elements['leftUp'],elements['up'],elements['rightUp'],<Col span={1} />];
+        const secondRow = [elements['left'],elements['fire'],elements['right'],<Col span={1}/>];
+        const thirdRow = [elements['leftDown'],elements['down'],elements['rightDown'],<Col span={1}/>];
 
         UIlist.forEach(ele =>{
             if(["start","stop","reset","good"].includes(ele)){
