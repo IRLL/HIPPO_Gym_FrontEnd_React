@@ -12,7 +12,7 @@ class ControlPanel extends React.Component{
         const directions = ['left','leftUp','up','rightUp','down','leftDown','rightDown','fire','right'];
         const commands = ['stop','reset','good','bad','trainOnline','trainOffline']
         const fps = ['fpsUp','fpsDown','fpsSet']
-        const  defaultButtons = [...directions,...fps];
+        const defaultButtons = [...directions,...fps];
         const UIFiltered = UIlist.filter(ele => !defaultButtons.includes(ele));
 
         const elements = {

@@ -149,7 +149,7 @@ class Game extends React.Component{
     }
 
     //chnage the FPS of the game
-    handleFPS(speed){
+    handleFPS = (speed) => {
         if((speed === "faster" && this.state.frameRate + 5 > 90) || (speed === "slower" && this.state.frameRate - 5 < 1)){
             message.error("Invalid FPS, the FPS can only between 1 - 90!")
         }else{
