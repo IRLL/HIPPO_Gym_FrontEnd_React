@@ -47,6 +47,14 @@ class ControlPanel extends React.Component{
                     <Button shape="round" type="primary" className={`${command}Button`}  icon={icons[command]} size='large' onClick={() => this.props.handleCommand(command)}>{capitalize(command)}</Button>
                 </Col>
         })
+        UIFiltered.forEach(ele => {
+            if(!(ele in elements)){
+                elements[ele] = 
+                <Col>
+                    <Button shape="round" type="primary" size="large" onClick={() => this.props.handleCommand(ele)}>{capitalize(ele)}</Button>
+                </Col>
+            }
+        })
 
         const firstRow = [elements['leftUp'],elements['up'],elements['rightUp'],elements['fpsUp']];
         const secondRow = [elements['left'],elements['fire'],elements['right'],elements['fpsSet']];

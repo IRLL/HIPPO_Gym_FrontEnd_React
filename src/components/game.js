@@ -185,14 +185,14 @@ class Game extends React.Component{
                 </Modal>
                 {!isLoading ? 
                     <ControlPanel 
-                    isStart={isStart} 
-                    isEnd={isEnd} 
-                    frameRate={frameRate} 
-                    UIlist={UIlist} 
-                    handleOk={this.handleOk} 
-                    handleFPS={this.handleFPS}
-                    handleCommand={this.handleCommand} 
-                    sendMessage={this.sendMessage}
+                        isStart={isStart} 
+                        isEnd={isEnd} 
+                        frameRate={frameRate} 
+                        UIlist={UIlist} 
+                        handleOk={this.handleOk} 
+                        handleFPS={this.handleFPS}
+                        handleCommand={this.handleCommand} 
+                        sendMessage={this.sendMessage}
                 /> : null
                 }
             </div>
