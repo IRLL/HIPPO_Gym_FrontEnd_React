@@ -25,7 +25,7 @@ class ControlPanel extends React.Component{
                         {UIlist.includes('fpsSet') ? <Input className="fpsInput" defaultValue={30} value={frameRate} suffix="FPS"/> : null}
                     </Col>,
             fpsUp : <Col span={4}>{UIlist.includes('fpsUp') ?
-                        <Tooltip placement="bottom" title="Increase the FPS by 5" arrowPointAtCenter>
+                        <Tooltip placement="top" title="Increase the FPS by 5" arrowPointAtCenter>
                             <Button shape="round" className="fpsUpButton" size="large" icon={icons['fpsUp']} onClick={() => this.props.handleFPS("faster")}>Increase</Button>
                         </Tooltip> : null}
                     </Col>,
