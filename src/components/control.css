@@ -4,7 +4,7 @@
     margin-top: 20px;
     margin-left: auto;
     margin-right: auto;
-    width: 700px;
+    width: 800px;
 }
 
 .panelContainer{
@@ -80,5 +80,7 @@
 }
 
 .fpsInput{
-    width: 100px;
+    width: auto;
+    height: 40px;
+    border-radius: 20px;
 }

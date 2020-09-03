@@ -11,6 +11,9 @@ class ControlPanel extends React.Component{
         const {isStart,isEnd, frameRate, UIlist} = this.props;
         const directions = ['left','leftUp','up','rightUp','down','leftDown','rightDown','fire','right'];
         const commands = ['stop','reset','good','bad','trainOnline','trainOffline']
+        const fps = ['fpsUp','fpsDown','fpsSet']
+        const  defaultButtons = [...directions,...fps];
+        const UIFiltered = UIlist.filter(ele => !defaultButtons.includes(ele));
 
         const elements = {
             start : <Col>
@@ -18,16 +21,18 @@ class ControlPanel extends React.Component{
                             : <Button shape="round" type="primary"  icon={icons['start']} size='large' onClick={() => this.props.handleCommand("start")}>Start</Button>
                         }
                     </Col>,
-            fpsSet : <Col><Input className="fpsInput" defaultValue={30} value={frameRate} suffix="FPS"/></Col>,
-            fpsUp : <Col>
-                        <Tooltip placement="bottom" title="Increase the FPS by 5" arrowPointAtCenter>
-                            <Button shape="round" size="large" icon={icons['fpsUp']} onClick={() => this.props.handleFPS("faster")}/>
-                        </Tooltip>
+            fpsSet : <Col span={4}>
+                        {UIlist.includes('fpsSet') ? <Input className="fpsInput" defaultValue={30} value={frameRate} suffix="FPS"/> : null}
                     </Col>,
-            fpsDown : <Col>
+            fpsUp : <Col span={4}>{UIlist.includes('fpsUp') ?
+                        <Tooltip placement="bottom" title="Increase the FPS by 5" arrowPointAtCenter>
+                            <Button shape="round" className="fpsUpButton" size="large" icon={icons['fpsUp']} onClick={() => this.props.handleFPS("faster")}>Increase</Button>
+                        </Tooltip> : null}
+                    </Col>,
+            fpsDown : <Col span={4}>{UIlist.includes('fpsDown') ? 
                         <Tooltip placement="bottom" title="Decrease the FPS by 5" arrowPointAtCenter>
-                            <Button shape="round" size="large" icon={icons['fpsDown']} onClick={() => this.props.handleFPS("slower")}/>
-                        </Tooltip>
+                            <Button shape="round" className="fpsDownButton" size="large" icon={icons['fpsDown']} onClick={() => this.props.handleFPS("slower")}>Decrease</Button>
+                        </Tooltip> : null}
                       </Col>
         }
         directions.forEach((dir) => {
@@ -43,18 +48,16 @@ class ControlPanel extends React.Component{
                 </Col>
         })
 
-        const firstRow = [elements['leftUp'],elements['up'],elements['rightUp'],<Col span={1} />];
-        const secondRow = [elements['left'],elements['fire'],elements['right'],<Col span={1}/>];
-        const thirdRow = [elements['leftDown'],elements['down'],elements['rightDown'],<Col span={1}/>];
+        const firstRow = [elements['leftUp'],elements['up'],elements['rightUp'],elements['fpsUp']];
+        const secondRow = [elements['left'],elements['fire'],elements['right'],elements['fpsSet']];
+        const thirdRow = [elements['leftDown'],elements['down'],elements['rightDown'],elements['fpsDown']];
 
-        UIlist.forEach(ele =>{
-            if(["start","stop","reset","good"].includes(ele)){
+        UIFiltered.forEach((ele,idx) =>{
+            if(idx % 3 === 0){
                 firstRow.push(elements[ele])
-            }
-            if(['trainOnline','trainOffline','bad'].includes(ele)){
-                secondRow.push(elements[ele]);
-            }
-            if(['fpsSet','fpsUp','fpsDown'].includes(ele)){
+            }else if(idx % 3 === 1){
+                secondRow.push(elements[ele])
+            }else if(idx % 3 === 2){
                 thirdRow.push(elements[ele])
             }
         })
