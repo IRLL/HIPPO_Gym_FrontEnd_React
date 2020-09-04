@@ -11,7 +11,6 @@ import ControlPanel from './control';
 class Game extends React.Component{
     
     state = {
-        isStart : false,
         frameCount : 0,
         frameId : 0,
         frameRate : 30,
@@ -130,16 +129,10 @@ class Game extends React.Component{
                 browser : browserName,
                 browserVersion : browserVersion,
             })
-            this.setState(prevState => ({
-                isStart : !prevState.isStart
-            }))
         }else if (status === "stop" || status === "pause"){
             this.sendMessage({
                 command : status
             })   
-            this.setState(prevState => ({
-                isStart : !prevState.isStart,
-            }));
         }
         else{
             this.sendMessage({
@@ -163,7 +156,7 @@ class Game extends React.Component{
     }
 
     render() {
-        const {isLoading, frameSrc, isStart, frameRate, isEnd, UIlist} = this.state;
+        const {isLoading, frameSrc, frameRate, isEnd, UIlist} = this.state;
 
         return (
             <div>
@@ -185,7 +178,6 @@ class Game extends React.Component{
                 </Modal>
                 {!isLoading ? 
                     <ControlPanel 
-                        isStart={isStart} 
                         isEnd={isEnd} 
                         frameRate={frameRate} 
                         UIlist={UIlist} 

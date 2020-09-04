@@ -8,19 +8,14 @@ import capitalize from '../utils/capitalize';
 class ControlPanel extends React.Component{
 
     render(){
-        const {isStart,isEnd, frameRate, UIlist} = this.props;
+        const {isEnd, frameRate, UIlist} = this.props;
         const directions = ['left','leftUp','up','rightUp','down','leftDown','rightDown','fire','right'];
-        const commands = ['stop','reset','good','bad','trainOnline','trainOffline']
+        const commands = ['start','pause','stop','reset','good','bad','trainOnline','trainOffline']
         const fps = ['fpsUp','fpsDown','fpsSet']
         const defaultButtons = [...directions,...fps];
         const UIFiltered = UIlist.filter(ele => !defaultButtons.includes(ele));
 
         const elements = {
-            start : <Col>
-                        {isStart ? <Button shape="round" type="danger" icon={icons['pause']} size='large' onClick={() => this.props.handleCommand("pause")}>Pause</Button> 
-                            : <Button shape="round" type="primary"  icon={icons['start']} size='large' onClick={() => this.props.handleCommand("start")}>Start</Button>
-                        }
-                    </Col>,
             fpsSet : <Col span={4}>
                         {UIlist.includes('fpsSet') ? <Input className="fpsInput" defaultValue={30} value={frameRate} suffix="FPS"/> : null}
                     </Col>,
