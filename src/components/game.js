@@ -5,7 +5,7 @@ import {message, Spin, Modal } from 'antd';
 import { w3cwebsocket as W3CWebSocket } from "websocket";
 import {browserName,osName,browserVersion,osVersion} from 'react-device-detect';
 import getKeyInput from '../utils/getKeyInput';
-import {WS_URL,USER_ID, PROJECT_ID} from '../utils/constants';
+import {WS_URL, USER_ID, PROJECT_ID} from '../utils/constants';
 import ControlPanel from './control';
 
 class Game extends React.Component{
@@ -22,6 +22,8 @@ class Game extends React.Component{
     }
 
     componentDidMount() {
+
+        console.log(WS_URL);
 
         //To ensure the websocket server is ready to connect
         //we try to connect the webscoket server periodically

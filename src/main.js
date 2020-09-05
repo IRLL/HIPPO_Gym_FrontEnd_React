@@ -7,7 +7,7 @@ import Header from './components/header';
 import Footer from './components/footer';
 import Forum from './components/forum';
 import Game from './components/game';
-import {RLAPI, PROJECT_ID, USER_ID} from './utils/constants';
+import {RLAPI, SERVER, PROJECT_ID, USER_ID} from './utils/constants';
 
 class Main extends React.Component{
 
@@ -15,15 +15,15 @@ class Main extends React.Component{
         formContent : "",        //html content
         userId : USER_ID,
         projectId : PROJECT_ID,
-        isLoading : true,        //used to wait for http requests finished
-        isGame : false,          //if current page is the game page
+        isLoading : SERVER ? false : true,        //used to wait for http requests finished
+        isGame : SERVER ? true : false,          //if current page is the game page
         isWait : false,          //if the websocket server has been resolved
         isEnd : false,           //if the game is ended,
         ifError : false,
     }
 
     componentDidMount(){
-        this.fetchFormData();
+        if(!SERVER) this.fetchFormData();
     }
 
     //send GET requests to api endpoint
