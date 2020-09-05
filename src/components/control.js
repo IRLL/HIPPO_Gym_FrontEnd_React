@@ -17,36 +17,36 @@ class ControlPanel extends React.Component{
 
         const elements = {
             fpsSet : <Col span={4}>
-                        {UIlist.includes('fpsSet') ? <Input className="fpsInput" defaultValue={30} value={frameRate} suffix="FPS"/> : null}
+                        {UIlist.includes('fpsSet') ? <Input id="fpsSet" className="fpsInput" defaultValue={30} value={frameRate} suffix="FPS"/> : null}
                     </Col>,
             fpsUp : <Col span={4}>{UIlist.includes('fpsUp') ?
                         <Tooltip placement="top" title="Increase the FPS by 5" arrowPointAtCenter>
-                            <Button shape="round" className="fpsUpButton" size="large" icon={icons['fpsUp']} onClick={() => this.props.handleFPS("faster")}>Increase</Button>
+                            <Button shape="round" id="fpsUp" className="fpsUpButton" size="large" icon={icons['fpsUp']} onClick={() => this.props.handleFPS("faster")}>Increase</Button>
                         </Tooltip> : null}
                     </Col>,
             fpsDown : <Col span={4}>{UIlist.includes('fpsDown') ? 
                         <Tooltip placement="bottom" title="Decrease the FPS by 5" arrowPointAtCenter>
-                            <Button shape="round" className="fpsDownButton" size="large" icon={icons['fpsDown']} onClick={() => this.props.handleFPS("slower")}>Decrease</Button>
+                            <Button shape="round" id="fpsDown" className="fpsDownButton" size="large" icon={icons['fpsDown']} onClick={() => this.props.handleFPS("slower")}>Decrease</Button>
                         </Tooltip> : null}
                       </Col>
         }
         directions.forEach((dir) => {
             elements[dir] = 
                 <Col span={2} >
-                    {UIlist.includes(dir) ? <Button shape="round" size="large" icon={icons[dir]} onClick={() => this.props.sendMessage({actionType : "mousedown",action : dir})}/> : null}
+                    {UIlist.includes(dir) ? <Button id={dir} shape="round" size="large" icon={icons[dir]} onClick={() => this.props.sendMessage({actionType : "mousedown",action : dir})}/> : null}
                 </Col>
         })
         commands.forEach((command) => {
             elements[command] =
                 <Col>
-                    <Button shape="round" type="primary" className={`${command}Button`}  icon={icons[command]} size='large' onClick={() => this.props.handleCommand(command)}>{capitalize(command)}</Button>
+                    <Button shape="round" type="primary" id={command}  className={`${command}Button`}  icon={icons[command]} size='large' onClick={() => this.props.handleCommand(command)}>{capitalize(command)}</Button>
                 </Col>
         })
         UIFiltered.forEach(ele => {
             if(!(ele in elements)){
                 elements[ele] = 
                 <Col>
-                    <Button shape="round" type="primary" size="large" onClick={() => this.props.handleCommand(ele)}>{capitalize(ele)}</Button>
+                    <Button id={ele} shape="round" type="primary" size="large" onClick={() => this.props.handleCommand(ele)}>{capitalize(ele)}</Button>
                 </Col>
             }
         })
@@ -77,7 +77,7 @@ class ControlPanel extends React.Component{
                     {thirdRow}
                     <Col >
                     {isEnd ? <Tooltip placement="bottom" title="Move to next step" arrowPointAtCenter>
-                                <Button type="primary" shape="round" size="large" icon={icons['next']} onClick={this.props.handleOk}>Next</Button>
+                                <Button id="nextStep" type="primary" shape="round" size="large" icon={icons['next']} onClick={this.props.handleOk}>Next</Button>
                             </Tooltip> : null}
                     </Col>
                 </Row>
