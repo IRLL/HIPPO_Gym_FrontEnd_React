@@ -22,9 +22,6 @@ class Game extends React.Component{
     }
 
     componentDidMount() {
-
-        console.log(WS_URL);
-
         //To ensure the websocket server is ready to connect
         //we try to connect the webscoket server periodically
         //for every 30 seconds until the connection has been established
