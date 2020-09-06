@@ -114,12 +114,36 @@ Function used to send essential game control commands to the websocket server. T
 ```javascript
 handleFPS(speed)
 ```
-Function used to control the FPS(frame per second) of the game. The default value is 30 and the increment or the decrement of each time the user press the button is 5. The allowed range of the FPS is between 5 - 90 for now.
+Function used to control the FPS(frame per second) of the game. The default value is 30 and the increment or the decrement when each time the user press the button is 5. The allowed range of the FPS is between 5 - 90 for now.
 
 [control.js](./src/components/control.js)
 ControlPanel component includes all the elements that neeeded to control the game. For example, we have direction control buttons and "start", "stop","reset", etc.
-We have introduced the selection UI to our ControlPanel to meet different requirements for each project. Researcher can select the control buttons they want for their project.
+We have introduced the selective UI to our ControlPanel to meet different requirements for each project. Researcher can select the control buttons they want for their project.
 
+**Control components we have right now:**
+- Game control
+    - Left
+    - LeftUp
+    - LeftDown
+    - Right
+    - RightUp
+    - RightDown
+    - Up
+    - Down
+    - Fire
+- Train Control
+    - Start
+    - Pause
+    - Stop
+    - Reset
+    - Train Online
+    - Train Offline
+    - Good
+    - Bad
+    - Fps Up
+    - Fps Down
+    - Fps Set
+ 
 [header.js](./src/components/header.js)
 Header component that will be rendered on every pages of our framework. We only have a irll logo for now.
 
