@@ -28,6 +28,12 @@ class Main extends React.Component{
         if(!SERVER) this.fetchFormData();
     }
 
+    componentDidUpdate(prevState){
+        if(prevState.formContent !== this.state.formContent){
+            window.scrollTo(0, 0);
+        }
+    }
+
     //send GET requests to api endpoint
     //fetch html content of each page
     fetchFormData = () => {
