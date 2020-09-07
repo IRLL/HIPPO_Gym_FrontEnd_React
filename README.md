@@ -152,7 +152,7 @@ Footer component that will be rendered on every pages of our framework. We have 
 
 #### Setup
 
-> Install the package for frontend 
+> Install the packages required for frontend 
 
 ```shell
 $ npm install 
@@ -160,13 +160,15 @@ $ npm install
 
 ### Run
 
-> Run frontend 
+> Run frontend in the browser
 
 ```shell
 $ npm start
 ```
 
 ### Build
+
+> Build the code for production
 ```
 $ npm run build
 ```
