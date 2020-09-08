@@ -71,14 +71,14 @@ class Main extends React.Component{
 
     gameEndHandler = () =>{
         //fetch the content of next page
-        if(!SERVER){
+        if(!this.state.ifRedirect){
              //change the game status
             this.setState(({
                 isGame : false,
                 isEnd : true
             }))
              this.fetchFormData();
-        }else{
+        }else {
             history.push(REDIRECT);
         }
     }
