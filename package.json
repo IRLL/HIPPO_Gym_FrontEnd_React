@@ -15,7 +15,7 @@
     "react-html-parser": "^2.0.2",
     "react-icons": "^3.11.0",
     "react-router": "^5.2.0",
-    "react-scripts": "3.4.1",
+    "react-scripts": "^3.4.3",
     "uuid": "^8.3.0",
     "websocket": "^1.0.31"
   },

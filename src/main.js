@@ -44,15 +44,15 @@ class Main extends React.Component{
             }
         }).then(res => {
             //"show_game_page" means the next page will be the game page
-            if(res.data === "show_game_page"){
+            if(res.data.page === "show_game_page"){
                 this.setState(({
                     isGame : true,
                     isWait : false
                 }))
             //"wait" means the websocket's DNS has not been resolved yet
-            }else if(res.data !== "wait"){
+            }else if(res.data.page !== "wait"){
                 this.setState(({
-                    formContent : res.data,
+                    formContent : res.data.page,
                     isLoading : false
                 }))
             }
@@ -105,11 +105,11 @@ class Main extends React.Component{
         }).then(res => {
             //"show_game_page" means the websocket's DNS has been resolved
             //ready to go to the game page
-            if(res.data === "show_game_page"){
+            if(res.data.page === "show_game_page"){
                 this.setState(({
                     isGame : true,
                 }))
-            }else if(res.data === "wait"){
+            }else if(res.data.page === "wait"){
                 //we check if the websocket's DNS has been resolved periodically
                 //for every 30 seconds 
                 this.wait = setInterval(() => {
@@ -122,7 +122,7 @@ class Main extends React.Component{
                 }))
             }else{
                 this.setState(({
-                    formContent : res.data,
+                    formContent : res.data.page,
                     isLoading : false
                 }))
             }
