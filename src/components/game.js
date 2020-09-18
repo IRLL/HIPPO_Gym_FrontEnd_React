@@ -86,6 +86,7 @@ class Game extends React.Component{
             let dataToSend = getKeyInput(event.code);
             if(this.state.UIlist.includes(dataToSend.action)){
                 this.sendMessage(dataToSend);
+                document.getElementById(dataToSend.action).focus();
             }
         })
     }
