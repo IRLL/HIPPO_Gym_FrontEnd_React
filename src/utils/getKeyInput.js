@@ -33,7 +33,14 @@ export default function getKeyInput(code) {
             actionType : "rightArrow",
             action : "right"
         });
+        case "Space" : return({
+            actionType: "space",
+            action : "fire"
+        });
         default:
-            break
+            return({
+                actionType : "null",
+                action : "null"
+            })
       }
 }

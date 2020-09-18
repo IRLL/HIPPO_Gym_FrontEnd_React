@@ -80,10 +80,13 @@ class Game extends React.Component{
 
         //listen to the user's keyboard inputs
         document.addEventListener('keydown', (event) => {
-            if([37, 38, 39, 40].indexOf(event.keyCode) > -1) {
+            if([32, 37, 38, 39, 40].indexOf(event.keyCode) > -1) {
                 event.preventDefault();
             }
-            this.sendMessage(getKeyInput(event.code));
+            let dataToSend = getKeyInput(event.code);
+            if(this.state.UIlist.includes(dataToSend.action)){
+                this.sendMessage(dataToSend);
+            }
         })
     }
 
