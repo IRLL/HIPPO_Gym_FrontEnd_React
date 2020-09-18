@@ -12,4 +12,4 @@ export const USER_ID = SERVER ? "" : uuidv4();
 export const WS_URL = SERVER ? SERVER : `wss://${USER_ID}.irll.net:5000`;
 
 //api endpoint used to send GET and POST requests
-export const RLAPI = "https://api.testing.irll.net/next";
+export const RLAPI = "https://api.irll.net/next";
