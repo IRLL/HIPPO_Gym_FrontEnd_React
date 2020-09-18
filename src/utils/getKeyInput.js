@@ -33,6 +33,22 @@ export default function getKeyInput(code) {
             actionType : "rightArrow",
             action : "right"
         });
+        case "KeyQ": return({
+            actionType : "leftUp",
+            action : "leftUp"
+        });
+        case "keyE": return({
+            actionType : "rightUp",
+            action : "rightUp"
+        });
+        case "KeyZ": return({
+            actionType : "leftDown",
+            action : "leftDown"
+        });
+        case "keyC": return({
+            actionType : "rightDown",
+            action : "rightDown"
+        });
         case "Space" : return({
             actionType: "space",
             action : "fire"
