@@ -2,13 +2,12 @@ import React from 'react';
 import "antd/dist/antd.css";
 import './main.css';
 import axios from 'axios';
-import history from './history';
 import {Spin, message} from 'antd';
 import Header from './components/header';
 import Footer from './components/footer';
 import Forum from './components/forum';
 import Game from './components/game';
-import {RLAPI, SERVER, PROJECT_ID, USER_ID, REDIRECT} from './utils/constants';
+import {RLAPI, SERVER, PROJECT_ID, USER_ID, REDIRECT, CSS_PATH} from './utils/constants';
 
 class Main extends React.Component{
 
@@ -21,17 +20,27 @@ class Main extends React.Component{
         isWait : false,          //if the websocket server has been resolved
         isEnd : false,           //if the game is ended,
         ifError : false,
-        ifRedirect : SERVER && REDIRECT ? true : false
+        ifRedirect : SERVER && REDIRECT ? true : false,
+        cssContent : ""
     }
 
     componentDidMount(){
         if(!SERVER) this.fetchFormData();
+        if(CSS_PATH) this.fetchCSS();
     }
 
     componentDidUpdate(prevState){
         if(prevState.formContent !== this.state.formContent){
             window.scrollTo(0, 0);
         }
+    }
+
+    fetchCSS = () => {
+        axios.get(CSS_PATH).then(res => {
+            this.setState(({
+                cssContent : res.data
+            }))
+        })
     }
 
     //send GET requests to api endpoint

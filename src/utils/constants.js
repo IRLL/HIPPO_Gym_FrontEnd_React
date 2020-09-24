@@ -17,6 +17,5 @@ export const CSS_PATH = SERVER ? params.get('css') : "";
 export const USER_ID = SERVER && userId ? userId : uuidv4();
 export const WS_URL = SERVER ? SERVER : `wss://${USER_ID}.${host}:5000`;
 
-console.log(WS_URL);
 //api endpoint used to send GET and POST requests
 export const RLAPI = `https://api.${host}/next`;
