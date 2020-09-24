@@ -5,7 +5,7 @@ import {message, Spin, Modal } from 'antd';
 import { w3cwebsocket as W3CWebSocket } from "websocket";
 import {browserName,osName,browserVersion,osVersion} from 'react-device-detect';
 import getKeyInput from '../utils/getKeyInput';
-import {WS_URL, USER_ID, PROJECT_ID} from '../utils/constants';
+import {WS_URL, USER_ID, PROJECT_ID, SERVER} from '../utils/constants';
 import ControlPanel from './control';
 
 class Game extends React.Component{
@@ -71,12 +71,8 @@ class Game extends React.Component{
             //listen to the websocket closing status
             this.websocket.onclose = () => {
                 console.log('WebSocket Client Closed');
-                this.setState(({
-                    isEnd : true,
-                    isVisible : true
-                }))
             }
-        }, 30000);
+        }, SERVER ? 0 : 30000);
 
         //listen to the user's keyboard inputs
         document.addEventListener('keydown', (event) => {

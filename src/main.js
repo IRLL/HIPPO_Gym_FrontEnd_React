@@ -79,7 +79,7 @@ class Main extends React.Component{
             }))
              this.fetchFormData();
         }else {
-            history.push(REDIRECT);
+            window.open(REDIRECT, "_self") //to open new page
         }
     }
 
