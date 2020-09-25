@@ -51,8 +51,8 @@ Response status code and body format:
 ```json
 200 OK
 {
-    "page" : , #html content body
-    "css" :  , #css content
+    "page" : , //html content body
+    "css" :  , //css content to apply on the page
 }
 ```
 ### 2.Submit the forms and get the next pre-game page ``https://api.irll.net/next`` POST
@@ -60,8 +60,8 @@ Response status code and body format:
 ```json
 200 OK
 {
-    "page" : , #html content body
-    "css" :  , #css content
+    "page" : , //html content body
+    "css" :  , //css content to apply on the page
 }
 ```
 Getting started
