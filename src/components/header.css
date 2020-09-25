@@ -1,3 +1,25 @@
 .irllLogo {
     margin-left: 15%;
 }
+
+.menu {
+    display: inline-flex;
+    list-style: none;
+    font-size: 18px;
+    font-family: "Arial",sans-serif;
+    font-weight: 700;
+    margin : auto;
+}
+
+.menu li {
+    display: list-item;
+    padding: 10px;
+}
+
+a {
+    color: rgba(0,0,0,0.7);
+}
+
+a:hover {
+    color : black;
+}

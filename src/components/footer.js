@@ -18,8 +18,12 @@ class Footer extends React.Component{
                         </p>
                     </Col>
                     <Col flex={2}>
-                        <img className="UAlogo" src={process.env.PUBLIC_URL + '/ualberta.png'} alt="ualberta-logo" width="213" height="50"/>
-                        <img className="AmiiLogo" src={process.env.PUBLIC_URL + '/amii.png'} alt="amii-logo" width="97" height="75"/>
+                        <a href="https://ualberta.ca" target="_blank" rel="noopener noreferrer">
+                            <img className="UAlogo" src={process.env.PUBLIC_URL + '/ualberta.png'} alt="ualberta-logo" width="213" height="50"/>
+                        </a>
+                        <a href="https://amii.ca" target="_blank" rel="noopener noreferrer">
+                            <img className="AmiiLogo" src={process.env.PUBLIC_URL + '/amii.png'} alt="amii-logo" width="97" height="75"/>
+                        </a>
                     </Col>
                 </Row>
             </footer>
