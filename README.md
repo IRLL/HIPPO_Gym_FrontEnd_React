@@ -39,7 +39,31 @@ How it works
 ## Demo Video
 https://youtu.be/FbG0uGlwDoQ
 
-
+## API
+### 1.Get the first pre-game page ``https://api.irll.net/next/`` GET
+```json
+    params : {
+        "projectId" : ,
+        "userId" : 
+    }
+```
+Response status code and body format:
+```json
+200 OK
+{
+    "page" : , #html content body
+    "css" :  , #css content
+}
+```
+### 2.Submit the forms and get the next pre-game page ``https://api.irll.net/next`` POST
+Response status code and body format:
+```json
+200 OK
+{
+    "page" : , #html content body
+    "css" :  , #css content
+}
+```
 Getting started
 ===============
 
