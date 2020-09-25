@@ -50,9 +50,11 @@ https://youtu.be/FbG0uGlwDoQ
 Response status code and body format:
 ```json
 200 OK
-{
-    "page" : , //html content body
-    "css" :  , //css content to apply on the page
+{   
+    # html content body
+    "page" : ,
+    # css content to apply on the page
+    "css" :  ,
 }
 ```
 ### 2.Submit the forms and get the next pre-game page ``https://api.irll.net/next`` POST
