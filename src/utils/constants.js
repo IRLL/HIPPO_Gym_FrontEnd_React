@@ -13,7 +13,7 @@ if(host === "localhost"){
 export const SERVER = params.get('server');
 export const REDIRECT = SERVER && redirect ? redirect : "https://irll.ca/";
 export const PROJECT_ID = SERVER ? "" : params.get('projectId');
-export const CSS_PATH = SERVER ? params.get('css') : "";
+export const CSS_PATH = params.get('css');
 export const USER_ID = SERVER && userId ? userId : uuidv4();
 export const WS_URL = SERVER ? SERVER : `wss://${USER_ID}.${host}:5000`;
 

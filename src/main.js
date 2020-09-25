@@ -19,14 +19,13 @@ class Main extends React.Component{
         isGame : SERVER ? true : false,          //if current page is the game page
         isWait : false,          //if the websocket server has been resolved
         isEnd : false,           //if the game is ended,
-        ifError : false,
-        ifRedirect : SERVER && REDIRECT ? true : false,
-        cssContent : ""
+        ifError : false,         //if there are any error happenes
+        ifRedirect : SERVER && REDIRECT ? true : false,  //if redirect to another url after game ends
     }
 
     componentDidMount(){
         if(!SERVER) this.fetchFormData();
-        if(CSS_PATH) this.fetchCSS();
+        if(CSS_PATH) this.setCSS();
     }
 
     componentDidUpdate(prevState){
@@ -35,12 +34,14 @@ class Main extends React.Component{
         }
     }
 
-    fetchCSS = () => {
-        axios.get(CSS_PATH).then(res => {
-            this.setState(({
-                cssContent : res.data
-            }))
-        })
+    setCSS = () => {
+        let head  = document.getElementsByTagName('head')[0];
+        let link  = document.createElement('link');
+        link.rel  = 'stylesheet';
+        link.type = 'text/css';
+        link.href = CSS_PATH;
+        link.media = 'all';
+        head.appendChild(link);
     }
 
     //send GET requests to api endpoint
