@@ -50,13 +50,20 @@ params : {
 }
 ```
 Response status code and body format:
+
+**200 OK**
 ```
-200 OK
 {   
     # html content body
     "page" : ,
     # css content to apply on the page
     "css" :  ,
+}
+```
+**400 Bad Request**
+```
+{
+    "Project ID Not Found"
 }
 ```
 ### 2.Submit the forms and get the next pre-game page ``https://api.irll.net/next`` POST
@@ -76,8 +83,8 @@ form content example
 }
 ```
 Response status code and body format:
+**200 OK**
 ```
-200 OK
 {
     # html content body
     "page" : ,
