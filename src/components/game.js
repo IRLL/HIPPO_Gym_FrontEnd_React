@@ -171,9 +171,9 @@ class Game extends React.Component{
                     onOk={this.handleOk}
                     onCancel={this.handleCancel}
                     >
-                    <p>The game has ended</p>
-                    <p>Press <b>"Cancel"</b> to stay on this page</p>
-                    <p>Press <b>"OK"</b> to move to next step</p>
+                    <p className="modal">The game has ended</p>
+                    <p className="modal">Press <b>"Cancel"</b> to stay on this page</p>
+                    <p className="modal">Press <b>"OK"</b> to move to next step</p>
                 </Modal>
                 {!isLoading ? 
                     <ControlPanel 
