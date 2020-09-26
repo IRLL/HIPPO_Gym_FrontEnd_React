@@ -12,15 +12,15 @@ import {RLAPI, SERVER, PROJECT_ID, USER_ID, REDIRECT, CSS_PATH} from './utils/co
 class Main extends React.Component{
 
     state = {
-        formContent : "",        //html content
+        formContent : "",                                 //html body content
         userId : USER_ID,
         projectId : PROJECT_ID,
-        isLoading : SERVER ? false : true,        //used to wait for http requests finished
-        isGame : SERVER ? true : false,          //if current page is the game page
-        isWait : false,          //if the websocket server has been resolved
-        isEnd : false,           //if the game is ended,
-        ifError : false,         //if there are any error happenes
-        ifRedirect : SERVER && REDIRECT ? true : false,  //if redirect to another url after game ends
+        isLoading : SERVER ? false : true,                //used to wait for http requests finished
+        isGame : SERVER ? true : false,                   //if current page is the game page
+        isWait : false,                                   //if the websocket server has been resolved
+        isEnd : false,                                    //if the game is ended,
+        ifError : false,                                  //if there are any error happenes
+        ifRedirect : SERVER && REDIRECT ? true : false,   //if redirect to another url after game ends
     }
 
     componentDidMount(){
@@ -29,11 +29,13 @@ class Main extends React.Component{
     }
 
     componentDidUpdate(prevState){
+        //always scroll the page to the top when moving to next page
         if(prevState.formContent !== this.state.formContent){
             window.scrollTo(0, 0);
         }
     }
 
+    //apply the external css file to the page
     setCSS = () => {
         let head  = document.getElementsByTagName('head')[0];
         let link  = document.createElement('link');
@@ -59,7 +61,7 @@ class Main extends React.Component{
                     isGame : true,
                     isWait : false
                 }))
-            //"wait" means the websocket's DNS has not been resolved yet
+            //"wait" means the websocket's ip address has not been resolved yet
             }else if(res.data.page !== "wait"){
                 this.setState(({
                     formContent : res.data.page,
@@ -71,6 +73,7 @@ class Main extends React.Component{
                 isLoading : false,
                 isError : true
             }));
+            //handle projectId does not exist error
             if(error.response){
                 if (error.response.status === 400){
                     message.error(`The projectId is not valid or does not exist, please try again!`,5)
@@ -93,6 +96,7 @@ class Main extends React.Component{
         }
     }
 
+    //submit the form content and fetch the next page
     handleSubmit = (event) => {
         this.setState(({
             isLoading : true
@@ -137,6 +141,7 @@ class Main extends React.Component{
                 }))
             }
         }).catch((error) => {
+            //handle projectId does not exist error
             if(error.response){
                 if (error.response.status === 400){
                     message.error(`The projectId is not valid or does not exist, please try again!`,5)
