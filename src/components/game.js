@@ -76,10 +76,12 @@ class Game extends React.Component{
 
         //listen to the user's keyboard inputs
         document.addEventListener('keydown', (event) => {
-            if([32, 37, 38, 39, 40].indexOf(event.keyCode) > -1) {
+            //Used to prevent arrow keys scrolling the page
+            let dataToSend = getKeyInput(event.code);
+            if(dataToSend.actionType !== null){
                 event.preventDefault();
             }
-            let dataToSend = getKeyInput(event.code);
+            
             if(this.state.UIlist.includes(dataToSend.action)){
                 this.sendMessage(dataToSend);
                 document.getElementById(dataToSend.action).focus();
