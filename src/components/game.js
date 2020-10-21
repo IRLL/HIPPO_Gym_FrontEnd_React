@@ -29,7 +29,7 @@ class Game extends React.Component{
             //connect the websocket server
             this.websocket = new W3CWebSocket(WS_URL);
             this.websocket.onopen = () => {
-                clearTimeout(this.timer);
+                clearInterval(this.timer);
                 console.log('WebSocket Client Connected');
                 this.setState(({
                     isLoading : false
