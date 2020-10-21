@@ -61,6 +61,8 @@ class Main extends React.Component{
                     isGame : true,
                     isWait : false
                 }))
+                if(this.wait) clearInterval(this.wait);
+                
             //"wait" means the websocket's ip address has not been resolved yet
             }else if(res.data.page !== "wait"){
                 this.setState(({
@@ -148,10 +150,6 @@ class Main extends React.Component{
                 }
             }
         });
-    }
-
-    componentWillUnmount(){
-        clearTimeout(this.wait);
     }
 
     render(){
