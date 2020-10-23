@@ -2,7 +2,7 @@ import React from 'react';
 import "antd/dist/antd.css";
 import './main.css';
 import axios from 'axios';
-import {Spin, message, Result} from 'antd';
+import {Spin, Result} from 'antd';
 import Header from './components/header';
 import Footer from './components/footer';
 import Forum from './components/forum';
