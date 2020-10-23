@@ -1,7 +1,7 @@
 import React from 'react';
 import 'antd/dist/antd.css';
 import './game.css';
-import {message, Spin, Modal } from 'antd';
+import {message, Modal, Progress } from 'antd';
 import { w3cwebsocket as W3CWebSocket } from "websocket";
 import {browserName,osName,browserVersion,osVersion} from 'react-device-detect';
 import getKeyInput from '../utils/getKeyInput';
@@ -17,11 +17,18 @@ class Game extends React.Component{
         frameSrc : "",
         isLoading : true,
         isEnd : false,
+        isConnection : false,
         isVisible : false,
         UIlist : [],
+        progress : 0
     }
 
     componentDidMount() {
+        this.updateProgress = setInterval(() => 
+            this.setState(prevState => ({
+                progress : prevState.progress+(100/30)
+            }))
+        ,1000)
         //To ensure the websocket server is ready to connect
         //we try to connect the webscoket server periodically
         //for every 30 seconds until the connection has been established
@@ -30,9 +37,11 @@ class Game extends React.Component{
             this.websocket = new W3CWebSocket(WS_URL);
             this.websocket.onopen = () => {
                 clearInterval(this.timer);
+                clearInterval(this.updateProgress);
                 console.log('WebSocket Client Connected');
                 this.setState(({
-                    isLoading : false
+                    isLoading : false,
+                    isConnection : true
                 }))
                 this.sendMessage({
                     userId : USER_ID,
@@ -71,6 +80,9 @@ class Game extends React.Component{
             //listen to the websocket closing status
             this.websocket.onclose = () => {
                 console.log('WebSocket Client Closed');
+                this.setState(({
+                    isConnection : false
+                }))
             }
         }, SERVER ? 0 : 30000);
 
@@ -86,6 +98,9 @@ class Game extends React.Component{
                 this.sendMessage(dataToSend);
             }
         })
+        if(!SERVER){
+            message.info("You may control the robot with arrow keys or W(Up) A(Left) S(Down) D(Right)",30);
+        }
     }
 
     //change the confirmation modal to be invisible
@@ -107,12 +122,14 @@ class Game extends React.Component{
 
     //send data to websocket server in JSON format
     sendMessage = (data) => {
-        const allData = {
-            ...data,
-            frameCount : this.state.frameCount,
-            frameId : this.state.frameId
+        if(this.state.isConnection){
+            const allData = {
+                ...data,
+                frameCount : this.state.frameCount,
+                frameId : this.state.frameId
+            }
+            this.websocket.send(JSON.stringify(allData));
         }
-        this.websocket.send(JSON.stringify(allData));
     }
 
     //send game control commands to the websocket server
@@ -156,13 +173,16 @@ class Game extends React.Component{
     }
 
     render() {
-        const {isLoading, frameSrc, frameRate, isEnd, UIlist} = this.state;
+        const {isLoading, frameSrc, frameRate, isEnd, UIlist, progress} = this.state;
 
         return (
             <div>
                 <div className="gameWindow">
                     {isLoading || !frameSrc ?
-                    <Spin className="Loader" size = "large" tip="The robot is about to start the game, please wait ..." /> 
+                    <div className="progressBar">
+                        <Progress width={80} type="circle" percent={Math.round(progress)}/>
+                        <p className="promptText">The robot is about to start the game, please wait ...</p> 
+                    </div>
                     : <img className="gameContent" src={frameSrc} alt="frame" width="700px" height="600px" />
                     }
                 </div>
