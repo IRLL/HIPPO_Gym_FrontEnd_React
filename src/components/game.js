@@ -5,7 +5,7 @@ import {message, Modal, Progress } from 'antd';
 import { w3cwebsocket } from "websocket";
 import {browserName,osName,browserVersion,osVersion} from 'react-device-detect';
 import getKeyInput from '../utils/getKeyInput';
-import {WS_URL, USER_ID, PROJECT_ID, SERVER, DEBUG} from '../utils/constants';
+import {WS_URL, USER_ID, PROJECT_ID, SERVER} from '../utils/constants';
 import ControlPanel from './control';
 
 const pendingTime = 30;
