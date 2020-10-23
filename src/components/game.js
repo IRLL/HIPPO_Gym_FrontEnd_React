@@ -24,6 +24,9 @@ class Game extends React.Component{
     }
 
     componentDidMount() {
+        //To update the progress of loading game content
+        //Since we always need to wait 30 seconds before the game
+        //content get loaded, we update the progress (100/30) per second
         this.updateProgress = setInterval(() => 
             this.setState(prevState => ({
                 progress : prevState.progress+(100/30)
@@ -36,6 +39,8 @@ class Game extends React.Component{
             //connect the websocket server
             this.websocket = new W3CWebSocket(WS_URL);
             this.websocket.onopen = () => {
+                //Once the websocket connection has been established
+                //we remove all the unnecessary timer
                 clearInterval(this.timer);
                 clearInterval(this.updateProgress);
                 console.log('WebSocket Client Connected');
@@ -60,11 +65,13 @@ class Game extends React.Component{
                 //parse the data from the websocket server
                 }else{
                     let parsedData = JSON.parse(message.data);
+                    //Check if filed UI in response
                     if(parsedData.UI){
                         this.setState(({
                             UIlist : parsedData.UI
                         }))
                     }
+                    //Check if field frame in response
                     if(parsedData.frame){
                         let frame = parsedData.frame;
                         let frameId = parsedData.frameId;
@@ -88,7 +95,7 @@ class Game extends React.Component{
 
         //listen to the user's keyboard inputs
         document.addEventListener('keydown', (event) => {
-            //Used to prevent arrow keys scrolling the page
+            //Used to prevent arrow keys and space key from scrolling the page
             let dataToSend = getKeyInput(event.code);
             if(dataToSend.actionType !== null){
                 event.preventDefault();
@@ -98,9 +105,6 @@ class Game extends React.Component{
                 this.sendMessage(dataToSend);
             }
         })
-        if(!SERVER){
-            message.info("You may control the robot with arrow keys or W(Up) A(Left) S(Down) D(Right)",30);
-        }
     }
 
     //change the confirmation modal to be invisible
