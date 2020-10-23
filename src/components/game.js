@@ -2,11 +2,13 @@ import React from 'react';
 import 'antd/dist/antd.css';
 import './game.css';
 import {message, Modal, Progress } from 'antd';
-import { w3cwebsocket as W3CWebSocket } from "websocket";
+import { w3cwebsocket } from "websocket";
 import {browserName,osName,browserVersion,osVersion} from 'react-device-detect';
 import getKeyInput from '../utils/getKeyInput';
-import {WS_URL, USER_ID, PROJECT_ID, SERVER} from '../utils/constants';
+import {WS_URL, USER_ID, PROJECT_ID, SERVER, DEBUG} from '../utils/constants';
 import ControlPanel from './control';
+
+const pendingTime = 30;
 
 class Game extends React.Component{
     
@@ -15,7 +17,7 @@ class Game extends React.Component{
         frameId : 0,
         frameRate : 30,
         frameSrc : "",
-        isLoading : true,
+        isLoading : !SERVER ? true : false,
         isEnd : false,
         isConnection : false,
         isVisible : false,
@@ -29,19 +31,19 @@ class Game extends React.Component{
         //content get loaded, we update the progress (100/30) per second
         this.updateProgress = setInterval(() => 
             this.setState(prevState => ({
-                progress : prevState.progress+(100/30)
+                progress : prevState.progress+(100/pendingTime)
             }))
         ,1000)
         //To ensure the websocket server is ready to connect
         //we try to connect the webscoket server periodically
         //for every 30 seconds until the connection has been established
-        this.timer = setInterval(() => {
+        this.timer = setTimeout(() => {
             //connect the websocket server
-            this.websocket = new W3CWebSocket(WS_URL);
+            this.websocket = new w3cwebsocket(WS_URL);
             this.websocket.onopen = () => {
                 //Once the websocket connection has been established
                 //we remove all the unnecessary timer
-                clearInterval(this.timer);
+                clearTimeout(this.timer);
                 clearInterval(this.updateProgress);
                 console.log('WebSocket Client Connected');
                 this.setState(({
@@ -91,7 +93,7 @@ class Game extends React.Component{
                     isConnection : false
                 }))
             }
-        }, SERVER ? 0 : 30000);
+        }, SERVER ? 0 : pendingTime * 1000);
 
         //listen to the user's keyboard inputs
         document.addEventListener('keydown', (event) => {

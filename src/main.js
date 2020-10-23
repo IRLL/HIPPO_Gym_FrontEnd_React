@@ -19,7 +19,7 @@ class Main extends React.Component{
         isGame : SERVER ? true : false,                   //if current page is the game page
         isWait : false,                                   //if the websocket server has been resolved
         isEnd : false,                                    //if the game is ended,
-        ifError : false,                                  //if there are any error happenes
+        ifError : false,                                  //if there are any error occur
         ifRedirect : SERVER && REDIRECT ? true : false,   //if redirect to another url after game ends
     }
 
