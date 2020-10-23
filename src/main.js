@@ -2,7 +2,7 @@ import React from 'react';
 import "antd/dist/antd.css";
 import './main.css';
 import axios from 'axios';
-import {Spin, message} from 'antd';
+import {Spin, message, Result} from 'antd';
 import Header from './components/header';
 import Footer from './components/footer';
 import Forum from './components/forum';
@@ -71,14 +71,13 @@ class Main extends React.Component{
                 }))
             }
         }).catch((error) => {
-            this.setState(({
-                isLoading : false,
-                isError : true
-            }));
             //handle projectId does not exist error
             if(error.response){
                 if (error.response.status === 400){
-                    message.error(`The projectId is not valid or does not exist, please try again!`,5)
+                    this.setState(({
+                        isLoading : false,
+                        isError : true
+                    }));
                 }
             }
         })
@@ -146,7 +145,10 @@ class Main extends React.Component{
             //handle projectId does not exist error
             if(error.response){
                 if (error.response.status === 400){
-                    message.error(`The projectId is not valid or does not exist, please try again!`,5)
+                    this.setState(({
+                        isLoading : false,
+                        isError : true
+                    }))
                 }
             }
         });
@@ -154,17 +156,27 @@ class Main extends React.Component{
 
     render(){
         const {isLoading,formContent,isGame,isWait, isEnd, isError} = this.state;
-
-        const preGame = <div className="forumContainer">
-                            {isLoading && !isError ? 
-                            <Spin className="Loader" size = "large" tip={isWait ?  
-                                "Waitting for the robot to wake up, please wait ..." :
-                                "Loading next step, please wait ..."} 
-                            /> :
-                            <Forum content={formContent} action={this.handleSubmit} isEnd={isEnd} isError={isError}/> 
-                            }
-                        </div>
-                            
+        let preGame;
+        if(isError){
+            preGame = 
+            <Result
+                className="errorResponse"
+                status="404"
+                title="The projectId is not valid or does not exist, please try again!"
+            />
+        }else{
+            preGame = 
+                <div className="forumContainer">
+                    {isLoading ? 
+                    <Spin className="Loader" size = "large" tip={isWait ?  
+                        "Waitting for the robot to wake up, please wait ..." :
+                        "Loading next step, please wait ..."} 
+                    /> :
+                    <Forum content={formContent} action={this.handleSubmit} isEnd={isEnd} isError={isError}/> 
+                    }
+                </div>
+        }
+             
         return (
             <div className="mainContainer">
                 <Header />
