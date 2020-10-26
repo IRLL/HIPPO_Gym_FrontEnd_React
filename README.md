@@ -130,7 +130,7 @@ You need to install the following software:
 
 ### Clone
 
-* Clone this repo to your local machine using `git clone https://github.com/IRLL-Org/RL_framework_frontend.git`
+* Clone this repo to your local machine using `git clone https://github.com/IRLL/HIPPO_Gym_FrontEnd_React.git`
 
 ### Structure
     
@@ -203,7 +203,7 @@ We have introduced the selective UI to our ControlPanel to meet different requir
     - Fps Set
  
 [header.js](./src/components/header.js)
-Header component that will be rendered on every pages of our framework. We only have a irll logo for now.
+Header component that will be rendered on every pages of our framework. We only have a irll logo and a step bar to indicate the current step for now.
 
 [footer.js](./src/components/footer.js)
 Footer component that will be rendered on every pages of our framework. We have logos for ualberta and amii.
