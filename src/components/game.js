@@ -22,10 +22,25 @@ class Game extends React.Component{
         isConnection : false,
         isVisible : false,
         UIlist : [],
-        progress : 0
+        progress : 0,
+        allData : null
     }
 
     componentDidMount() {
+
+        //Running a check every 1/100 second(10 millisecond)
+        //If allData is not null then send the message
+        //otherwise just wait until next checking
+        this.sendData = setInterval(() => {
+            if(this.state.allData && this.state.isConnection){
+                console.log(this.state.allData);
+                this.websocket.send(JSON.stringify(this.state.allData));
+                this.setState(({
+                    allData : null
+                }))
+            }
+        }, 10);
+
         //To update the progress of loading game content
         //Since we always need to wait 30 seconds before the game
         //content get loaded, we update the progress (100/30) per second
@@ -109,6 +124,10 @@ class Game extends React.Component{
         })
     }
 
+    componentWillUnmount() {
+        clearInterval(this.sendData);
+    }
+
     //change the confirmation modal to be invisible
     //navigate to the post-game page
     handleOk = e => {
@@ -134,7 +153,9 @@ class Game extends React.Component{
                 frameCount : this.state.frameCount,
                 frameId : this.state.frameId
             }
-            this.websocket.send(JSON.stringify(allData));
+            this.setState(({
+                allData : allData
+            }))
         }
     }
 
