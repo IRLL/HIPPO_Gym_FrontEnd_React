@@ -20,7 +20,8 @@ class Main extends React.Component{
         isWait : false,                                   //if the websocket server has been resolved
         isEnd : false,                                    //if the game is ended,
         ifError : false,                                  //if there are any error occur
-        ifRedirect : SERVER && REDIRECT ? true : false,   //if redirect to another url after game ends
+        ifRedirect : SERVER && REDIRECT ? true : false,   //if redirect to another url after game ends,
+        step : 0
     }
 
     componentDidMount(){
@@ -91,6 +92,9 @@ class Main extends React.Component{
                 isGame : false,
                 isEnd : true
             }))
+            this.setState(prevState => ({
+                step : prevState.step+1
+            }));
              this.fetchFormData();
         }else {
             window.open(REDIRECT, "_self") //to open new page
@@ -101,6 +105,9 @@ class Main extends React.Component{
     handleSubmit = (event) => {
         this.setState(({
             isLoading : true
+        }))
+        this.setState(prevState => ({
+            step : prevState.step+1
         }))
 
         //collect the user's input from the forum
@@ -155,7 +162,7 @@ class Main extends React.Component{
     }
 
     render(){
-        const {isLoading,formContent,isGame,isWait, isEnd, isError} = this.state;
+        const {isLoading,formContent,isGame,isWait, isEnd, isError, step} = this.state;
         let preGame;
         if(isError){
             preGame = 
@@ -179,7 +186,7 @@ class Main extends React.Component{
              
         return (
             <div className="mainContainer">
-                <Header />
+                <Header step={step} />
                 {!isGame ? preGame : <Game action={this.gameEndHandler} />}
                 <Footer />
             </div>   
