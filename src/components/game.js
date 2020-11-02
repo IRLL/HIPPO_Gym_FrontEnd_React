@@ -23,7 +23,9 @@ class Game extends React.Component{
         isVisible : false,
         UIlist : [],
         progress : 0,
-        allData : null
+        allData : null,
+        totalBudget : 20,
+        consumedbudget : 10
     }
 
     componentDidMount() {
@@ -200,7 +202,7 @@ class Game extends React.Component{
     }
 
     render() {
-        const {isLoading, frameSrc, frameRate, isEnd, UIlist, progress} = this.state;
+        const {isLoading, frameSrc, frameRate, isEnd, UIlist, progress, totalBudget, consumedbudget} = this.state;
 
         return (
             <div>
@@ -213,6 +215,19 @@ class Game extends React.Component{
                     : <img className="gameContent" src={frameSrc} alt="frame" width="700px" height="600px" />
                     }
                 </div>
+                {totalBudget > 0 ? 
+                <div className="budgetBar" >
+                    <Progress 
+                    strokeColor={{
+                        '0%': '#108ee9',
+                        '100%': '#87d068',
+                    }} percent={Math.round(consumedbudget/totalBudget)} 
+                    showInfo={false}
+                    /> 
+                    <p className="budgetCount">{`${consumedbudget}/${totalBudget}`}</p>
+                </div>
+                : null}
+               
                 <Modal
                     title="Game end message"
                     visible={this.state.isVisible}
