@@ -1,0 +1,14 @@
+.budgetBar{
+    width : 705px;
+    display: flex;
+    flex-direction: row; 
+    justify-content: center;
+    align-items: center;
+    margin: auto;
+}   
+
+.budgetCount{
+    margin-top:15px;
+    margin-left: 10px;
+    font-weight: bold;
+}

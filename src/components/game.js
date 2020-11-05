@@ -7,6 +7,7 @@ import {browserName,osName,browserVersion,osVersion} from 'react-device-detect';
 import getKeyInput from '../utils/getKeyInput';
 import {WS_URL, USER_ID, PROJECT_ID, SERVER} from '../utils/constants';
 import ControlPanel from './control';
+import BudgetBar from './budgetBar';
 
 const pendingTime = 30;
 
@@ -35,7 +36,6 @@ class Game extends React.Component{
         //otherwise just wait until next checking
         this.sendData = setInterval(() => {
             if(this.state.allData && this.state.isConnection){
-                console.log(this.state.allData);
                 this.websocket.send(JSON.stringify(this.state.allData));
                 this.setState(({
                     allData : null
@@ -215,17 +215,8 @@ class Game extends React.Component{
                     : <img className="gameContent" src={frameSrc} alt="frame" width="700px" height="600px" />
                     }
                 </div>
-                {totalBudget > 0 ? 
-                <div className="budgetBar" >
-                    <Progress 
-                    strokeColor={{
-                        '0%': '#108ee9',
-                        '100%': '#87d068',
-                    }} percent={Math.round(consumedbudget/totalBudget)} 
-                    showInfo={false}
-                    /> 
-                    <p className="budgetCount">{`${consumedbudget}/${totalBudget}`}</p>
-                </div>
+                {totalBudget > 0 && !isLoading ? 
+                    <BudgetBar consumedbudget={consumedbudget} totalBudget={totalBudget} /> 
                 : null}
                
                 <Modal
