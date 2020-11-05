@@ -176,12 +176,17 @@ class Game extends React.Component{
                 browser : browserName,
                 browserVersion : browserVersion,
             })
-        }else if (status === "stop" || status === "pause"){
-            this.sendMessage({
-                command : status
-            })   
-        }
-        else{
+        }else{
+            if(["good","bad"].includes(status) && this.state.totalBudget > 0){
+                if(this.state.consumedbudget < this.state.totalBudget){
+                    this.setState(prevState => ({
+                        consumedbudget : prevState.consumedbudget + 1
+                    }))
+                }else{
+                    message.error("You have consumed all the reward budget!",3);
+                    return;
+                }
+            }
             this.sendMessage({
                 command : status
             })

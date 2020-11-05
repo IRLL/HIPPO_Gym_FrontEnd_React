@@ -10,11 +10,3 @@
 .Loader {
     font-size: 18px;
 }
-
-.errorResponse{
-    justify-content: center;
-    align-items: center;
-    flex-direction: column; 
-    margin: auto;
-    min-height: 650px;
-}
