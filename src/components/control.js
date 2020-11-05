@@ -8,7 +8,7 @@ import capitalize from '../utils/capitalize';
 class ControlPanel extends React.Component{
 
     render(){
-        const {isEnd, frameRate, UIlist} = this.props;
+        const {isEnd, isLoading, frameRate, UIlist} = this.props;
         const directions = ['left','leftUp','up','rightUp','down','leftDown','rightDown','fire','right'];
         const commands = ['start','pause','stop','reset','good','bad','trainOnline','trainOffline']
         const fps = ['fpsUp','fpsDown','fpsSet']
@@ -65,24 +65,27 @@ class ControlPanel extends React.Component{
             }
         })
         return(
-            <div className="controlPanel">
-                <div className="panelContainer">
-                <Row gutter={[4, 8]}>
-                    {firstRow}
-                </Row>
-                <Row gutter={[4, 8]}>
-                    {secondRow}                 
-                </Row>
-                <Row gutter={[4,8]}>
-                    {thirdRow}
-                    <Col key="nextStep">
-                    {isEnd ? <Tooltip placement="bottom" title="Move to next step" arrowPointAtCenter>
-                                <Button id="nextStep" type="primary" shape="round" size="large" icon={icons['next']} onClick={this.props.handleOk}>Next</Button>
-                            </Tooltip> : null}
-                    </Col>
-                </Row>
-                </div>
-            </div>
+            <div>
+                {!isLoading ? <div className="controlPanel" >
+                    <div className="panelContainer">
+                        <Row gutter={[4, 8]}>
+                            {firstRow}
+                        </Row>
+                        <Row gutter={[4, 8]}>
+                            {secondRow}                 
+                        </Row>
+                        <Row gutter={[4,8]}>
+                            {thirdRow}
+                            <Col key="nextStep">
+                            {isEnd ? <Tooltip placement="bottom" title="Move to next step" arrowPointAtCenter>
+                                        <Button id="nextStep" type="primary" shape="round" size="large" icon={icons['next']} onClick={this.props.handleOk}>Next</Button>
+                                    </Tooltip> : null}
+                            </Col>
+                        </Row>
+                    </div> 
+                </div> : null 
+                }
+            </div>  
         )
     }
 

@@ -1,13 +1,14 @@
 import React from 'react';
 import 'antd/dist/antd.css';
 import './game.css';
-import {message, Modal, Progress } from 'antd';
+import {message, Modal } from 'antd';
 import { w3cwebsocket } from "websocket";
 import {browserName,osName,browserVersion,osVersion} from 'react-device-detect';
 import getKeyInput from '../utils/getKeyInput';
 import {WS_URL, USER_ID, PROJECT_ID, SERVER} from '../utils/constants';
 import ControlPanel from './control';
 import BudgetBar from './budgetBar';
+import GameWindow from './gameWindow';
 
 const pendingTime = 30;
 
@@ -202,26 +203,28 @@ class Game extends React.Component{
     }
 
     render() {
-        const {isLoading, frameSrc, frameRate, isEnd, UIlist, progress, totalBudget, consumedbudget} = this.state;
+        const {isLoading, frameSrc, frameRate, isEnd, UIlist, progress, isVisible, totalBudget, consumedbudget} = this.state;
 
         return (
             <div>
-                <div className="gameWindow">
-                    {isLoading || !frameSrc ?
-                    <div className="progressBar">
-                        <Progress width={80} type="circle" percent={Math.round(progress)}/>
-                        <p className="promptText">The robot is about to start the game, please wait ...</p> 
-                    </div>
-                    : <img className="gameContent" src={frameSrc} alt="frame" width="700px" height="600px" />
-                    }
-                </div>
-                {totalBudget > 0 && !isLoading ? 
-                    <BudgetBar consumedbudget={consumedbudget} totalBudget={totalBudget} /> 
-                : null}
-               
+                <GameWindow isLoading={isLoading} frameSrc={frameSrc} progress={progress} />
+                
+                <BudgetBar visible={totalBudget>0} isLoading={isLoading} consumedbudget={consumedbudget} totalBudget={totalBudget} /> 
+                
+                <ControlPanel 
+                    isEnd={isEnd} 
+                    isLoading={isLoading}
+                    frameRate={frameRate} 
+                    UIlist={UIlist} 
+                    handleOk={this.handleOk} 
+                    handleFPS={this.handleFPS}
+                    handleCommand={this.handleCommand} 
+                    sendMessage={this.sendMessage}
+                />
+
                 <Modal
                     title="Game end message"
-                    visible={this.state.isVisible}
+                    visible={isVisible}
                     onOk={this.handleOk}
                     onCancel={this.handleCancel}
                     >
@@ -229,17 +232,6 @@ class Game extends React.Component{
                     <p className="modal">Press <b>"Cancel"</b> to stay on this page</p>
                     <p className="modal">Press <b>"OK"</b> to move to next step</p>
                 </Modal>
-                {!isLoading ? 
-                    <ControlPanel 
-                        isEnd={isEnd} 
-                        frameRate={frameRate} 
-                        UIlist={UIlist} 
-                        handleOk={this.handleOk} 
-                        handleFPS={this.handleFPS}
-                        handleCommand={this.handleCommand} 
-                        sendMessage={this.sendMessage}
-                /> : null
-                }
             </div>
         )
     }
