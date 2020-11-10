@@ -8,6 +8,7 @@ import Footer from './components/footer';
 import Forum from './components/forum';
 import Game from './components/game';
 import Error400 from './components/error';
+import setCSS from './utils/setCSS';
 import {RLAPI, SERVER, PROJECT_ID, USER_ID, REDIRECT, CSS_PATH} from './utils/constants';
 
 class Main extends React.Component{
@@ -25,7 +26,7 @@ class Main extends React.Component{
 
     componentDidMount(){
         if(!SERVER) this.fetchFormData();                 //if server is not specified, load the form data
-        if(CSS_PATH) this.setCSS();                       //if css file is specified, apply the css to the page
+        if(CSS_PATH) setCSS(CSS_PATH);                       //if css file is specified, apply the css to the page
     }
 
     componentDidUpdate(prevState){
@@ -33,17 +34,6 @@ class Main extends React.Component{
         if(prevState.formContent !== this.state.formContent){
             window.scrollTo(0, 0);
         }
-    }
-
-    //apply the external css file to the page
-    setCSS = () => {
-        let head  = document.getElementsByTagName('head')[0];
-        let link  = document.createElement('link');
-        link.rel  = 'stylesheet';
-        link.type = 'text/css';
-        link.href = CSS_PATH;
-        link.media = 'all';
-        head.appendChild(link);
     }
 
     //send GET requests to api endpoint

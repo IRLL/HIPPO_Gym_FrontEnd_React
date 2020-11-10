@@ -26,8 +26,8 @@ class Game extends React.Component{
         UIlist : [],
         progress : 0,
         allData : null,
-        totalBudget : 20,
-        consumedbudget : 10
+        inputBudget : 0,
+        usedInputBudget : 0
     }
 
     componentDidMount() {
@@ -77,6 +77,7 @@ class Game extends React.Component{
             //listen to the data from the websocket server
             this.websocket.onmessage = (message) => {
                 //"done" means the game has ended
+                console.log(message);
                 if(message.data === "done"){
                     this.setState(({
                         isEnd : true,
@@ -85,6 +86,13 @@ class Game extends React.Component{
                 //parse the data from the websocket server
                 }else{
                     let parsedData = JSON.parse(message.data);
+                    //Check if budget bar should be loaded
+                    if(parsedData.inputBudget && parsedData.usedInputBudget){
+                        this.setState(({
+                            inputBudget : parsedData.inputBudget,
+                            usedInputBudget : parsedData.usedInputBudget
+                        }))
+                    }
                     //Check if filed UI in response
                     if(parsedData.UI){
                         this.setState(({
@@ -177,10 +185,10 @@ class Game extends React.Component{
                 browserVersion : browserVersion,
             })
         }else{
-            if(["good","bad"].includes(status) && this.state.totalBudget > 0){
-                if(this.state.consumedbudget < this.state.totalBudget){
+            if(["good","bad"].includes(status) && this.state.inputBudget > 0){
+                if(this.state.usedInputBudget <= this.state.inputBudget){
                     this.setState(prevState => ({
-                        consumedbudget : prevState.consumedbudget + 1
+                        usedInputBudget : prevState.usedInputBudget + 1
                     }))
                 }else{
                     message.error("You have consumed all the reward budget!",3);
@@ -208,13 +216,13 @@ class Game extends React.Component{
     }
 
     render() {
-        const {isLoading, frameSrc, frameRate, isEnd, UIlist, progress, isVisible, totalBudget, consumedbudget} = this.state;
+        const {isLoading, frameSrc, frameRate, isEnd, UIlist, progress, isVisible, inputBudget, usedInputBudget} = this.state;
 
         return (
             <div>
                 <GameWindow isLoading={isLoading} frameSrc={frameSrc} progress={progress} />
                 
-                <BudgetBar visible={totalBudget>0} isLoading={isLoading} consumedbudget={consumedbudget} totalBudget={totalBudget} /> 
+                <BudgetBar visible={inputBudget>0} isLoading={isLoading} usedInputBudget={usedInputBudget} inputBudget={inputBudget} /> 
                 
                 <ControlPanel 
                     isEnd={isEnd} 

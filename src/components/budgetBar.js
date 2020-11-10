@@ -6,7 +6,7 @@ import {Progress } from 'antd';
 class BudgetBar extends React.Component{
 
     render(){
-        const {visible, isLoading, consumedbudget, totalBudget} = this.props;
+        const {visible, isLoading, usedInputBudget, inputBudget} = this.props;
 
         return (
             <div>
@@ -16,10 +16,10 @@ class BudgetBar extends React.Component{
                         strokeColor={{
                             '0%': '#108ee9',
                             '100%': '#87d068',
-                        }} percent={Math.round(consumedbudget/totalBudget)} 
+                        }} percent={Math.round(usedInputBudget/inputBudget)} 
                         showInfo={false}
                         /> 
-                        <p className="budgetCount">{`${consumedbudget}/${totalBudget}`}</p>
+                        <p className="budgetCount">{`${usedInputBudget}/${inputBudget}`}</p>
                     </div> : null
                 }
             </div>
