@@ -24,9 +24,10 @@ class Header extends React.Component{
                         <img src={process.env.PUBLIC_URL + '/irll-logo.png'}  alt="irll-logo" width="276" height="150"/>
                     </a>
                     </Col>
+                    {/*
                     <Col flex={4}>
-                    {/*<Steps className="stepBar" current={this.props.step} > {allSteps} </Steps>*/}
-                    </Col>
+                    /*<Steps className="stepBar" current={this.props.step} > {allSteps} </Steps>
+                    </Col>*/}
                 </Row>
                 <Divider />
             </header>
