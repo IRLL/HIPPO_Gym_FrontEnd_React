@@ -1,4 +1,4 @@
-.gameWindow{
+.gameWindowCenter{
     height: 605px;
     width : 705px;
     border : solid #1890ff;
@@ -9,12 +9,27 @@
     margin: auto;
 }
 
-.progressBar{
+.gameWindow{
+    height: 605px;
+    width : 705px;
+    border : solid #1890ff;
+    border-radius: 10px;
+}
+
+.progressBarCenter{
     display: flex;
     flex-direction: column; 
     justify-content: center;
     align-items: center;
     margin: auto;
+}
+
+.progressBar{
+    display: flex;
+    flex-direction: column; 
+    justify-content: center;
+    align-items: center;
+    margin-top: 35%;
 }
 
 .promptText {

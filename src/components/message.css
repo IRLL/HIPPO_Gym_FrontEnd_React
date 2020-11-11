@@ -1,0 +1,12 @@
+.messageContainer{
+    height : 605px;
+    width: 330px;
+    overflow : auto;
+    border : solid #389e0d;
+    border-radius: 15px;
+}
+
+.messageTitle{
+    text-align: center;
+    font-weight: bold;
+}

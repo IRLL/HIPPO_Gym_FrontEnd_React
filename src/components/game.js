@@ -1,13 +1,14 @@
 import React from 'react';
 import 'antd/dist/antd.css';
 import './game.css';
-import {message, Modal } from 'antd';
+import {message, Modal, Row, Col } from 'antd';
 import { w3cwebsocket } from "websocket";
 import {browserName,osName,browserVersion,osVersion} from 'react-device-detect';
 import getKeyInput from '../utils/getKeyInput';
-import {WS_URL, USER_ID, PROJECT_ID, SERVER} from '../utils/constants';
+import {WS_URL, USER_ID, PROJECT_ID, SERVER, DEBUG} from '../utils/constants';
 import ControlPanel from './control';
 import BudgetBar from './budgetBar';
+import MessageViewer from './MessageViewer';
 import GameWindow from './gameWindow';
 
 const pendingTime = 30;
@@ -27,20 +28,37 @@ class Game extends React.Component{
         progress : 0,
         allData : null,
         inputBudget : 0,
-        usedInputBudget : 0
+        usedInputBudget : 0,
+        receiveData : null,
+        inMessage : [],
+        outMessage : []
     }
 
     componentDidMount() {
+
+        if(DEBUG){
+            this.setInMessage = setInterval(() => {
+                if(this.state.receiveData){
+                    this.setState(prevState => ({
+                        inMessage : [prevState.receiveData,...prevState.inMessage]
+                    }))
+                }
+            },1000)
+        }
 
         //Running a check every 1/100 second(10 millisecond)
         //If allData is not null then send the message
         //otherwise just wait until next checking
         this.sendData = setInterval(() => {
             if(this.state.allData && this.state.isConnection){
+                
                 this.websocket.send(JSON.stringify(this.state.allData));
-                this.setState(({
-                    allData : null
-                }))
+                if(DEBUG){
+                    this.setState(prevState => ({
+                        outMessage : [prevState.allData,...prevState.outMessage],
+                    }))
+                }
+                this.setState(({allData : null}));
             }
         }, 10);
 
@@ -77,7 +95,6 @@ class Game extends React.Component{
             //listen to the data from the websocket server
             this.websocket.onmessage = (message) => {
                 //"done" means the game has ended
-                console.log(message);
                 if(message.data === "done"){
                     this.setState(({
                         isEnd : true,
@@ -100,7 +117,7 @@ class Game extends React.Component{
                         }))
                     }
                     //Check if field frame in response
-                    if(parsedData.frame){
+                    if(parsedData.frame && parsedData.frameId){
                         let frame = parsedData.frame;
                         let frameId = parsedData.frameId;
                         this.setState(prevState => ({
@@ -108,6 +125,11 @@ class Game extends React.Component{
                             frameCount : prevState.frameCount + 1,
                             frameId : frameId
                         }));
+                    }
+                    if(DEBUG){
+                        this.setState(({
+                            receiveData : parsedData
+                        }))
                     }
                 }
             };
@@ -137,6 +159,7 @@ class Game extends React.Component{
 
     componentWillUnmount() {
         clearInterval(this.sendData);
+        if(this.setInMessage) clearInterval(this.setInMessage);
     }
 
     //change the confirmation modal to be invisible
@@ -172,7 +195,10 @@ class Game extends React.Component{
 
     //send game control commands to the websocket server
     handleCommand = (status) => {
-        if(this.state.isLoading){
+
+        const {isLoading, inputBudget, usedInputBudget} = this.state;
+
+        if(isLoading){
             message.error("Please wait the connection to be established first!")
             return;
         }
@@ -185,8 +211,8 @@ class Game extends React.Component{
                 browserVersion : browserVersion,
             })
         }else{
-            if(["good","bad"].includes(status) && this.state.inputBudget > 0){
-                if(this.state.usedInputBudget <= this.state.inputBudget){
+            if(["good","bad"].includes(status) && inputBudget > 0){
+                if(usedInputBudget <= inputBudget){
                     this.setState(prevState => ({
                         usedInputBudget : prevState.usedInputBudget + 1
                     }))
@@ -216,11 +242,17 @@ class Game extends React.Component{
     }
 
     render() {
-        const {isLoading, frameSrc, frameRate, isEnd, UIlist, progress, isVisible, inputBudget, usedInputBudget} = this.state;
+        const {inMessage, outMessage, isLoading, frameSrc, frameRate, isEnd, UIlist, progress, isVisible, inputBudget, usedInputBudget} = this.state;
 
         return (
             <div>
-                <GameWindow isLoading={isLoading} frameSrc={frameSrc} progress={progress} />
+                <Row>
+                    <Col flex={1}><MessageViewer title="Message Out" data={outMessage} visible={DEBUG} /></Col>
+
+                    <Col flex={1}><GameWindow isLoading={isLoading} frameSrc={frameSrc} progress={progress} /></Col>
+
+                    <Col flex={1}><MessageViewer title="Message In" data={inMessage} visible={DEBUG} /></Col>
+                </Row>
                 
                 <BudgetBar visible={inputBudget>0} isLoading={isLoading} usedInputBudget={usedInputBudget} inputBudget={inputBudget} /> 
                 
