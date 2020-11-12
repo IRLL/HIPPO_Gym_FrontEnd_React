@@ -11,9 +11,9 @@ class MessageViewer extends React.Component{
         const {title, visible, data} = this.props;
 
         const objectList = [];
-        data.forEach(obj => {
+        data.forEach((obj,index) => {
             objectList.push(
-                <ReactJson collapsed iconStyle="triangle" src={obj} name={`frame: ${obj.frameId}`} />
+                <ReactJson collapsed iconStyle="triangle" src={obj} name={data.length-index} />
             )
         })
 

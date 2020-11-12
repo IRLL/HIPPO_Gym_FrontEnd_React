@@ -16,7 +16,8 @@ class BudgetBar extends React.Component{
                         strokeColor={{
                             '0%': '#108ee9',
                             '100%': '#87d068',
-                        }} percent={Math.round(usedInputBudget/inputBudget)} 
+                        }} 
+                        percent={Math.round(usedInputBudget/inputBudget)} 
                         showInfo={false}
                         /> 
                         <p className="budgetCount">{`${usedInputBudget}/${inputBudget}`}</p>

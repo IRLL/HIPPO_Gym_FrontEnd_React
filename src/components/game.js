@@ -51,8 +51,8 @@ class Game extends React.Component{
         //otherwise just wait until next checking
         this.sendData = setInterval(() => {
             if(this.state.allData && this.state.isConnection){
-                
                 this.websocket.send(JSON.stringify(this.state.allData));
+                //record every message send to the server
                 if(DEBUG){
                     this.setState(prevState => ({
                         outMessage : [prevState.allData,...prevState.outMessage],
@@ -126,6 +126,7 @@ class Game extends React.Component{
                             frameId : frameId
                         }));
                     }
+                    //record every message received from the server
                     if(DEBUG){
                         this.setState(({
                             receiveData : parsedData
