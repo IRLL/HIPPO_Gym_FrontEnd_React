@@ -30,6 +30,7 @@ class Game extends React.Component{
         inputBudget : 0,
         usedInputBudget : 0,
         receiveData : null,
+        isPause : false,
         inMessage : [],
         outMessage : []
     }
@@ -38,7 +39,7 @@ class Game extends React.Component{
 
         if(DEBUG){
             this.setInMessage = setInterval(() => {
-                if(this.state.receiveData){
+                if(this.state.receiveData && !this.state.isPause){
                     this.setState(prevState => ({
                         inMessage : [prevState.receiveData,...prevState.inMessage]
                     }))
@@ -212,6 +213,7 @@ class Game extends React.Component{
                 browserVersion : browserVersion,
             })
         }else{
+            if(status === 'pause') this.setState(prevState => ({isPause : !prevState.isPause}));
             if(["good","bad"].includes(status) && inputBudget > 0){
                 if(usedInputBudget <= inputBudget){
                     this.setState(prevState => ({
@@ -248,11 +250,11 @@ class Game extends React.Component{
         return (
             <div>
                 <Row>
-                    <Col flex={1}><MessageViewer title="Message Out" data={outMessage} visible={DEBUG} /></Col>
+                    <Col flex={1}><MessageViewer title="Message In" data={inMessage} visible={DEBUG} /></Col>
 
                     <Col flex={1}><GameWindow isLoading={isLoading} frameSrc={frameSrc} progress={progress} /></Col>
 
-                    <Col flex={1}><MessageViewer title="Message In" data={inMessage} visible={DEBUG} /></Col>
+                    <Col flex={1}><MessageViewer title="Message Out" data={outMessage} visible={DEBUG} /></Col>
                 </Row>
                 
                 <BudgetBar visible={inputBudget>0} isLoading={isLoading} usedInputBudget={usedInputBudget} inputBudget={inputBudget} /> 
