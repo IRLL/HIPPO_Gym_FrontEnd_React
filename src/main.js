@@ -3,12 +3,12 @@ import "antd/dist/antd.css";
 import './main.css';
 import axios from 'axios';
 import {Spin} from 'antd';
+import {Helmet} from "react-helmet";
 import Header from './components/header';
 import Footer from './components/footer';
 import Forum from './components/forum';
 import Game from './components/game';
 import Error400 from './components/error';
-import setCSS from './utils/setCSS';
 import {RLAPI, SERVER, PROJECT_ID, USER_ID, REDIRECT, CSS_PATH} from './utils/constants';
 
 class Main extends React.Component{
@@ -25,8 +25,7 @@ class Main extends React.Component{
     }
 
     componentDidMount(){
-        if(!SERVER) this.fetchFormData();                 //if server is not specified, load the form data
-        if(CSS_PATH) setCSS(CSS_PATH);                       //if css file is specified, apply the css to the page
+        if(!SERVER) this.fetchFormData();                 //if server is not specified, load the form data                     //if css file is specified, apply the css to the page
     }
 
     componentDidUpdate(prevState){
@@ -168,6 +167,7 @@ class Main extends React.Component{
              
         return (
             <div>
+                {CSS_PATH ? <Helmet><link rel="stylesheet" href={CSS_PATH} /></Helmet> : null}
                 <Header step={step} />
                 {!isGame ? preGame : <Game action={this.gameEndHandler} />}
                 <Footer />
