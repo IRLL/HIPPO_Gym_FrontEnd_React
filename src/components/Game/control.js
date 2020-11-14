@@ -2,8 +2,8 @@ import React from 'react';
 import 'antd/dist/antd.css';
 import './control.css';
 import { Button, Input, Tooltip, Row, Col } from 'antd';
-import {icons} from '../utils/icons';
-import capitalize from '../utils/capitalize';
+import {icons} from '../../utils/icons';
+import capitalize from '../../utils/capitalize';
 
 class ControlPanel extends React.Component{
 

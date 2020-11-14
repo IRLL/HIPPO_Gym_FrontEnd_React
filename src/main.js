@@ -4,10 +4,10 @@ import './main.css';
 import axios from 'axios';
 import {Spin} from 'antd';
 import {Helmet} from "react-helmet";
-import Header from './components/header';
-import Footer from './components/footer';
+import Header from './components/Layout/header';
+import Footer from './components/Layout/footer';
 import Forum from './components/forum';
-import Game from './components/game';
+import Game from './components/Game/game';
 import Error400 from './components/error';
 import {RLAPI, SERVER, PROJECT_ID, USER_ID, REDIRECT, CSS_PATH} from './utils/constants';
 
