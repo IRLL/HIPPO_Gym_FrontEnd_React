@@ -252,7 +252,7 @@ class Game extends React.Component{
                 <Row>
                     <Col flex={1}><MessageViewer title="Message In" data={inMessage} visible={DEBUG} /></Col>
 
-                    <Col flex={1}><GameWindow isLoading={isLoading} frameSrc={frameSrc} progress={progress} /></Col>
+                    <Col flex={2}><GameWindow isLoading={isLoading} frameSrc={frameSrc} progress={progress} /></Col>
 
                     <Col flex={1}><MessageViewer title="Message Out" data={outMessage} visible={DEBUG} /></Col>
                 </Row>

@@ -4,6 +4,9 @@
     overflow : auto;
     border : solid #389e0d;
     border-radius: 15px;
+    display: flex;
+    flex-direction: column; 
+    margin: auto;
 }
 
 .messageTitle{

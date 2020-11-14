@@ -1,24 +1,9 @@
-.gameWindowCenter{
-    height: 605px;
-    width : 705px;
-    border : solid #1890ff;
-    border-radius: 10px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin: auto;
-}
-
 .gameWindow{
     height: 605px;
     width : 705px;
     border : solid #1890ff;
     border-radius: 10px;
-}
-
-.progressBarCenter{
     display: flex;
-    flex-direction: column; 
     justify-content: center;
     align-items: center;
     margin: auto;
@@ -29,7 +14,7 @@
     flex-direction: column; 
     justify-content: center;
     align-items: center;
-    margin-top: 35%;
+    margin: auto;
 }
 
 .promptText {

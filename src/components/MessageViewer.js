@@ -24,7 +24,7 @@ class MessageViewer extends React.Component{
             </div> 
 
         return (
-            <div >
+            <div>
                 {visible ? messageWindow : null}
             </div>
         )
