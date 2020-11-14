@@ -1,6 +1,5 @@
 import React from 'react';
 import {Progress } from 'antd';
-import {DEBUG} from '../utils/constants';
 import './gameWindow.css';
 import 'antd/dist/antd.css';
 
