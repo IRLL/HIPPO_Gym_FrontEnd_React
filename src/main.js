@@ -6,9 +6,9 @@ import {Spin} from 'antd';
 import {Helmet} from "react-helmet";
 import Header from './components/Layout/header';
 import Footer from './components/Layout/footer';
-import Forum from './components/forum';
+import Forum from './components/Forum/forum';
 import Game from './components/Game/game';
-import Error400 from './components/error';
+import Error400 from './components/Error/error';
 import {RLAPI, SERVER, PROJECT_ID, USER_ID, REDIRECT, CSS_PATH} from './utils/constants';
 
 class Main extends React.Component{

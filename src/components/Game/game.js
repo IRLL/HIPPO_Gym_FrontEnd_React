@@ -6,10 +6,10 @@ import { w3cwebsocket } from "websocket";
 import {browserName,osName,browserVersion,osVersion} from 'react-device-detect';
 import getKeyInput from '../../utils/getKeyInput';
 import {WS_URL, USER_ID, PROJECT_ID, SERVER, DEBUG} from '../../utils/constants';
-import ControlPanel from './control';
-import BudgetBar from './budgetBar';
-import MessageViewer from './MessageViewer';
-import GameWindow from './gameWindow';
+import ControlPanel from '../Control/control';
+import BudgetBar from '../BudgetBar/budgetBar';
+import MessageViewer from '../Message/MessageViewer';
+import GameWindow from '../GameWindow/gameWindow';
 
 const pendingTime = 30;
 

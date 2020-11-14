@@ -1,8 +1,9 @@
 import React from 'react';
-import 'antd/dist/antd.css';
-import ReactJson from 'react-json-view'
-import './message.css';
 import {Empty} from 'antd';
+import ReactJson from 'react-json-view'
+import 'antd/dist/antd.css';
+import './message.css';
+
 
 class MessageViewer extends React.Component{
     
