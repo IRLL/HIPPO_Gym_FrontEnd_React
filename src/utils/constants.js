@@ -11,6 +11,8 @@ let debug = params.get('debug');
 
 if(host === "localhost"){ 
     host = "irll.net";
+}else if(host.includes('testing')){
+    host = host.replace('testing.','');
 }
 
 export const SERVER = params.get('server');
