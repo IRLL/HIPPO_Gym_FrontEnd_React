@@ -1,10 +1,16 @@
 .displayContainer{
     display: flex;
+    flex-direction: row;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.messageList{
+    display: flex;
     flex-flow: row wrap;
     justify-content: center;
-    align-items: center;
-    margin-top: 20px;
     font-size: 20px;
+    width: 800px;
 }
 
 .displayMessage{

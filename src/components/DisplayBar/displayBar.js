@@ -16,9 +16,9 @@ class DisplayBar extends React.Component{
         }
 
         return (
-            <div >
+            <div className="displayContainer">
                 {visible && !isLoading ? 
-                <div className="displayContainer">
+                <div className="messageList" >
                     {messageList}
                 </div> : null}
             </div>
