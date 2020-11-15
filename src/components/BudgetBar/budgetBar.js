@@ -12,13 +12,11 @@ class BudgetBar extends React.Component{
             <div>
                  {visible && !isLoading ?
                     <div className="budgetBar" >
+                        <strong>Reward Budget</strong>
                         <Progress 
-                        strokeColor={{
-                            '0%': '#108ee9',
-                            '100%': '#87d068',
-                        }} 
-                        percent={(usedInputBudget/inputBudget)*100} 
-                        showInfo={false}
+                            strokeColor={{'0%': '#108ee9','100%': '#87d068',}} 
+                            percent={(usedInputBudget/inputBudget)*100} 
+                            showInfo={false}
                         /> 
                         <p className="budgetCount">{`${usedInputBudget}/${inputBudget}`}</p>
                     </div> : null
