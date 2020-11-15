@@ -105,7 +105,7 @@ class Game extends React.Component{
                 }else{
                     let parsedData = JSON.parse(message.data);
                     //Check if budget bar should be loaded
-                    if(parsedData.inputBudget && parsedData.usedInputBudget){
+                    if(parsedData.inputBudget){
                         this.setState(({
                             inputBudget : parsedData.inputBudget,
                             usedInputBudget : parsedData.usedInputBudget
@@ -217,7 +217,7 @@ class Game extends React.Component{
         }else{
             if(status === 'pause') this.setState(prevState => ({isPause : !prevState.isPause}));
             if(["good","bad"].includes(status) && inputBudget > 0){
-                if(usedInputBudget <= inputBudget){
+                if(usedInputBudget < inputBudget){
                     this.setState(prevState => ({
                         usedInputBudget : prevState.usedInputBudget + 1
                     }))
