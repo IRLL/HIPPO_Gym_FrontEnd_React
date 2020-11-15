@@ -7,7 +7,7 @@ import ReactHtmlParser from 'react-html-parser';
 class Forum extends React.Component{
 
     render(){
-        const {isEnd, is400Error, content} = this.props;
+        const {is400Error, content} = this.props;
         
         return (
             <form onSubmit={(e) => {
@@ -19,7 +19,7 @@ class Forum extends React.Component{
                     <div className="overflowContainer">
                     {ReactHtmlParser(content)}
                     <br />
-                    {!isEnd && !is400Error ? 
+                    {!is400Error ? 
                     <Tooltip placement="top" title="Submit the form and navigate to next step" arrowPointAtCenter>
                         <Button className="submitButton" shape="round" size="large" type="primary" htmlType="submit" >Submit</Button>
                     </Tooltip> : null

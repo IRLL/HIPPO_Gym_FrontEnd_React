@@ -18,7 +18,6 @@ class Main extends React.Component{
         isLoading : SERVER ? false : true,                //used to wait for http requests finished
         isGame : SERVER ? true : false,                   //if current page is the game page
         isWait : false,                                   //if the websocket server has been resolved
-        isEnd : false,                                    //if the game is ended,
         is400Error : false,                               //if there are any error occur
         ifRedirect : SERVER && REDIRECT ? true : false,   //if redirect to another url after game ends,
         step : 0
@@ -77,8 +76,7 @@ class Main extends React.Component{
         if(!this.state.ifRedirect){
              //change the game status
             this.setState(({
-                isGame : false,
-                isEnd : true
+                isGame : false
             }))
             this.setState(prevState => ({
                 step : prevState.step+1
@@ -147,7 +145,7 @@ class Main extends React.Component{
     }
 
     render(){
-        const {isLoading,formContent,isGame,isWait, isEnd, is400Error, step} = this.state;
+        const {isLoading,formContent,isGame,isWait, is400Error, step} = this.state;
 
         let preGame;
         if(is400Error){
@@ -160,7 +158,7 @@ class Main extends React.Component{
                             "Waitting for the robot to wake up, please wait ..." :
                             "Loading next step, please wait ..."} 
                         /> :
-                        <Forum content={formContent} action={this.handleSubmit} isEnd={isEnd} is400Error={is400Error}/> 
+                        <Forum content={formContent} action={this.handleSubmit} is400Error={is400Error}/> 
                         }
                 </div>
         }
