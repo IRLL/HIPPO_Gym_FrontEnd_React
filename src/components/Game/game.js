@@ -140,7 +140,9 @@ class Game extends React.Component{
             this.websocket.onclose = () => {
                 console.log('WebSocket Client Closed');
                 this.setState(({
-                    isConnection : false
+                    isConnection : false,
+                    isEnd : true,
+                    isVisible: true
                 }))
             }
         }, SERVER ? 0 : pendingTime * 1000);
