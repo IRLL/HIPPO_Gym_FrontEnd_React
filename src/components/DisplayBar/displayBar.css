@@ -1,0 +1,12 @@
+.displayContainer{
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+    font-size: 20px;
+}
+
+.displayMessage{
+    margin-left: 10px;
+}
