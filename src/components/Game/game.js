@@ -200,9 +200,7 @@ class Game extends React.Component{
     //send game control commands to the websocket server
     handleCommand = (status) => {
 
-        const {isLoading, inputBudget, usedInputBudget} = this.state;
-
-        if(isLoading){
+        if(this.state.isLoading){
             message.error("Please wait the connection to be established first!")
             return;
         }
@@ -216,16 +214,6 @@ class Game extends React.Component{
             })
         }else{
             if(status === 'pause') this.setState(prevState => ({isPause : !prevState.isPause}));
-            if(["good","bad"].includes(status) && inputBudget > 0){
-                if(usedInputBudget < inputBudget){
-                    this.setState(prevState => ({
-                        usedInputBudget : prevState.usedInputBudget + 1
-                    }))
-                }else{
-                    message.error("You have consumed all the reward budget!",3);
-                    return;
-                }
-            }
             this.sendMessage({
                 command : status
             })
