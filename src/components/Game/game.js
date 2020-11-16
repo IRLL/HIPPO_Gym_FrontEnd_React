@@ -8,6 +8,7 @@ import getKeyInput from '../../utils/getKeyInput';
 import {WS_URL, USER_ID, PROJECT_ID, SERVER, DEBUG} from '../../utils/constants';
 import ControlPanel from '../Control/control';
 import BudgetBar from '../BudgetBar/budgetBar';
+import DisplayBar from '../DisplayBar/displayBar';
 import MessageViewer from '../Message/MessageViewer';
 import GameWindow from '../GameWindow/gameWindow';
 
@@ -31,6 +32,7 @@ class Game extends React.Component{
         usedInputBudget : 0,
         receiveData : null,
         isPause : false,
+        displayData : null,
         inMessage : [],
         outMessage : []
     }
@@ -125,6 +127,12 @@ class Game extends React.Component{
                             frameSrc : "data:image/jpeg;base64, " + frame,
                             frameCount : prevState.frameCount + 1,
                             frameId : frameId
+                        }));
+                    }
+
+                    if(parsedData.display){
+                        this.setState(({
+                            displayData : parsedData.display
                         }));
                     }
                     //record every message received from the server
@@ -235,7 +243,8 @@ class Game extends React.Component{
     }
 
     render() {
-        const {inMessage, outMessage, isLoading, frameSrc, frameRate, isEnd, UIlist, progress, isVisible, inputBudget, usedInputBudget} = this.state;
+        const {inMessage, outMessage, isLoading, frameSrc, frameRate, displayData, 
+            isEnd, UIlist, progress, isVisible, inputBudget, usedInputBudget} = this.state;
 
         return (
             <div>
@@ -248,6 +257,8 @@ class Game extends React.Component{
                 </Row>
                 
                 <BudgetBar visible={inputBudget>0} isLoading={isLoading} usedInputBudget={usedInputBudget} inputBudget={inputBudget} /> 
+
+                <DisplayBar visible={displayData !== null} isLoading={isLoading} displayData={displayData} />
                 
                 <ControlPanel 
                     isEnd={isEnd} 
