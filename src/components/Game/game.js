@@ -8,6 +8,7 @@ import getKeyInput from '../../utils/getKeyInput';
 import {WS_URL, USER_ID, PROJECT_ID, SERVER, DEBUG} from '../../utils/constants';
 import ControlPanel from '../Control/control';
 import BudgetBar from '../BudgetBar/budgetBar';
+import DisplayBar from '../DisplayBar/displayBar';
 import MessageViewer from '../Message/MessageViewer';
 import GameWindow from '../GameWindow/gameWindow';
 
@@ -29,6 +30,7 @@ class Game extends React.Component{
         allData : null,
         inputBudget : 0,
         usedInputBudget : 0,
+        displayData : null,
         inMessage : [],
         outMessage : []
     }
@@ -92,7 +94,7 @@ class Game extends React.Component{
                 }else{
                     let parsedData = JSON.parse(message.data);
                     //Check if budget bar should be loaded
-                    if(parsedData.inputBudget && parsedData.usedInputBudget){
+                    if(parsedData.inputBudget){
                         this.setState(({
                             inputBudget : parsedData.inputBudget,
                             usedInputBudget : parsedData.usedInputBudget
@@ -112,6 +114,12 @@ class Game extends React.Component{
                             frameSrc : "data:image/jpeg;base64, " + frame,
                             frameCount : prevState.frameCount + 1,
                             frameId : frameId
+                        }));
+                    }
+
+                    if(parsedData.display){
+                        this.setState(({
+                            displayData : parsedData.display
                         }));
                     }
                     //record every message received from the server
@@ -187,9 +195,7 @@ class Game extends React.Component{
     //send game control commands to the websocket server
     handleCommand = (status) => {
 
-        const {isLoading, inputBudget, usedInputBudget} = this.state;
-
-        if(isLoading){
+        if(this.state.isLoading){
             message.error("Please wait the connection to be established first!")
             return;
         }
@@ -202,16 +208,6 @@ class Game extends React.Component{
                 browserVersion : browserVersion,
             })
         }else{
-            if(["good","bad"].includes(status) && inputBudget > 0){
-                if(usedInputBudget <= inputBudget){
-                    this.setState(prevState => ({
-                        usedInputBudget : prevState.usedInputBudget + 1
-                    }))
-                }else{
-                    message.error("You have consumed all the reward budget!",3);
-                    return;
-                }
-            }
             this.sendMessage({
                 command : status
             })
@@ -233,7 +229,8 @@ class Game extends React.Component{
     }
 
     render() {
-        const {inMessage, outMessage, isLoading, frameSrc, frameRate, isEnd, UIlist, progress, isVisible, inputBudget, usedInputBudget} = this.state;
+        const {inMessage, outMessage, isLoading, frameSrc, frameRate, displayData, 
+            isEnd, UIlist, progress, isVisible, inputBudget, usedInputBudget} = this.state;
 
         return (
             <div>
@@ -246,6 +243,8 @@ class Game extends React.Component{
                 </Row>
                 
                 <BudgetBar visible={inputBudget>0} isLoading={isLoading} usedInputBudget={usedInputBudget} inputBudget={inputBudget} /> 
+
+                <DisplayBar visible={displayData !== null} isLoading={isLoading} displayData={displayData} />
                 
                 <ControlPanel 
                     isEnd={isEnd} 
