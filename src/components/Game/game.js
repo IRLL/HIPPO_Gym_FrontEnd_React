@@ -101,7 +101,8 @@ class Game extends React.Component{
                 if(message.data === "done"){
                     this.setState(({
                         isEnd : true,
-                        isVisible : true
+                        isVisible : true,
+                        isConnection : false,
                     }))
                 //parse the data from the websocket server
                 }else{
@@ -214,6 +215,7 @@ class Game extends React.Component{
                 frameCount : this.state.frameCount,
                 frameId : this.state.frameId
             }
+            console.log(allData);
             this.websocket.send(JSON.stringify(allData));
         }
     }
