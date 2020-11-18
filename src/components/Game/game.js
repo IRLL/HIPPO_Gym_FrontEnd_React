@@ -30,6 +30,7 @@ class Game extends React.Component{
         allData : null,
         inputBudget : 0,
         usedInputBudget : 0,
+        validUsedBudget : 0,
         receiveData : null,
         isPause : false,
         displayData : null,
@@ -48,6 +49,18 @@ class Game extends React.Component{
                 }
             },1000)
         }
+
+        this.checkBudget = setInterval(() => {
+            if(this.state.usedInputBudget <= this.state.inputBudget){
+                this.setState(({
+                    validUsedBudget : this.state.usedInputBudget
+                }));
+            }else{
+                this.setState(({
+                    validUsedBudget : this.state.inputBudget
+                }));
+            }
+        },1000)
 
         //Running a check every 1/100 second(10 millisecond)
         //If allData is not null then send the message
@@ -171,6 +184,7 @@ class Game extends React.Component{
 
     componentWillUnmount() {
         clearInterval(this.sendData);
+        clearInterval(this.checkBudget);
         if(this.setInMessage) clearInterval(this.setInMessage);
     }
 
@@ -244,7 +258,7 @@ class Game extends React.Component{
 
     render() {
         const {inMessage, outMessage, isLoading, frameSrc, frameRate, displayData, 
-            isEnd, UIlist, progress, isVisible, inputBudget, usedInputBudget} = this.state;
+            isEnd, UIlist, progress, isVisible, inputBudget, validUsedBudget} = this.state;
 
         return (
             <div>
@@ -256,7 +270,7 @@ class Game extends React.Component{
                     <Col flex={1}><MessageViewer title="Message Out" data={outMessage} visible={DEBUG} /></Col>
                 </Row>
                 
-                <BudgetBar visible={inputBudget>0} isLoading={isLoading} usedInputBudget={usedInputBudget} inputBudget={inputBudget} /> 
+                <BudgetBar visible={inputBudget>0} isLoading={isLoading} usedInputBudget={validUsedBudget} inputBudget={inputBudget} /> 
 
                 <DisplayBar visible={displayData !== null} isLoading={isLoading} displayData={displayData} />
                 
