@@ -11,7 +11,7 @@ class DisplayBar extends React.Component{
         let messageList = [];
         for(let key in displayData){
             messageList.push(
-                <div className="displayMessage" ><strong>{capitalize(key)}</strong> : {displayData[key]}</div>
+                <div key={key} className="displayMessage" ><strong>{capitalize(key)}</strong> : {displayData[key]}</div>
             )
         }
 
