@@ -8,6 +8,7 @@
 } 
 
 .submitButton{
+    margin-top: 10px;
     margin-left: 45%;
     width : 150px;
 }
