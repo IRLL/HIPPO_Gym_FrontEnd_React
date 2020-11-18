@@ -27,14 +27,15 @@ class Game extends React.Component{
         isVisible : false,
         UIlist : [],
         progress : 0,
-        allData : null,
         inputBudget : 0,
         usedInputBudget : 0,
         receiveData : null,
         isPause : false,
         displayData : null,
         inMessage : [],
-        outMessage : []
+        outMessage : [],
+        holdKey : null,
+        keyMessage : null
     }
 
     componentDidMount() {
@@ -52,16 +53,15 @@ class Game extends React.Component{
         //Running a check every 1/100 second(10 millisecond)
         //If allData is not null then send the message
         //otherwise just wait until next checking
-        this.sendData = setInterval(() => {
-            if(this.state.allData && this.state.isConnection){
-                this.websocket.send(JSON.stringify(this.state.allData));
+        this.sendKeyMessage = setInterval(() => {
+            if(this.state.holdKey && this.state.isConnection){
+                this.sendMessage(this.state.keyMessage);
                 //record every message send to the server
                 if(DEBUG){
                     this.setState(prevState => ({
                         outMessage : [prevState.allData,...prevState.outMessage],
                     }))
                 }
-                this.setState(({allData : null}));
             }
         }, 10);
 
@@ -162,15 +162,30 @@ class Game extends React.Component{
             if(dataToSend.actionType !== null){
                 event.preventDefault();
             }
-            
             if(this.state.UIlist.includes(dataToSend.action)){
-                this.sendMessage(dataToSend);
+                this.setState(({
+                    holdKey : dataToSend.actionType,
+                    keyMessage : dataToSend
+                }))
+            }
+        })
+
+        document.addEventListener('keyup', (event) => {
+            let dataToSend = getKeyInput(event.code);
+            if(this.state.UIlist.includes(dataToSend.action)){
+                if(dataToSend.actionType === this.state.holdKey){
+                    this.setState(({ 
+                        holdKey: null,
+                        keyData : null
+                    }));
+                }
+
             }
         })
     }
 
     componentWillUnmount() {
-        clearInterval(this.sendData);
+        clearInterval(this.sendKeyMessage);
         if(this.setInMessage) clearInterval(this.setInMessage);
     }
 
@@ -199,9 +214,7 @@ class Game extends React.Component{
                 frameCount : this.state.frameCount,
                 frameId : this.state.frameId
             }
-            this.setState(({
-                allData : allData
-            }))
+            this.websocket.send(JSON.stringify(allData));
         }
     }
 
