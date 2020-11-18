@@ -30,12 +30,25 @@ class Game extends React.Component{
         allData : null,
         inputBudget : 0,
         usedInputBudget : 0,
+        receiveData : null,
+        isPause : false,
         displayData : null,
         inMessage : [],
         outMessage : []
     }
 
     componentDidMount() {
+
+        if(DEBUG){
+            this.setInMessage = setInterval(() => {
+                if(this.state.receiveData && !this.state.isPause){
+                    this.setState(prevState => ({
+                        inMessage : [prevState.receiveData,...prevState.inMessage]
+                    }))
+                }
+            },1000)
+        }
+
         //Running a check every 1/100 second(10 millisecond)
         //If allData is not null then send the message
         //otherwise just wait until next checking
@@ -124,9 +137,8 @@ class Game extends React.Component{
                     }
                     //record every message received from the server
                     if(DEBUG){
-                        delete parsedData.frame;
-                        this.setState(prevState => ({
-                            inMessage : [parsedData,...prevState.inMessage]
+                        this.setState(({
+                            receiveData : parsedData
                         }))
                     }
                 }
@@ -159,6 +171,7 @@ class Game extends React.Component{
 
     componentWillUnmount() {
         clearInterval(this.sendData);
+        if(this.setInMessage) clearInterval(this.setInMessage);
     }
 
     //change the confirmation modal to be invisible
@@ -208,6 +221,7 @@ class Game extends React.Component{
                 browserVersion : browserVersion,
             })
         }else{
+            if(status === 'pause') this.setState(prevState => ({isPause : !prevState.isPause}));
             this.sendMessage({
                 command : status
             })
