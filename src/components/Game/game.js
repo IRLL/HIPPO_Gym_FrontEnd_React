@@ -27,7 +27,6 @@ class Game extends React.Component{
         isVisible : false,
         UIlist : [],
         progress : 0,
-        allData : null,
         inputBudget : 0,
         usedInputBudget : 0,
         receiveData : null,
