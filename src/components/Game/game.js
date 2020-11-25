@@ -34,7 +34,8 @@ class Game extends React.Component{
         isPause : false,
         displayData : null,
         inMessage : [],
-        outMessage : []
+        outMessage : [],
+        holdKey : null
     }
 
     componentDidMount() {
@@ -48,22 +49,6 @@ class Game extends React.Component{
                 }
             },1000)
         }
-
-        //Running a check every 1/100 second(10 millisecond)
-        //If allData is not null then send the message
-        //otherwise just wait until next checking
-        this.sendData = setInterval(() => {
-            if(this.state.allData && this.state.isConnection){
-                this.websocket.send(JSON.stringify(this.state.allData));
-                //record every message send to the server
-                if(DEBUG){
-                    this.setState(prevState => ({
-                        outMessage : [prevState.allData,...prevState.outMessage],
-                    }))
-                }
-                this.setState(({allData : null}));
-            }
-        }, 10);
 
         //To update the progress of loading game content
         //Since we always need to wait 30 seconds before the game
@@ -164,13 +149,27 @@ class Game extends React.Component{
             }
             
             if(this.state.UIlist.includes(dataToSend.action)){
+                if(this.state.holdKey !== dataToSend.actionType){
+                    this.setState(({holdKey : dataToSend.actionType}));
+                    this.sendMessage(dataToSend);
+                }
+            }
+        })
+
+        document.addEventListener('keyup', (event) => {
+            //Used to prevent arrow keys and space key from scrolling the page
+            let dataToSend = getKeyInput(event.code);
+            if(this.state.UIlist.includes(dataToSend.action)){
+                dataToSend.action = 'noop';
+                if(this.state.holdKey === dataToSend.actionType){
+                    this.setState({holdKey : null});
+                }
                 this.sendMessage(dataToSend);
             }
         })
     }
 
     componentWillUnmount() {
-        clearInterval(this.sendData);
         if(this.setInMessage) clearInterval(this.setInMessage);
     }
 
@@ -199,9 +198,8 @@ class Game extends React.Component{
                 frameCount : this.state.frameCount,
                 frameId : this.state.frameId
             }
-            this.setState(({
-                allData : allData
-            }))
+            console.log(allData);
+            this.websocket.send(JSON.stringify(allData));
         }
     }
 
