@@ -38,17 +38,6 @@ class Game extends React.Component{
     }
 
     componentDidMount() {
-
-        if(DEBUG){
-            this.setInMessage = setInterval(() => {
-                if(this.state.receiveData && !this.state.isPause){
-                    this.setState(prevState => ({
-                        inMessage : [prevState.receiveData,...prevState.inMessage]
-                    }))
-                }
-            },1000)
-        }
-
         //To update the progress of loading game content
         //Since we always need to wait 30 seconds before the game
         //content get loaded, we update the progress (100/30) per second
@@ -119,10 +108,11 @@ class Game extends React.Component{
                             displayData : parsedData.display
                         }));
                     }
-                    //record every message received from the server
+                    //log every message received from the server
                     if(DEBUG){
-                        this.setState(({
-                            receiveData : parsedData
+                        delete parsedData.frame;
+                        this.setState(prevState => ({
+                            inMessage : [parsedData, ...prevState.inMessage]
                         }))
                     }
                 }
@@ -197,6 +187,9 @@ class Game extends React.Component{
                 frameCount : this.state.frameCount,
                 frameId : this.state.frameId
             }
+            this.setState(prevState => ({
+                outMessage : [allData, ...prevState.outMessage]
+            }))
             this.websocket.send(JSON.stringify(allData));
         }
     }
