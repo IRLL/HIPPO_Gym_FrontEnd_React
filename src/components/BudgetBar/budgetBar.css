@@ -1,3 +1,5 @@
+/* Set the width of budget bar
+Center align the form both horizontally and vertically */
 .budgetBar{
     width : 705px;
     display: flex;
@@ -7,6 +9,8 @@
     margin: auto;
 }   
 
+/* Add space to the top and left of budget count
+Make the text of budget count bold */
 .budgetCount{
     margin-top:15px;
     margin-left: 10px;

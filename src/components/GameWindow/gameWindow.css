@@ -1,3 +1,6 @@
+/* Set the height and width of the game window
+Set the border color and style of the game window
+Center align the game window both horizontally and vertically */
 .gameWindow{
     height: 605px;
     width : 705px;
@@ -9,6 +12,7 @@
     margin: auto;
 }
 
+/* Center align the progress bar both horizontally and vertically */
 .progressBar{
     display: flex;
     flex-direction: column; 
@@ -17,12 +21,14 @@
     margin: auto;
 }
 
+/* Set font size, font and color of text inside the game windows */
 .promptText {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
     color: #1890ff;
     font-size : 16px;
 }
 
+/* Add rounded corners to the border */
 .gameContent{
     border-radius: 10px;
 }

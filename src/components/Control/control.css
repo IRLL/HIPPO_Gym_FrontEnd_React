@@ -1,3 +1,7 @@
+/* Add a solid border to the panel
+   Make the corners of panel rounded 
+   Add space to the top,left and right of the panel
+   Set the width of the panel */
 .controlPanel{
     border: solid;
     border-radius: 10px;
@@ -7,10 +11,24 @@
     width: 800px;
 }
 
+/* Remove the default border of the container
+ Add space to the top of the container */
 .panelContainer{
     border : none;
     margin-top: 10px;
 }
+
+/* Set the height of fps input field 
+ Make the corners of this field rounded */ 
+.fpsInput{
+    width: auto;
+    height: 40px;
+    border-radius: 20px;
+}
+
+/* Set the background color for each button
+   Set the text color for each button
+   Set the border color for each button */
 
 .startButton{
     background-color: #1890ff;
@@ -99,10 +117,4 @@
 .badButton:hover{
     background-color: #bae637;
     border-color: #bae637;
-}
-
-.fpsInput{
-    width: auto;
-    height: 40px;
-    border-radius: 20px;
 }
