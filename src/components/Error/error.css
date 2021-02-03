@@ -1,3 +1,5 @@
+/* Center align the form both horizontally and vertically
+Set the minimum height of this element*/
 .errorResponse{
     justify-content: center;
     align-items: center;

@@ -1,33 +1,9 @@
+/* Add space on the top of the header*/
 .header {
     margin-top: 1%;
 }
 
-.stepBar{
-    margin-top: 5%;
-}
-
+/* Add space on the left of the logo */
 .irllLogo {
     margin-left: 5%;
-}
-
-.menu {
-    display: inline-flex;
-    list-style: none;
-    font-size: 18px;
-    font-family: "Arial",sans-serif;
-    font-weight: 700;
-    margin : auto;
-}
-
-.menu li {
-    display: list-item;
-    padding: 10px;
-}
-
-a {
-    color: rgba(0,0,0,0.7);
-}
-
-a:hover {
-    color : black;
 }

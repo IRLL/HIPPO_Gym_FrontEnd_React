@@ -15,16 +15,16 @@ class Forum extends React.Component{
                 e.stopPropagation();
                 this.props.action(e);}} >
    
-                <div className="centerContainer">
-                    <div className="overflowContainer">
+                <div>
                     {ReactHtmlParser(content)}
                     <br />
-                    {!is400Error ? 
-                    <Tooltip placement="top" title="Submit the form and navigate to next step" arrowPointAtCenter>
-                        <Button className="submitButton" shape="round" size="large" type="primary" htmlType="submit" >Submit</Button>
-                    </Tooltip> : null
+                    {   
+                        !is400Error ? 
+                        <Tooltip placement="top" title="Submit the form and navigate to next step" arrowPointAtCenter>
+                            <Button className="submitButton" shape="round" size="large" type="primary" htmlType="submit" >Submit</Button>
+                        </Tooltip> : 
+                        null
                     }
-                    </div>
                 </div>
             </form>
         )
