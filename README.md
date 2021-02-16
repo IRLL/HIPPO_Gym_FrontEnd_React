@@ -42,7 +42,7 @@ https://youtu.be/FbG0uGlwDoQ (Updated on 2020-09-11)
 In this demo video, we used our demo projectId = demo_1.4.1 and we provided no other parameters in the original query. There are three pages before the game page and one page after. The first page is a consent form that requires the user to agree the agreement before they move to the next step. In the second step, there is a qualification test to see if the user meet all the requirements for this project. The thrid step is a survey for the user to answer. The next is the game page which is also the main page that used to play the game and train the agent. After the game ends, there is a "thank you" page to thank the research participants.
 
 ## API
-### 1.Get the first pre-game page ``https://api.irll.net/next/`` GET
+### 1.Get the first pre-game page through ``https://api.irll.net/next/`` GET
 ```
 params : {
     #Id assigned to different projects
@@ -68,7 +68,7 @@ Response status code and body format:
     "Project ID Not Found"
 }
 ```
-### 2.Submit the forms and get the next pre-game page ``https://api.irll.net/next`` POST
+### 2.Submit a form and get the next pre-game page through ``https://api.irll.net/next`` POST
 Request format
 ```
 params : {
