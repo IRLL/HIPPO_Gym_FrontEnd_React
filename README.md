@@ -213,7 +213,7 @@ Display Bar component, used to render extra inforamtion that the researcher want
 [error.js](./src/components/Error/error.js)
 Error component, this component is only visible to the user if there are errors in the query parameters.
 
-[messageViewer.js](./src/components/Message/messageViewer.js)
+[MessageViewer.js](./src/components/Message/MessageViewer.js)
 Message viewer is used when debug mode is set to true in the query parameters. By enabling the debug mode, all incoming and outgoing messages will be showed on the page.
  
 [header.js](./src/components/Layout/header.js)
