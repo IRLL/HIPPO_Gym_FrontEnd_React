@@ -176,6 +176,9 @@ handleFPS(speed)
 ```
 Function used to control the FPS(frame per second) of the game. The default value is 30 and the increment or the decrement when each time the user press the button is 5. The allowed range of the FPS is between 5 - 90 for now.
 
+[gameWindow.js](./src/components/GameWindow/gameWindow.js)
+Game window component, a component used to render every frames from the server. Before the game starts, there is a loading component inside the window. After the game is ready to start, the first frame of the game will be rendered.
+
 [control.js](./src/components/Control/control.js)
 ControlPanel component includes all the elements that neeeded to control the game. For example, we have direction control buttons and "start", "stop","reset", etc.
 We have introduced the selective UI to our ControlPanel to meet different requirements for each project. Researcher can select the control buttons they want for their project.
