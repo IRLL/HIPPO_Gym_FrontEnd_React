@@ -139,9 +139,11 @@ You need to install the following software:
 * [react-helmet](https://www.npmjs.com/package/react-helmet)
 > npm package  that is a reusable React component will manage all of your changes to the document head.
 
+
 ### Clone
 
 * Clone this repo to your local machine using `git clone https://github.com/IRLL/HIPPO_Gym_FrontEnd_React.git`
+
 
 ### Structure
     
