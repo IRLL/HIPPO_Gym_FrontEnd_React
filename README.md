@@ -100,6 +100,8 @@ Response status code and body format:
 * css(**optional**) : An url that pointed to a css file on the internet. This filed is used if you want to apply your own styles to this framework.
 * server(**optional**) : An url that pointed to a back end server. This field is used if you don't want to use the default back end server.
 * debug(**optional**) : This mode is used to display the incoming and outgoing messages on the page, it is not enabled by default.
+* redirect(**optioanl**) : This field is used to set the redirect link after the game ends.
+* userId(**optional**) : Unique uuid used to uniquely identifiers an user.
 
 Getting started
 ===============
