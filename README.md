@@ -37,7 +37,7 @@ How it works
 ===============
 
 ## Demo Video
-https://youtu.be/FbG0uGlwDoQ
+https://youtu.be/FbG0uGlwDoQ (Updated on 2020-09-11)
 
 In this demo video, we used our demo projectId = demo_1.4.1 and we provided no other parameters in the original query. There are three pages before the game page and one page after. The first page is a consent form that requires the user to agree the agreement before they move to the next step. In the second step, there is a qualification test to see if the user meet all the requirements for this project. The thrid step is a survey for the user to answer. The next is the game page which is also the main page that used to play the game and train the agent. After the game ends, there is a "thank you" page to thank the research participants.
 
@@ -127,6 +127,8 @@ You need to install the following software:
 > npm package that used to send GET and POST request to our api endpoints
 * [uuid](https://www.npmjs.com/package/uuid)
 > npm package used to generate uuid(universally unique identifier). We use uuidv4 in our project as the userId to identify each user uniquelly.
+* [react-helmet](https://www.npmjs.com/package/react-helmet)
+> npm package  that is a reusable React component will manage all of your changes to the document head.
 
 ### Clone
 
@@ -151,10 +153,10 @@ Function used to handle the form data after the user click the "Submit" button. 
 [Routes.js](./src/Routes.js)
 A router used to manage all the routes of our framework. Currently, we only have one route which is the root one("/"). In the future, we may introduce more routes to our framework.
 
-[forum.js](./src/components/forum.js)
+[forum.js](./src/components/Forum/forum.js)
 Forum component, used to render the html contents that fetched from the back end and includes a "Submit" button to submit the form's data.
 
-[game.js](./src/components/game.js)
+[game.js](./src/components/Game/game.js)
 Game componet that include all the elements that needed to play the game on the web. In this component, we are using websocket to communicate with our back end server, which makes our framework real time. There are two main parts in this component, the first is the game window. We render every game frames that received from the web socket in this window. The second part is the game control panel, we have 4 directions button and buttons to start, stop and stop the game, etc.
 ```javascript
 handleOk()
@@ -174,7 +176,7 @@ handleFPS(speed)
 ```
 Function used to control the FPS(frame per second) of the game. The default value is 30 and the increment or the decrement when each time the user press the button is 5. The allowed range of the FPS is between 5 - 90 for now.
 
-[control.js](./src/components/control.js)
+[control.js](./src/components/Control/control.js)
 ControlPanel component includes all the elements that neeeded to control the game. For example, we have direction control buttons and "start", "stop","reset", etc.
 We have introduced the selective UI to our ControlPanel to meet different requirements for each project. Researcher can select the control buttons they want for their project.
 
@@ -201,11 +203,23 @@ We have introduced the selective UI to our ControlPanel to meet different requir
     - Fps Up
     - Fps Down
     - Fps Set
+    
+[budgetBar.js](./src/components/BudgetBar/budgetBar.js)
+Budget Bar component, used to render the usedInputBudget and inputBudget. This component is visible if there are limits on the number of times that the user can give the feedback by clicking the "good" and "bad" buttons.
+
+[displayBar.js](./src/components/DisplayBar/displayBar.js)
+Display Bar component, used to render extra inforamtion that the researcher want to display on the game page. For example, the researcher can choose to display the score of the last game, the number of total episodes and the remaining episodes.
+
+[error.js](./src/components/Error/error.js)
+Error component, this component is only visible to the user if there are errors in the query parameters.
+
+[messageViewer.js](./src/components/Message/messageViewer.js)
+Message viewer is used when debug mode is set to true in the query parameters. By enabling the debug mode, all incoming and outgoing messages will be showed on the page.
  
-[header.js](./src/components/header.js)
+[header.js](./src/components/Layout/header.js)
 Header component that will be rendered on every pages of our framework. We only have a irll logo and a step bar to indicate the current step for now.
 
-[footer.js](./src/components/footer.js)
+[footer.js](./src/components/Layout/footer.js)
 Footer component that will be rendered on every pages of our framework. We have logos for ualberta and amii.
 
 #### Setup
