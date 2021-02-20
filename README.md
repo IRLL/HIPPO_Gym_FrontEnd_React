@@ -90,15 +90,15 @@ Response status code and body format:
 {
     # html content body
     "page" : ,
-    # css content to apply on the page
+    # available css styles that applies on the page 
     "css" :  ,
 }
 ```
 
 ## Query parameters
-* projectId(**required**) : projectId is assigned by each researcher, and its uniquely identifiers a project
-* css(**optional**) : An url that pointed to a css file on the internet. This filed is used if you want to apply your own styles to this framework.
-* server(**optional**) : An url that pointed to a back end server. This field is used if you don't want to use the default back end server.
+* projectId(**required**) : projectId is assigned by each researcher, and it is uniquely identifiers a project
+* css(**optional**) : An url that points to a public css file on the internet. This field is used if you want to apply your own styles to this framework.
+* server(**optional**) : An url that points to a back end server. This field is used if you don't want to use the default back end server.
 * debug(**optional**) : This mode is used to display the incoming and outgoing messages on the page, it is not enabled by default.
 * redirect(**optional**) : This field is used to set the redirect link after the game ends.
 * userId(**optional**) : Unique uuid used to uniquely identifiers an user.
