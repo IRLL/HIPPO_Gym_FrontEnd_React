@@ -21,6 +21,8 @@ class Game extends React.Component{
         frameId : 0,
         frameRate : 30,
         frameSrc : "",
+        imageL : null,
+        imageR : null,
         isLoading : !SERVER ? true : false,
         isEnd : false,
         isConnection : false,
@@ -101,6 +103,18 @@ class Game extends React.Component{
                             frameCount : prevState.frameCount + 1,
                             frameId : frameId
                         }));
+                    }
+
+                    if(parsedData.imageL){
+                        this.setState(({
+                            imageL : parsedData.imageL
+                        }))
+                    }
+
+                    if(parsedData.imageR){
+                        this.setState(({
+                            imageR : parsedData.imageR
+                        }))
                     }
 
                     if(parsedData.display){
@@ -233,14 +247,14 @@ class Game extends React.Component{
 
     render() {
         const {inMessage, outMessage, isLoading, frameSrc, frameRate, displayData, 
-            isEnd, UIlist, progress, isVisible, inputBudget, usedInputBudget} = this.state;
+            isEnd, UIlist, progress, isVisible, inputBudget, usedInputBudget, imageL, imageR} = this.state;
 
         return (
             <div>
                 <Row>
                     <Col flex={1}><MessageViewer title="Message In" data={inMessage} visible={DEBUG} /></Col>
 
-                    <Col flex={2}><GameWindow isLoading={isLoading} frameSrc={frameSrc} progress={progress} /></Col>
+                    <Col flex={2}><GameWindow isLoading={isLoading} frameSrc={frameSrc} imageL={imageL} imageR={imageR} progress={progress} /></Col>
 
                     <Col flex={1}><MessageViewer title="Message Out" data={outMessage} visible={DEBUG} /></Col>
                 </Row>
