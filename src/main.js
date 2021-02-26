@@ -19,8 +19,7 @@ class Main extends React.Component{
         isGame : SERVER ? true : false,                   //if current page is the game page
         isWait : false,                                   //if the websocket server has been resolved
         is400Error : false,                               //if there are any error occur
-        ifRedirect : SERVER && REDIRECT ? true : false,   //if redirect to another url after game ends,
-        step : 0
+        ifRedirect : SERVER && REDIRECT ? true : false,   //if redirect to another url after game ends
     }
 
     componentDidMount(){
@@ -155,7 +154,7 @@ class Main extends React.Component{
                 <div className="forumContainer">
                     {isLoading ? 
                         <Spin className="Loader" size = "large" tip={isWait ?  
-                            "Waitting for the robot to wake up, please wait ..." :
+                            "Waiting for the robot to wake up, please wait ..." :
                             "Loading next step, please wait ..."} 
                         /> :
                         <Forum content={formContent} action={this.handleSubmit} is400Error={is400Error}/> 

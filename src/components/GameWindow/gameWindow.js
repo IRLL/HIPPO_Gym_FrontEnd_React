@@ -17,15 +17,15 @@ class GameWindow extends React.Component {
                     </div>
                 </Col>
                 <Col flex={2} >
-                        <div className= "gameWindow" >
-                            {isLoading || !frameSrc ?
-                                <div className="progressBar">
-                                    <Progress width={80} type="circle" percent={Math.round(progress)}/>
-                                    <p className="promptText">The robot is about to start the game, please wait ...</p> 
-                                </div>
-                                : <img className="gameContent" src={frameSrc} alt="frame" width="700px" height="600px" />
-                            }
-                        </div>
+                    <div className= "gameWindow" >
+                        {isLoading || !frameSrc ?
+                            <div className="progressBar">
+                                <Progress width={80} type="circle" percent={Math.round(progress)}/>
+                                <p className="promptText">The robot is about to start the game, please wait ...</p> 
+                            </div>
+                            : <img className="gameContent" src={frameSrc} alt="frame" width="700px" height="600px" />
+                        }
+                    </div>
                 </Col>
                 <Col flex={1} > 
                     <div className="imageContainer" > 
