@@ -116,30 +116,6 @@ You need to install the following software:
 
 * npm
 
-### Dependencies
-
-* [react](https://www.npmjs.com/package/react) 
-> The main Javascript library we are using for building user interfaces.
-* [react-icons](https://www.npmjs.com/package/react-icons)
-> npm package that allows us to include only the popular icons that our project is using.
-* [react-device-detect](https://www.npmjs.com/package/react-device-detect)
-> npm package that used to detect the type of device of user for better user experience
-* [react-html-parser](https://www.npmjs.com/package/react-html-parser)
-> npm package that used to convert HTML strings into React components. Avoids the use of dangerouslySetInnerHTML and converts standard HTML elements, attributes and inline styles into their React equivalents.
-* [react-router](https://www.npmjs.com/package/react-router)
-> npm package that used to provide routing in React.
-* [antd](https://www.npmjs.com/package/antd)
-> Ant-design is an enterprise-class UI design language and React UI library.Most of our framework's UI design based on this library.
-* [websocket](https://www.npmjs.com/package/websocket)
-> npm package that used to build web-socket connection with our backend server. We are relying on web-socket to receive the game frames and communicating between the front end and the back end.
-* [axios](https://www.npmjs.com/package/axios)
-> npm package that used to send GET and POST request to our api endpoints
-* [uuid](https://www.npmjs.com/package/uuid)
-> npm package used to generate uuid(universally unique identifier). We use uuidv4 in our project as the userId to identify each user uniquelly.
-* [react-helmet](https://www.npmjs.com/package/react-helmet)
-> npm package  that is a reusable React component will manage all of your changes to the document head.
-
-
 ### Clone
 
 * Clone this repo to your local machine using `git clone https://github.com/IRLL/HIPPO_Gym_FrontEnd_React.git`
@@ -258,3 +234,26 @@ $ npm start
 ```
 $ npm run build
 ```
+
+### Dependencies
+
+* [react](https://www.npmjs.com/package/react) 
+> The main Javascript library we are using for building user interfaces.
+* [react-icons](https://www.npmjs.com/package/react-icons)
+> npm package that allows us to include only the popular icons that our project is using.
+* [react-device-detect](https://www.npmjs.com/package/react-device-detect)
+> npm package that used to detect the type of device of user for better user experience
+* [react-html-parser](https://www.npmjs.com/package/react-html-parser)
+> npm package that used to convert HTML strings into React components. Avoids the use of dangerouslySetInnerHTML and converts standard HTML elements, attributes and inline styles into their React equivalents.
+* [react-router](https://www.npmjs.com/package/react-router)
+> npm package that used to provide routing in React.
+* [antd](https://www.npmjs.com/package/antd)
+> Ant-design is an enterprise-class UI design language and React UI library.Most of our framework's UI design based on this library.
+* [websocket](https://www.npmjs.com/package/websocket)
+> npm package that used to build web-socket connection with our backend server. We are relying on web-socket to receive the game frames and communicating between the front end and the back end.
+* [axios](https://www.npmjs.com/package/axios)
+> npm package that used to send GET and POST request to our api endpoints
+* [uuid](https://www.npmjs.com/package/uuid)
+> npm package used to generate uuid(universally unique identifier). We use uuidv4 in our project as the userId to identify each user uniquelly.
+* [react-helmet](https://www.npmjs.com/package/react-helmet)
+> npm package  that is a reusable React component will manage all of your changes to the document head.
