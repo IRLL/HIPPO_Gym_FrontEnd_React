@@ -32,7 +32,6 @@ class Game extends React.Component{
         inputBudget : 0,
         usedInputBudget : 0,
         receiveData : null,
-        isPause : false,
         displayData : null,
         inMessage : [],
         outMessage : [],
@@ -227,7 +226,6 @@ class Game extends React.Component{
                 browserVersion : browserVersion,
             })
         }else{
-            if(status === 'pause') this.setState(prevState => ({isPause : !prevState.isPause}));
             this.sendMessage({
                 command : status
             })
