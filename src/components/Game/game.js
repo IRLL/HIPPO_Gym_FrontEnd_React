@@ -17,25 +17,25 @@ const pendingTime = 30;
 class Game extends React.Component{
     
     state = {
-        frameCount : 0,
-        frameId : 0,
-        frameRate : 30,
-        frameSrc : "",
-        imageL : null,
-        imageR : null,
-        isLoading : !SERVER ? true : false,
-        isEnd : false,
-        isConnection : false,
-        isVisible : false,
-        UIlist : [],
-        progress : 0,
-        inputBudget : 0,
-        usedInputBudget : 0,
-        receiveData : null,
-        displayData : null,
-        inMessage : [],
-        outMessage : [],
-        holdKey : null
+        frameCount : 0,                       // count how many frames has received from the server
+        frameId : 0,                          // the id of current frame
+        frameRate : 30,                       // default FPS is 30
+        frameSrc : "",                        // the image source of frame
+        imageL : null,                        // the image source of left image component
+        imageR : null,                        // the image source of right image component
+        isLoading : !SERVER ? true : false,   // if the server is ready to send out the data
+        isEnd : false,                        // if the game is finished
+        isConnection : false,                 // if the connection to the server established
+        isVisible : false,                    // if the game end dialog visible
+        UIlist : [],                          // a list of UI components
+        progress : 0,                         // the status of the server
+        inputBudget : 0,                      // the total budget available for the feedback buttons
+        usedInputBudget : 0,                  // the consumed budget for the feedback buttons
+        receiveData : null,                   // the received data from the server
+        displayData : null,                   // the data that will be displayed on the page
+        inMessage : [],                       // a list of incoming messages
+        outMessage : [],                      // a list of outgoing messages
+        holdKey : null                        // the key that is holding
     }
 
     componentDidMount() {
