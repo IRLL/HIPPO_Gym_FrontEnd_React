@@ -4,7 +4,7 @@
 Written by [Nick Nissen](https://nicknissen.com) and Yuan Wang
 Supervised by [Matt Taylor](https://drmatttaylor.net) and Neda Navi
 For the Intelligent Robot Learning Laboratory [(IRLL)](https://irll.ca) at the University of Alberta [(UofA)](https://ualberta.ca)
-Supported by the Alberta Machine Intelligence Institure [(AMII)](https://amii.ca)
+Supported by the Alberta Machine Intelligence Institute [(AMII)](https://amii.ca)
 
 For questions or support contact us at [hippogym.irll@gmail.com](mailto:hippogym.irll@gmail.com)
 
