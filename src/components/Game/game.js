@@ -17,24 +17,25 @@ const pendingTime = 30;
 class Game extends React.Component{
     
     state = {
-        frameCount : 0,
-        frameId : 0,
-        frameRate : 30,
-        frameSrc : "",
-        isLoading : !SERVER ? true : false,
-        isEnd : false,
-        isConnection : false,
-        isVisible : false,
-        UIlist : [],
-        progress : 0,
-        inputBudget : 0,
-        usedInputBudget : 0,
-        receiveData : null,
-        isPause : false,
-        displayData : null,
-        inMessage : [],
-        outMessage : [],
-        holdKey : null
+        frameCount : 0,                       // count how many frames has received from the server
+        frameId : 0,                          // the id of current frame
+        frameRate : 30,                       // default FPS is 30
+        frameSrc : "",                        // the image source of frame
+        imageL : null,                        // the image source of left image component
+        imageR : null,                        // the image source of right image component
+        isLoading : !SERVER ? true : false,   // if the server is ready to send out the data
+        isEnd : false,                        // if the game is finished
+        isConnection : false,                 // if the connection to the server established
+        isVisible : false,                    // if the game end dialog visible
+        UIlist : [],                          // a list of UI components
+        progress : 0,                         // the status of the server
+        inputBudget : 0,                      // the total budget available for the feedback buttons
+        usedInputBudget : 0,                  // the consumed budget for the feedback buttons
+        receiveData : null,                   // the received data from the server
+        displayData : null,                   // the data that will be displayed on the page
+        inMessage : [],                       // a list of incoming messages
+        outMessage : [],                      // a list of outgoing messages
+        holdKey : null                        // the key that is holding
     }
 
     componentDidMount() {
@@ -47,7 +48,7 @@ class Game extends React.Component{
             }))
         ,1000)
         //To ensure the websocket server is ready to connect
-        //we try to connect the webscoket server periodically
+        //we try to connect the websocket server periodically
         //for every 30 seconds until the connection has been established
         this.timer = setTimeout(() => {
             //connect the websocket server
@@ -103,6 +104,21 @@ class Game extends React.Component{
                         }));
                     }
 
+                    //check if imageL is existed
+                    if(parsedData.imageL){
+                        this.setState(({
+                            imageL : parsedData.imageL
+                        }))
+                    }
+
+                    //check if imageR is existed
+                    if(parsedData.imageR){
+                        this.setState(({
+                            imageR : parsedData.imageR
+                        }))
+                    }
+
+                    //check if any information need to display
                     if(parsedData.display){
                         this.setState(({
                             displayData : parsedData.display
@@ -210,14 +226,13 @@ class Game extends React.Component{
                 browserVersion : browserVersion,
             })
         }else{
-            if(status === 'pause') this.setState(prevState => ({isPause : !prevState.isPause}));
             this.sendMessage({
                 command : status
             })
         }   
     }
 
-    //chnage the FPS of the game
+    //change the FPS of the game
     handleFPS = (speed) => {
         if((speed === "faster" && this.state.frameRate + 5 > 90) || (speed === "slower" && this.state.frameRate - 5 < 1)){
             message.error("Invalid FPS, the FPS can only between 1 - 90!")
@@ -233,14 +248,14 @@ class Game extends React.Component{
 
     render() {
         const {inMessage, outMessage, isLoading, frameSrc, frameRate, displayData, 
-            isEnd, UIlist, progress, isVisible, inputBudget, usedInputBudget} = this.state;
+            isEnd, UIlist, progress, isVisible, inputBudget, usedInputBudget, imageL, imageR} = this.state;
 
         return (
             <div>
                 <Row>
                     <Col flex={1}><MessageViewer title="Message In" data={inMessage} visible={DEBUG} /></Col>
 
-                    <Col flex={2}><GameWindow isLoading={isLoading} frameSrc={frameSrc} progress={progress} /></Col>
+                    <Col flex={2}><GameWindow isLoading={isLoading} frameSrc={frameSrc} imageL={imageL} imageR={imageR} progress={progress} /></Col>
 
                     <Col flex={1}><MessageViewer title="Message Out" data={outMessage} visible={DEBUG} /></Col>
                 </Row>

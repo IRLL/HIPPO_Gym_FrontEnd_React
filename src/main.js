@@ -19,8 +19,7 @@ class Main extends React.Component{
         isGame : SERVER ? true : false,                   //if current page is the game page
         isWait : false,                                   //if the websocket server has been resolved
         is400Error : false,                               //if there are any error occur
-        ifRedirect : SERVER && REDIRECT ? true : false,   //if redirect to another url after game ends,
-        step : 0
+        ifRedirect : SERVER && REDIRECT ? true : false,   //if redirect to another url after game ends
     }
 
     componentDidMount(){
@@ -78,9 +77,6 @@ class Main extends React.Component{
             this.setState(({
                 isGame : false
             }))
-            this.setState(prevState => ({
-                step : prevState.step+1
-            }));
              this.fetchFormData();
         //if redirect url is specified
         }else {
@@ -90,8 +86,7 @@ class Main extends React.Component{
 
     //submit the form content and fetch the next page
     handleSubmit = (event) => {
-        this.setState(prevState => ({
-            step : prevState.step+1,
+        this.setState(({
             isLoading : true
         }))
 
@@ -145,7 +140,7 @@ class Main extends React.Component{
     }
 
     render(){
-        const {isLoading,formContent,isGame,isWait, is400Error, step} = this.state;
+        const {isLoading,formContent,isGame,isWait, is400Error} = this.state;
 
         let preGame;
         if(is400Error){
@@ -155,7 +150,7 @@ class Main extends React.Component{
                 <div className="forumContainer">
                     {isLoading ? 
                         <Spin className="Loader" size = "large" tip={isWait ?  
-                            "Waitting for the robot to wake up, please wait ..." :
+                            "Waiting for the robot to wake up, please wait ..." :
                             "Loading next step, please wait ..."} 
                         /> :
                         <Forum content={formContent} action={this.handleSubmit} is400Error={is400Error}/> 
@@ -166,7 +161,7 @@ class Main extends React.Component{
         return (
             <div>
                 {CSS_PATH ? <Helmet><link rel="stylesheet" href={CSS_PATH} /></Helmet> : null}
-                <Header step={step} />
+                <Header />
                 {!isGame ? preGame : <Game action={this.gameEndHandler} />}
                 <Footer />
             </div>   

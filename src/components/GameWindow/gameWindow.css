@@ -32,3 +32,23 @@ Center align the game window both horizontally and vertically */
 .gameContent{
     border-radius: 10px;
 }
+
+/* Add border to each image component */
+.imageComponent{
+    padding: 5px;
+    border : solid #1890ff;
+    border-radius: 10px;
+}
+
+/* Set the height and width of the container of each image component */
+.imageContainer{
+    height: 410px;
+    width : 410px;
+}
+
+/* Set the display style of the main container of the image components */
+.container{
+    display : flex;
+    justify-content: space-evenly;
+    align-items: center;
+}
