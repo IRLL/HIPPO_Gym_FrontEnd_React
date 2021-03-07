@@ -22,7 +22,7 @@ For members of the IRLL, CMPUT656, or anyone whose organization has already setu
 
 What behind our framework
 ===============
-This project is related to the researh where a human can help teach a software agent to learn faster.For example, you have have someone play a game of Mario, and use this demonstration to help the agent learn. Or, you have have someone watch an agent playing Mario and interrupt to say "you should have jumped here". Or, you have someone watch an agent playing Mario and interrupt to say "you just messed up here." In the past, we've focused on doing things locally - building an interface for these kind of interactions isn't so bad when you just have someone sit down in front of a laptop. But, ideally, we'd be able to run these kinds of experiments over the web.
+This project is related to the researh where a human can help teach a software agent to learn faster.For example, you have someone play a game of Mario, and use this demonstration to help the agent to learn. Or, you have someone watch an agent playing Mario and interrupt to say "you should have jumped here". Or, you have someone watch an agent playing Mario and interrupt to say "you just messed up here." In the past, we've focused on doing things locally - building an interface for these kind of interactions isn't so bad when you just have someone sit down in front of a laptop. But, ideally, we'd be able to run these kinds of experiments over the web.
 
 What our framework can do
 ===============
