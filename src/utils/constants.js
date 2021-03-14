@@ -9,7 +9,7 @@ let userId = params.get('userId');
 let redirect = params.get('redirect');
 let debug = params.get('debug');
 
-if(host === "localhost"){ 
+if(host === "localhost" || host === '127.0.0.1'){ 
     host = "irll.net";
 }else if(host.includes('testing')){
     host = host.replace('testing.','');
