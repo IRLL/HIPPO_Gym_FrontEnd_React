@@ -26,7 +26,7 @@ class Error400 extends React.Component {
 
     render(){
         return (
-            <div className="container" >
+            <div className="errorContainer" >
                 <Result
                     className="errorResponse"
                     status="404"
