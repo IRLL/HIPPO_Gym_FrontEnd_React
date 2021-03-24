@@ -1,9 +1,14 @@
-/* Center align the form both horizontally and vertically
-Set the minimum height of this element*/
-.errorResponse{
+.errorContainer{
+    display: flex;
     justify-content: center;
     align-items: center;
-    flex-direction: column; 
-    margin: auto;
-    min-height: 650px;
+    flex-direction: column;
+}
+
+.projectIdInput{
+    width: 250px;
+}
+
+.goButton{
+    margin-left: 10px;
 }
