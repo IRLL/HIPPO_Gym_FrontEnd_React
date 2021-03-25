@@ -84,7 +84,7 @@ form content example
     "language" : "English"
 }
 ```
-Response status code and body format:
+#### Response status code and body format:
 **200 OK**
 ```
 {
@@ -118,7 +118,8 @@ You need to install the following software:
 
 ### Clone
 
-* Clone this repo to your local machine using `git clone https://github.com/IRLL/HIPPO_Gym_FrontEnd_React.git`
+* Clone this repo to your local machine
+*  `git clone https://github.com/IRLL/HIPPO_Gym_FrontEnd_React.git`
 
 
 ### Structure
