@@ -95,7 +95,7 @@ form content example
 }
 ```
 
-## Query parameters
+## URL Query parameters
 * projectId(**required**) : projectId is assigned by each researcher, and it is uniquely identifiers a project
 * css(**optional**) : An url that points to a public css file on the internet. This field is used if you want to apply your own styles to this framework.
 * server(**optional**) : An url that points to a back end server. This field is used if you don't want to use the default back end server.
