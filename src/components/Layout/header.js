@@ -3,7 +3,7 @@ import 'antd/dist/antd.css';
 import './header.css';
 import { Divider } from 'antd';
 
-class Header extends React.Component{
+class Header extends React.PureComponent{
 
     render(){
         return (

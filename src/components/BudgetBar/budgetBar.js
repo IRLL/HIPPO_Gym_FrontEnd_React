@@ -3,7 +3,7 @@ import 'antd/dist/antd.css';
 import './budgetBar.css';
 import {Progress } from 'antd';
 
-class BudgetBar extends React.Component{
+class BudgetBar extends React.PureComponent{
 
     render(){
         const {visible, isLoading, usedInputBudget, inputBudget} = this.props;
