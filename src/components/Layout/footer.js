@@ -3,11 +3,11 @@ import 'antd/dist/antd.css';
 import './footer.css';
 import {Divider, Row, Col} from 'antd';
 
-class Footer extends React.Component{
+class Footer extends React.PureComponent{
 
     render() {
         return (
-            <footer>
+            <footer className="pageFooter" >
                 <Divider />
                 <Row>
                     <Col flex={3}>

@@ -3,7 +3,7 @@ import 'antd/dist/antd.css';
 import './displayBar.css';
 import capitalize from '../../utils/capitalize';
 
-class DisplayBar extends React.Component{
+class DisplayBar extends React.PureComponent{
 
     render(){
         const {visible, isLoading, displayData} = this.props;

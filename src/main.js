@@ -2,7 +2,7 @@ import React from 'react';
 import "antd/dist/antd.css";
 import './main.css';
 import axios from 'axios';
-import {Spin} from 'antd';
+import {Spin, BackTop} from 'antd';
 import {Helmet} from "react-helmet";
 import Header from './components/Layout/header';
 import Footer from './components/Layout/footer';
@@ -144,7 +144,7 @@ class Main extends React.Component{
 
         let preGame;
         if(is400Error){
-            preGame = <Error400 />
+            preGame = <div className="errorPage" ><Error400 /></div>
         }else{
             preGame = 
                 <div className="forumContainer">
@@ -154,16 +154,19 @@ class Main extends React.Component{
                             "Loading next step, please wait ..."} 
                         /> :
                         <Forum content={formContent} action={this.handleSubmit} is400Error={is400Error}/> 
-                        }
+                    }
                 </div>
         }
              
         return (
             <div>
+                <BackTop />
                 {CSS_PATH ? <Helmet><link rel="stylesheet" href={CSS_PATH} /></Helmet> : null}
-                <Header />
-                {!isGame ? preGame : <Game action={this.gameEndHandler} />}
-                <Footer />
+                <div className="main" >
+                    <Header />
+                    {!isGame ? preGame : <Game action={this.gameEndHandler} />}
+                    <Footer />
+                </div>
             </div>   
         )
     }

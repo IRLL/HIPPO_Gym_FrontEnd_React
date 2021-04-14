@@ -1,14 +1,24 @@
-/* Center align the form both horizontally and vertically with extra margin*/
-.forumContainer {
+.main{
     display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-left: 5%;
-    margin-right : 5%;
-    min-height: 650px;
+    flex-direction: column;
+    min-height: 100vh;
 }
+    /* Keep the footer stick at the bottom */
+    .errorPage{
+        flex: 1 0 auto;
+    }
 
-/* Set the font size of loader to 18px */
-.Loader {
-    font-size: 18px;
-}
+    /* Center align the form both horizontally and vertically with extra margin*/
+    .forumContainer {
+        display: flex;
+        flex: 1 0 auto;
+        justify-content: center;
+        align-items: center;
+        margin-left: 5%;
+        margin-right : 5%;
+        min-height: 650px;
+    }
+        /* Set the font size of loader to 18px */
+        .Loader {
+            font-size: 18px;
+        }
