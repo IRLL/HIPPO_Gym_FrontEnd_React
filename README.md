@@ -37,7 +37,7 @@ How it works
 ===============
 
 ## Demo Video
-[HIPPO Gym Demo Video](https://drive.google.com/file/d/1TNLiE13BqFWQ1bSmAJo6BrTAFopgo2S9/view?usp=sharing) (Updated on 2021-04-28)
+[HIPPO Gym Demo Video](https://youtu.be/KeMzhGU9LWE) (Updated on 2021-04-28)
 
 In this demo video, we used our demo projectId = demo_1.4.1 and we provided no other parameters in the original query. There are three pages before the game page and one page after. The first page is a consent form that requires the user to agree the agreement before they move to the next step. In the second step, there is a qualification test to see if the user meet all the requirements for this project. The thrid step is a survey for the user to answer. The next is the game page which is also the main page that used to play the game and train the agent. After the game ends, there is a "thank you" page to thank the research participants.
 
