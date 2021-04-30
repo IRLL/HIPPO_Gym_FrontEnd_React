@@ -87,13 +87,13 @@ class Game extends React.Component{
                             usedInputBudget : parsedData.usedInputBudget
                         }))
                     }
-                    //Check if filed UI in response
+                    //Check if UI in response
                     if(parsedData.UI){
                         this.setState(({
                             UIlist : parsedData.UI
                         }))
                     }
-                    //Check if field frame in response
+                    //Check if frame related information in response
                     if(parsedData.frame && parsedData.frameId){
                         let frame = parsedData.frame;
                         let frameId = parsedData.frameId;
@@ -104,21 +104,21 @@ class Game extends React.Component{
                         }));
                     }
 
-                    //check if imageL is existed
+                    //check if imageL is in server's response
                     if(parsedData.imageL){
                         this.setState(({
                             imageL : parsedData.imageL
                         }))
                     }
 
-                    //check if imageR is existed
+                    //check if imageR is in server's response
                     if(parsedData.imageR){
                         this.setState(({
                             imageR : parsedData.imageR
                         }))
                     }
 
-                    //check if any information need to display
+                    //check if any information needed to display
                     if(parsedData.display){
                         this.setState(({
                             displayData : parsedData.display

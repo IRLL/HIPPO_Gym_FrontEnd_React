@@ -58,7 +58,7 @@ class Main extends React.Component{
                 }))
             }
         }).catch((error) => {
-            //handle projectId does not exist error
+            //projectId does not exist error
             if(error.response){
                 if (error.response.status === 400){
                     this.setState(({
@@ -127,7 +127,7 @@ class Main extends React.Component{
                 }))
             }
         }).catch((error) => {
-            //handle projectId does not exist error
+            //projectId does not exist error
             if(error.response){
                 if (error.response.status === 400){
                     this.setState(({
