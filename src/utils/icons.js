@@ -3,10 +3,11 @@ import {ImArrowLeft2,ImArrowRight2,ImArrowUp2,ImArrowDown2,ImArrowUpLeft2,
     ImArrowUpRight2,ImArrowDownRight2,ImArrowDownLeft2, ImContrast} from "react-icons/im";
 import {BsFillBrightnessHighFill, BsDropletHalf} from "react-icons/bs";
 import {GrVulnerability} from 'react-icons/gr';
-import {IoColorFilterSharp} from 'react-icons/io';
-import {CaretRightOutlined,PauseOutlined, ReloadOutlined, UpOutlined,
+import {IoIosColorFilter} from 'react-icons/io';
+import {CaretRightOutlined, PauseOutlined, ReloadOutlined, UpOutlined,
     DownOutlined, StopOutlined, CloudUploadOutlined,CloudDownloadOutlined,
-    SendOutlined,CheckOutlined,CloseOutlined} from '@ant-design/icons';
+    SendOutlined, CheckOutlined, CloseOutlined, UndoOutlined, RedoOutlined,
+    PlusCircleOutlined, DeleteOutlined, CheckCircleOutlined} from '@ant-design/icons';
 
 export const icons = {
     "left" : <ImArrowLeft2 />,
@@ -32,5 +33,10 @@ export const icons = {
     "brightness" : <BsFillBrightnessHighFill />,
     "contrast" : <ImContrast />,
     "saturation": <BsDropletHalf />,
-    "hue": <IoColorFilterSharp />
+    "hue": <IoIosColorFilter />,
+    "undo": <UndoOutlined />,
+    "redo": <RedoOutlined />,
+    "addMarker": <PlusCircleOutlined />,
+    "resetImage": <DeleteOutlined />,
+    "submitImage": <CheckCircleOutlined />
 }

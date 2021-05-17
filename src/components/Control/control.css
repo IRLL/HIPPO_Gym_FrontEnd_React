@@ -1,6 +1,6 @@
 /* Add a solid border to the panel
    Make the corners of panel rounded 
-   Add space to the top,left and right of the panel
+   Add space to the top, left, and right of the panel
    Set the width of the panel */
 .controlPanel{
     border: solid;
@@ -117,4 +117,16 @@
 .badButton:hover{
     background-color: #bae637;
     border-color: #bae637;
+}
+
+.undoButton, .redoButton{
+    background-color: white;
+    color : black;
+    border-color: black;
+}
+
+.undoButton:hover, .undoButton:focus, .redoButton:hover, .redoButton:focus{
+    background-color: #dedede;
+    color : black;
+    border-color: black;
 }
