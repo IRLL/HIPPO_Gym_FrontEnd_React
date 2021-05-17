@@ -35,7 +35,11 @@ class Game extends React.Component{
         displayData : null,                   // the data that will be displayed on the page
         inMessage : [],                       // a list of incoming messages
         outMessage : [],                      // a list of outgoing messages
-        holdKey : null                        // the key that is holding
+        holdKey : null,                       // the key that is holding
+        brightness: 100,
+        contrast: 100,
+        saturation: 100,
+        hue: 0
     }
 
     componentDidMount() {
@@ -246,6 +250,20 @@ class Game extends React.Component{
         }
     }
 
+    // Change the brightness of the image
+    handleImage = (type, value) => {
+        switch(type) {
+            case "brightness": this.setState({brightness: value});
+                break;
+            case "contrast": this.setState({contrast: value});
+                break;
+            case "saturation": this.setState({saturation: value});
+                break;
+            case "hue": this.setState({hue: value});
+                break;
+        }
+    }
+
     render() {
         const {inMessage, outMessage, isLoading, frameSrc, frameRate, displayData, 
             isEnd, UIlist, progress, isVisible, inputBudget, usedInputBudget, imageL, imageR} = this.state;
@@ -272,6 +290,7 @@ class Game extends React.Component{
                     handleOk={this.handleOk} 
                     handleFPS={this.handleFPS}
                     handleCommand={this.handleCommand} 
+                    handleImage={this.handleImage}
                     sendMessage={this.sendMessage}
                 />
 
