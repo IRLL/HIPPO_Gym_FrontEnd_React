@@ -10,7 +10,7 @@
 	margin-right: auto;
 	/* width: 800px; */
 	/* Settings below added for responsiveness */
-	width: 60vw;
+	width: min(60vw, 50rem);
 	padding: 1rem 2rem;
 }
 

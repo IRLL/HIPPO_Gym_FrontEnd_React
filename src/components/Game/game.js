@@ -273,7 +273,10 @@ class Game extends React.Component{
                 <Row>
                     <Col flex={1}><MessageViewer title="Message In" data={inMessage} visible={DEBUG} /></Col>
 
-                    <Col flex={2}><GameWindow isLoading={isLoading} frameSrc={frameSrc} imageL={imageL} imageR={imageR} progress={progress} /></Col>
+                    {
+                        // TODO: Add the fingerprint prop to config.yml instead of hardcoding it
+                    }
+                    <Col flex={2}><GameWindow isLoading={isLoading} frameSrc={frameSrc} imageL={imageL} imageR={imageR} progress={progress} fingerprint={true} /></Col>
 
                     <Col flex={1}><MessageViewer title="Message Out" data={outMessage} visible={DEBUG} /></Col>
                 </Row>

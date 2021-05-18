@@ -1,13 +1,12 @@
 import React from 'react';
 import 'antd/dist/antd.css';
 import './control.css';
-import { Button, Input, Tooltip, Row, Col, Slider, Space } from 'antd';
+import { Button, Input, Tooltip, Row, Col, Slider, Space, Divider } from 'antd';
 import {icons} from '../../utils/icons';
 import capitalize from '../../utils/capitalize';
 import sentenceCase from '../../utils/sentenceCase';
 
 class ControlPanel extends React.Component {
-
     render() {
         const {isEnd, isLoading, frameRate, UIlist} = this.props;
         const directions = ['left','leftUp','up','rightUp','down','leftDown','rightDown','fire','right'];
@@ -19,6 +18,12 @@ class ControlPanel extends React.Component {
             {name: "saturation", min: 0, max: 100, default: 100},
             {name: "hue", min: 0, max: 360, default: 0}
         ]
+
+        {
+            // TODO: Add the instructions to config.yml instead of hardcoding it
+        }
+        const instructions = ['Select a marker to edit it', 'Scroll (mouse), pinch (touchpad/mousepad), or use arrow keys to zoom', 'Drag or use space + arrow keys to move']
+        const instructionUI = [];
         const imageCommands = ['undo', 'redo', 'resetImage', 'submitImage', 'addMarker', 'resetImage', 'submitImage']
         const defaultButtons = [...directions,...fps];
         const UIFiltered = UIlist.filter(ele => !defaultButtons.includes(ele) && !imageControls.map((control) => control.name).includes(ele) && !imageCommands.includes(ele));
@@ -49,6 +54,13 @@ class ControlPanel extends React.Component {
                 <Col key={command}>
                     <Button shape="round" type="primary" id={command}  className={`${command}Button`}  icon={icons[command]} size='large' onClick={() => this.props.handleCommand(command)}>{capitalize(command)}</Button>
                 </Col>
+        })
+        instructions.forEach((instruction, i) => {
+            elements[`instruction${i}`] = 
+                <li>
+                    {instruction}
+                </li>
+            instructionUI.push(elements[`instruction${i}`])
         })
         imageControls.forEach(control => {
             elements[control.name] =
@@ -83,6 +95,7 @@ class ControlPanel extends React.Component {
             }
         })
 
+        
         const sliders1 = [elements['brightness'], elements['contrast']]
         const sliders2 = [elements['saturation'], elements['hue']]
         const imgCommands = [elements['undo'], elements['redo'], elements['addMarker'], elements['resetImage']]
@@ -105,6 +118,13 @@ class ControlPanel extends React.Component {
             <div>
                 {!isLoading && <div className="controlPanel" >
                     <div className="panelContainer">
+                        {instructions != [] && <Divider >Instructions </Divider>}
+                        <Row gutter={[4, 8]} justify="start">
+                            <ul>
+                                {instructionUI}
+                            </ul>
+                        </Row>
+                        <Divider>Controls </Divider>
                         <Row gutter={[4, 8]} justify="space-around">
                             {imgCommands}
                         </Row>
