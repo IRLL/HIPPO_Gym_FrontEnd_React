@@ -1,7 +1,7 @@
 import React from 'react';
 import 'antd/dist/antd.css';
 import './control.css';
-import { Button, Input, Tooltip, Row, Col, Slider } from 'antd';
+import { Button, Input, Tooltip, Row, Col, Slider, Space } from 'antd';
 import {icons} from '../../utils/icons';
 import capitalize from '../../utils/capitalize';
 import sentenceCase from '../../utils/sentenceCase';
@@ -52,22 +52,26 @@ class ControlPanel extends React.Component {
         })
         imageControls.forEach(control => {
             elements[control.name] =
-            <Col key={control.name} span={6}>
+            <Col key={control.name} className="space-align-container" flex="1" align="center">
                 {UIlist.includes(control.name) &&
-                <div>
-                    {icons[control.name]}
-                    {capitalize(control.name)}
-                    <Slider id={control.name} className={control.name} defaultValue={control.default} min={control.min} max={control.max} onChange={(value) => this.props.handleImage(control.name, value)}/>
+                <div className="space-align-block" className="imageControlTextContainer">
+                    <Space align="center" >
+                        <span>
+                            {icons[control.name]}
+                        </span>
+                        <p className="imageControlText">
+                            {capitalize(control.name)}
+                        </p>
+                    </Space>
+                    <Slider id={control.name} className="imageControl" defaultValue={control.default} min={control.min} max={control.max} onChange={(value) => this.props.handleImage(control.name, value)}/>
                 </div>}
             </Col>
         })
         imageCommands.forEach(command => {
             elements[command] =
-                <Col key={command} span={6}> 
+                <Col key={command}> 
                     {UIlist.includes(command) &&
-                    <div>
-                        <Button shape="round" type="primary" id={command}  className={`${command}Button`}  icon={icons[command]} size='large' onClick={() => this.props.handleCommand(command)}>{capitalize(sentenceCase(command))}</Button>
-                    </div>} 
+                        <Button shape="round" type="primary" id={command}  className={`${command}Button`}  icon={icons[command]} size='large' onClick={() => this.props.handleCommand(command)}>{capitalize(sentenceCase(command))}</Button>} 
                 </Col>
         })
         UIFiltered.forEach(ele => {
@@ -79,7 +83,8 @@ class ControlPanel extends React.Component {
             }
         })
 
-        const sliders = [elements['brightness'], elements['contrast'], elements['saturation'], elements['hue']]
+        const sliders1 = [elements['brightness'], elements['contrast']]
+        const sliders2 = [elements['saturation'], elements['hue']]
         const imgCommands = [elements['undo'], elements['redo'], elements['addMarker'], elements['resetImage']]
         const firstRow = [elements['leftUp'],elements['up'],elements['rightUp'],elements['fpsUp']];
         const secondRow = [elements['left'],elements['fire'],elements['right'],elements['fpsSet']];
@@ -100,13 +105,16 @@ class ControlPanel extends React.Component {
             <div>
                 {!isLoading && <div className="controlPanel" >
                     <div className="panelContainer">
-                        <Row gutter={[4, 8]}>
+                        <Row gutter={[4, 8]} justify="space-around">
                             {imgCommands}
                         </Row>
-                        <Row gutter={[4, 8]}>
-                            {sliders}
+                        <Row gutter={[4, 8]} justify="space-between">
+                            {sliders1}
                         </Row>
-                        <Row gutter={[4, 8]}>
+                        <Row gutter={[4, 8]} justify="space-between">
+                            {sliders2}
+                        </Row>
+                        <Row gutter={[4, 8]} justify="space-around">
                             {lastRow}
                         </Row>
                         <Row gutter={[4, 8]}>
