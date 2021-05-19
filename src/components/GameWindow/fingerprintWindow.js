@@ -6,6 +6,8 @@ import { Zoom } from "@vx/zoom";
 import { localPoint } from "@vx/event";
 import { RectClipPath } from "@vx/clip-path";
 
+// Reference: https://vx-demo.vercel.app/zoom-i
+
 class FingerprintWindow extends React.Component {
     render() {
         const {frameSrc, isLoading, progress, width, height, brightness, contrast, saturation, hue} = this.props;
