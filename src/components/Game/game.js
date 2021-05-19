@@ -11,6 +11,7 @@ import BudgetBar from '../BudgetBar/budgetBar';
 import DisplayBar from '../DisplayBar/displayBar';
 import MessageViewer from '../Message/MessageViewer';
 import GameWindow from '../GameWindow/gameWindow';
+import FingerprintWindow from '../GameWindow/fingerprintWindow';
 
 const pendingTime = 30;
 
@@ -39,8 +40,17 @@ class Game extends React.Component{
         brightness: 100,
         contrast: 100,
         saturation: 100,
-        hue: 0
+        hue: 0,
+        addMarker: false,
+        markers: [],
+        previousState: {brightness: 100, 
+                        contrast: 100, 
+                        saturation: 100, 
+                        hue: 0},
+        // TODO: Add the fingerprint prop to config.yml instead of hardcoding it
+        fingerprint: true
     }
+
 
     componentDidMount() {
         //To update the progress of loading game content
@@ -253,7 +263,7 @@ class Game extends React.Component{
     // Change the brightness of the image
     handleImage = (type, value) => {
         switch(type) {
-            case "brightness": this.setState({brightness: value});
+            case "brightness": this.setState(prev => ({previousState: {...{brightness: prev.brightness}}, brightness: value}));
                 break;
             case "contrast": this.setState({contrast: value});
                 break;
@@ -264,19 +274,40 @@ class Game extends React.Component{
         }
     }
 
+    // perform commands like add marker, redo, undo, reset 
+    handleImageCommands = (status) => {
+        switch(status) {
+            case "resetImage":
+                this.setState({
+                    brightness: 100, 
+                    contrast: 100, 
+                    saturation: 100, 
+                    hue: 0
+                });
+                break;
+            case "undo":
+                this.setState({
+                    brightness: this.state.previousState.brightness
+                })
+        }
+    }
+
     render() {
         const {inMessage, outMessage, isLoading, frameSrc, frameRate, displayData, 
-            isEnd, UIlist, progress, isVisible, inputBudget, usedInputBudget, imageL, imageR} = this.state;
+            isEnd, UIlist, progress, isVisible, inputBudget, usedInputBudget, imageL,
+            imageR, brightness, contrast, saturation, hue, fingerprint} = this.state;
 
         return (
             <div>
                 <Row>
                     <Col flex={1}><MessageViewer title="Message In" data={inMessage} visible={DEBUG} /></Col>
 
-                    {
-                        // TODO: Add the fingerprint prop to config.yml instead of hardcoding it
-                    }
-                    <Col flex={2}><GameWindow isLoading={isLoading} frameSrc={frameSrc} imageL={imageL} imageR={imageR} progress={progress} fingerprint={true} /></Col>
+                    <Col flex={2} align="center">
+                        {fingerprint ?
+                            <FingerprintWindow className="gameContent" frameSrc={frameSrc} width={700} height={600} brightness={brightness} contrast={contrast} saturation={saturation} hue={hue}/> :
+                            <GameWindow isLoading={isLoading} frameSrc={frameSrc} imageL={imageL} imageR={imageR} progress={progress}/>
+                        }
+                    </Col>
 
                     <Col flex={1}><MessageViewer title="Message Out" data={outMessage} visible={DEBUG} /></Col>
                 </Row>
@@ -294,7 +325,12 @@ class Game extends React.Component{
                     handleFPS={this.handleFPS}
                     handleCommand={this.handleCommand} 
                     handleImage={this.handleImage}
+                    handleImageCommands={this.handleImageCommands}
                     sendMessage={this.sendMessage}
+                    brightness={brightness}
+                    contrast={contrast}
+                    saturation={saturation}
+                    hue={hue}
                 />
 
                 <Modal

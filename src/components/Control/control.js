@@ -7,16 +7,19 @@ import capitalize from '../../utils/capitalize';
 import sentenceCase from '../../utils/sentenceCase';
 
 class ControlPanel extends React.Component {
+
+    
+
     render() {
-        const {isEnd, isLoading, frameRate, UIlist} = this.props;
+        const {isEnd, isLoading, frameRate, UIlist, brightness, contrast, saturation, hue} = this.props;
         const directions = ['left','leftUp','up','rightUp','down','leftDown','rightDown','fire','right'];
         const commands = ['start','pause','stop','reset','good','bad','trainOnline','trainOffline'];
         const fps = ['fpsUp','fpsDown','fpsSet'];
         const imageControls = [
-            {name: "brightness", min: 0, max: 200, default: 100},
-            {name: "contrast", min: 0, max: 200, default: 100},
-            {name: "saturation", min: 0, max: 100, default: 100},
-            {name: "hue", min: 0, max: 360, default: 0}
+            {name: "brightness", min: 0, max: 200, default: 100, ref: brightness},
+            {name: "contrast", min: 0, max: 200, default: 100, ref: contrast},
+            {name: "saturation", min: 0, max: 100, default: 100, ref: saturation},
+            {name: "hue", min: 0, max: 360, default: 0, ref: hue}
         ]
 
         {
@@ -75,7 +78,7 @@ class ControlPanel extends React.Component {
                             {capitalize(control.name)}
                         </p>
                     </Space>
-                    <Slider id={control.name} className="imageControl" defaultValue={control.default} min={control.min} max={control.max} onChange={(value) => this.props.handleImage(control.name, value)}/>
+                    <Slider id={control.name} className="imageControl" defaultValue={control.default} value={control.ref} min={control.min} max={control.max} onChange={(value) => this.props.handleImage(control.name, value)}/>
                 </div>}
             </Col>
         })
@@ -83,7 +86,7 @@ class ControlPanel extends React.Component {
             elements[command] =
                 <Col key={command}> 
                     {UIlist.includes(command) &&
-                        <Button shape="round" type="primary" id={command}  className={`${command}Button`}  icon={icons[command]} size='large' onClick={() => this.props.handleCommand(command)}>{capitalize(sentenceCase(command))}</Button>} 
+                        <Button shape="round" type="primary" id={command} className={`${command}Button`}  icon={icons[command]} size='large' onClick={() => this.props.handleImageCommands(command)}>{capitalize(sentenceCase(command))}</Button>} 
                 </Col>
         })
         UIFiltered.forEach(ele => {

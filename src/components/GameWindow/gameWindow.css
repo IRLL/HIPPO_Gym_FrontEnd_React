@@ -1,7 +1,7 @@
 /* Set the height and width of the game window
 Set the border color and style of the game window
 Center align the game window both horizontally and vertically */
-.gameWindow{
+.gameWindow {
     height: 605px;
     width : 705px;
     border : solid #1890ff;
@@ -13,7 +13,7 @@ Center align the game window both horizontally and vertically */
 }
 
 /* Center align the progress bar both horizontally and vertically */
-.progressBar{
+.progressBar {
     display: flex;
     flex-direction: column; 
     justify-content: center;
@@ -29,19 +29,19 @@ Center align the game window both horizontally and vertically */
 }
 
 /* Add rounded corners to the border */
-.gameContent{
+.gameContent {
     border-radius: 10px;
 }
 
 /* Add border to each image component */
-.imageComponent{
+.imageComponent {
     padding: 5px;
     border : solid #1890ff;
     border-radius: 10px;
 }
 
 /* Set the height and width of the container of each image component */
-.imageContainer{
+.imageContainer {
     height: 410px;
     width : 410px;
 }
@@ -51,51 +51,4 @@ Center align the game window both horizontally and vertically */
     display : flex;
     justify-content: space-evenly;
     align-items: center;
-}
-
-.btn {
-    margin: 0;
-    text-align: center;
-    border: none;
-    background: #2f2f2f;
-    color: #888;
-    padding: 0 4px;
-    border-top: 1px solid #0a0a0a;
-}
-
-.btn-lg {
-    font-size: 12px;
-    line-height: 1;
-    padding: 4px;
-}
-
-.btn-zoom {
-    width: 26px;
-    font-size: 22px;
-}
-
-.btn-bottom {
-    margin-bottom: 1rem;
-}
-
-.controls {
-    position: absolute;
-    top: 15px;
-    right: 15px;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-}
-
-.mini-map {
-    position: absolute;
-    bottom: 25px;
-    right: 15px;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-}
-
-.relative {
-    position: relative;
 }
