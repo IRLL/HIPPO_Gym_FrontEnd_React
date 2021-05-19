@@ -3,7 +3,8 @@ import {ImArrowLeft2,ImArrowRight2,ImArrowUp2,ImArrowDown2,ImArrowUpLeft2,
     ImArrowUpRight2,ImArrowDownRight2,ImArrowDownLeft2, ImContrast} from "react-icons/im";
 import {BsFillBrightnessHighFill, BsDropletHalf} from "react-icons/bs";
 import {GrVulnerability} from 'react-icons/gr';
-import {IoIosColorFilter} from 'react-icons/io';
+import {IoIosColorFilter, IoIosResize} from 'react-icons/io';
+import { MdRotate90DegreesCcw } from "react-icons/md";
 import {CaretRightOutlined, PauseOutlined, ReloadOutlined, UpOutlined,
     DownOutlined, StopOutlined, CloudUploadOutlined,CloudDownloadOutlined,
     SendOutlined, CheckOutlined, CloseOutlined, UndoOutlined, RedoOutlined,
@@ -38,5 +39,7 @@ export const icons = {
     "redo": <RedoOutlined />,
     "addMarker": <PlusCircleOutlined />,
     "resetImage": <DeleteOutlined />,
-    "submitImage": <CheckCircleOutlined />
+    "submitImage": <CheckCircleOutlined />,
+    "rotateImage": <MdRotate90DegreesCcw />,
+    "resizeImage": <IoIosResize />,
 }

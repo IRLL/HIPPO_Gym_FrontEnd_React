@@ -143,7 +143,8 @@
 	border-color: #f5222d;
 }
 
-.resetImageButton:hover, .resetImageButton:focus{
+.resetImageButton:hover,
+.resetImageButton:focus {
 	background-color: #ff4d4f;
 	border-color: #ff4d4f;
 }
@@ -154,12 +155,13 @@
 	border-color: #52c41a;
 }
 
-.submitImageButton:hover, .submitImageButton:focus{
+.submitImageButton:hover,
+.submitImageButton:focus {
 	background-color: #73d13d;
 	border-color: #73d13d;
 }
 
-.imageControl{
+.imageControl {
 	min-width: 10rem;
 	max-width: 30rem;
 }
