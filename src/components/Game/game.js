@@ -259,17 +259,29 @@ class Game extends React.Component{
             })
         }
     }
-
+    // outMessage : [allData, ...prevState.outMessage]
     // Change the brightness of the image
     handleImage = (type, value) => {
         switch(type) {
-            case "brightness": this.setState(prev => ({previousState: {...{brightness: prev.brightness}}, brightness: value}));
+            case "brightness": this.setState({
+                previousState : {...this.state.previousState, brightness: this.state.brightness},
+                brightness: value
+            });
                 break;
-            case "contrast": this.setState({contrast: value});
+            case "contrast": this.setState({
+                previousState : {...this.state.previousState, contrast: this.state.contrast},
+                contrast: value
+            });
                 break;
-            case "saturation": this.setState({saturation: value});
+            case "saturation": this.setState({
+                previousState : {...this.state.previousState, saturation: this.state.saturation},
+                saturation: value
+            });
                 break;
-            case "hue": this.setState({hue: value});
+            case "hue": this.setState({
+                previousState : {...this.state.previousState, hue: this.state.hue},
+                hue: value
+            });
                 break;
         }
     }
@@ -287,7 +299,10 @@ class Game extends React.Component{
                 break;
             case "undo":
                 this.setState({
-                    brightness: this.state.previousState.brightness
+                    brightness: this.state.previousState.brightness,
+                    contrast: this.state.previousState.contrast,
+                    saturation: this.state.previousState.saturation,
+                    hue: this.state.previousState.hue
                 })
         }
     }
