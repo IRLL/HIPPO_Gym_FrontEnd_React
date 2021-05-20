@@ -13,6 +13,8 @@ class FingerprintWindow extends React.Component {
 		currMarker: null,
 		move: false,
 		moving: false,
+		defaultColor: "blue",
+		defaultSize: 50,
 	};
 
 	render() {
@@ -34,15 +36,6 @@ class FingerprintWindow extends React.Component {
 			handleMarker,
 		} = this.props;
 
-		const initialTransform = {
-			scaleX: 1.27,
-			scaleY: 1.27,
-			translateX: -211.62,
-			translateY: 162.59,
-			skewX: 0,
-			skewY: 0,
-		};
-
 		const rotationSlider = (
 			<Slider
 				defaultValue={markers[currMarker] ? markers[currMarker].orientation : 0}
@@ -57,14 +50,20 @@ class FingerprintWindow extends React.Component {
 				defaultValue={markers[currMarker] ? markers[currMarker].size : 50}
 				min={0}
 				max={100}
-				onChange={(value) => handleMarker("resize", currMarker, value)}
+				onChange={(value) => {
+					handleMarker("resize", currMarker, value);
+					this.setState({ defaultSize: value });
+				}}
 			/>
 		);
 
 		const colorPicker = (
 			<Radio.Group
 				defaultValue="blue"
-				onChange={(e) => handleMarker("recolor", currMarker, e.target.value)}
+				onChange={(e) => {
+					handleMarker("recolor", currMarker, e.target.value);
+					this.setState({ defaultColor: e.target.value });
+				}}
 			>
 				<Radio.Button value="blue" className="blueButton">
 					Blue
@@ -126,10 +125,9 @@ class FingerprintWindow extends React.Component {
 						width={width}
 						height={height}
 						scaleXMin={1 / 2}
-						scaleXMax={4}
+						scaleXMax={10}
 						scaleYMin={1 / 2}
-						scaleYMax={4}
-						transformMatrix={initialTransform}
+						scaleYMax={10}
 					>
 						{(zoom) => (
 							<div className="fingerprintWindowContainer">
@@ -169,7 +167,13 @@ class FingerprintWindow extends React.Component {
 											const point = localPoint(event);
 											const transformedPt = zoom.applyInverseToPoint(point);
 											if (addingMarkers) {
-												addMarker(transformedPt.x, transformedPt.y, 0);
+												addMarker(
+													transformedPt.x,
+													transformedPt.y,
+													270,
+													this.state.defaultSize,
+													this.state.defaultColor
+												);
 											}
 										}}
 										onDoubleClick={(event) => {

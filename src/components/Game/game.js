@@ -383,9 +383,9 @@ class Game extends React.Component {
 	// Adds a marker to the markers array
 	// x and y are the coordinates on the image
 	// orientation goes from 0 (up) to 359 degrees clockwise
-	addMarker = (x, y, orientation) => {
+	addMarker = (x, y, orientation, size, color) => {
 		this.setState((prevState) => ({
-			markers: [...prevState.markers, { x, y, orientation, size: 50, color: "blue" }],
+			markers: [...prevState.markers, { x, y, orientation, size, color }],
 			addingMarkers: false,
 		}));
 	};
@@ -404,7 +404,6 @@ class Game extends React.Component {
 				prevMarkers[index] = { ...prevMarkers[index], color: value };
 				break;
 			case "move":
-				// console.log(value);
 				prevMarkers[index] = {
 					...prevMarkers[index],
 					x: prevMarkers[index].x + (value.x || 0),
