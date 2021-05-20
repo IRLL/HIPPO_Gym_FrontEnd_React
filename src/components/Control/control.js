@@ -8,17 +8,8 @@ import sentenceCase from "../../utils/sentenceCase";
 
 class ControlPanel extends React.Component {
 	render() {
-		const {
-			isEnd,
-			isLoading,
-			frameRate,
-			UIlist,
-			brightness,
-			contrast,
-			saturation,
-			hue,
-			addingMarkers,
-		} = this.props;
+		const { isEnd, isLoading, frameRate, UIlist, brightness, contrast, saturation, hue } =
+			this.props;
 
 		const directions = [
 			"left",
@@ -49,9 +40,7 @@ class ControlPanel extends React.Component {
 			{ name: "hue", min: 0, max: 360, default: 0, ref: hue },
 		];
 
-		{
-			// TODO: Add the instructions to config.yml instead of hardcoding it
-		}
+		// TODO: Add the instructions to config.yml instead of hardcoding it
 		const instructions = [
 			"Select a marker to edit it",
 			"Scroll (mouse), pinch (touchpad/mousepad), or use arrow keys to zoom",
@@ -159,14 +148,14 @@ class ControlPanel extends React.Component {
 			);
 		});
 		instructions.forEach((instruction, i) => {
-			elements[`instruction${i}`] = <li>{instruction}</li>;
+			elements[`instruction${i}`] = <li key={`instruction${i}`}>{instruction}</li>;
 			instructionUI.push(elements[`instruction${i}`]);
 		});
 		imageControls.forEach((control) => {
 			elements[control.name] = (
 				<Col key={control.name} className="space-align-container" flex="1" align="center">
 					{UIlist.includes(control.name) && (
-						<div className="space-align-block" className="imageControlTextContainer">
+						<div className="space-align-block imageControlTextContainer">
 							<Space align="center">
 								<span>{icons[control.name]}</span>
 								<p className="imageControlText">{capitalize(control.name)}</p>
@@ -255,7 +244,7 @@ class ControlPanel extends React.Component {
 				{!isLoading && (
 					<div className="controlPanel">
 						<div className="panelContainer">
-							{instructions != [] && <Divider>Instructions </Divider>}
+							{instructions !== [] && <Divider>Instructions </Divider>}
 							<Row gutter={[4, 8]} justify="start">
 								<ul>{instructionUI}</ul>
 							</Row>

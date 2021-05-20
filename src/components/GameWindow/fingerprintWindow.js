@@ -11,7 +11,8 @@ import { RectClipPath } from "@vx/clip-path";
 class FingerprintWindow extends React.Component {
 	state = {
 		currMarker: null,
-		moving: false
+		move: false,
+		moving: false,
 	};
 
 	render() {
@@ -61,7 +62,10 @@ class FingerprintWindow extends React.Component {
 		);
 
 		const colorPicker = (
-			<Radio.Group defaultValue="blue" onChange={(e) => handleMarker("recolor", currMarker, e.target.value)}>
+			<Radio.Group
+				defaultValue="blue"
+				onChange={(e) => handleMarker("recolor", currMarker, e.target.value)}
+			>
 				<Radio.Button value="blue" className="blueButton">
 					Blue
 				</Radio.Button>
@@ -78,34 +82,34 @@ class FingerprintWindow extends React.Component {
 					Orange
 				</Radio.Button>
 			</Radio.Group>
-		)
+		);
 
 		const popupMenu = (
 			<>
 				<Popover trigger="click" content={rotationSlider} title="Rotate Marker">
 					<Button type="default" icon={icons["rotateImage"]} />
 				</Popover>
-				<Popover trigger="click" content={sizeSlider} title="Resize Marker" style={{ margin: "0 0.5rem" }}>
-					<Button type="default" icon={icons["resizeImage"]} />
+				<Popover trigger="click" content={sizeSlider} title="Resize Marker">
+					<Button type="default" icon={icons["resizeImage"]} style={{ margin: "0 0.5rem" }} />
 				</Popover>
 				<Popover trigger="click" content={colorPicker} title="Change Color">
 					<Button type="default" icon={icons["recolorMarker"]} />
 				</Popover>
 				<Tooltip placement="top" title="Move Marker">
 					<Button
-						type="default"
+						type={this.state.move ? "primary" : "default"}
 						icon={icons["moveMarker"]}
 						style={{ margin: "0 0.5rem" }}
-						onMouseDown={() => this.setState({dragging: true})}
-						onTouchStart={() => this.setState({dragging: true})}
-						onMouseUp={() => this.setState({dragging: false})}
-						onTouchEnd={() => this.setState({dragging: false})}
-						onMouseMove={(e) => handleMarker("move", currMarker, {x: e.offsetX, y: e.offsetY})}
-						onTouchMove={(e) => handleMarker("move", currMarker, {x: e.offsetX, y: e.offsetY})}
+						onClick={() => this.setState((prevState) => ({ move: !prevState.move }))}
 					/>
 				</Tooltip>
 				<Tooltip placement="top" title="Delete Marker">
-					<Button type="default" icon={icons["resetImage"]} style={{ color: "red" }} onClick={() => handleMarker("delete", currMarker, null)} />
+					<Button
+						type="default"
+						icon={icons["resetImage"]}
+						style={{ color: "red" }}
+						onClick={() => handleMarker("delete", currMarker, null)}
+					/>
 				</Tooltip>
 			</>
 		);
@@ -176,19 +180,40 @@ class FingerprintWindow extends React.Component {
 									<g transform={zoom.toString()}>
 										{markers.map((marker, i) => {
 											return (
-												<Popover trigger="click" content={popupMenu} key={`marker${i}`}>
+												<Popover
+													trigger="click"
+													content={popupMenu}
+													key={`marker${i}`}
+													// visible={!this.state.moving || !this.state.move}
+												>
 													<image
 														alt="marker"
 														x={marker.x - Math.round(marker.size / 2)}
 														y={marker.y - Math.round(marker.size / 2)}
 														width={marker.size}
+														className={this.state.moving ? "moveCursor" : ""}
 														height={marker.size}
-														href={process.env.PUBLIC_URL + `./fingerprint_marker${marker.color !== "blue" ? ("_" + marker.color) : ""}.svg`}
+														href={
+															process.env.PUBLIC_URL + `./fingerprint_marker_${marker.color}.svg`
+														}
 														onClick={() => this.setState({ currMarker: i })}
 														style={{
 															transform: `rotate(${marker.orientation}deg)`,
 															transformOrigin: `${marker.x}px ${marker.y}px`,
 														}}
+														onMouseMove={(e) =>
+															this.state.moving &&
+															handleMarker("move", currMarker, { x: e.movementX, y: e.movementY })
+														}
+														onTouchMove={(e) =>
+															this.state.moving &&
+															handleMarker("move", currMarker, { x: e.movementX, y: e.movementY })
+														}
+														onMouseDown={() => this.state.move && this.setState({ moving: true })}
+														onTouchStart={() => this.state.move && this.setState({ moving: true })}
+														onMouseUp={() => this.state.move && this.setState({ moving: false })}
+														onTouchEnd={() => this.state.move && this.setState({ moving: false })}
+														onMouseLeave={() => this.setState({ moving: false })}
 													/>
 												</Popover>
 											);
@@ -200,10 +225,8 @@ class FingerprintWindow extends React.Component {
 									<g
 										clipPath="url(#zoom-clip)"
 										transform={`
-                                                    scale(0.25)
-                                                    translate(${width * 4 - width - 60} ${
-											height * 4 - height - 60
-										})`}
+											scale(0.25)
+											translate(${width * 4 - width - 60} ${height * 4 - height - 60})`}
 										className="fingerprintMinimap"
 									>
 										<rect width={width} height={height} fill="#1a1a1a" />
@@ -234,11 +257,8 @@ class FingerprintWindow extends React.Component {
 									>
 										-
 									</button>
-									<button className="fingerprintBtn fingerprintResizeBtn" onClick={zoom.center}>
-										Center
-									</button>
 									<button className="fingerprintBtn fingerprintResizeBtn" onClick={zoom.clear}>
-										Clear
+										Center
 									</button>
 								</div>
 							</div>
