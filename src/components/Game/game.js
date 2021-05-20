@@ -42,7 +42,8 @@ class Game extends React.Component {
 		hue: 0,
 		addingMarkers: false,
 		markers: [],
-		previousState: { brightness: 100, contrast: 100, saturation: 100, hue: 0 },
+		previousState: { brightness: 100, contrast: 100, saturation: 100, hue: 0 , markers: []},
+		undoList: [{ brightness: 100, contrast: 100, saturation: 100, hue: 0 , markers: []}],
 		// TODO: Add the fingerprint prop to config.yml instead of hardcoding it
 		fingerprint: true,
 		resetModalisVisible: false,
@@ -264,31 +265,47 @@ class Game extends React.Component {
 	};
 
 	// Change the brightness of the image
+	// this.setState((prevState) => ({
+	// 	markers: [...prevState.markers, { x, y, orientation, size: 50 }],
+	// 	addingMarkers: false,
+	// }));
 	handleImage = (type, value) => {
 		switch (type) {
 			case "brightness":
-				this.setState({
-					previousState: { ...this.state.previousState, brightness: this.state.brightness },
+				this.setState((prevState) => ({
+					previousState: {...this.state.previousState, brightness: this.state.brightness},
 					brightness: value,
-				});
+					undoList: [...prevState.undoList, this.state.previousState]
+				}),
+				() => console.log("b", this.state.undoList)
+				);
 				break;
 			case "contrast":
-				this.setState({
+				this.setState((prevState) => ({
 					previousState: { ...this.state.previousState, contrast: this.state.contrast },
 					contrast: value,
-				});
+					undoList: [...prevState.undoList, this.state.previousState]
+				}),
+				() => console.log("c",this.state.undoList)
+				);
 				break;
 			case "saturation":
-				this.setState({
+				this.setState( (prevState) => ({
 					previousState: { ...this.state.previousState, saturation: this.state.saturation },
 					saturation: value,
-				});
+					undoList: [...prevState.undoList, this.state.previousState]
+				}),
+				() => console.log("s",this.state.undoList)
+				);
 				break;
 			case "hue":
-				this.setState({
+				this.setState((prevState) => ({
 					previousState: { ...this.state.previousState, hue: this.state.hue },
 					hue: value,
-				});
+					undoList: [...prevState.undoList, this.state.previousState]
+				}),
+				() => console.log("h",this.state.undoList)
+				);
 				break;
 		}
 	};
@@ -325,15 +342,24 @@ class Game extends React.Component {
 				});
 				break;
 			case "undo":
+				if (this.state.undoList.length) {
+					this.setState({
+						previousState: this.state.undoList.pop()
+					})
+				} else { console.log("Can't undo anymore") }
 				this.setState({
 					brightness: this.state.previousState.brightness,
 					contrast: this.state.previousState.contrast,
 					saturation: this.state.previousState.saturation,
 					hue: this.state.previousState.hue,
-				});
+					markers: this.state.previousState.markers,
+				},
+				() => console.log("undo command: ", this.state.undoList)
+				);
 				break;
 			case "addMarker":
 				this.setState({
+					previousState: {...this.state.previousState, markers: this.state.markers},
 					addingMarkers: !this.state.addingMarkers,
 				});
 				console.log("adding marker: ", this.state.addingMarkers);
@@ -348,7 +374,7 @@ class Game extends React.Component {
 	// orientation goes from 0 (up) to 359 degrees clockwise
 	addMarker = (x, y, orientation) => {
 		this.setState((prevState) => ({
-			markers: [...prevState.markers, { x, y, orientation, size: 50 }],
+			markers: [...prevState.markers, { x, y, orientation, size: 50, color: "blue" }],
 			addingMarkers: false,
 		}));
 	};
@@ -363,8 +389,18 @@ class Game extends React.Component {
 			case "resize":
 				prevMarkers[index] = { ...prevMarkers[index], size: value };
 				break;
+			case "recolor":
+				prevMarkers[index] = { ...prevMarkers[index], color: value };
+				break;
+			case "move":
+				prevMarkers[index] = 
+					{ ...prevMarkers[index],
+						x: prevMarkers[index].x + (value.x || 0),
+						y: prevMarkers[index].y + (value.y || 0) };
+				break;
+			case "delete":
+				prevMarkers.splice(index, 1)
 		}
-
 		this.setState({ markers: prevMarkers });
 	};
 
@@ -483,9 +519,6 @@ class Game extends React.Component {
 				<Modal
 					title="Reset Image"
 					visible={resetModalisVisible}
-					// onOk={() => this.handleResetOk(true)}
-					// onCancel={this.handleResetCancel}
-					// okText="OK"
 					cancelText="Keep Markers"
 					footer={[
 						<Button key="cancel" type="default" onClick={this.handleResetCancel}>

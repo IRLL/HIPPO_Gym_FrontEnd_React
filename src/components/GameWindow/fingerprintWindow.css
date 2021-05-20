@@ -49,3 +49,35 @@
 .fingerprintMinimap {
     pointer-events: none;
 }
+
+.greenButton:hover,
+.greenButton:checked,
+.greenButton:focus,
+.greenButton:active {
+  color: #52c41a !important;
+  border: solid 1px #52c41a !important;
+}
+
+.yellowButton:hover,
+.yellowButton:checked,
+.yellowButton:focus,
+.yellowButton:active {
+  color: #d4b106 !important;
+  border: solid 1px #fadb14 !important;
+}
+
+.redButton:hover,
+.redButton:checked,
+.redButton:focus,
+.redButton:active {
+  color: #f5222d !important;
+  border: solid 1px #f5222d !important;
+}
+
+.orangeButton:hover,
+.orangeButton:checked,
+.orangeButton:focus,
+.orangeButton:active {
+  color: #fa8c16 !important;
+  border: solid 1px #fa8c16 !important;
+}

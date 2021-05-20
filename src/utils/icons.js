@@ -8,7 +8,7 @@ import { MdRotate90DegreesCcw } from "react-icons/md";
 import {CaretRightOutlined, PauseOutlined, ReloadOutlined, UpOutlined,
     DownOutlined, StopOutlined, CloudUploadOutlined,CloudDownloadOutlined,
     SendOutlined, CheckOutlined, CloseOutlined, UndoOutlined, RedoOutlined,
-    PlusCircleOutlined, DeleteOutlined, CheckCircleOutlined} from '@ant-design/icons';
+    PlusCircleOutlined, DeleteOutlined, CheckCircleOutlined, DragOutlined, BgColorsOutlined} from '@ant-design/icons';
 
 export const icons = {
     "left" : <ImArrowLeft2 />,
@@ -42,4 +42,6 @@ export const icons = {
     "submitImage": <CheckCircleOutlined />,
     "rotateImage": <MdRotate90DegreesCcw />,
     "resizeImage": <IoIosResize />,
+    "recolorMarker": <BgColorsOutlined />,
+    "moveMarker": <DragOutlined />
 }

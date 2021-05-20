@@ -1,5 +1,5 @@
 import React from "react";
-import { Progress, Popover, Button, Slider, Tooltip } from "antd";
+import { Progress, Popover, Button, Slider, Tooltip, Radio } from "antd";
 import { icons } from "../../utils/icons";
 import "./fingerprintWindow.css";
 
@@ -8,10 +8,10 @@ import { localPoint } from "@vx/event";
 import { RectClipPath } from "@vx/clip-path";
 
 // Reference: https://vx-demo.vercel.app/zoom-iu
-
 class FingerprintWindow extends React.Component {
 	state = {
 		currMarker: null,
+		moving: false
 	};
 
 	render() {
@@ -60,16 +60,52 @@ class FingerprintWindow extends React.Component {
 			/>
 		);
 
+		const colorPicker = (
+			<Radio.Group defaultValue="blue" onChange={(e) => handleMarker("recolor", currMarker, e.target.value)}>
+				<Radio.Button value="blue" className="blueButton">
+					Blue
+				</Radio.Button>
+				<Radio.Button value="green" className="greenButton">
+					Green
+				</Radio.Button>
+				<Radio.Button value="yellow" className="yellowButton">
+					Yellow
+				</Radio.Button>
+				<Radio.Button value="red" className="redButton">
+					Red
+				</Radio.Button>
+				<Radio.Button value="orange" className="orangeButton">
+					Orange
+				</Radio.Button>
+			</Radio.Group>
+		)
+
 		const popupMenu = (
 			<>
 				<Popover trigger="click" content={rotationSlider} title="Rotate Marker">
-					<Button type="default" icon={icons["rotateImage"]} style={{ marginRight: "0.5rem" }} />
+					<Button type="default" icon={icons["rotateImage"]} />
 				</Popover>
-				<Popover trigger="click" content={sizeSlider} title="Resize Marker">
+				<Popover trigger="click" content={sizeSlider} title="Resize Marker" style={{ margin: "0 0.5rem" }}>
 					<Button type="default" icon={icons["resizeImage"]} />
 				</Popover>
+				<Popover trigger="click" content={colorPicker} title="Change Color">
+					<Button type="default" icon={icons["recolorMarker"]} />
+				</Popover>
+				<Tooltip placement="top" title="Move Marker">
+					<Button
+						type="default"
+						icon={icons["moveMarker"]}
+						style={{ margin: "0 0.5rem" }}
+						onMouseDown={() => this.setState({dragging: true})}
+						onTouchStart={() => this.setState({dragging: true})}
+						onMouseUp={() => this.setState({dragging: false})}
+						onTouchEnd={() => this.setState({dragging: false})}
+						onMouseMove={(e) => handleMarker("move", currMarker, {x: e.offsetX, y: e.offsetY})}
+						onTouchMove={(e) => handleMarker("move", currMarker, {x: e.offsetX, y: e.offsetY})}
+					/>
+				</Tooltip>
 				<Tooltip placement="top" title="Delete Marker">
-					<Button type="default" icon={icons["resetImage"]} style={{ marginLeft: "0.5rem" }} />
+					<Button type="default" icon={icons["resetImage"]} style={{ color: "red" }} onClick={() => handleMarker("delete", currMarker, null)} />
 				</Tooltip>
 			</>
 		);
@@ -147,7 +183,7 @@ class FingerprintWindow extends React.Component {
 														y={marker.y - Math.round(marker.size / 2)}
 														width={marker.size}
 														height={marker.size}
-														href={process.env.PUBLIC_URL + "./fingerprint_marker.svg"}
+														href={process.env.PUBLIC_URL + `./fingerprint_marker${marker.color !== "blue" ? ("_" + marker.color) : ""}.svg`}
 														onClick={() => this.setState({ currMarker: i })}
 														style={{
 															transform: `rotate(${marker.orientation}deg)`,
