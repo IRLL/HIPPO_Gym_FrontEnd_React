@@ -29,6 +29,20 @@
 	border-radius: 20px;
 }
 
+/* set animation for instructions */
+.instructions {
+	animation-name: example;
+	animation-duration: 5s;
+	transition: 3s;
+}
+
+@keyframes example{
+	0% {color: rgb(164, 165, 152);}
+	30% {color: rgb(146, 25, 55);}
+	60% {color: rgb(211, 54, 93);}
+    80% {color: rgb(146, 25, 55);}
+}
+
 /* Set the background color for each button
    Set the text color for each button
    Set the border color for each button */

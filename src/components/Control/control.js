@@ -13,6 +13,7 @@ class ControlPanel extends React.Component {
 			isLoading,
 			frameRate,
 			UIlist,
+			instructions,
 			brightness,
 			contrast,
 			saturation,
@@ -52,11 +53,6 @@ class ControlPanel extends React.Component {
 		{
 			// TODO: Add the instructions to config.yml instead of hardcoding it
 		}
-		const instructions = [
-			"Select a marker to edit it",
-			"Scroll (mouse), pinch (touchpad/mousepad), or use arrow keys to zoom",
-			"Drag or use space + arrow keys to move",
-		];
 		const instructionUI = [];
 		const imageCommands = [
 			"undo",
@@ -256,8 +252,8 @@ class ControlPanel extends React.Component {
 					<div className="controlPanel">
 						<div className="panelContainer">
 							{instructions != [] && <Divider>Instructions </Divider>}
-							<Row gutter={[4, 8]} justify="start">
-								<ul>{instructionUI}</ul>
+							<Row gutter={[4, 8]} justify="start" className="instructions">
+								<ul>{instructionUI}</ul> 
 							</Row>
 							<Divider>Controls </Divider>
 							<Row gutter={[4, 8]} justify="space-around">

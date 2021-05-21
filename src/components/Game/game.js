@@ -51,6 +51,7 @@ class Game extends React.Component {
 		markers: [],
 		undoList: [],
 		redoList: [],
+		instructions: [],
 		// TODO: Add the fingerprint prop to config.yml instead of hardcoding it
 		fingerprint: true,
 		resetModalisVisible: false,
@@ -112,6 +113,12 @@ class Game extends React.Component {
 						if (parsedData.UI) {
 							this.setState({
 								UIlist: parsedData.UI,
+							});
+						}
+						//Check if Instructions in response 
+						if (parsedData.Instructions) {
+							this.setState({
+								instructions: parsedData.Instructions,
 							});
 						}
 						//Check if frame related information in response
@@ -302,6 +309,10 @@ class Game extends React.Component {
 			this.handleAddPatch
 		)
 		this.setState(nextState)
+		// this.sendMessage({
+		// 	info: type, 
+		// 	value
+		// })
 	};
 
 	// on pressing ok, clear everythin including markers
@@ -345,6 +356,8 @@ class Game extends React.Component {
 				if (!isNotEmptyRedo) return;
 				this.setState(applyPatches(this.state, isNotEmptyRedo))
 				break;
+
+			// TODO: separate 
 			case "addMarker":
 				this.setState({
 					previousState: {...this.state.previousState, markers: this.state.markers},
@@ -402,6 +415,7 @@ class Game extends React.Component {
 			displayData,
 			isEnd,
 			UIlist,
+			instructions,
 			progress,
 			isVisible,
 			inputBudget,
@@ -475,6 +489,7 @@ class Game extends React.Component {
 					isLoading={isLoading}
 					frameRate={frameRate}
 					UIlist={UIlist}
+					instructions={instructions}
 					handleOk={this.handleOk}
 					handleFPS={this.handleFPS}
 					handleCommand={this.handleCommand}
