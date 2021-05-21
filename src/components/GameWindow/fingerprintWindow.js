@@ -91,9 +91,6 @@ class FingerprintWindow extends React.Component {
 				<Popover trigger="click" content={sizeSlider} title="Resize Marker">
 					<Button type="default" icon={icons["resizeImage"]} style={{ margin: "0 0.5rem" }} />
 				</Popover>
-				<Popover trigger="click" content={colorPicker} title="Change Color">
-					<Button type="default" icon={icons["recolorMarker"]} />
-				</Popover>
 				<Tooltip placement="top" title="Move Marker">
 					<Button
 						type={this.state.move ? "primary" : "default"}
@@ -102,6 +99,9 @@ class FingerprintWindow extends React.Component {
 						onClick={() => this.setState((prevState) => ({ move: !prevState.move }))}
 					/>
 				</Tooltip>
+				<Popover trigger="click" content={colorPicker} title="Change Color">
+					<Button type="default" icon={icons["recolorMarker"]} />
+				</Popover>
 				<Tooltip placement="top" title="Delete Marker">
 					<Button
 						type="default"
@@ -207,14 +207,17 @@ class FingerprintWindow extends React.Component {
 														}}
 														onMouseMove={(e) => {
 															if (this.state.moving) {
-																const point = localPoint(e);
-																handleMarker("move", currMarker, zoom.applyInverseToPoint(point));
+																const point = zoom.applyInverseToPoint(localPoint(e));
+																console.log(point);
+																handleMarker("move", currMarker, point);
 															}
 														}}
-														onTouchMove={(e) =>
-															this.state.moving &&
-															handleMarker("move", currMarker, { x: e.movementX, y: e.movementY })
-														}
+														onTouchMove={(e) => {
+															if (this.state.moving) {
+																const point = zoom.applyInverseToPoint(localPoint(e));
+																handleMarker("move", currMarker, point);
+															}
+														}}
 														onMouseDown={() => this.state.move && this.setState({ moving: true })}
 														onTouchStart={() => this.state.move && this.setState({ moving: true })}
 														onMouseUp={() => this.state.move && this.setState({ moving: false })}
