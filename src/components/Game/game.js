@@ -300,8 +300,6 @@ class Game extends React.Component {
 					case "hue":
 						draft.hue = value;
 						break;
-					case "markers":
-						draft.markers = this.state.markers;
 				}
 				draft.undoList.push({ name: type });
 				draft.redoList.push({ name: type });
@@ -357,16 +355,28 @@ class Game extends React.Component {
 				this.setState(applyPatches(this.state, isNotEmptyRedo));
 				break;
 
-			// TODO: separate 
+			// TODO: separate the following two 
 			case "addMarker":
-				this.setState({
-					previousState: { ...this.state.previousState, markers: this.state.markers },
-					addingMarkers: !this.state.addingMarkers,
-				});
+				// this.setState({
+				// 	previousState: { ...this.state.previousState, markers: this.state.markers },
+				// 	addingMarkers: !this.state.addingMarkers,
+				// });
+				const nextStateMarkers = produce(
+					this.state,
+					(draft) => {
+						draft.addingMarkers = !this.state.addingMarkers
+						draft.undoList.push({name: "markers"});
+						draft.redoList.push({name: "markers"});
+					},
+					this.handleAddPatch
+				)
+				this.setState(nextStateMarkers)
 				break;
+
 			case "submitImage":
 				this.handleCommand(status);
 				break;
+				
 			default:
 				return;
 		}
@@ -376,10 +386,21 @@ class Game extends React.Component {
 	// x and y are the coordinates on the image
 	// orientation goes from 0 (up) to 359 degrees clockwise
 	addMarker = (x, y, orientation, size, color) => {
-		this.setState((prevState) => ({
-			markers: [...prevState.markers, { x, y, orientation, size, color }],
-			addingMarkers: false,
-		}));
+		const nextStateMarkers = produce (
+			this.state,
+			(draft) => {
+				draft.markers = [...this.state.markers, { x, y, orientation, size, color }]
+				draft.addingMarkers = false
+				draft.undoList.push({name: "markers"});
+				draft.redoList.push({name: "markers"});
+			},
+			this.handleAddPatch
+		)
+		this.setState(nextStateMarkers)
+		// this.setState((prevState) => ({
+		// 	markers: [...prevState.markers, { x, y, orientation, size, color }],
+		// 	addingMarkers: false,
+		// }));
 	};
 
 	handleMarker = (type, index, value) => {
@@ -387,7 +408,19 @@ class Game extends React.Component {
 
 		switch (type) {
 			case "rotate":
-				prevMarkers[index] = { ...prevMarkers[index], orientation: value };
+				const nextStateMarkers = produce(
+					this.state,
+					(draft) => {
+						console.log(prevMarkers[index]);
+						console.log(draft.markers[index]);
+						draft.markers[index] = { ...this.state.markers[index], orientation: value };
+						draft.undoList.push({ name: type });
+						draft.redoList.push({ name: type });
+					},
+					this.handleAddPatch
+				)
+				this.setState(nextStateMarkers)
+				// prevMarkers[index] = { ...prevMarkers[index], orientation: value };
 				break;
 			case "resize":
 				prevMarkers[index] = { ...prevMarkers[index], size: value };
