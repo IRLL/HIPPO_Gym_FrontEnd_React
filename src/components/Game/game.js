@@ -13,13 +13,13 @@ import MessageViewer from "../Message/MessageViewer";
 import GameWindow from "../GameWindow/gameWindow";
 import FingerprintWindow from "../GameWindow/fingerprintWindow";
 
-import produce, { enablePatches,applyPatches } from "immer";
+import produce, { enablePatches, applyPatches } from "immer";
 
-enablePatches()
+enablePatches();
 
 const pendingTime = 30;
 
-const undo = []; 
+const undo = [];
 const redo = [];
 
 class Game extends React.Component {
@@ -243,7 +243,7 @@ class Game extends React.Component {
 	//send game control commands to the websocket server
 	handleCommand = (status) => {
 		if (this.state.isLoading) {
-			message.error("Please wait the connection to be established first!");
+			message.error("Please wait for the connection to be established first!");
 			return;
 		}
 		if (status === "start") {
@@ -280,31 +280,31 @@ class Game extends React.Component {
 
 	handleAddPatch = (patch, inversePatches) => {
 		undo.push(inversePatches);
-		redo.push(patch)
-	}
+		redo.push(patch);
+	};
 
 	handleImage = (type, value) => {
 		const nextState = produce(
 			this.state,
 			(draft) => {
-				switch(type) {
-					case "brightness": 
-						draft.brightness = value
+				switch (type) {
+					case "brightness":
+						draft.brightness = value;
 						break;
-					case "contrast": 
-						draft.contrast = value
+					case "contrast":
+						draft.contrast = value;
 						break;
-					case "saturation": 
-						draft.saturation = value
+					case "saturation":
+						draft.saturation = value;
 						break;
-					case "hue": 
-						draft.hue = value
+					case "hue":
+						draft.hue = value;
 						break;
 					case "markers":
-						draft.markers = this.state.markers
+						draft.markers = this.state.markers;
 				}
-				draft.undoList.push({ name: type});
-				draft.redoList.push({ name: type});
+				draft.undoList.push({ name: type });
+				draft.redoList.push({ name: type });
 			},
 			this.handleAddPatch
 		)
@@ -349,33 +349,35 @@ class Game extends React.Component {
 			case "undo":
 				const isNotEmptyUndo = undo.pop();
 				if (!isNotEmptyUndo) return;
-				this.setState(applyPatches(this.state, isNotEmptyUndo))
+				this.setState(applyPatches(this.state, isNotEmptyUndo));
 				break;
-			case "redo": 
+			case "redo":
 				const isNotEmptyRedo = redo.pop();
 				if (!isNotEmptyRedo) return;
-				this.setState(applyPatches(this.state, isNotEmptyRedo))
+				this.setState(applyPatches(this.state, isNotEmptyRedo));
 				break;
 
 			// TODO: separate 
 			case "addMarker":
 				this.setState({
-					previousState: {...this.state.previousState, markers: this.state.markers},
+					previousState: { ...this.state.previousState, markers: this.state.markers },
 					addingMarkers: !this.state.addingMarkers,
 				});
-				console.log("adding marker: ", this.state.addingMarkers);
 				break;
 			case "submitImage":
 				this.handleCommand(status);
+				break;
+			default:
+				return;
 		}
 	};
 
 	// Adds a marker to the markers array
 	// x and y are the coordinates on the image
 	// orientation goes from 0 (up) to 359 degrees clockwise
-	addMarker = (x, y, orientation) => {
+	addMarker = (x, y, orientation, size, color) => {
 		this.setState((prevState) => ({
-			markers: [...prevState.markers, { x, y, orientation, size: 50, color: "blue" }],
+			markers: [...prevState.markers, { x, y, orientation, size, color }],
 			addingMarkers: false,
 		}));
 	};
@@ -394,13 +396,17 @@ class Game extends React.Component {
 				prevMarkers[index] = { ...prevMarkers[index], color: value };
 				break;
 			case "move":
-				prevMarkers[index] = 
-					{ ...prevMarkers[index],
-						x: prevMarkers[index].x + (value.x || 0),
-						y: prevMarkers[index].y + (value.y || 0) };
+				prevMarkers[index] = {
+					...prevMarkers[index],
+					x: prevMarkers[index].x + (value.x || 0),
+					y: prevMarkers[index].y + (value.y || 0),
+				};
 				break;
 			case "delete":
-				prevMarkers.splice(index, 1)
+				prevMarkers.splice(index, 1);
+				break;
+			default:
+				return;
 		}
 		this.setState({ markers: prevMarkers });
 	};
