@@ -1,11 +1,12 @@
 import React from "react";
 import "antd/dist/antd.css";
 import "./game.css";
-import { message, Modal, Row, Col, Button } from "antd";
+import { message, Modal, Row, Col, Button, Radio } from "antd";
 import { w3cwebsocket } from "websocket";
 import { browserName, osName, browserVersion, osVersion } from "react-device-detect";
 import getKeyInput from "../../utils/getKeyInput";
 import { WS_URL, USER_ID, PROJECT_ID, SERVER, DEBUG } from "../../utils/constants";
+import { icons } from "../../utils/icons";
 import ControlPanel from "../Control/control";
 import BudgetBar from "../BudgetBar/budgetBar";
 import DisplayBar from "../DisplayBar/displayBar";
@@ -43,6 +44,7 @@ class Game extends React.Component {
 		inMessage: [], // a list of incoming messages
 		outMessage: [], // a list of outgoing messages
 		holdKey: null, // the key that is holding
+		orientation: "vertical",
 		brightness: 100,
 		contrast: 100,
 		saturation: 100,
@@ -440,13 +442,38 @@ class Game extends React.Component {
 
 		return (
 			<div>
+				<Radio.Group defaultValue="vertical" onChange={(e) => {this.setState({orientation: e.target.value})}} buttonStyle="solid" className="orientationToggle">
+					<Radio.Button value="vertical">
+						{icons["verticalSplit"]}
+					</Radio.Button>
+					<Radio.Button value="horizontal">
+						{icons["horizontalSplit"]}
+					</Radio.Button>
+				</Radio.Group>
+						
+
+				<DisplayBar 
+					visible={displayData !== null}
+					isLoading={isLoading}
+					displayData={displayData}
+				/>
+
+				<BudgetBar 
+					visible={inputBudget > 0}
+					isLoading={isLoading}
+					usedInputBudget={usedInputBudget}
+					inputBudget={inputBudget}
+				/>
+
+				<div className={`${this.state.orientation}Grid`}>
 				<Row>
+				
 					<Col flex={1}>
 						<MessageViewer title="Message In" data={inMessage} visible={DEBUG} />
 					</Col>
 
 					<Col flex={2} align="center">
-						{fingerprint ? (
+					{fingerprint ? (
 							<FingerprintWindow
 								className="gameContent"
 								frameSrc={frameSrc}
@@ -462,7 +489,7 @@ class Game extends React.Component {
 								handleMarker={this.handleMarker}
 							/>
 						) : (
-							<GameWindow
+							<GameWindow 
 								isLoading={isLoading}
 								frameSrc={frameSrc}
 								imageL={imageL}
@@ -477,18 +504,6 @@ class Game extends React.Component {
 					</Col>
 				</Row>
 
-				<BudgetBar
-					visible={inputBudget > 0}
-					isLoading={isLoading}
-					usedInputBudget={usedInputBudget}
-					inputBudget={inputBudget}
-				/>
-
-				<DisplayBar
-					visible={displayData !== null}
-					isLoading={isLoading}
-					displayData={displayData}
-				/>
 
 				<ControlPanel
 					isEnd={isEnd}
@@ -509,6 +524,7 @@ class Game extends React.Component {
 					hue={hue}
 					addingMarkers={addingMarkers}
 				/>
+				</div>
 
 				<Modal
 					title="Game end message"

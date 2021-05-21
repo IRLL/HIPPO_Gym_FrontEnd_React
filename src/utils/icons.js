@@ -5,6 +5,7 @@ import {BsFillBrightnessHighFill, BsDropletHalf} from "react-icons/bs";
 import {GrVulnerability} from 'react-icons/gr';
 import {IoIosColorFilter, IoIosResize} from 'react-icons/io';
 import { MdRotate90DegreesCcw } from "react-icons/md";
+import { VscSplitVertical, VscSplitHorizontal } from "react-icons/vsc";
 import {CaretRightOutlined, PauseOutlined, ReloadOutlined, UpOutlined,
     DownOutlined, StopOutlined, CloudUploadOutlined,CloudDownloadOutlined,
     SendOutlined, CheckOutlined, CloseOutlined, UndoOutlined, RedoOutlined,
@@ -43,5 +44,7 @@ export const icons = {
     "rotateImage": <MdRotate90DegreesCcw />,
     "resizeImage": <IoIosResize />,
     "recolorMarker": <BgColorsOutlined />,
-    "moveMarker": <DragOutlined />
+    "moveMarker": <DragOutlined />,
+    "verticalSplit": <VscSplitVertical />,
+    "horizontalSplit": <VscSplitHorizontal />,
 }
