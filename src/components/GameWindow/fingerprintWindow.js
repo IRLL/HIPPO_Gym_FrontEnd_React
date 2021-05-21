@@ -205,10 +205,12 @@ class FingerprintWindow extends React.Component {
 															transform: `rotate(${marker.orientation}deg)`,
 															transformOrigin: `${marker.x}px ${marker.y}px`,
 														}}
-														onMouseMove={(e) =>
-															this.state.moving &&
-															handleMarker("move", currMarker, { x: e.movementX, y: e.movementY })
-														}
+														onMouseMove={(e) => {
+															if (this.state.moving) {
+																const point = localPoint(e);
+																handleMarker("move", currMarker, zoom.applyInverseToPoint(point));
+															}
+														}}
 														onTouchMove={(e) =>
 															this.state.moving &&
 															handleMarker("move", currMarker, { x: e.movementX, y: e.movementY })
