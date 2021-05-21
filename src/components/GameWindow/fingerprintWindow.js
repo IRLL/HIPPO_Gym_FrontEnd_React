@@ -83,6 +83,8 @@ class FingerprintWindow extends React.Component {
 			</Radio.Group>
 		);
 
+
+
 		const popupMenu = (
 			<>
 				<Popover trigger="click" content={rotationSlider} title="Rotate Marker">

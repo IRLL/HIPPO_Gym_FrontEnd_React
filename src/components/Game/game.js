@@ -131,7 +131,7 @@ class Game extends React.Component {
 								frameSrc: "data:image/jpeg;base64, " + frame,
 								frameCount: prevState.frameCount + 1,
 								frameId: frameId,
-							}));
+							})); 
 						}
 
 						//check if imageL is in server's response
@@ -399,30 +399,13 @@ class Game extends React.Component {
 			this.handleAddPatch
 		)
 		this.setState(nextStateMarkers)
-		// this.setState((prevState) => ({
-		// 	markers: [...prevState.markers, { x, y, orientation, size, color }],
-		// 	addingMarkers: false,
-		// }));
 	};
 
 	handleMarker = (type, index, value) => {
-		let prevMarkers = this.state.markers;
-
+		let prevMarkers = [...this.state.markers];
 		switch (type) {
 			case "rotate":
-				const nextStateMarkers = produce(
-					this.state,
-					(draft) => {
-						console.log(prevMarkers[index]);
-						console.log(draft.markers[index]);
-						draft.markers[index] = { ...this.state.markers[index], orientation: value };
-						draft.undoList.push({ name: type });
-						draft.redoList.push({ name: type });
-					},
-					this.handleAddPatch
-				)
-				this.setState(nextStateMarkers)
-				// prevMarkers[index] = { ...prevMarkers[index], orientation: value };
+				prevMarkers[index] = { ...prevMarkers[index], orientation: value };
 				break;
 			case "resize":
 				prevMarkers[index] = { ...prevMarkers[index], size: value };
@@ -443,7 +426,16 @@ class Game extends React.Component {
 			default:
 				return;
 		}
-		this.setState({ markers: prevMarkers });
+		const nextStateMarkers = produce(
+			this.state,
+			(draft) => {
+				draft.markers = prevMarkers;
+				draft.undoList.push({ name: type });
+				draft.redoList.push({ name: type });
+			},
+			this.handleAddPatch
+		)
+		this.setState(nextStateMarkers)
 	};
 
 	render() {
