@@ -383,7 +383,7 @@ class Game extends React.Component {
 	};
 
 	handleMarker = (type, index, value) => {
-		const prevMarkers = this.state.markers;
+		let prevMarkers = this.state.markers;
 
 		switch (type) {
 			case "rotate":
@@ -398,8 +398,8 @@ class Game extends React.Component {
 			case "move":
 				prevMarkers[index] = {
 					...prevMarkers[index],
-					x: prevMarkers[index].x + (value.x || 0),
-					y: prevMarkers[index].y + (value.y || 0),
+					x: value.x || prevMarkers[index].x,
+					y: value.y || prevMarkers[index].y,
 				};
 				break;
 			case "delete":
