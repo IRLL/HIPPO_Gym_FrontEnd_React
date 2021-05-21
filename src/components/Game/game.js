@@ -13,7 +13,14 @@ import MessageViewer from "../Message/MessageViewer";
 import GameWindow from "../GameWindow/gameWindow";
 import FingerprintWindow from "../GameWindow/fingerprintWindow";
 
+import produce, { enablePatches, applyPatches } from "immer";
+
+enablePatches();
+
 const pendingTime = 30;
+
+const undo = [];
+const redo = [];
 
 class Game extends React.Component {
 	state = {
@@ -42,8 +49,8 @@ class Game extends React.Component {
 		hue: 0,
 		addingMarkers: false,
 		markers: [],
-		previousState: { brightness: 100, contrast: 100, saturation: 100, hue: 0, markers: [] },
-		undoList: [{ brightness: 100, contrast: 100, saturation: 100, hue: 0, markers: [] }],
+		undoList: [],
+		redoList: [],
 		// TODO: Add the fingerprint prop to config.yml instead of hardcoding it
 		fingerprint: true,
 		resetModalisVisible: false,
@@ -264,56 +271,37 @@ class Game extends React.Component {
 		}
 	};
 
-	// Change the brightness of the image
-	// this.setState((prevState) => ({
-	// 	markers: [...prevState.markers, { x, y, orientation, size: 50 }],
-	// 	addingMarkers: false,
-	// }));
+	handleAddPatch = (patch, inversePatches) => {
+		undo.push(inversePatches);
+		redo.push(patch);
+	};
+
 	handleImage = (type, value) => {
-		switch (type) {
-			case "brightness":
-				this.setState(
-					(prevState) => ({
-						previousState: { ...this.state.previousState, brightness: this.state.brightness },
-						brightness: value,
-						undoList: [...prevState.undoList, this.state.previousState],
-					}),
-					() => console.log("b", this.state.undoList)
-				);
-				break;
-			case "contrast":
-				this.setState(
-					(prevState) => ({
-						previousState: { ...this.state.previousState, contrast: this.state.contrast },
-						contrast: value,
-						undoList: [...prevState.undoList, this.state.previousState],
-					}),
-					() => console.log("c", this.state.undoList)
-				);
-				break;
-			case "saturation":
-				this.setState(
-					(prevState) => ({
-						previousState: { ...this.state.previousState, saturation: this.state.saturation },
-						saturation: value,
-						undoList: [...prevState.undoList, this.state.previousState],
-					}),
-					() => console.log("s", this.state.undoList)
-				);
-				break;
-			case "hue":
-				this.setState(
-					(prevState) => ({
-						previousState: { ...this.state.previousState, hue: this.state.hue },
-						hue: value,
-						undoList: [...prevState.undoList, this.state.previousState],
-					}),
-					() => console.log("h", this.state.undoList)
-				);
-				break;
-			default:
-				return;
-		}
+		const nextState = produce(
+			this.state,
+			(draft) => {
+				switch (type) {
+					case "brightness":
+						draft.brightness = value;
+						break;
+					case "contrast":
+						draft.contrast = value;
+						break;
+					case "saturation":
+						draft.saturation = value;
+						break;
+					case "hue":
+						draft.hue = value;
+						break;
+					case "markers":
+						draft.markers = this.state.markers;
+				}
+				draft.undoList.push({ name: type });
+				draft.redoList.push({ name: type });
+			},
+			this.handleAddPatch
+		);
+		this.setState(nextState);
 	};
 
 	// on pressing ok, clear everythin including markers
@@ -348,23 +336,14 @@ class Game extends React.Component {
 				});
 				break;
 			case "undo":
-				if (this.state.undoList.length) {
-					this.setState({
-						previousState: this.state.undoList.pop(),
-					});
-				} else {
-					console.log("Can't undo anymore");
-				}
-				this.setState(
-					{
-						brightness: this.state.previousState.brightness,
-						contrast: this.state.previousState.contrast,
-						saturation: this.state.previousState.saturation,
-						hue: this.state.previousState.hue,
-						markers: this.state.previousState.markers,
-					},
-					() => console.log("undo command: ", this.state.undoList)
-				);
+				const isNotEmptyUndo = undo.pop();
+				if (!isNotEmptyUndo) return;
+				this.setState(applyPatches(this.state, isNotEmptyUndo));
+				break;
+			case "redo":
+				const isNotEmptyRedo = redo.pop();
+				if (!isNotEmptyRedo) return;
+				this.setState(applyPatches(this.state, isNotEmptyRedo));
 				break;
 			case "addMarker":
 				this.setState({
