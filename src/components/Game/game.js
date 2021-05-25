@@ -213,18 +213,50 @@ class Game extends React.Component {
 	//change the confirmation modal to be invisible
 	//navigate to the post-game page
 	handleOk = (e) => {
-		this.setState({
-			isVisible: false,
-		});
-		this.props.action();
+		if (e.currentTarget.id == "keepMarkers") {
+			this.setState({
+				brightness: 100,
+				contrast: 100,
+				saturation: 100,
+				hue: 0,
+				resetModalisVisible: false,
+			});
+			this.sendMessage({
+				info: "reset excluding markers"
+			})
+		} else if (e.currentTarget.id == "resetAll") {
+			this.setState({
+				markers: [],
+				brightness: 100,
+				contrast: 100,
+				saturation: 100,
+				hue: 0,
+				resetModalisVisible: false,
+			});
+			this.sendMessage({
+				info: "reset all"
+			})
+		} else {
+			this.setState({
+				isVisible: false,
+			});
+			this.props.action();
+		}
 	};
 
 	//change the confirmation modal to be invisible
 	//stay on the game page
 	handleCancel = (e) => {
-		this.setState({
-			isVisible: false,
-		});
+		// this is for the cancel button in the "reset image" modal
+		if (e.currentTarget.id == 'resetCancel') {
+			this.setState({
+				resetModalisVisible: false,
+			});
+		} else {
+			this.setState({
+				isVisible: false,
+			});
+		}
 	};
 
 	//send data to websocket server in JSON format
@@ -256,6 +288,12 @@ class Game extends React.Component {
 				browser: browserName,
 				browserVersion: browserVersion,
 			});
+		} else if (status == "submitImage") {
+			this.sendMessage({
+				command: status,
+				markerList: this.state.markers,
+				imageName: "current_image"
+			})	
 		} else {
 			this.sendMessage({
 				command: status,
@@ -309,33 +347,10 @@ class Game extends React.Component {
 			this.handleAddPatch
 		)
 		this.setState(nextState)
-		// this.sendMessage({
-		// 	info: type, 
-		// 	value
-		// })
-	};
-
-	// on pressing ok, clear everythin including markers
-	// on pressing keep markers, don't clear the markers
-	// TODO : combine the handleok etc. commands for both modals
-	handleResetOk = (keepMarkers) => {
-		if (keepMarkers) {
-			this.setState({ markers: [] });
-		}
-		this.setState({
-			brightness: 100,
-			contrast: 100,
-			saturation: 100,
-			hue: 0,
-			resetModalisVisible: false,
-		});
-	};
-
-	// on pressing cancel, set the reset modal to false
-	handleResetCancel = () => {
-		this.setState({
-			resetModalisVisible: false,
-		});
+		this.sendMessage({
+			info: type, 
+			value
+		})
 	};
 
 	// perform commands like add marker, redo, undo, reset
@@ -357,12 +372,7 @@ class Game extends React.Component {
 				this.setState(applyPatches(this.state, isNotEmptyRedo));
 				break;
 
-			// TODO: separate the following two 
 			case "addMarker":
-				// this.setState({
-				// 	previousState: { ...this.state.previousState, markers: this.state.markers },
-				// 	addingMarkers: !this.state.addingMarkers,
-				// });
 				const nextStateMarkers = produce(
 					this.state,
 					(draft) => {
@@ -399,6 +409,10 @@ class Game extends React.Component {
 			this.handleAddPatch
 		)
 		this.setState(nextStateMarkers)
+		this.sendMessage({
+			info: "marker added",
+			marker: {x, y, orientation, size, color}
+		})
 	};
 
 	handleMarker = (type, index, value) => {
@@ -436,6 +450,10 @@ class Game extends React.Component {
 			this.handleAddPatch
 		)
 		this.setState(nextStateMarkers)
+		this.sendMessage({
+			info: "marker " + index +  " edited: " + type,
+			value
+		})
 	};
 
 	render() {
@@ -571,13 +589,13 @@ class Game extends React.Component {
 					visible={resetModalisVisible}
 					cancelText="Keep Markers"
 					footer={[
-						<Button key="cancel" type="default" onClick={this.handleResetCancel}>
+						<Button key="cancel" id="resetCancel" type="default" onClick={this.handleCancel}>
 							Cancel
 						</Button>,
-						<Button key="keepMarkers" type="default" onClick={() => this.handleResetOk(false)}>
+						<Button key="keepMarkers" id="keepMarkers" type="default" onClick={this.handleOk}>
 							Keep Markers
 						</Button>,
-						<Button key="ok" type="primary" onClick={() => this.handleResetOk(true)}>
+						<Button key="ok" id="resetAll" type="primary" onClick={this.handleOk}>
 							Reset All
 						</Button>,
 					]}
