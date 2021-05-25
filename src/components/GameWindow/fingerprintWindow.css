@@ -57,6 +57,9 @@
 	outline: white !important;
 	margin: 0 1px;
 }
+.blueButton .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled)::before {
+	background: #1890ff;
+}
 
 .greenButton {
 	color: #52c41a !important;
@@ -64,6 +67,14 @@
 	background-color: white !important;
 	outline: white !important;
 	margin: 0 1px;
+}
+.greenButton > .ant-radio-button,
+.greenButton > .ant-radio-button-inner,
+.greenButton > .ant-radio-button-wrapper-checked::before,
+.greenButton > .ant-radio-button-wrapper-checked,
+.greenButton > .ant-radio-button-wrapper {
+	background: #52c41a !important;
+	color: #52c41a !important;
 }
 
 .yellowButton {
@@ -93,3 +104,11 @@
 .moveCursor {
 	cursor: move;
 }
+
+.popupMenu Button:not(:last-of-type) {
+	margin-right: 0.5rem;
+}
+
+/* .colorPicker .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled)::before {
+	background: inherit;
+} */

@@ -64,6 +64,7 @@ class FingerprintWindow extends React.Component {
 					handleMarker("recolor", currMarker, e.target.value);
 					this.setState({ defaultColor: e.target.value });
 				}}
+				className="colorPicker"
 			>
 				<Radio.Button value="blue" className="blueButton">
 					Blue
@@ -83,26 +84,49 @@ class FingerprintWindow extends React.Component {
 			</Radio.Group>
 		);
 
+		const markerType = (
+			<Radio.Group
+				defaultValue={markers[currMarker] ? markers[currMarker].type : "Unknown"}
+				onChange={(e) => {
+					handleMarker("changeType", currMarker, e.target.value);
+				}}
+			>
+				<Radio value="Bifurcation">Bifurcation</Radio>
+				<Radio value="Ending">Ending</Radio>
+				<Radio value="Unknown">Unknown</Radio>
+			</Radio.Group>
+		);
+
 		const popupMenu = (
-			<>
-				<Popover trigger="click" content={rotationSlider} title="Rotate Marker">
-					<Button type="default" icon={icons["rotateImage"]} />
-				</Popover>
-				<Popover trigger="click" content={sizeSlider} title="Resize Marker">
-					<Button type="default" icon={icons["resizeImage"]} style={{ margin: "0 0.5rem" }} />
-				</Popover>
-				<Tooltip placement="top" title="Move Marker">
+			<div className="popupMenu">
+				<Tooltip placement="bottom" title="Rotate Marker">
+					<Popover trigger="click" content={rotationSlider} title="Rotate Marker">
+						<Button type="default" icon={icons["rotateImage"]} />
+					</Popover>
+				</Tooltip>
+				<Tooltip placement="bottom" title="Resize Marker">
+					<Popover trigger="click" content={sizeSlider} title="Resize Marker">
+						<Button type="default" icon={icons["resizeImage"]} />
+					</Popover>
+				</Tooltip>
+				<Tooltip placement="bottom" title="Move Marker">
 					<Button
 						type={this.state.move ? "primary" : "default"}
 						icon={icons["moveMarker"]}
-						style={{ margin: "0 0.5rem" }}
 						onClick={() => this.setState((prevState) => ({ move: !prevState.move }))}
 					/>
 				</Tooltip>
-				<Popover trigger="click" content={colorPicker} title="Change Color">
-					<Button type="default" icon={icons["recolorMarker"]} />
-				</Popover>
-				<Tooltip placement="top" title="Delete Marker">
+				<Tooltip placement="bottom" title="Change Color">
+					<Popover trigger="click" content={colorPicker} title="Change Color">
+						<Button type="default" icon={icons["recolorMarker"]} />
+					</Popover>
+				</Tooltip>
+				<Tooltip placement="bottom" title="Categorize Marker">
+					<Popover trigger="click" content={markerType} title="Categorize Marker">
+						<Button type="default" icon={icons["markerType"]} />
+					</Popover>
+				</Tooltip>
+				<Tooltip placement="bottom" title="Delete Marker">
 					<Button
 						type="default"
 						icon={icons["resetImage"]}
@@ -110,7 +134,7 @@ class FingerprintWindow extends React.Component {
 						onClick={() => handleMarker("delete", currMarker, null)}
 					/>
 				</Tooltip>
-			</>
+			</div>
 		);
 
 		return (
