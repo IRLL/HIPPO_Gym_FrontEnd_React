@@ -1,15 +1,35 @@
+.game {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
 /* Set the font size and font for text in model */
 .modal {
-    font-size: 16px;
-    color: #777;
-    font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
+	font-size: 16px;
+	color: #777;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial,
+		"Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol",
+		"Noto Color Emoji";
+}
+
+.verticalGrid {
+	width: min(80vw, 705px);
 }
 
 .horizontalGrid {
-    display: flex;
-    justify-content: space-around;
+	display: flex;
+	width: min(80vw, 1410px);
+	justify-content: space-between;
+	align-items: center;
 }
 
-.orientationToggle {
-    margin-left: 5vw;
+.verticalOrientationToggle {
+	margin-right: auto;
+	margin-left: max(10vw, calc((100vw - 705px) / 2));
+}
+
+.horizontalOrientationToggle {
+	margin-right: auto;
+	margin-left: max(10vw, calc((100vw - 1410px) / 2));
 }
