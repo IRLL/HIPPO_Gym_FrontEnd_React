@@ -397,7 +397,10 @@ class Game extends React.Component {
 		const nextStateMarkers = produce(
 			this.state,
 			(draft) => {
-				draft.markers = [...this.state.markers, { x, y, orientation, size, color }];
+				draft.markers = [
+					...this.state.markers,
+					{ x, y, orientation, size, color, type: "Unknown" },
+				];
 				draft.addingMarkers = false;
 				draft.undoList.push({ name: "markers" });
 				draft.redoList.push({ name: "markers" });
@@ -425,6 +428,9 @@ class Game extends React.Component {
 					x: value.x || prevMarkers[index].x,
 					y: value.y || prevMarkers[index].y,
 				};
+				break;
+			case "changeType":
+				prevMarkers[index] = { ...prevMarkers[index], type: value };
 				break;
 			case "delete":
 				prevMarkers.splice(index, 1);
