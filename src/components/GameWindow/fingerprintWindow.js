@@ -83,8 +83,6 @@ class FingerprintWindow extends React.Component {
 			</Radio.Group>
 		);
 
-
-
 		const popupMenu = (
 			<>
 				<Popover trigger="click" content={rotationSlider} title="Rotate Marker">
@@ -116,7 +114,7 @@ class FingerprintWindow extends React.Component {
 		);
 
 		return (
-			<div className="gameWindow">
+			<div>
 				{isLoading || !frameSrc ? (
 					<div className="progressBar">
 						<Progress width={80} type="circle" percent={Math.round(progress)} />

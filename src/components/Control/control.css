@@ -1,17 +1,12 @@
 /* Add a solid border to the panel
    Make the corners of panel rounded 
-   Add space to the top, left, and right of the panel
-   Set the width of the panel */
+   Add space to the top of the panel */
 .controlPanel {
 	border: solid;
 	border-radius: 10px;
 	margin-top: 20px;
-	margin-left: auto;
-	margin-right: auto;
-	/* width: 800px; */
-	/* Settings below added for responsiveness */
-	width: min(60vw, 50rem);
 	padding: 1rem 2rem;
+	flex: 1;
 }
 
 /* Remove the default border of the container
@@ -36,12 +31,22 @@
 	transition: 3s;
 }
 
-@keyframes example{
-	0% {color: rgb(164, 165, 152);}
-	20% {color: rgb(146, 25, 55);}
-	40% {color: rgb(180, 55, 86);}
-    60% {color: rgb(146, 25, 55);}
-	80% {color: rgb(180, 55, 86);}
+@keyframes example {
+	0% {
+		color: rgb(164, 165, 152);
+	}
+	20% {
+		color: rgb(146, 25, 55);
+	}
+	40% {
+		color: rgb(180, 55, 86);
+	}
+	60% {
+		color: rgb(146, 25, 55);
+	}
+	80% {
+		color: rgb(180, 55, 86);
+	}
 }
 
 /* Set the background color for each button
@@ -184,7 +189,3 @@
 .imageControlText {
 	margin: 0 0 0.25rem 0;
 }
-
-/* .imageControlTextContainer {
-	text-align: left;
-} */

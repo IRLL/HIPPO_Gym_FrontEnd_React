@@ -1,7 +1,7 @@
 /* Set the position style of the fingerprint container */
 .fingerprintWindowContainer {
+	flex: 1;
 	height: 605px;
-	width: 705px;
 	position: relative;
 	display: flex;
 	align-items: center;
@@ -93,12 +93,3 @@
 .moveCursor {
 	cursor: move;
 }
-/* 
-.orangeButton:enabled,
-.orangeButton:hover,
-.orangeButton:checked,
-.orangeButton:focus,
-.orangeButton:active {
-	color: white !important;
-	background-color: #fa8c16 !important;
-} */

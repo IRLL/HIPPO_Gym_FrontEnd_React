@@ -44,6 +44,7 @@ class Game extends React.Component {
 		inMessage: [], // a list of incoming messages
 		outMessage: [], // a list of outgoing messages
 		holdKey: null, // the key that is holding
+		clientWidth: 0,
 		orientation: "vertical",
 		brightness: 100,
 		contrast: 100,
@@ -117,7 +118,7 @@ class Game extends React.Component {
 								UIlist: parsedData.UI,
 							});
 						}
-						//Check if Instructions in response 
+						//Check if Instructions in response
 						if (parsedData.Instructions) {
 							this.setState({
 								instructions: parsedData.Instructions,
@@ -131,7 +132,7 @@ class Game extends React.Component {
 								frameSrc: "data:image/jpeg;base64, " + frame,
 								frameCount: prevState.frameCount + 1,
 								frameId: frameId,
-							})); 
+							}));
 						}
 
 						//check if imageL is in server's response
@@ -203,6 +204,13 @@ class Game extends React.Component {
 				}
 				this.sendMessage(dataToSend);
 			}
+		});
+
+		this.setState({ clientWidth: document.documentElement.clientWidth });
+
+		window.addEventListener("resize", () => {
+			this.setState({ clientWidth: document.documentElement.clientWidth });
+			// console.log(document.documentElement.clientWidth);
 		});
 	}
 
@@ -307,15 +315,15 @@ class Game extends React.Component {
 				draft.redoList.push({ name: type });
 			},
 			this.handleAddPatch
-		)
-		this.setState(nextState)
+		);
+		this.setState(nextState);
 		// this.sendMessage({
-		// 	info: type, 
+		// 	info: type,
 		// 	value
 		// })
 	};
 
-	// on pressing ok, clear everythin including markers
+	// on pressing ok, clear everything including markers
 	// on pressing keep markers, don't clear the markers
 	// TODO : combine the handleok etc. commands for both modals
 	handleResetOk = (keepMarkers) => {
@@ -356,8 +364,7 @@ class Game extends React.Component {
 				if (!isNotEmptyRedo) return;
 				this.setState(applyPatches(this.state, isNotEmptyRedo));
 				break;
-
-			// TODO: separate the following two 
+			// TODO: separate the following two
 			case "addMarker":
 				// this.setState({
 				// 	previousState: { ...this.state.previousState, markers: this.state.markers },
@@ -366,19 +373,18 @@ class Game extends React.Component {
 				const nextStateMarkers = produce(
 					this.state,
 					(draft) => {
-						draft.addingMarkers = !this.state.addingMarkers
-						draft.undoList.push({name: "markers"});
-						draft.redoList.push({name: "markers"});
+						draft.addingMarkers = !this.state.addingMarkers;
+						draft.undoList.push({ name: "markers" });
+						draft.redoList.push({ name: "markers" });
 					},
 					this.handleAddPatch
-				)
-				this.setState(nextStateMarkers)
+				);
+				this.setState(nextStateMarkers);
 				break;
-
 			case "submitImage":
 				this.handleCommand(status);
 				break;
-				
+
 			default:
 				return;
 		}
@@ -388,17 +394,17 @@ class Game extends React.Component {
 	// x and y are the coordinates on the image
 	// orientation goes from 0 (up) to 359 degrees clockwise
 	addMarker = (x, y, orientation, size, color) => {
-		const nextStateMarkers = produce (
+		const nextStateMarkers = produce(
 			this.state,
 			(draft) => {
-				draft.markers = [...this.state.markers, { x, y, orientation, size, color }]
-				draft.addingMarkers = false
-				draft.undoList.push({name: "markers"});
-				draft.redoList.push({name: "markers"});
+				draft.markers = [...this.state.markers, { x, y, orientation, size, color }];
+				draft.addingMarkers = false;
+				draft.undoList.push({ name: "markers" });
+				draft.redoList.push({ name: "markers" });
 			},
 			this.handleAddPatch
-		)
-		this.setState(nextStateMarkers)
+		);
+		this.setState(nextStateMarkers);
 	};
 
 	handleMarker = (type, index, value) => {
@@ -434,8 +440,8 @@ class Game extends React.Component {
 				draft.redoList.push({ name: type });
 			},
 			this.handleAddPatch
-		)
-		this.setState(nextStateMarkers)
+		);
+		this.setState(nextStateMarkers);
 	};
 
 	render() {
@@ -463,92 +469,101 @@ class Game extends React.Component {
 			markers,
 			addingMarkers,
 			resetModalisVisible,
+			clientWidth,
+			orientation,
 		} = this.state;
 
 		return (
-			<div>
-				<Radio.Group defaultValue="vertical" onChange={(e) => {this.setState({orientation: e.target.value})}} buttonStyle="solid" className="orientationToggle">
-					<Radio.Button value="vertical">
-						{icons["verticalSplit"]}
-					</Radio.Button>
-					<Radio.Button value="horizontal">
-						{icons["horizontalSplit"]}
-					</Radio.Button>
+			<div className="game">
+				<Radio.Group
+					defaultValue="vertical"
+					onChange={(e) => {
+						this.setState({ orientation: e.target.value });
+					}}
+					buttonStyle="solid"
+					className={`${orientation}OrientationToggle`}
+				>
+					<Radio.Button value="vertical">{icons["verticalSplit"]}</Radio.Button>
+					<Radio.Button value="horizontal">{icons["horizontalSplit"]}</Radio.Button>
 				</Radio.Group>
-						
 
-				<DisplayBar 
+				<DisplayBar
 					visible={displayData !== null}
 					isLoading={isLoading}
 					displayData={displayData}
 				/>
 
-				<BudgetBar 
+				<BudgetBar
 					visible={inputBudget > 0}
 					isLoading={isLoading}
 					usedInputBudget={usedInputBudget}
 					inputBudget={inputBudget}
 				/>
 
-				<div className={`${this.state.orientation}Grid`}>
-				<Row>
-				
-					<Col flex={1}>
-						<MessageViewer title="Message In" data={inMessage} visible={DEBUG} />
-					</Col>
+				<div className={`${orientation}Grid`}>
+					<Row>
+						<Col flex={1}>
+							<MessageViewer title="Message In" data={inMessage} visible={DEBUG} />
+						</Col>
 
-					<Col flex={2} align="center">
-					{fingerprint ? (
-							<FingerprintWindow
-								className="gameContent"
-								frameSrc={frameSrc}
-								width={700}
-								height={600}
-								brightness={brightness}
-								contrast={contrast}
-								saturation={saturation}
-								hue={hue}
-								markers={markers}
-								addMarker={this.addMarker}
-								addingMarkers={addingMarkers}
-								handleMarker={this.handleMarker}
-							/>
-						) : (
-							<GameWindow 
-								isLoading={isLoading}
-								frameSrc={frameSrc}
-								imageL={imageL}
-								imageR={imageR}
-								progress={progress}
-							/>
-						)}
-					</Col>
+						<Col flex={2} align="center">
+							{fingerprint ? (
+								<FingerprintWindow
+									frameSrc={frameSrc}
+									width={
+										orientation == "vertical"
+											? clientWidth > 700
+												? 700
+												: 0.8 * clientWidth
+											: 0.4 * clientWidth > 700
+											? 700
+											: 0.4 * clientWidth
+									}
+									height={600}
+									brightness={brightness}
+									contrast={contrast}
+									saturation={saturation}
+									hue={hue}
+									markers={markers}
+									addMarker={this.addMarker}
+									addingMarkers={addingMarkers}
+									handleMarker={this.handleMarker}
+								/>
+							) : (
+								<GameWindow
+									isLoading={isLoading}
+									frameSrc={frameSrc}
+									imageL={imageL}
+									imageR={imageR}
+									progress={progress}
+								/>
+							)}
+						</Col>
 
-					<Col flex={1}>
-						<MessageViewer title="Message Out" data={outMessage} visible={DEBUG} />
-					</Col>
-				</Row>
+						<Col flex={1}>
+							<MessageViewer title="Message Out" data={outMessage} visible={DEBUG} />
+						</Col>
+					</Row>
 
-
-				<ControlPanel
-					isEnd={isEnd}
-					isLoading={isLoading}
-					frameRate={frameRate}
-					UIlist={UIlist}
-					instructions={instructions}
-					handleOk={this.handleOk}
-					handleFPS={this.handleFPS}
-					handleCommand={this.handleCommand}
-					handleImage={this.handleImage}
-					handleImageCommands={this.handleImageCommands}
-					sendMessage={this.sendMessage}
-					addMarker={this.addMarker}
-					brightness={brightness}
-					contrast={contrast}
-					saturation={saturation}
-					hue={hue}
-					addingMarkers={addingMarkers}
-				/>
+					<ControlPanel
+						isEnd={isEnd}
+						isLoading={isLoading}
+						frameRate={frameRate}
+						UIlist={UIlist}
+						instructions={instructions}
+						handleOk={this.handleOk}
+						handleFPS={this.handleFPS}
+						handleCommand={this.handleCommand}
+						handleImage={this.handleImage}
+						handleImageCommands={this.handleImageCommands}
+						sendMessage={this.sendMessage}
+						addMarker={this.addMarker}
+						brightness={brightness}
+						contrast={contrast}
+						saturation={saturation}
+						hue={hue}
+						addingMarkers={addingMarkers}
+					/>
 				</div>
 
 				<Modal
