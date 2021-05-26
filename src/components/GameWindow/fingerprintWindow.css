@@ -105,10 +105,10 @@
 	cursor: move;
 }
 
+.pointerCursor {
+	cursor: pointer;
+}
+
 .popupMenu Button:not(:last-of-type) {
 	margin-right: 0.5rem;
 }
-
-/* .colorPicker .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled)::before {
-	background: inherit;
-} */

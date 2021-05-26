@@ -44,20 +44,30 @@ class Game extends React.Component {
 		inMessage: [], // a list of incoming messages
 		outMessage: [], // a list of outgoing messages
 		holdKey: null, // the key that is holding
-		clientWidth: 0,
+
+		// TODO: Add the fingerprint prop to config.yml instead of hardcoding it
+		fingerprint: true,
+		resetModalisVisible: false,
 		orientation: "vertical",
+
+		// For image marking functionality
 		brightness: 100,
 		contrast: 100,
 		saturation: 100,
 		hue: 0,
 		addingMarkers: false,
 		markers: [],
+
+		// For undo and redo functionality
 		undoList: [],
 		redoList: [],
 		instructions: [],
-		// TODO: Add the fingerprint prop to config.yml instead of hardcoding it
-		fingerprint: true,
-		resetModalisVisible: false,
+
+		// Widths and heights for responsiveness
+		clientWidth: 1080,
+		windowHeight: 600,
+		imageWidth: 0,
+		imageHeight: 0,
 	};
 
 	componentDidMount() {
@@ -133,6 +143,15 @@ class Game extends React.Component {
 								frameCount: prevState.frameCount + 1,
 								frameId: frameId,
 							}));
+
+							const img = new Image();
+							img.src = "data:image/jpeg;base64, " + frame;
+							img.onload = () => {
+								this.setState({
+									imageWidth: img.width,
+									imageHeight: img.height,
+								});
+							};
 						}
 
 						//check if imageL is in server's response
@@ -206,11 +225,10 @@ class Game extends React.Component {
 			}
 		});
 
+		// Get the client window width to make the game window responsive
 		this.setState({ clientWidth: document.documentElement.clientWidth });
-
 		window.addEventListener("resize", () => {
 			this.setState({ clientWidth: document.documentElement.clientWidth });
-			// console.log(document.documentElement.clientWidth);
 		});
 	}
 
@@ -221,7 +239,7 @@ class Game extends React.Component {
 	//change the confirmation modal to be invisible
 	//navigate to the post-game page
 	handleOk = (e) => {
-		if (e.currentTarget.id == "keepMarkers") {
+		if (e.currentTarget.id === "keepMarkers") {
 			this.setState({
 				brightness: 100,
 				contrast: 100,
@@ -230,9 +248,9 @@ class Game extends React.Component {
 				resetModalisVisible: false,
 			});
 			this.sendMessage({
-				info: "reset excluding markers"
-			})
-		} else if (e.currentTarget.id == "resetAll") {
+				info: "reset excluding markers",
+			});
+		} else if (e.currentTarget.id === "resetAll") {
 			this.setState({
 				markers: [],
 				brightness: 100,
@@ -242,8 +260,8 @@ class Game extends React.Component {
 				resetModalisVisible: false,
 			});
 			this.sendMessage({
-				info: "reset all"
-			})
+				info: "reset all",
+			});
 		} else {
 			this.setState({
 				isVisible: false,
@@ -256,7 +274,7 @@ class Game extends React.Component {
 	//stay on the game page
 	handleCancel = (e) => {
 		// this is for the cancel button in the "reset image" modal
-		if (e.currentTarget.id == 'resetCancel') {
+		if (e.currentTarget.id === "resetCancel") {
 			this.setState({
 				resetModalisVisible: false,
 			});
@@ -296,12 +314,21 @@ class Game extends React.Component {
 				browser: browserName,
 				browserVersion: browserVersion,
 			});
-		} else if (status == "submitImage") {
+		} else if (status === "submitImage") {
 			this.sendMessage({
 				command: status,
 				markerList: this.state.markers,
-				imageName: "current_image"
-			})	
+				imageName: "current_image",
+			});
+			this.setState({
+				markers: [],
+				brightness: 100,
+				contrast: 100,
+				saturation: 100,
+				hue: 0,
+				undoList: [],
+				redoList: [],
+			});
 		} else {
 			this.sendMessage({
 				command: status,
@@ -348,17 +375,19 @@ class Game extends React.Component {
 					case "hue":
 						draft.hue = value;
 						break;
+					default:
+						return;
 				}
 				draft.undoList.push({ name: type });
 				draft.redoList.push({ name: type });
 			},
 			this.handleAddPatch
-		)
-		this.setState(nextState)
+		);
+		this.setState(nextState);
 		this.sendMessage({
-			info: type, 
-			value
-		})
+			info: type,
+			value,
+		});
 	};
 
 	// perform commands like add marker, redo, undo, reset
@@ -392,13 +421,55 @@ class Game extends React.Component {
 				this.setState(nextStateMarkers);
 				break;
 			case "submitImage":
-				this.handleCommand(status);
+				const newMarkers = this.normalizeMarkers(this.state.markers);
+				this.setState({ markers: newMarkers }, () => {
+					this.handleCommand(status);
+				});
 				break;
-
 			default:
 				return;
 		}
 	};
+
+	normalizeMarkers(markers) {
+		return markers.map((marker) => {
+			const windowWidth =
+				this.state.orientation === "vertical"
+					? this.state.clientWidth > this.state.windowHeight
+						? this.state.windowHeight
+						: 0.8 * this.state.clientWidth
+					: 0.4 * this.state.clientWidth > this.state.windowHeight
+					? this.state.windowHeight
+					: 0.4 * this.state.clientWidth;
+			const defaultAspect = windowWidth / this.state.windowHeight;
+
+			const imageAspect = this.state.imageWidth / this.state.imageHeight;
+
+			let scale, newMarker, offset;
+			if (imageAspect > defaultAspect) {
+				//then the width = window width and the height is scaled to that
+				scale = this.state.imageWidth / windowWidth;
+				const scaledHeight = this.state.imageHeight / scale;
+				offset = (this.state.windowHeight - scaledHeight) / 2;
+				newMarker = {
+					...marker,
+					x: marker.x * scale,
+					y: (marker.y - offset - marker.size) * scale,
+				};
+			} else {
+				// the height = window height and the width is scaled to that
+				scale = this.state.imageHeight / this.state.windowHeight;
+				const scaledWidth = this.state.imageWidth / scale;
+				offset = (windowWidth - scaledWidth) / 2;
+				newMarker = {
+					...marker,
+					x: (marker.x - offset - marker.size) * scale,
+					y: marker.y * scale,
+				};
+			}
+			return newMarker;
+		});
+	}
 
 	// Adds a marker to the markers array
 	// x and y are the coordinates on the image
@@ -416,12 +487,12 @@ class Game extends React.Component {
 				draft.redoList.push({ name: "markers" });
 			},
 			this.handleAddPatch
-		)
-		this.setState(nextStateMarkers)
+		);
+		this.setState(nextStateMarkers);
 		this.sendMessage({
 			info: "marker added",
-			marker: {x, y, orientation, size, color}
-		})
+			marker: { x, y, orientation, size, color },
+		});
 	};
 
 	handleMarker = (type, index, value) => {
@@ -460,12 +531,12 @@ class Game extends React.Component {
 				draft.redoList.push({ name: type });
 			},
 			this.handleAddPatch
-		)
-		this.setState(nextStateMarkers)
+		);
+		this.setState(nextStateMarkers);
 		this.sendMessage({
-			info: "marker " + index +  " edited: " + type,
-			value
-		})
+			info: "marker " + index + " edited: " + type,
+			value,
+		});
 	};
 
 	render() {
@@ -495,6 +566,7 @@ class Game extends React.Component {
 			resetModalisVisible,
 			clientWidth,
 			orientation,
+			windowHeight,
 		} = this.state;
 
 		return (
@@ -535,7 +607,7 @@ class Game extends React.Component {
 								<FingerprintWindow
 									frameSrc={frameSrc}
 									width={
-										orientation == "vertical"
+										orientation === "vertical"
 											? clientWidth > 700
 												? 700
 												: 0.8 * clientWidth
@@ -543,14 +615,14 @@ class Game extends React.Component {
 											? 700
 											: 0.4 * clientWidth
 									}
-									height={600}
+									height={windowHeight}
 									brightness={brightness}
 									contrast={contrast}
 									saturation={saturation}
 									hue={hue}
 									markers={markers}
-									addMarker={this.addMarker}
 									addingMarkers={addingMarkers}
+									addMarker={this.addMarker}
 									handleMarker={this.handleMarker}
 								/>
 							) : (

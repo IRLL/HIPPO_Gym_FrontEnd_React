@@ -174,6 +174,8 @@ class FingerprintWindow extends React.Component {
 											}}
 										/>
 									</g>
+
+									{/* Overlay for sensing zoom controls */}
 									<rect
 										width={width}
 										height={height}
@@ -204,16 +206,14 @@ class FingerprintWindow extends React.Component {
 											const point = localPoint(event) || { x: 0, y: 0 };
 											zoom.scale({ scaleX: 1.1, scaleY: 1.1, point });
 										}}
+										className={addingMarkers ? "pointerCursor" : ""}
 									/>
+
+									{/* Markers overlay */}
 									<g transform={zoom.toString()}>
 										{markers.map((marker, i) => {
 											return (
-												<Popover
-													trigger="click"
-													content={popupMenu}
-													key={`marker${i}`}
-													// visible={!this.state.moving || !this.state.move}
-												>
+												<Popover trigger="click" content={popupMenu} key={`marker${i}`}>
 													<image
 														alt="marker"
 														x={marker.x - Math.round(marker.size / 2)}

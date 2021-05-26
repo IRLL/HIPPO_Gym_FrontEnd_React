@@ -8,9 +8,17 @@ import sentenceCase from "../../utils/sentenceCase";
 
 class ControlPanel extends React.Component {
 	render() {
-
-		const { isEnd, isLoading, frameRate, UIlist, brightness, contrast, saturation, hue, instructions } =
-			this.props;
+		const {
+			isEnd,
+			isLoading,
+			frameRate,
+			UIlist,
+			brightness,
+			contrast,
+			saturation,
+			hue,
+			instructions,
+		} = this.props;
 
 		const directions = [
 			"left",
@@ -239,9 +247,9 @@ class ControlPanel extends React.Component {
 				{!isLoading && (
 					<div className="controlPanel">
 						<div className="panelContainer">
-							{instructions != [] && <Divider>Instructions </Divider>}
+							{instructions !== [] && <Divider>Instructions </Divider>}
 							<Row gutter={[4, 8]} justify="start" className="instructions">
-								<ul>{instructionUI}</ul> 
+								<ul>{instructionUI}</ul>
 							</Row>
 							<Divider>Controls </Divider>
 							<Row gutter={[4, 8]} justify="space-around">
