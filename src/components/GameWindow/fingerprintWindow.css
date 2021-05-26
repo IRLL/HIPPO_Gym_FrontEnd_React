@@ -46,10 +46,12 @@
 	align-items: flex-end;
 }
 
+/* Allow user to zoom and pan even if cursor is on minimap */
 .fingerprintMinimap {
 	pointer-events: none;
 }
 
+/* Change button colors for recolor popup menu radiio buttons */
 .blueButton {
 	color: #1890ff !important;
 	background-color: white !important;
@@ -101,14 +103,16 @@
 	margin: 0 1px;
 }
 
+/* Add padding between all the buttons in the popup menu */
+.popupMenu Button:not(:last-of-type) {
+	margin-right: 0.5rem;
+}
+
+/* Cursor utility classes */
 .moveCursor {
 	cursor: move;
 }
 
 .pointerCursor {
 	cursor: pointer;
-}
-
-.popupMenu Button:not(:last-of-type) {
-	margin-right: 0.5rem;
 }

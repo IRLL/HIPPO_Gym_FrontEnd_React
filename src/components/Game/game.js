@@ -33,8 +33,8 @@ class Game extends React.Component {
 		imageR: null, // the image source of right image component
 		isLoading: !SERVER ? true : false, // if the server is ready to send out the data
 		isEnd: false, // if the game is finished
-		isConnection: false, // if the connection to the server established
-		isVisible: false, // if the game end dialog visible
+		isConnection: false, // if the connection to the server is established
+		isVisible: false, // if the game end dialog is visible
 		UIlist: [], // a list of UI components
 		progress: 0, // the status of the server
 		inputBudget: 0, // the total budget available for the feedback buttons
@@ -45,10 +45,10 @@ class Game extends React.Component {
 		outMessage: [], // a list of outgoing messages
 		holdKey: null, // the key that is holding
 
-		// TODO: Add the fingerprint prop to config.yml instead of hardcoding it
-		fingerprint: true,
-		resetModalisVisible: false,
-		orientation: "vertical",
+		// TODO: Add the fingerprint prop to config.yml
+		fingerprint: true, // if this is a fingerprint trial
+		resetModalVisible: false, // if the reset image dialog is visible
+		orientation: "vertical", // default orientation is vertical
 
 		// For image marking functionality
 		brightness: 100,
@@ -64,16 +64,16 @@ class Game extends React.Component {
 		instructions: [],
 
 		// Widths and heights for responsiveness
-		clientWidth: 1080,
-		windowHeight: 600,
-		imageWidth: 0,
-		imageHeight: 0,
+		windowWidth: null,
+		windowHeight: null,
+		imageWidth: null,
+		imageHeight: null,
 	};
 
 	componentDidMount() {
-		//To update the progress of loading game content
-		//Since we always need to wait 30 seconds before the game
-		//content get loaded, we update the progress (100/30) per second
+		// To update the progress of loading game content
+		// Since we always need to wait 30 seconds before the game
+		// content get loaded, we update the progress (100/30) per second
 		this.updateProgress = setInterval(
 			() =>
 				this.setState((prevState) => ({
@@ -81,16 +81,16 @@ class Game extends React.Component {
 				})),
 			1000
 		);
-		//To ensure the websocket server is ready to connect
-		//we try to connect the websocket server periodically
-		//for every 30 seconds until the connection has been established
+		// To ensure the websocket server is ready to connect
+		// we try to connect the websocket server periodically
+		// for every 30 seconds until the connection has been established
 		this.timer = setTimeout(
 			() => {
 				//connect the websocket server
 				this.websocket = new w3cwebsocket(WS_URL);
 				this.websocket.onopen = () => {
-					//Once the websocket connection has been established
-					//we remove all the unnecessary timer
+					// Once the websocket connection has been established
+					// we remove all the unnecessary timer
 					clearTimeout(this.timer);
 					clearInterval(this.updateProgress);
 					console.log("WebSocket Client Connected");
@@ -104,7 +104,7 @@ class Game extends React.Component {
 					});
 				};
 
-				//listen to the data from the websocket server
+				// Listen to the data from the websocket server
 				this.websocket.onmessage = (message) => {
 					//"done" means the game has ended
 					if (message.data === "done") {
@@ -132,6 +132,12 @@ class Game extends React.Component {
 						if (parsedData.Instructions) {
 							this.setState({
 								instructions: parsedData.Instructions,
+							});
+						}
+						//Check if Instructions in response
+						if (parsedData.fingerprint) {
+							this.setState({
+								fingerprint: parsedData.fingerprint,
 							});
 						}
 						//Check if frame related information in response
@@ -197,7 +203,7 @@ class Game extends React.Component {
 			SERVER ? 0 : pendingTime * 1000
 		);
 
-		//listen to the user's keyboard inputs
+		// Listen to the user's keyboard inputs
 		document.addEventListener("keydown", (event) => {
 			//Used to prevent arrow keys and space key from scrolling the page
 			let dataToSend = getKeyInput(event.code);
@@ -226,9 +232,16 @@ class Game extends React.Component {
 		});
 
 		// Get the client window width to make the game window responsive
-		this.setState({ clientWidth: document.documentElement.clientWidth });
 		window.addEventListener("resize", () => {
-			this.setState({ clientWidth: document.documentElement.clientWidth });
+			const value =
+				this.state.orientation === "vertical"
+					? document.documentElement.clientWidth > 700
+						? 700
+						: 0.8 * document.documentElement.clientWidth
+					: 0.4 * document.documentElement.clientWidth > 700
+					? 700
+					: 0.4 * document.documentElement.clientWidth;
+			this.setState({ windowWidth: value });
 		});
 	}
 
@@ -236,8 +249,8 @@ class Game extends React.Component {
 		if (this.setInMessage) clearInterval(this.setInMessage);
 	}
 
-	//change the confirmation modal to be invisible
-	//navigate to the post-game page
+	// Change the confirmation modal to be invisible
+	// Navigate to the post-game page
 	handleOk = (e) => {
 		if (e.currentTarget.id === "keepMarkers") {
 			this.setState({
@@ -245,7 +258,7 @@ class Game extends React.Component {
 				contrast: 100,
 				saturation: 100,
 				hue: 0,
-				resetModalisVisible: false,
+				resetModalVisible: false,
 			});
 			this.sendMessage({
 				info: "reset excluding markers",
@@ -257,7 +270,7 @@ class Game extends React.Component {
 				contrast: 100,
 				saturation: 100,
 				hue: 0,
-				resetModalisVisible: false,
+				resetModalVisible: false,
 			});
 			this.sendMessage({
 				info: "reset all",
@@ -270,13 +283,13 @@ class Game extends React.Component {
 		}
 	};
 
-	//change the confirmation modal to be invisible
-	//stay on the game page
+	// Change the confirmation modal to be invisible
+	// Stay on the game page
 	handleCancel = (e) => {
 		// this is for the cancel button in the "reset image" modal
 		if (e.currentTarget.id === "resetCancel") {
 			this.setState({
-				resetModalisVisible: false,
+				resetModalVisible: false,
 			});
 		} else {
 			this.setState({
@@ -285,7 +298,7 @@ class Game extends React.Component {
 		}
 	};
 
-	//send data to websocket server in JSON format
+	// Send data to websocket server in JSON format
 	sendMessage = (data) => {
 		if (this.state.isConnection) {
 			const allData = {
@@ -300,7 +313,7 @@ class Game extends React.Component {
 		}
 	};
 
-	//send game control commands to the websocket server
+	// Send game control commands to the websocket server
 	handleCommand = (status) => {
 		if (this.state.isLoading) {
 			message.error("Please wait for the connection to be established first!");
@@ -336,7 +349,7 @@ class Game extends React.Component {
 		}
 	};
 
-	//change the FPS of the game
+	// Change the FPS of the game
 	handleFPS = (speed) => {
 		if (
 			(speed === "faster" && this.state.frameRate + 5 > 90) ||
@@ -353,11 +366,14 @@ class Game extends React.Component {
 		}
 	};
 
+	// Handle undo and redo buttons
 	handleAddPatch = (patch, inversePatches) => {
 		undo.push(inversePatches);
 		redo.push(patch);
 	};
 
+	// Apply color filters to the image in the fingerprint window
+	// Send applied filter to websocket
 	handleImage = (type, value) => {
 		const nextState = produce(
 			this.state,
@@ -390,12 +406,13 @@ class Game extends React.Component {
 		});
 	};
 
-	// perform commands like add marker, redo, undo, reset
-	handleImageCommands = (status) => {
-		switch (status) {
+	// Perform commands like add marker, redo, undo, reset
+	// Send performed command to websocket
+	handleImageCommands = (command) => {
+		switch (command) {
 			case "resetImage":
 				this.setState({
-					resetModalisVisible: true,
+					resetModalVisible: true,
 				});
 				break;
 			case "undo":
@@ -423,7 +440,7 @@ class Game extends React.Component {
 			case "submitImage":
 				const newMarkers = this.normalizeMarkers(this.state.markers);
 				this.setState({ markers: newMarkers }, () => {
-					this.handleCommand(status);
+					this.handleCommand(command);
 				});
 				break;
 			default:
@@ -431,57 +448,15 @@ class Game extends React.Component {
 		}
 	};
 
-	normalizeMarkers(markers) {
-		return markers.map((marker) => {
-			const windowWidth =
-				this.state.orientation === "vertical"
-					? this.state.clientWidth > this.state.windowHeight
-						? this.state.windowHeight
-						: 0.8 * this.state.clientWidth
-					: 0.4 * this.state.clientWidth > this.state.windowHeight
-					? this.state.windowHeight
-					: 0.4 * this.state.clientWidth;
-			const defaultAspect = windowWidth / this.state.windowHeight;
-
-			const imageAspect = this.state.imageWidth / this.state.imageHeight;
-
-			let scale, newMarker, offset;
-			if (imageAspect > defaultAspect) {
-				//then the width = window width and the height is scaled to that
-				scale = this.state.imageWidth / windowWidth;
-				const scaledHeight = this.state.imageHeight / scale;
-				offset = (this.state.windowHeight - scaledHeight) / 2;
-				newMarker = {
-					...marker,
-					x: marker.x * scale,
-					y: (marker.y - offset - marker.size) * scale,
-				};
-			} else {
-				// the height = window height and the width is scaled to that
-				scale = this.state.imageHeight / this.state.windowHeight;
-				const scaledWidth = this.state.imageWidth / scale;
-				offset = (windowWidth - scaledWidth) / 2;
-				newMarker = {
-					...marker,
-					x: (marker.x - offset - marker.size) * scale,
-					y: marker.y * scale,
-				};
-			}
-			return newMarker;
-		});
-	}
-
 	// Adds a marker to the markers array
 	// x and y are the coordinates on the image
 	// orientation goes from 0 (up) to 359 degrees clockwise
-	addMarker = (x, y, orientation, size, color) => {
+	// send added marker to websocket
+	addMarker = (x, y, orientation, size, color, type) => {
 		const nextStateMarkers = produce(
 			this.state,
 			(draft) => {
-				draft.markers = [
-					...this.state.markers,
-					{ x, y, orientation, size, color, type: "Unknown" },
-				];
+				draft.markers = [...this.state.markers, { x, y, orientation, size, color, type }];
 				draft.addingMarkers = false;
 				draft.undoList.push({ name: "markers" });
 				draft.redoList.push({ name: "markers" });
@@ -491,10 +466,13 @@ class Game extends React.Component {
 		this.setState(nextStateMarkers);
 		this.sendMessage({
 			info: "marker added",
-			marker: { x, y, orientation, size, color },
+			marker: { x, y, orientation, size, color, type },
 		});
 	};
 
+	// Edit the marker at position index in the markers array
+	// corresponding to the type of command and value
+	// Send applied command to websocket
 	handleMarker = (type, index, value) => {
 		let prevMarkers = [...this.state.markers];
 		switch (type) {
@@ -539,6 +517,43 @@ class Game extends React.Component {
 		});
 	};
 
+	// Return a markers array such that each marker's
+	// x and y values are accurate pixel coordinates
+	normalizeMarkers(markers) {
+		return markers.map((marker) => {
+			const { windowWidth, windowHeight, imageWidth, imageHeight } = this.state;
+
+			const defaultAspect = windowWidth / windowHeight;
+			const imageAspect = imageWidth / imageHeight;
+
+			if (imageAspect > defaultAspect) {
+				// the width = window width and the height is scaled to that
+				const scale = imageWidth / windowWidth;
+				const scaledHeight = imageHeight / scale;
+				const offset = (windowHeight - scaledHeight) / 2;
+				const newMarker = {
+					...marker,
+					x: marker.x * scale,
+					y: (marker.y - offset - marker.size) * scale,
+				};
+
+				return newMarker;
+			} else {
+				// the height = window height and the width is scaled to that
+				const scale = imageHeight / windowHeight;
+				const scaledWidth = imageWidth / scale;
+				const offset = (windowWidth - scaledWidth) / 2;
+				const newMarker = {
+					...marker,
+					x: (marker.x - offset - marker.size) * scale,
+					y: marker.y * scale,
+				};
+
+				return newMarker;
+			}
+		});
+	}
+
 	render() {
 		const {
 			inMessage,
@@ -563,9 +578,9 @@ class Game extends React.Component {
 			fingerprint,
 			markers,
 			addingMarkers,
-			resetModalisVisible,
-			clientWidth,
+			resetModalVisible,
 			orientation,
+			windowWidth,
 			windowHeight,
 		} = this.state;
 
@@ -606,16 +621,8 @@ class Game extends React.Component {
 							{fingerprint ? (
 								<FingerprintWindow
 									frameSrc={frameSrc}
-									width={
-										orientation === "vertical"
-											? clientWidth > 700
-												? 700
-												: 0.8 * clientWidth
-											: 0.4 * clientWidth > 700
-											? 700
-											: 0.4 * clientWidth
-									}
-									height={windowHeight}
+									width={windowWidth || 700}
+									height={windowHeight || 600}
 									brightness={brightness}
 									contrast={contrast}
 									saturation={saturation}
@@ -679,7 +686,7 @@ class Game extends React.Component {
 
 				<Modal
 					title="Reset Image"
-					visible={resetModalisVisible}
+					visible={resetModalVisible}
 					cancelText="Keep Markers"
 					footer={[
 						<Button key="cancel" id="resetCancel" type="default" onClick={this.handleCancel}>
