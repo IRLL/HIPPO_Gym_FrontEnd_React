@@ -285,6 +285,7 @@ class FingerprintWindow extends React.Component {
 								{/* Add markers to minimap */}
 								{markers.map((marker, i) => (
 									<image
+										key={`marker${i}`}
 										alt="marker"
 										x={marker.x - Math.round(marker.size / 2)}
 										y={marker.y - Math.round(marker.size / 2)}

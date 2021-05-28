@@ -64,8 +64,8 @@ class Game extends React.Component {
 		instructions: [],
 
 		// Widths and heights for responsiveness
-		windowWidth: null,
-		windowHeight: null,
+		windowWidth: 700,
+		windowHeight: 600,
 		imageWidth: null,
 		imageHeight: null,
 	};
@@ -530,11 +530,11 @@ class Game extends React.Component {
 				// the width = window width and the height is scaled to that
 				const scale = imageWidth / windowWidth;
 				const scaledHeight = imageHeight / scale;
-				const offset = (windowHeight - scaledHeight) / 2;
+				const offset = (windowHeight - scaledHeight) / 2; // the y-offset from the window border
 				const newMarker = {
 					...marker,
 					x: marker.x * scale,
-					y: (marker.y - offset - marker.size) * scale,
+					y: (marker.y - offset) * scale,
 				};
 
 				return newMarker;
@@ -542,10 +542,11 @@ class Game extends React.Component {
 				// the height = window height and the width is scaled to that
 				const scale = imageHeight / windowHeight;
 				const scaledWidth = imageWidth / scale;
-				const offset = (windowWidth - scaledWidth) / 2;
+				const offset = (windowWidth - scaledWidth) / 2; // the x-offset from the window border
+
 				const newMarker = {
 					...marker,
-					x: (marker.x - offset - marker.size) * scale,
+					x: (marker.x - offset) * scale,
 					y: marker.y * scale,
 				};
 
