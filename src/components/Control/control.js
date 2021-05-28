@@ -18,6 +18,7 @@ class ControlPanel extends React.Component {
 			saturation,
 			hue,
 			instructions,
+			orientation,
 		} = this.props;
 
 		const directions = [
@@ -55,7 +56,7 @@ class ControlPanel extends React.Component {
 			"redo",
 			"resetImage",
 			"submitImage",
-			"addMarker",
+			"addMinutia",
 			"resetImage",
 			"submitImage",
 		];
@@ -219,7 +220,7 @@ class ControlPanel extends React.Component {
 		const imgCommands = [
 			elements["undo"],
 			elements["redo"],
-			elements["addMarker"],
+			elements["addMinutia"],
 			elements["resetImage"],
 		];
 		const firstRow = [elements["leftUp"], elements["up"], elements["rightUp"], elements["fpsUp"]];
@@ -245,14 +246,14 @@ class ControlPanel extends React.Component {
 		return (
 			<div>
 				{!isLoading && (
-					<div className="controlPanel">
+					<div className={`controlPanel ${orientation == "horizontal" ? "addMargin" : ""}`}>
 						<div className="panelContainer">
 							{instructions !== [] && <Divider>Instructions </Divider>}
 							<Row gutter={[4, 8]} justify="start" className="instructions">
 								<ul>{instructionUI}</ul>
 							</Row>
 							<Divider>Controls </Divider>
-							<Row gutter={[4, 8]} justify="space-around">
+							<Row gutter={[4, 8]} justify="space-around" className="imageCommands">
 								{imgCommands}
 							</Row>
 							<Row gutter={[4, 8]} justify="space-between">

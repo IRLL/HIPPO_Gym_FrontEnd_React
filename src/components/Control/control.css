@@ -2,7 +2,7 @@
    Make the corners of panel rounded 
    Add space to the top of the panel */
 .controlPanel {
-	border: solid;
+	border: solid 1px rgb(237, 237, 237);
 	border-radius: 10px;
 	margin-top: 20px;
 	padding: 1rem 2rem;
@@ -49,10 +49,31 @@
 	}
 }
 
+/* Set the width of the sliders to be more responsive */
+.imageControl {
+	min-width: 10rem;
+	max-width: 30rem;
+}
+
+/* Add margin to the bottom of slider text */
+.imageControlText {
+	margin-bottom: 0.25rem;
+}
+
+/* Utility class to add left margin to control
+	panel when orientation is horizonal */
+.addMargin {
+	margin-left: 2rem;
+}
+
+/* Add a bottom padding to the image commands */
+.imageCommands {
+	padding-bottom: 1rem;
+}
+
 /* Set the background color for each button
    Set the text color for each button
    Set the border color for each button */
-
 .startButton {
 	background-color: #1890ff;
 	color: white;
@@ -179,13 +200,4 @@
 .submitImageButton:focus {
 	background-color: #73d13d;
 	border-color: #73d13d;
-}
-
-.imageControl {
-	min-width: 10rem;
-	max-width: 30rem;
-}
-
-.imageControlText {
-	margin: 0 0 0.25rem 0;
 }

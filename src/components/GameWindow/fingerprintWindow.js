@@ -10,7 +10,7 @@ import { RectClipPath } from "@vx/clip-path";
 // Reference: https://vx-demo.vercel.app/zoom-iu
 class FingerprintWindow extends React.Component {
 	state = {
-		currMarker: null,
+		currMinutia: null,
 		move: false,
 		moving: false,
 		defaultColor: "blue",
@@ -18,7 +18,7 @@ class FingerprintWindow extends React.Component {
 	};
 
 	render() {
-		const { currMarker } = this.state;
+		const { currMinutia } = this.state;
 
 		const {
 			frameSrc,
@@ -30,30 +30,30 @@ class FingerprintWindow extends React.Component {
 			contrast,
 			saturation,
 			hue,
-			markers,
-			addingMarkers,
-			addMarker,
-			handleMarker,
+			minutiae,
+			addingMinutiae,
+			addMinutia,
+			handleMinutia,
 		} = this.props;
 
 		// Slider when rotate is selected from popup menu
 		const rotationSlider = (
 			<Slider
-				defaultValue={markers[currMarker] ? markers[currMarker].orientation : 0}
+				defaultValue={minutiae[currMinutia] ? minutiae[currMinutia].orientation : 0}
 				min={0}
 				max={359}
-				onChange={(value) => handleMarker("rotate", currMarker, value)}
+				onChange={(value) => handleMinutia("rotate", currMinutia, value)}
 			/>
 		);
 
 		// Slider when resize is selected from popup menu
 		const sizeSlider = (
 			<Slider
-				defaultValue={markers[currMarker] ? markers[currMarker].size : 50}
+				defaultValue={minutiae[currMinutia] ? minutiae[currMinutia].size : 50}
 				min={0}
 				max={100}
 				onChange={(value) => {
-					handleMarker("resize", currMarker, value);
+					handleMinutia("resize", currMinutia, value);
 					this.setState({ defaultSize: value });
 				}}
 			/>
@@ -64,7 +64,7 @@ class FingerprintWindow extends React.Component {
 			<Radio.Group
 				defaultValue="blue"
 				onChange={(e) => {
-					handleMarker("recolor", currMarker, e.target.value);
+					handleMinutia("recolor", currMinutia, e.target.value);
 					this.setState({ defaultColor: e.target.value });
 				}}
 				className="colorPicker"
@@ -87,12 +87,12 @@ class FingerprintWindow extends React.Component {
 			</Radio.Group>
 		);
 
-		// Menu when marker type is selected from popup menu
-		const markerType = (
+		// Menu when minutia type is selected from popup menu
+		const minutiaType = (
 			<Radio.Group
-				defaultValue={markers[currMarker] ? markers[currMarker].type : "unknown"}
+				defaultValue={minutiae[currMinutia] ? minutiae[currMinutia].type : "unknown"}
 				onChange={(e) => {
-					handleMarker("changeType", currMarker, e.target.value);
+					handleMinutia("changeType", currMinutia, e.target.value);
 				}}
 			>
 				<Radio value="bifurcation">Bifurcation</Radio>
@@ -101,42 +101,42 @@ class FingerprintWindow extends React.Component {
 			</Radio.Group>
 		);
 
-		// Popup menu when a marker is clicked on
+		// Popup menu when a minutia is clicked on
 		const popupMenu = (
 			<div className="popupMenu">
-				<Tooltip placement="bottom" title="Rotate Marker">
-					<Popover trigger="click" content={rotationSlider} title="Rotate Marker">
+				<Tooltip placement="bottom" title="Rotate Minutia">
+					<Popover trigger="click" content={rotationSlider} title="Rotate Minutia">
 						<Button type="default" icon={icons["rotateImage"]} />
 					</Popover>
 				</Tooltip>
-				<Tooltip placement="bottom" title="Resize Marker">
-					<Popover trigger="click" content={sizeSlider} title="Resize Marker">
+				<Tooltip placement="bottom" title="Resize Minutia">
+					<Popover trigger="click" content={sizeSlider} title="Resize Minutia">
 						<Button type="default" icon={icons["resizeImage"]} />
 					</Popover>
 				</Tooltip>
-				<Tooltip placement="bottom" title="Move Marker">
+				<Tooltip placement="bottom" title="Move Minutia">
 					<Button
 						type={this.state.move ? "primary" : "default"}
-						icon={icons["moveMarker"]}
+						icon={icons["moveMinutia"]}
 						onClick={() => this.setState((prevState) => ({ move: !prevState.move }))}
 					/>
 				</Tooltip>
 				<Tooltip placement="bottom" title="Change Color">
 					<Popover trigger="click" content={colorPicker} title="Change Color">
-						<Button type="default" icon={icons["recolorMarker"]} />
+						<Button type="default" icon={icons["recolorMinutia"]} />
 					</Popover>
 				</Tooltip>
-				<Tooltip placement="bottom" title="Categorize Marker">
-					<Popover trigger="click" content={markerType} title="Categorize Marker">
-						<Button type="default" icon={icons["markerType"]} />
+				<Tooltip placement="bottom" title="Categorize Minutia">
+					<Popover trigger="click" content={minutiaType} title="Categorize Minutia">
+						<Button type="default" icon={icons["minutiaType"]} />
 					</Popover>
 				</Tooltip>
-				<Tooltip placement="bottom" title="Delete Marker">
+				<Tooltip placement="bottom" title="Delete Minutia">
 					<Button
 						type="default"
 						icon={icons["resetImage"]}
 						style={{ color: "red" }}
-						onClick={() => handleMarker("delete", currMarker, null)}
+						onClick={() => handleMinutia("delete", currMinutia, null)}
 					/>
 				</Tooltip>
 			</div>
@@ -200,8 +200,8 @@ class FingerprintWindow extends React.Component {
 								onClick={(event) => {
 									const point = localPoint(event);
 									const transformedPt = zoom.applyInverseToPoint(point);
-									if (addingMarkers) {
-										addMarker(
+									if (addingMinutiae) {
+										addMinutia(
 											transformedPt.x,
 											transformedPt.y,
 											270,
@@ -215,37 +215,37 @@ class FingerprintWindow extends React.Component {
 									const point = localPoint(event) || { x: 0, y: 0 };
 									zoom.scale({ scaleX: 1.1, scaleY: 1.1, point });
 								}}
-								className={addingMarkers ? "pointerCursor" : ""}
+								className={addingMinutiae ? "pointerCursor" : ""}
 							/>
 
-							{/* Markers overlay */}
+							{/* Minutiae overlay */}
 							<g transform={zoom.toString()}>
-								{markers.map((marker, i) => (
-									<Popover trigger="click" content={popupMenu} key={`marker${i}`}>
+								{minutiae.map((minutia, i) => (
+									<Popover trigger="click" content={popupMenu} key={`minutia${i}`}>
 										<image
-											alt="marker"
-											x={marker.x - Math.round(marker.size / 2)}
-											y={marker.y - Math.round(marker.size / 2)}
-											width={marker.size}
+											alt="minutia"
+											x={minutia.x - Math.round(minutia.size / 2)}
+											y={minutia.y - Math.round(minutia.size / 2)}
+											width={minutia.size}
 											className={this.state.moving ? "moveCursor" : ""}
-											height={marker.size}
-											href={process.env.PUBLIC_URL + `./fingerprint_marker_${marker.color}.svg`}
-											onClick={() => this.setState({ currMarker: i })}
+											height={minutia.size}
+											href={process.env.PUBLIC_URL + `./fingerprint_minutia_${minutia.color}.svg`}
+											onClick={() => this.setState({ currMinutia: i })}
 											style={{
-												transform: `rotate(${marker.orientation}deg)`,
-												transformOrigin: `${marker.x}px ${marker.y}px`,
+												transform: `rotate(${minutia.orientation}deg)`,
+												transformOrigin: `${minutia.x}px ${minutia.y}px`,
 											}}
 											onMouseMove={(e) => {
 												if (this.state.moving) {
 													const point = zoom.applyInverseToPoint(localPoint(e));
 													console.log(point);
-													handleMarker("move", currMarker, point);
+													handleMinutia("move", currMinutia, point);
 												}
 											}}
 											onTouchMove={(e) => {
 												if (this.state.moving) {
 													const point = zoom.applyInverseToPoint(localPoint(e));
-													handleMarker("move", currMarker, point);
+													handleMinutia("move", currMinutia, point);
 												}
 											}}
 											onMouseDown={() => this.state.move && this.setState({ moving: true })}
@@ -282,19 +282,19 @@ class FingerprintWindow extends React.Component {
                                         	hue-rotate(${hue}deg)`,
 									}}
 								/>
-								{/* Add markers to minimap */}
-								{markers.map((marker, i) => (
+								{/* Add minutiae to minimap */}
+								{minutiae.map((minutia, i) => (
 									<image
-										key={`marker${i}`}
-										alt="marker"
-										x={marker.x - Math.round(marker.size / 2)}
-										y={marker.y - Math.round(marker.size / 2)}
-										width={marker.size}
-										height={marker.size}
-										href={process.env.PUBLIC_URL + `./fingerprint_marker_${marker.color}.svg`}
+										key={`minutia${i}`}
+										alt="minutia"
+										x={minutia.x - Math.round(minutia.size / 2)}
+										y={minutia.y - Math.round(minutia.size / 2)}
+										width={minutia.size}
+										height={minutia.size}
+										href={process.env.PUBLIC_URL + `./fingerprint_minutia_${minutia.color}.svg`}
 										style={{
-											transform: `rotate(${marker.orientation}deg)`,
-											transformOrigin: `${marker.x}px ${marker.y}px`,
+											transform: `rotate(${minutia.orientation}deg)`,
+											transformOrigin: `${minutia.x}px ${minutia.y}px`,
 										}}
 									/>
 								))}

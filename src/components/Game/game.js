@@ -55,8 +55,8 @@ class Game extends React.Component {
 		contrast: 100,
 		saturation: 100,
 		hue: 0,
-		addingMarkers: false,
-		markers: [],
+		addingMinutiae: false,
+		minutiae: [],
 
 		// For undo and redo functionality
 		undoList: [],
@@ -252,7 +252,7 @@ class Game extends React.Component {
 	// Change the confirmation modal to be invisible
 	// Navigate to the post-game page
 	handleOk = (e) => {
-		if (e.currentTarget.id === "keepMarkers") {
+		if (e.currentTarget.id === "keepMinutiae") {
 			this.setState({
 				brightness: 100,
 				contrast: 100,
@@ -261,11 +261,11 @@ class Game extends React.Component {
 				resetModalVisible: false,
 			});
 			this.sendMessage({
-				info: "reset excluding markers",
+				info: "reset excluding minutiae",
 			});
 		} else if (e.currentTarget.id === "resetAll") {
 			this.setState({
-				markers: [],
+				minutiae: [],
 				brightness: 100,
 				contrast: 100,
 				saturation: 100,
@@ -330,11 +330,11 @@ class Game extends React.Component {
 		} else if (status === "submitImage") {
 			this.sendMessage({
 				command: status,
-				markerList: this.state.markers,
+				minutiaList: this.state.minutiae,
 				imageName: "current_image",
 			});
 			this.setState({
-				markers: [],
+				minutiae: [],
 				brightness: 100,
 				contrast: 100,
 				saturation: 100,
@@ -406,7 +406,7 @@ class Game extends React.Component {
 		});
 	};
 
-	// Perform commands like add marker, redo, undo, reset
+	// Perform commands like add minutia, redo, undo, reset
 	// Send performed command to websocket
 	handleImageCommands = (command) => {
 		switch (command) {
@@ -425,21 +425,21 @@ class Game extends React.Component {
 				if (!isNotEmptyRedo) return;
 				this.setState(applyPatches(this.state, isNotEmptyRedo));
 				break;
-			case "addMarker":
-				const nextStateMarkers = produce(
+			case "addMinutia":
+				const nextStateMinutiae = produce(
 					this.state,
 					(draft) => {
-						draft.addingMarkers = !this.state.addingMarkers;
-						draft.undoList.push({ name: "markers" });
-						draft.redoList.push({ name: "markers" });
+						draft.addingMinutiae = !this.state.addingMinutiae;
+						draft.undoList.push({ name: "minutiae" });
+						draft.redoList.push({ name: "minutiae" });
 					},
 					this.handleAddPatch
 				);
-				this.setState(nextStateMarkers);
+				this.setState(nextStateMinutiae);
 				break;
 			case "submitImage":
-				const newMarkers = this.normalizeMarkers(this.state.markers);
-				this.setState({ markers: newMarkers }, () => {
+				const newMinutiae = this.normalizeMinutiae(this.state.minutiae);
+				this.setState({ minutiae: newMinutiae }, () => {
 					this.handleCommand(command);
 				});
 				break;
@@ -448,79 +448,79 @@ class Game extends React.Component {
 		}
 	};
 
-	// Adds a marker to the markers array
+	// Adds a minutia to the minutiae array
 	// x and y are the coordinates on the image
 	// orientation goes from 0 (up) to 359 degrees clockwise
-	// send added marker to websocket
-	addMarker = (x, y, orientation, size, color, type) => {
-		const nextStateMarkers = produce(
+	// send added minutia to websocket
+	addMinutia = (x, y, orientation, size, color, type) => {
+		const nextStateMinutiae = produce(
 			this.state,
 			(draft) => {
-				draft.markers = [...this.state.markers, { x, y, orientation, size, color, type }];
-				draft.addingMarkers = false;
-				draft.undoList.push({ name: "markers" });
-				draft.redoList.push({ name: "markers" });
+				draft.minutiae = [...this.state.minutiae, { x, y, orientation, size, color, type }];
+				draft.addingMinutiae = false;
+				draft.undoList.push({ name: "minutiae" });
+				draft.redoList.push({ name: "minutiae" });
 			},
 			this.handleAddPatch
 		);
-		this.setState(nextStateMarkers);
+		this.setState(nextStateMinutiae);
 		this.sendMessage({
-			info: "marker added",
-			marker: { x, y, orientation, size, color, type },
+			info: "minutia added",
+			minutia: { x, y, orientation, size, color, type },
 		});
 	};
 
-	// Edit the marker at position index in the markers array
+	// Edit the minutia at position index in the minutiae array
 	// corresponding to the type of command and value
 	// Send applied command to websocket
-	handleMarker = (type, index, value) => {
-		let prevMarkers = [...this.state.markers];
+	handleMinutia = (type, index, value) => {
+		let prevMinutiae = [...this.state.minutiae];
 		switch (type) {
 			case "rotate":
-				prevMarkers[index] = { ...prevMarkers[index], orientation: value };
+				prevMinutiae[index] = { ...prevMinutiae[index], orientation: value };
 				break;
 			case "resize":
-				prevMarkers[index] = { ...prevMarkers[index], size: value };
+				prevMinutiae[index] = { ...prevMinutiae[index], size: value };
 				break;
 			case "recolor":
-				prevMarkers[index] = { ...prevMarkers[index], color: value };
+				prevMinutiae[index] = { ...prevMinutiae[index], color: value };
 				break;
 			case "move":
-				prevMarkers[index] = {
-					...prevMarkers[index],
-					x: value.x || prevMarkers[index].x,
-					y: value.y || prevMarkers[index].y,
+				prevMinutiae[index] = {
+					...prevMinutiae[index],
+					x: value.x || prevMinutiae[index].x,
+					y: value.y || prevMinutiae[index].y,
 				};
 				break;
 			case "changeType":
-				prevMarkers[index] = { ...prevMarkers[index], type: value };
+				prevMinutiae[index] = { ...prevMinutiae[index], type: value };
 				break;
 			case "delete":
-				prevMarkers.splice(index, 1);
+				prevMinutiae.splice(index, 1);
 				break;
 			default:
 				return;
 		}
-		const nextStateMarkers = produce(
+		const nextStateMinutiae = produce(
 			this.state,
 			(draft) => {
-				draft.markers = prevMarkers;
+				draft.minutiae = prevMinutiae;
 				draft.undoList.push({ name: type });
 				draft.redoList.push({ name: type });
 			},
 			this.handleAddPatch
 		);
-		this.setState(nextStateMarkers);
+		this.setState(nextStateMinutiae);
 		this.sendMessage({
-			info: "marker " + index + " edited: " + type,
+			info: "minutia " + index + " edited: " + type,
 			value,
 		});
 	};
 
-	// Return a markers array such that each marker's
+	// Return a minutiae array such that each minutia's
 	// x and y values are accurate pixel coordinates
-	normalizeMarkers(markers) {
-		return markers.map((marker) => {
+	normalizeMinutiae(minutiae) {
+		return minutiae.map((minutia) => {
 			const { windowWidth, windowHeight, imageWidth, imageHeight } = this.state;
 
 			const defaultAspect = windowWidth / windowHeight;
@@ -531,26 +531,26 @@ class Game extends React.Component {
 				const scale = imageWidth / windowWidth;
 				const scaledHeight = imageHeight / scale;
 				const offset = (windowHeight - scaledHeight) / 2; // the y-offset from the window border
-				const newMarker = {
-					...marker,
-					x: marker.x * scale,
-					y: (marker.y - offset) * scale,
+				const newMinutia = {
+					...minutia,
+					x: minutia.x * scale,
+					y: (minutia.y - offset) * scale,
 				};
 
-				return newMarker;
+				return newMinutia;
 			} else {
 				// the height = window height and the width is scaled to that
 				const scale = imageHeight / windowHeight;
 				const scaledWidth = imageWidth / scale;
 				const offset = (windowWidth - scaledWidth) / 2; // the x-offset from the window border
 
-				const newMarker = {
-					...marker,
-					x: (marker.x - offset) * scale,
-					y: marker.y * scale,
+				const newMinutia = {
+					...minutia,
+					x: (minutia.x - offset) * scale,
+					y: minutia.y * scale,
 				};
 
-				return newMarker;
+				return newMinutia;
 			}
 		});
 	}
@@ -577,8 +577,8 @@ class Game extends React.Component {
 			saturation,
 			hue,
 			fingerprint,
-			markers,
-			addingMarkers,
+			minutiae,
+			addingMinutiae,
 			resetModalVisible,
 			orientation,
 			windowWidth,
@@ -628,10 +628,10 @@ class Game extends React.Component {
 									contrast={contrast}
 									saturation={saturation}
 									hue={hue}
-									markers={markers}
-									addingMarkers={addingMarkers}
-									addMarker={this.addMarker}
-									handleMarker={this.handleMarker}
+									minutiae={minutiae}
+									addingMinutiae={addingMinutiae}
+									addMinutia={this.addMinutia}
+									handleMinutia={this.handleMinutia}
 								/>
 							) : (
 								<GameWindow
@@ -650,6 +650,7 @@ class Game extends React.Component {
 					</Row>
 
 					<ControlPanel
+						className="gameControlPanel"
 						isEnd={isEnd}
 						isLoading={isLoading}
 						frameRate={frameRate}
@@ -661,12 +662,13 @@ class Game extends React.Component {
 						handleImage={this.handleImage}
 						handleImageCommands={this.handleImageCommands}
 						sendMessage={this.sendMessage}
-						addMarker={this.addMarker}
+						addMinutia={this.addMinutia}
 						brightness={brightness}
 						contrast={contrast}
 						saturation={saturation}
 						hue={hue}
-						addingMarkers={addingMarkers}
+						addingMinutiae={addingMinutiae}
+						orientation={orientation}
 					/>
 				</div>
 
@@ -688,25 +690,25 @@ class Game extends React.Component {
 				<Modal
 					title="Reset Image"
 					visible={resetModalVisible}
-					cancelText="Keep Markers"
+					cancelText="Keep Minutiae"
 					footer={[
 						<Button key="cancel" id="resetCancel" type="default" onClick={this.handleCancel}>
 							Cancel
 						</Button>,
-						<Button key="keepMarkers" id="keepMarkers" type="default" onClick={this.handleOk}>
-							Keep Markers
+						<Button key="keepMinutiae" id="keepMinutiae" type="default" onClick={this.handleOk}>
+							Keep Minutiae
 						</Button>,
 						<Button key="ok" id="resetAll" type="primary" onClick={this.handleOk}>
 							Reset All
 						</Button>,
 					]}
 				>
-					<p className="resetModal">Would you like to reset the markers as well?</p>
+					<p className="resetModal">Would you like to reset the minutiae as well?</p>
 					<p className="resetModal">
 						Press <b>"Reset All"</b> to clear everything
 					</p>
 					<p className="resetModal">
-						Press <b>"Keep markers"</b> to avoid clearing markers
+						Press <b>"Keep minutiae"</b> to avoid clearing minutiae
 					</p>
 				</Modal>
 			</div>
