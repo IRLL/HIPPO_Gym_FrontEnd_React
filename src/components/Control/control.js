@@ -190,6 +190,7 @@ class ControlPanel extends React.Component {
 							icon={icons[command]}
 							size="large"
 							onClick={() => this.props.handleImageCommands(command)}
+							date-testid={command}
 						>
 							{capitalize(sentenceCase(command))}
 						</Button>
@@ -244,7 +245,7 @@ class ControlPanel extends React.Component {
 		});
 
 		return (
-			<div>
+			<div data-testid="control-panel">
 				{!isLoading && (
 					<div className={`controlPanel ${orientation == "horizontal" ? "addMargin" : ""}`}>
 						<div className="panelContainer">

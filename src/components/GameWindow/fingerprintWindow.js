@@ -153,6 +153,7 @@ class FingerprintWindow extends React.Component {
 
 		return (
 			<Zoom
+				data-testid="fingerprint-window"
 				width={width}
 				height={height}
 				scaleXMin={1 / 2}
@@ -161,7 +162,7 @@ class FingerprintWindow extends React.Component {
 				scaleYMax={10}
 			>
 				{(zoom) => (
-					<div className="fingerprintWindowContainer">
+					<div className="fingerprintWindowContainer" data-testid="fingerprint-window">
 						<svg
 							width={width}
 							height={height}

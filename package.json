@@ -11,6 +11,7 @@
     "@vx/zoom": "^0.0.199",
     "antd": "^4.3.5",
     "axios": "^0.21.1",
+    "cypress": "^7.4.0",
     "immer": "^9.0.2",
     "react": "^16.13.1",
     "react-device-detect": "^1.13.1",
@@ -23,6 +24,7 @@
     "react-scripts": "^3.4.3",
     "react-transition-group": "^4.4.1",
     "react-webcam": "^5.2.3",
+    "save-dev": "^0.0.1-security",
     "uuid": "^8.3.0",
     "websocket": "^1.0.31"
   },
