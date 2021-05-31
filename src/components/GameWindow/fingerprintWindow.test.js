@@ -1,8 +1,8 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import ControlPanel from "./control";
+import FingerprintWindow from "./fingerprintWindow";
 
 it("renders without crashing", () => {
 	const div = document.createElement("div");
-	ReactDOM.render(<ControlPanel UIlist={[]} instructions={[]}></ControlPanel>, div);
+	ReactDOM.render(<FingerprintWindow minutiae={[]}></FingerprintWindow>, div);
 });

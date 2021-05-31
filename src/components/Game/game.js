@@ -621,6 +621,7 @@ class Game extends React.Component {
 						<Col flex={2} align="center">
 							{fingerprint ? (
 								<FingerprintWindow
+									isLoading={isLoading}
 									frameSrc={frameSrc}
 									width={windowWidth || 700}
 									height={windowHeight || 600}
@@ -640,6 +641,7 @@ class Game extends React.Component {
 									imageL={imageL}
 									imageR={imageR}
 									progress={progress}
+									data-testid="game-window"
 								/>
 							)}
 						</Col>
@@ -669,6 +671,7 @@ class Game extends React.Component {
 						hue={hue}
 						addingMinutiae={addingMinutiae}
 						orientation={orientation}
+						// data-testid="control-panel"
 					/>
 				</div>
 
