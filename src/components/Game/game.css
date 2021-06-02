@@ -13,6 +13,11 @@
 		"Noto Color Emoji";
 }
 
+.webcam {
+	align-self: flex-start;
+	padding-left: 20px;
+}
+
 .verticalGrid {
 	width: min(80vw, 705px);
 }

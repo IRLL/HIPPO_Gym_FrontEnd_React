@@ -1,9 +1,12 @@
 import React from "react";
 import "antd/dist/antd.css";
 import "./game.css";
+
 import { message, Modal, Row, Col, Button, Radio } from "antd";
 import { w3cwebsocket } from "websocket";
 import { browserName, osName, browserVersion, osVersion } from "react-device-detect";
+import Webcam from "react-webcam";
+
 import getKeyInput from "../../utils/getKeyInput";
 import { WS_URL, USER_ID, PROJECT_ID, SERVER, DEBUG } from "../../utils/constants";
 import { icons } from "../../utils/icons";
@@ -59,7 +62,10 @@ class Game extends React.Component {
 		addingMinutiae: false,
 		minutiae: [],
 
-
+		// webcam 
+		showWebcam : true,                    // toggle to switch the webcam on and off 
+        webcamRef : null,                     
+        webcamImg: null,
 
 		// Widths and heights for responsiveness
 		windowWidth: 700,
@@ -200,6 +206,13 @@ class Game extends React.Component {
 			},
 			SERVER ? 0 : pendingTime * 1000
 		);
+
+		// ask user for permission to use the webcam
+		if(this.state.showWebcam) {
+            if (!window.confirm("Allow browser to use your camera")) {
+                window.alert("Please allow access to camera")
+            }
+        }
 
 		// Listen to the user's keyboard inputs
 		document.addEventListener("keydown", (event) => {
@@ -545,6 +558,18 @@ class Game extends React.Component {
 		});
 	}
 
+
+	setRef = (webcam) => {
+        this.webcam = webcam;
+    }
+    // handle image captured by the webcam 
+    handleCapture = () => {
+        const webcamScreenshot = this.webcam.getScreenshot();
+        this.setState({
+            webcamImg : webcamScreenshot
+        });
+    }
+
 	render() {
 		const {
 			inMessage,
@@ -573,10 +598,33 @@ class Game extends React.Component {
 			orientation,
 			windowWidth,
 			windowHeight,
+			webcamImg,
 		} = this.state;
+
+		// these are the MediaStreamConstraints
+        // width and height here, refer to the resolution
+        const videoConstraints = {
+            width: 160,
+            height: 120,
+            facingMode: "user"
+        };
 
 		return (
 			<div className="game">
+				{/* optional webcam element */}
+				{this.state.showWebcam ?
+					<div className="webcam" flex={1}>
+						<Webcam
+							audio={false}
+							ref={this.setRef}
+							screenshotFormat="image/jpeg"
+							videoConstraints={videoConstraints}
+						/>
+					{/* this button is only for testing purposes. It should be removed once websockets are implemented */}
+					{/* <button onClick={this.handleCapture}>Capture picture</button>
+					{webcamImg && <img src={webcamImg}/>} */}
+					</div>
+				: null}
 				<Radio.Group
 					defaultValue="vertical"
 					onChange={(e) => {
