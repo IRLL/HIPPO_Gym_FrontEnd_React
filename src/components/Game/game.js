@@ -44,6 +44,7 @@ class Game extends React.Component {
 		inMessage: [], // a list of incoming messages
 		outMessage: [], // a list of outgoing messages
 		holdKey: null, // the key that is holding
+		instructions: [], // list of instructions for the game
 
 		// TODO: Add the fingerprint prop to config.yml
 		fingerprint: true, // if this is a fingerprint trial
@@ -58,10 +59,7 @@ class Game extends React.Component {
 		addingMinutiae: false,
 		minutiae: [],
 
-		// For undo and redo functionality
-		undoList: [],
-		redoList: [],
-		instructions: [],
+
 
 		// Widths and heights for responsiveness
 		windowWidth: 700,
@@ -252,7 +250,10 @@ class Game extends React.Component {
 	// Change the confirmation modal to be invisible
 	// Navigate to the post-game page
 	handleOk = (e) => {
-		if (e.currentTarget.id === "keepMinutiae") {
+		if (e.currentTarget.id === "keepMinutiae" || e.currentTarget.id === "resetAll") {
+			// clear out undo and redo
+			undo.length = 0
+			redo.length = 0
 			this.setState({
 				brightness: 100,
 				contrast: 100,
@@ -260,22 +261,18 @@ class Game extends React.Component {
 				hue: 0,
 				resetModalVisible: false,
 			});
-			this.sendMessage({
-				info: "reset excluding minutiae",
-			});
-		} else if (e.currentTarget.id === "resetAll") {
-			this.setState({
-				minutiae: [],
-				brightness: 100,
-				contrast: 100,
-				saturation: 100,
-				hue: 0,
-				resetModalVisible: false,
-			});
-			this.sendMessage({
-				info: "reset all",
-			});
-		} else {
+			if (e.currentTarget.id === "resetAll") {
+				this.setState({
+					minutiae: [],
+				});
+				this.sendMessage({
+					info: "reset all",
+				});
+			} else {
+				this.sendMessage({
+					info: "reset excluding minutiae",
+				});}
+			} else {
 			this.setState({
 				isVisible: false,
 			});
@@ -333,14 +330,15 @@ class Game extends React.Component {
 				minutiaList: this.state.minutiae,
 				imageName: "current_image",
 			});
+			//empty undo and redo arrays
+			undo.length = 0
+			redo.length = 0
 			this.setState({
 				minutiae: [],
 				brightness: 100,
 				contrast: 100,
 				saturation: 100,
 				hue: 0,
-				undoList: [],
-				redoList: [],
 			});
 		} else {
 			this.sendMessage({
@@ -367,9 +365,9 @@ class Game extends React.Component {
 	};
 
 	// Handle undo and redo buttons
-	handleAddPatch = (patch, inversePatches) => {
+	handleAddPatch = (patches, inversePatches) => {
 		undo.push(inversePatches);
-		redo.push(patch);
+		redo.push(patches);
 	};
 
 	// Apply color filters to the image in the fingerprint window
@@ -394,8 +392,6 @@ class Game extends React.Component {
 					default:
 						return;
 				}
-				draft.undoList.push({ name: type });
-				draft.redoList.push({ name: type });
 			},
 			this.handleAddPatch
 		);
@@ -430,8 +426,6 @@ class Game extends React.Component {
 					this.state,
 					(draft) => {
 						draft.addingMinutiae = !this.state.addingMinutiae;
-						draft.undoList.push({ name: "minutiae" });
-						draft.redoList.push({ name: "minutiae" });
 					},
 					this.handleAddPatch
 				);
@@ -458,8 +452,6 @@ class Game extends React.Component {
 			(draft) => {
 				draft.minutiae = [...this.state.minutiae, { x, y, orientation, size, color, type }];
 				draft.addingMinutiae = false;
-				draft.undoList.push({ name: "minutiae" });
-				draft.redoList.push({ name: "minutiae" });
 			},
 			this.handleAddPatch
 		);
@@ -505,8 +497,6 @@ class Game extends React.Component {
 			this.state,
 			(draft) => {
 				draft.minutiae = prevMinutiae;
-				draft.undoList.push({ name: type });
-				draft.redoList.push({ name: type });
 			},
 			this.handleAddPatch
 		);
