@@ -207,12 +207,22 @@ class Game extends React.Component {
 			SERVER ? 0 : pendingTime * 1000
 		);
 
-		// ask user for permission to use the webcam
-		if(this.state.showWebcam) {
-            if (!window.confirm("Allow browser to use your camera")) {
-                window.alert("Please allow access to camera")
-            }
-        }
+		// ask users for permission to access the webcam
+		if (this.state.showWebcam){
+			navigator.permissions.query({ name: 'camera'})
+				.then((permissionStatus) => {
+					console.log('permission status is ', permissionStatus.state);
+					permissionStatus.onchange = function() {
+						if (permissionStatus.state == "denied"){
+							console.log("DENIED")
+						}
+					  console.log('permission status has changed to ', permissionStatus.state);
+					};
+				})
+				.catch((error) => {
+					console.log('Caught error: ', error)
+				})
+		}
 
 		// Listen to the user's keyboard inputs
 		document.addEventListener("keydown", (event) => {
