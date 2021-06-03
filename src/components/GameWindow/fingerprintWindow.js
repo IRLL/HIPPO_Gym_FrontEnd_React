@@ -160,6 +160,7 @@ class FingerprintWindow extends React.Component {
 				scaleXMax={10}
 				scaleYMin={1 / 2}
 				scaleYMax={10}
+				id="fingerprint-window"
 			>
 				{(zoom) => (
 					<div className="fingerprintWindowContainer" data-testid="fingerprint-window">
@@ -171,21 +172,21 @@ class FingerprintWindow extends React.Component {
 							{/* Image with filters applied */}
 							<g transform={zoom.toString()}>
 								<image
-									alt="frame"
+									id="image-overlay"
+									alt="fingerprint image"
 									href={frameSrc}
 									width={width}
 									height={height}
-									style={{
-										filter: `brightness(${brightness}%) 
-                                                contrast(${contrast}%)
-                                                saturate(${saturation}%) 
-                                                hue-rotate(${hue}deg)`,
-									}}
+									filter={`brightness(${brightness}%) 
+                                        contrast(${contrast}%)
+                                        saturate(${saturation}%) 
+                                        hue-rotate(${hue}deg)`}
 								/>
 							</g>
 
 							{/* Overlay for sensing zoom controls */}
 							<rect
+								id="fingerprint-overlay"
 								width={width}
 								height={height}
 								fill="transparent"
@@ -276,12 +277,10 @@ class FingerprintWindow extends React.Component {
 									width={width}
 									height={height}
 									// Apply filters to mini-map
-									style={{
-										filter: `brightness(${brightness}%) 
+									filter={`brightness(${brightness}%) 
                                         	contrast(${contrast}%)
                                         	saturate(${saturation}%) 
-                                        	hue-rotate(${hue}deg)`,
-									}}
+                                        	hue-rotate(${hue}deg)`}
 								/>
 								{/* Add minutiae to minimap */}
 								{minutiae.map((minutia, i) => (

@@ -21,7 +21,8 @@ import FingerprintWindow from "../GameWindow/fingerprintWindow";
 
 enablePatches();
 
-const pendingTime = 30;
+// TODO: make pendingTime dependent on whether we're testing or not
+const pendingTime = 5;
 
 const undo = [];
 const redo = [];
@@ -580,7 +581,7 @@ class Game extends React.Component {
 		} = this.state;
 
 		return (
-			<div className="game">
+			<div className="game" data-testid="game">
 				<Radio.Group
 					defaultValue="horizontal"
 					onChange={(e) => {
@@ -665,7 +666,6 @@ class Game extends React.Component {
 						hue={hue}
 						addingMinutiae={addingMinutiae}
 						orientation={orientation}
-						// data-testid="control-panel"
 					/>
 				</div>
 

@@ -22,13 +22,15 @@ class Main extends React.Component {
 	};
 
 	componentDidMount() {
-		if (!SERVER) this.fetchFormData(); //if server is not specified, load the form data                     //if css file is specified, apply the css to the page
+		if (!SERVER) this.fetchFormData(); //if server is not specified, load the form data
+		//if css file is specified, apply the css to the page
 	}
 
 	componentDidUpdate(prevState) {
 		//always scroll the page to the top when moving to next page
 		if (prevState.formContent !== this.state.formContent) {
-			window.scrollTo(0, 0);
+			// TODO: make this only run if not testing
+			// window.scrollTo(0, 0);
 		}
 	}
 
@@ -92,7 +94,7 @@ class Main extends React.Component {
 			isLoading: true,
 		});
 
-		//collect the user's input from the forum
+		//collect the user's input from the form
 		const form = event.target;
 		const data = {};
 		for (let element of form.elements) {
