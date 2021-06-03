@@ -320,6 +320,7 @@ class Game extends React.Component {
 			message.error("Please wait for the connection to be established first!");
 			return;
 		}
+
 		if (status === "start") {
 			this.sendMessage({
 				command: status,

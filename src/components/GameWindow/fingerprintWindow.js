@@ -14,7 +14,7 @@ class FingerprintWindow extends React.Component {
 		move: false,
 		moving: false,
 		defaultColor: "blue",
-		defaultSize: 50,
+		defaultSize: 30,
 	};
 
 	render() {
@@ -160,10 +160,9 @@ class FingerprintWindow extends React.Component {
 				scaleXMax={10}
 				scaleYMin={1 / 2}
 				scaleYMax={10}
-				id="fingerprint-window"
 			>
 				{(zoom) => (
-					<div className="fingerprintWindowContainer" data-testid="fingerprint-window">
+					<div className="fingerprintWindowContainer" onChange={zoom.clear}>
 						<svg
 							width={width}
 							height={height}
@@ -205,7 +204,8 @@ class FingerprintWindow extends React.Component {
 									if (addingMinutiae) {
 										addMinutia(
 											transformedPt.x,
-											transformedPt.y,
+											// add y-offset
+											transformedPt.y - 0.65625,
 											270,
 											this.state.defaultSize,
 											this.state.defaultColor,
