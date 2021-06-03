@@ -206,17 +206,24 @@ class Game extends React.Component {
 			},
 			SERVER ? 0 : pendingTime * 1000
 		);
+		if (this.state.showWebcam && 'permissions' in navigator){
+
+		}
+
 
 		// ask users for permission to access the webcam
 		if (this.state.showWebcam && 'permissions' in navigator){
 			navigator.permissions.query({ name: 'camera'})
-				.then(function(permissionStatus) {
-					permissionStatus.onchange = function() {
+				.then(permissionStatus => {
+					permissionStatus.onchange = () => {
 					  console.log('permission status has changed to ', permissionStatus.state);
+					  this.setState({
+						  showWebcam: false,
+					  })
 					};
 				})
 				.catch((error) => {
-					console.log('Caught error: ', error)
+					console.log('Caught error when asking for camera permissions ', error)
 				})
 		}
 
