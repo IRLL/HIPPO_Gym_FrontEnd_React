@@ -4,17 +4,20 @@ import "./game.css";
 import { message, Modal, Row, Col, Button, Radio } from "antd";
 import { w3cwebsocket } from "websocket";
 import { browserName, osName, browserVersion, osVersion } from "react-device-detect";
+import produce, { enablePatches, applyPatches } from "immer";
+
+// Import utilities
 import getKeyInput from "../../utils/getKeyInput";
 import { WS_URL, USER_ID, PROJECT_ID, SERVER, DEBUG } from "../../utils/constants";
 import { icons } from "../../utils/icons";
+
+// Import components
 import ControlPanel from "../Control/control";
 import BudgetBar from "../BudgetBar/budgetBar";
 import DisplayBar from "../DisplayBar/displayBar";
 import MessageViewer from "../Message/MessageViewer";
 import GameWindow from "../GameWindow/gameWindow";
 import FingerprintWindow from "../GameWindow/fingerprintWindow";
-
-import produce, { enablePatches, applyPatches } from "immer";
 
 enablePatches();
 
@@ -328,7 +331,6 @@ class Game extends React.Component {
 			this.sendMessage({
 				command: status,
 				minutiaList: this.state.minutiae,
-				imageName: "current_image",
 			});
 			//empty undo and redo arrays
 			undo.length = 0
@@ -522,9 +524,10 @@ class Game extends React.Component {
 				const scaledHeight = imageHeight / scale;
 				const offset = (windowHeight - scaledHeight) / 2; // the y-offset from the window border
 				const newMinutia = {
-					...minutia,
 					x: minutia.x * scale,
 					y: (minutia.y - offset) * scale,
+					orientation: minutia.orientation,
+					type: minutia.type,
 				};
 
 				return newMinutia;
@@ -535,9 +538,10 @@ class Game extends React.Component {
 				const offset = (windowWidth - scaledWidth) / 2; // the x-offset from the window border
 
 				const newMinutia = {
-					...minutia,
 					x: (minutia.x - offset) * scale,
 					y: minutia.y * scale,
+					orientation: minutia.orientation,
+					type: minutia.type,
 				};
 
 				return newMinutia;

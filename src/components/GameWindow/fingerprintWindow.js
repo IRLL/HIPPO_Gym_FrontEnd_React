@@ -90,14 +90,14 @@ class FingerprintWindow extends React.Component {
 		// Menu when minutia type is selected from popup menu
 		const minutiaType = (
 			<Radio.Group
-				defaultValue={minutiae[currMinutia] ? minutiae[currMinutia].type : "unknown"}
+				defaultValue={minutiae[currMinutia] ? minutiae[currMinutia].type : "Unknown"}
 				onChange={(e) => {
 					handleMinutia("changeType", currMinutia, e.target.value);
 				}}
 			>
-				<Radio value="bifurcation">Bifurcation</Radio>
-				<Radio value="ending">Ending</Radio>
-				<Radio value="unknown">Unknown</Radio>
+				<Radio value="Bifurcation">Bifurcation</Radio>
+				<Radio value="Ending">Ending</Radio>
+				<Radio value="Unknown">Unknown</Radio>
 			</Radio.Group>
 		);
 
@@ -207,7 +207,7 @@ class FingerprintWindow extends React.Component {
 											270,
 											this.state.defaultSize,
 											this.state.defaultColor,
-											"unknown"
+											"Unknown"
 										);
 									}
 								}}
