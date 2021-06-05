@@ -60,12 +60,25 @@ class ControlPanel extends React.Component {
 			"resetImage",
 			"submitImage",
 		];
+		// following UI elements should not be included in the control panel
+		const filterOut = [
+			"webcam",
+			"webcamRequired",
+			"webcamViewer",
+			"webcameRequired",
+			"webcamFps",
+			"webcamCapture",
+			"webcamLeft",
+			"webcamRight",
+			"webcamCaptureButton",
+		];
 		const defaultButtons = [...directions, ...fps];
 		const UIFiltered = UIlist.filter(
 			(ele) =>
 				!defaultButtons.includes(ele) &&
 				!imageControls.map((control) => control.name).includes(ele) &&
-				!imageCommands.includes(ele)
+				!imageCommands.includes(ele) &&
+				!filterOut.includes(ele)
 		);
 
 		const elements = {

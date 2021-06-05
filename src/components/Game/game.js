@@ -50,7 +50,7 @@ class Game extends React.Component {
 		instructions: [], // list of instructions for the game
 
 		// TODO: Add the fingerprint prop to config.yml
-		fingerprint: true, // if this is a fingerprint trial
+		fingerprint: false, // if this is a fingerprint trial
 		resetModalVisible: false, // if the reset image dialog is visible
 		orientation: "vertical", // default orientation is vertical
 
@@ -62,10 +62,16 @@ class Game extends React.Component {
 		addingMinutiae: false,
 		minutiae: [],
 
-		// webcam 
-		showWebcam : true,                    // toggle to switch the webcam on and off 
-        webcamRef : null,                     
-        webcamImg: null,
+		// webcam options
+		webcam : true, // toggle to switch the webcam on and off                    
+		webcamViewer: true,	// allow user to watch a preview of the webcam on their screens
+		webcameRequired: true,	// true if webcam is required for this 
+		webcamFps: 10,	// rate at which to capture webcam images 
+		webcamCapture: false, // requests a capture of the current webcam image
+		webcamLeft: false,	// if true, then display webcam as imageL
+		webcamRight: false,	// if true, display webcam as imageR
+		webcamSmall: false, // if webcamLeft or webcamRight are not un UIList then default webcam to upper left
+		webcamCaptureButton: false,	// if true, user can access a button to capture images 
 
 		// Widths and heights for responsiveness
 		windowWidth: 700,
@@ -163,7 +169,7 @@ class Game extends React.Component {
 								});
 							};
 						}
-
+						
 						//check if imageL is in server's response
 						if (parsedData.imageL) {
 							this.setState({
@@ -191,6 +197,15 @@ class Game extends React.Component {
 								inMessage: [parsedData, ...prevState.inMessage],
 							}));
 						}
+
+						// decide positioning of webcam on screen
+						if (this.state.UIlist.includes("webcamRight")) {
+							this.setState({webcamRight: true});
+						} else if (this.state.UIlist.includes("webcamLeft")) {
+							this.setState({webcamLeft: true});
+						} else {
+							this.setState({webcamSmall: true});
+						}
 					}
 				};
 
@@ -206,21 +221,29 @@ class Game extends React.Component {
 			},
 			SERVER ? 0 : pendingTime * 1000
 		);
-		if (this.state.showWebcam && 'permissions' in navigator){
-
-		}
-
 
 		// ask users for permission to access the webcam
-		if (this.state.showWebcam && 'permissions' in navigator){
+		// if allowed, start capturing images at the provided fps
+		// if denied, confirm decision
+		if (this.state.webcam && 'permissions' in navigator){
 			navigator.permissions.query({ name: 'camera'})
 				.then(permissionStatus => {
 					permissionStatus.onchange = () => {
 					  console.log('permission status has changed to ', permissionStatus.state);
-					  this.setState({
-						  showWebcam: false,
-					  })
-					};
+					  if (permissionStatus.state == "denied"){
+							if (this.state.webcameRequired){
+								window.alert("Webcam is required for this activity. Please grant access to camera.")
+							} 
+							this.setState({
+								webcam: false,
+					  		})
+					  } else if (permissionStatus.state == "granted"){
+						  this.startCapture()
+					  }
+					}
+					if (permissionStatus.state == "granted"){
+						this.startCapture()
+					}
 				})
 				.catch((error) => {
 					console.log('Caught error when asking for camera permissions ', error)
@@ -571,17 +594,40 @@ class Game extends React.Component {
 		});
 	}
 
-
 	setRef = (webcam) => {
         this.webcam = webcam;
-    }
+    };
+
     // handle image captured by the webcam 
-    handleCapture = () => {
+    handleCapture = (method) => {
+		var timestamp = new Date()
         const webcamScreenshot = this.webcam.getScreenshot();
-        this.setState({
-            webcamImg : webcamScreenshot
-        });
-    }
+		console.log("here we captured ")
+		console.log(webcamScreenshot)
+		this.sendMessage({
+			webcamImage : webcamScreenshot, // webcamScreenshot, send back image (base64)
+			webcamMethod : method, // available options: ["frameRate", "captureButton", "captureRequest"]
+			webcamTimestamp: timestamp.getTime(),
+		});
+    };
+
+	// call handleCapture at the rate provided by webcamFps
+	// startCapture = () => {
+	// 	console.log("startCapture has been called")
+	// 	var count = 0;
+	// 	var timestamp = new Date();
+	// 	if (count < 10){
+	// 		var temp = setTimeout(() => {
+	// 			++count
+	// 			console.log(count)
+	// 			this.handleCapture();
+	// 			// this.startCapture();
+	// 			console.log(Date.now())
+	// 		},1000)
+	// 	}	
+	// 	clearTimeout(temp)	
+	// }
+
 
 	render() {
 		const {
@@ -611,31 +657,39 @@ class Game extends React.Component {
 			orientation,
 			windowWidth,
 			windowHeight,
-			webcamImg,
+			webcam,
+			webcamViewer,
+			webcamCaptureButton,
+			webcamRight,
+			webcamLeft,
+			webcamSmall,
+			setRef,
 		} = this.state;
 
 		// these are the MediaStreamConstraints
         // width and height here, refer to the resolution
         const videoConstraints = {
-            width: 160,
-            height: 120,
-            facingMode: "user"
+            width: 410,
+            height: 410,
+            facingMode: "user",
+			
         };
 
 		return (
 			<div className="game">
 				{/* optional webcam element */}
-				{this.state.showWebcam ?
-					<div className="webcam" flex={1}>
+				{webcam && webcamSmall ?
+					<div className="webcam" flex={1} style={{visibility: webcamViewer ? "visible":"hidden"}}>
 						<Webcam
 							audio={false}
 							ref={this.setRef}
 							screenshotFormat="image/jpeg"
 							videoConstraints={videoConstraints}
 						/>
-					{/* this button is only for testing purposes. It should be removed once websockets are implemented */}
-					{/* <button onClick={this.handleCapture}>Capture picture</button>
-					{webcamImg && <img src={webcamImg}/>} */}
+					{webcamCaptureButton ? 
+						<Button onClick={() =>  this.handleCapture('capture button')}>Capture picture</Button>
+						// {webcamImg && <img src={webcamImg}/>}
+					:null}
 					</div>
 				: null}
 				<Radio.Group
@@ -690,6 +744,10 @@ class Game extends React.Component {
 									frameSrc={frameSrc}
 									imageL={imageL}
 									imageR={imageR}
+									webcamLeft={webcamLeft}
+									webcamRight={webcamRight}
+									videoConstraints={videoConstraints}
+									setRef={setRef}									
 									progress={progress}
 								/>
 							)}

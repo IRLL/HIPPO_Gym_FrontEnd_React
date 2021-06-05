@@ -18,6 +18,8 @@
 	position: absolute;
 	align-self: flex-start;
 	padding-left: 20px;
+	display: flex;
+	flex-direction: column;
 }
 
 .verticalGrid {
