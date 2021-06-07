@@ -59,8 +59,6 @@ class Game extends React.Component {
 		addingMinutiae: false,
 		minutiae: [],
 
-
-
 		// Widths and heights for responsiveness
 		windowWidth: 700,
 		windowHeight: 600,
