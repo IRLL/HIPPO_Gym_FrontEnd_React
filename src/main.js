@@ -30,7 +30,7 @@ class Main extends React.Component {
 		//always scroll the page to the top when moving to next page
 		if (prevState.formContent !== this.state.formContent) {
 			// TODO: make this only run if not testing
-			// window.scrollTo(0, 0);
+			window.scrollTo(0, 0);
 		}
 	}
 

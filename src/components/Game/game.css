@@ -33,3 +33,19 @@
 	margin-right: auto;
 	margin-left: max(10vw, calc((100vw - 1410px) / 2));
 }
+
+.scoreModal .ant-skeleton-avatar-circle {
+	display: block !important;
+	margin: 0.5rem auto;
+}
+
+.scoreModal {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+}
+
+.scoreModal Button {
+	margin-left: auto;
+}

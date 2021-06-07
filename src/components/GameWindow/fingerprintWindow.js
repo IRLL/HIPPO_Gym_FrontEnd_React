@@ -162,7 +162,7 @@ class FingerprintWindow extends React.Component {
 				scaleYMax={10}
 			>
 				{(zoom) => (
-					<div className="fingerprintWindowContainer" onChange={zoom.clear}>
+					<div className="fingerprintWindowContainer">
 						<svg
 							width={width}
 							height={height}
@@ -180,6 +180,7 @@ class FingerprintWindow extends React.Component {
                                         contrast(${contrast}%)
                                         saturate(${saturation}%) 
                                         hue-rotate(${hue}deg)`}
+									onLoad={zoom.clear}
 								/>
 							</g>
 

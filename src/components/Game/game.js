@@ -1,7 +1,7 @@
 import React from "react";
 import "antd/dist/antd.css";
 import "./game.css";
-import { message, Modal, Row, Col, Button, Radio } from "antd";
+import { message, Modal, Row, Col, Button, Radio, Progress, Skeleton } from "antd";
 import { w3cwebsocket } from "websocket";
 import { browserName, osName, browserVersion, osVersion } from "react-device-detect";
 import produce, { enablePatches, applyPatches } from "immer";
@@ -21,8 +21,7 @@ import FingerprintWindow from "../GameWindow/fingerprintWindow";
 
 enablePatches();
 
-// TODO: make pendingTime dependent on whether we're testing or not
-const pendingTime = 5;
+const pendingTime = 30;
 
 const undo = [];
 const redo = [];
@@ -38,7 +37,7 @@ class Game extends React.Component {
 		isLoading: !SERVER ? true : false, // if the server is ready to send out the data
 		isEnd: false, // if the game is finished
 		isConnection: false, // if the connection to the server is established
-		isVisible: false, // if the game end dialog is visible
+		gameEndVisible: false, // if the game end dialog is visible
 		UIlist: [], // a list of UI components
 		progress: 0, // the status of the server
 		inputBudget: 0, // the total budget available for the feedback buttons
@@ -63,7 +62,15 @@ class Game extends React.Component {
 		addingMinutiae: false,
 		minutiae: [],
 
+		// For the score modal
+		scoreModalVisible: false,
+		score: null,
+		maxScore: 100,
 
+		// For undo and redo functionality
+		undoList: [],
+		redoList: [],
+		instructions: [],
 
 		// Widths and heights for responsiveness
 		windowWidth: 700,
@@ -82,6 +89,14 @@ class Game extends React.Component {
 					progress: prevState.progress + 100 / pendingTime,
 				})),
 			1000
+		);
+
+		setInterval(
+			() =>
+				this.setState((prevState) => ({
+					scoreCalcProgress: prevState.scoreCalcProgress + 1,
+				})),
+			100
 		);
 		// To ensure the websocket server is ready to connect
 		// we try to connect the websocket server periodically
@@ -108,15 +123,16 @@ class Game extends React.Component {
 
 				// Listen to the data from the websocket server
 				this.websocket.onmessage = (message) => {
-					//"done" means the game has ended
 					if (message.data === "done") {
+						//"done" means the game has ended
 						this.setState({
 							isEnd: true,
-							isVisible: true,
+							gameEndVisible: true,
 						});
-						//parse the data from the websocket server
 					} else {
+						//parse the data from the websocket server
 						let parsedData = JSON.parse(message.data);
+
 						//Check if budget bar should be loaded
 						if (parsedData.inputBudget) {
 							this.setState({
@@ -136,21 +152,34 @@ class Game extends React.Component {
 								instructions: parsedData.Instructions,
 							});
 						}
-						//Check if Instructions in response
-						if (parsedData.fingerprint) {
+						//Check if Fingerprint in response
+						if (parsedData.Fingerprint) {
 							this.setState({
-								fingerprint: parsedData.fingerprint,
+								fingerprint: parsedData.Fingerprint,
+							});
+						}
+						//Check if Score in response
+						if (parsedData.Score) {
+							this.setState({
+								score: parsedData.Score,
 							});
 						}
 						//Check if frame related information in response
 						if (parsedData.frame && parsedData.frameId) {
 							let frame = parsedData.frame;
 							let frameId = parsedData.frameId;
-							this.setState((prevState) => ({
-								frameSrc: "data:image/jpeg;base64, " + frame,
-								frameCount: prevState.frameCount + 1,
-								frameId: frameId,
-							}));
+
+							this.state.score
+								? this.setState((prevState) => ({
+										nextframeSrc: "data:image/jpeg;base64, " + frame,
+										nextframeCount: prevState.frameCount + 1,
+										nextframeId: frameId,
+								  }))
+								: this.setState((prevState) => ({
+										frameSrc: "data:image/jpeg;base64, " + frame,
+										frameCount: prevState.frameCount + 1,
+										frameId: frameId,
+								  }));
 
 							const img = new Image();
 							img.src = "data:image/jpeg;base64, " + frame;
@@ -198,7 +227,7 @@ class Game extends React.Component {
 					this.setState({
 						isConnection: false,
 						isEnd: true,
-						isVisible: true,
+						gameEndVisible: true,
 					});
 				};
 			},
@@ -256,8 +285,8 @@ class Game extends React.Component {
 	handleOk = (e) => {
 		if (e.currentTarget.id === "keepMinutiae" || e.currentTarget.id === "resetAll") {
 			// clear out undo and redo
-			undo.length = 0
-			redo.length = 0
+			undo.length = 0;
+			redo.length = 0;
 			this.setState({
 				brightness: 100,
 				contrast: 100,
@@ -275,10 +304,11 @@ class Game extends React.Component {
 			} else {
 				this.sendMessage({
 					info: "reset excluding minutiae",
-				});}
-			} else {
+				});
+			}
+		} else {
 			this.setState({
-				isVisible: false,
+				gameEndVisible: false,
 			});
 			this.props.action();
 		}
@@ -294,7 +324,7 @@ class Game extends React.Component {
 			});
 		} else {
 			this.setState({
-				isVisible: false,
+				gameEndVisible: false,
 			});
 		}
 	};
@@ -335,8 +365,8 @@ class Game extends React.Component {
 				minutiaList: this.state.minutiae,
 			});
 			//empty undo and redo arrays
-			undo.length = 0
-			redo.length = 0
+			undo.length = 0;
+			redo.length = 0;
 			this.setState({
 				minutiae: [],
 				brightness: 100,
@@ -437,7 +467,7 @@ class Game extends React.Component {
 				break;
 			case "submitImage":
 				const newMinutiae = this.normalizeMinutiae(this.state.minutiae);
-				this.setState({ minutiae: newMinutiae }, () => {
+				this.setState({ minutiae: newMinutiae, scoreModalVisible: true }, () => {
 					this.handleCommand(command);
 				});
 				break;
@@ -511,6 +541,13 @@ class Game extends React.Component {
 		});
 	};
 
+	scrollToTop() {
+		window.scrollTo({
+			top: 0,
+			behavior: "smooth",
+		});
+	}
+
 	// Return a minutiae array such that each minutia's
 	// x and y values are accurate pixel coordinates
 	normalizeMinutiae(minutiae) {
@@ -563,7 +600,7 @@ class Game extends React.Component {
 			UIlist,
 			instructions,
 			progress,
-			isVisible,
+			gameEndVisible,
 			inputBudget,
 			usedInputBudget,
 			imageL,
@@ -579,6 +616,9 @@ class Game extends React.Component {
 			orientation,
 			windowWidth,
 			windowHeight,
+			score,
+			scoreModalVisible,
+			maxScore,
 		} = this.state;
 
 		return (
@@ -672,7 +712,7 @@ class Game extends React.Component {
 
 				<Modal
 					title="Game end message"
-					visible={isVisible}
+					visible={gameEndVisible}
 					onOk={this.handleOk}
 					onCancel={this.handleCancel}
 				>
@@ -688,7 +728,6 @@ class Game extends React.Component {
 				<Modal
 					title="Reset Image"
 					visible={resetModalVisible}
-					cancelText="Keep Minutiae"
 					footer={[
 						<Button key="cancel" id="resetCancel" type="default" onClick={this.handleCancel}>
 							Cancel
@@ -708,6 +747,53 @@ class Game extends React.Component {
 					<p className="resetModal">
 						Press <b>"Keep minutiae"</b> to avoid clearing minutiae
 					</p>
+				</Modal>
+
+				<Modal visible={scoreModalVisible} closable={false} footer={null}>
+					{!score ? (
+						<div className="scoreModal">
+							<p>Please wait while we calculate your score</p>
+							<Skeleton.Avatar
+								active={!score}
+								size={100}
+								shape="circle"
+								style={{
+									display: "block !important",
+									alignSelf: "center !important",
+									justifyContent: "center",
+								}}
+							/>
+							<Button disabled={!score} icon={icons["next"]} shape="round" type="primary">
+								Next Image
+							</Button>
+						</div>
+					) : (
+						<div className="scoreModal">
+							<p>You scored...</p>
+							<Progress width={100} type="circle" percent={score / maxScore} />
+							<Button
+								disabled={!score}
+								icon={icons["next"]}
+								shape="round"
+								type="primary"
+								onClick={() => {
+									this.scrollToTop();
+									this.setState((prevState) => ({
+										scoreModalVisible: false,
+										score: null,
+										frameSrc: prevState.nextframeSrc,
+										frameCount: prevState.nextframeCount,
+										frameId: prevState.nextframeId,
+										nextframeCount: null,
+										nextframeSrc: null,
+										nextframeId: null,
+									}));
+								}}
+							>
+								Next Image
+							</Button>
+						</div>
+					)}
 				</Modal>
 			</div>
 		);

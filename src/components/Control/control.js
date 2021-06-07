@@ -247,7 +247,7 @@ class ControlPanel extends React.Component {
 		return (
 			<div data-testid="control-panel">
 				{!isLoading && (
-					<div className={`controlPanel ${orientation == "horizontal" ? "addMargin" : ""}`}>
+					<div className={`controlPanel ${orientation === "horizontal" ? "addMargin" : ""}`}>
 						<div className="panelContainer">
 							{instructions !== [] && <Divider>Instructions </Divider>}
 							<Row gutter={[4, 8]} justify="start" className="instructions">
