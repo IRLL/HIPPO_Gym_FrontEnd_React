@@ -1,0 +1,118 @@
+/* Set the position style of the fingerprint container */
+.fingerprintWindowContainer {
+	flex: 1;
+	height: 605px;
+	position: relative;
+	display: flex;
+	align-items: center;
+	border-radius: 10px;
+	overflow: hidden;
+	background: #0a0a0a;
+	border: solid 1px #1890ff;
+}
+
+/* Set styling of the fingerprint control buttons */
+.fingerprintBtn {
+	font-size: 1rem;
+	text-align: center;
+	min-width: 1.5rem;
+	background: #1890ff;
+	color: white;
+	padding: 0;
+	margin: 1px;
+	border: none;
+	border-radius: 0.25rem;
+	cursor: pointer;
+}
+
+/* Decrease the font size and add padding to the resize buttons */
+.fingerprintResizeBtn {
+	font-size: 0.825rem;
+	padding: 0.2rem 0.5rem;
+}
+
+/* Add a margin between the zoom and resize buttons */
+.fingerprintBottomBtn {
+	margin-bottom: 1rem;
+}
+
+/* Positions the zoom controls to top right of the container and align items to the left */
+.fingerprintControls {
+	position: absolute;
+	top: 1rem;
+	right: 1rem;
+	display: flex;
+	flex-direction: column;
+	align-items: flex-end;
+}
+
+/* Allow user to zoom and pan even if cursor is on minimap */
+.fingerprintMinimap {
+	pointer-events: none;
+}
+
+/* Change button colors for recolor popup menu radiio buttons */
+.blueButton {
+	color: #1890ff !important;
+	background-color: white !important;
+	border: solid 1px #1890ff !important;
+	outline: white !important;
+	margin: 0 1px;
+}
+.blueButton .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled)::before {
+	background: #1890ff;
+}
+
+.greenButton {
+	color: #52c41a !important;
+	border: solid 1px #52c41a !important;
+	background-color: white !important;
+	outline: white !important;
+	margin: 0 1px;
+}
+.greenButton > .ant-radio-button,
+.greenButton > .ant-radio-button-inner,
+.greenButton > .ant-radio-button-wrapper-checked::before,
+.greenButton > .ant-radio-button-wrapper-checked,
+.greenButton > .ant-radio-button-wrapper {
+	background: #52c41a !important;
+	color: #52c41a !important;
+}
+
+.yellowButton {
+	color: #d4b106 !important;
+	border: solid 1px #fadb14 !important;
+	background-color: white !important;
+	outline: white !important;
+	margin: 0 1px;
+}
+
+.redButton {
+	color: #f5222d !important;
+	border: solid 1px #f5222d !important;
+	background-color: white !important;
+	outline: white !important;
+	margin: 0 1px;
+}
+
+.orangeButton {
+	color: #fa8c16 !important;
+	border: solid 1px #fa8c16 !important;
+	background-color: white !important;
+	outline: #fa8c16 !important;
+	margin: 0 1px;
+}
+
+/* Add padding between all the buttons in the popup menu */
+.popupMenu Button:not(:last-of-type) {
+	margin-right: 0.5rem;
+}
+
+/* Cursor utility classes */
+.moveCursor {
+	cursor: move;
+}
+
+.pointerCursor {
+	cursor: pointer;
+}

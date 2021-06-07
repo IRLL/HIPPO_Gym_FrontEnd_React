@@ -3,7 +3,6 @@ import {Progress} from 'antd';
 import './gameWindow.css';
 import 'antd/dist/antd.css';
 
-
 class GameWindow extends React.Component {
 
     render() {
@@ -14,7 +13,7 @@ class GameWindow extends React.Component {
                 <div className="imageContainer" > 
                     {imageL ? <img src={imageL} className="imageComponent" alt="imageLeft" width="400px" height="400px" /> : null}
                 </div>
-                <div className= "gameWindow" >
+                <div className="gameWindow" >
                     {isLoading || !frameSrc ?
                         <div className="progressBar">
                             <Progress width={80} type="circle" percent={Math.round(progress)}/>

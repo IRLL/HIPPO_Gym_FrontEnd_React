@@ -1,7 +1,7 @@
 /* Set the height and width of the game window
 Set the border color and style of the game window
 Center align the game window both horizontally and vertically */
-.gameWindow{
+.gameWindow {
     height: 605px;
     width : 705px;
     border : solid #1890ff;
@@ -13,7 +13,7 @@ Center align the game window both horizontally and vertically */
 }
 
 /* Center align the progress bar both horizontally and vertically */
-.progressBar{
+.progressBar {
     display: flex;
     flex-direction: column; 
     justify-content: center;
@@ -29,19 +29,19 @@ Center align the game window both horizontally and vertically */
 }
 
 /* Add rounded corners to the border */
-.gameContent{
+.gameContent {
     border-radius: 10px;
 }
 
 /* Add border to each image component */
-.imageComponent{
+.imageComponent {
     padding: 5px;
     border : solid #1890ff;
     border-radius: 10px;
 }
 
 /* Set the height and width of the container of each image component */
-.imageContainer{
+.imageContainer {
     height: 410px;
     width : 410px;
 }

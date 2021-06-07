@@ -1,120 +1,203 @@
 /* Add a solid border to the panel
    Make the corners of panel rounded 
-   Add space to the top,left and right of the panel
-   Set the width of the panel */
-.controlPanel{
-    border: solid;
-    border-radius: 10px;
-    margin-top: 20px;
-    margin-left: auto;
-    margin-right: auto;
-    width: 800px;
+   Add space to the top of the panel */
+.controlPanel {
+	border: solid 1px rgb(237, 237, 237);
+	border-radius: 10px;
+	margin-top: 20px;
+	padding: 1rem 2rem;
+	flex: 1;
 }
 
 /* Remove the default border of the container
  Add space to the top of the container */
-.panelContainer{
-    border : none;
-    margin-top: 10px;
+.panelContainer {
+	border: none;
+	margin-top: 10px;
 }
 
 /* Set the height of fps input field 
- Make the corners of this field rounded */ 
-.fpsInput{
-    width: auto;
-    height: 40px;
-    border-radius: 20px;
+ Make the corners of this field rounded */
+.fpsInput {
+	width: auto;
+	height: 40px;
+	border-radius: 20px;
+}
+
+/* set animation for instructions */
+.instructions {
+	animation-name: example;
+	animation-duration: 5s;
+	transition: 3s;
+}
+
+@keyframes example {
+	0% {
+		color: rgb(164, 165, 152);
+	}
+	20% {
+		color: rgb(146, 25, 55);
+	}
+	40% {
+		color: rgb(180, 55, 86);
+	}
+	60% {
+		color: rgb(146, 25, 55);
+	}
+	80% {
+		color: rgb(180, 55, 86);
+	}
+}
+
+/* Set the width of the sliders to be more responsive */
+.imageControl {
+	min-width: 10rem;
+	max-width: 30rem;
+}
+
+/* Add margin to the bottom of slider text */
+.imageControlText {
+	margin-bottom: 0.25rem;
+}
+
+/* Utility class to add left margin to control
+	panel when orientation is horizonal */
+.addMargin {
+	margin-left: 2rem;
+}
+
+/* Add a bottom padding to the image commands */
+.imageCommands {
+	padding-bottom: 1rem;
 }
 
 /* Set the background color for each button
    Set the text color for each button
    Set the border color for each button */
-
-.startButton{
-    background-color: #1890ff;
-    color: white;
-    border-color: #1890ff;
+.startButton {
+	background-color: #1890ff;
+	color: white;
+	border-color: #1890ff;
 }
 
-.startButton:hover{
-    background-color: #40a9ff;
-    border-color: #40a9ff;
+.startButton:hover {
+	background-color: #40a9ff;
+	border-color: #40a9ff;
 }
 
-.pauseButton{
-    background-color: #fa541c;
-    color: white;
-    border-color: #fa541c;
+.pauseButton {
+	background-color: #fa541c;
+	color: white;
+	border-color: #fa541c;
 }
 
-.pauseButton:hover{
-    background-color: #ff7a45;
-    border-color: #ff7a45;
+.pauseButton:hover {
+	background-color: #ff7a45;
+	border-color: #ff7a45;
 }
 
-.stopButton{
-    background-color: #f5222d;
-    color: white;
-    border-color: #f5222d;
+.stopButton {
+	background-color: #f5222d;
+	color: white;
+	border-color: #f5222d;
 }
 
-.stopButton:hover{
-    background-color: #ff4d4f;
-    border-color: #ff4d4f;
+.stopButton:hover {
+	background-color: #ff4d4f;
+	border-color: #ff4d4f;
 }
 
-.resetButton{
-    background-color: #52c41a;
-    color: white;
-    border-color: #52c41a;
+.resetButton {
+	background-color: #52c41a;
+	color: white;
+	border-color: #52c41a;
 }
 
-.resetButton:hover{
-    background-color: #73d13d;
-    border-color: #73d13d;
+.resetButton:hover {
+	background-color: #73d13d;
+	border-color: #73d13d;
 }
 
-.trainOnlineButton{
-    background-color: #faad14;
-    color : white;
-    border-color: #faad14;   
+.trainOnlineButton {
+	background-color: #faad14;
+	color: white;
+	border-color: #faad14;
 }
 
-.trainOnlineButton:hover{
-    background-color: #ffc53d;
-    border-color:#ffc53d;
+.trainOnlineButton:hover {
+	background-color: #ffc53d;
+	border-color: #ffc53d;
 }
 
-.trainOfflineButton{
-    background-color: #13c2c2;
-    color : white;
-    border-color: #13c2c2;
+.trainOfflineButton {
+	background-color: #13c2c2;
+	color: white;
+	border-color: #13c2c2;
 }
 
-.trainOfflineButton:hover{
-    background-color: #36cfc9;
-    border-color: #36cfc9;
-
+.trainOfflineButton:hover {
+	background-color: #36cfc9;
+	border-color: #36cfc9;
 }
 
-.goodButton{
-    background-color: #fadb14;
-    color : white;
-    border-color: #fadb14;
+.goodButton {
+	background-color: #fadb14;
+	color: white;
+	border-color: #fadb14;
 }
 
-.goodButton:hover{
-    background-color: #ffec3d;
-    border-color: #ffec3d;
+.goodButton:hover {
+	background-color: #ffec3d;
+	border-color: #ffec3d;
 }
 
-.badButton{
-    background-color: #a0d911;
-    color : white;
-    border-color: #a0d911;
+.badButton {
+	background-color: #a0d911;
+	color: white;
+	border-color: #a0d911;
 }
 
-.badButton:hover{
-    background-color: #bae637;
-    border-color: #bae637;
+.badButton:hover {
+	background-color: #bae637;
+	border-color: #bae637;
+}
+
+.undoButton,
+.redoButton {
+	background-color: white;
+	color: black;
+	border-color: black;
+}
+
+.undoButton:hover,
+.undoButton:focus,
+.redoButton:hover,
+.redoButton:focus {
+	background-color: #eeeeee;
+	color: black;
+	border-color: black;
+}
+
+.resetImageButton {
+	background-color: #f5222d;
+	color: white;
+	border-color: #f5222d;
+}
+
+.resetImageButton:hover,
+.resetImageButton:focus {
+	background-color: #ff4d4f;
+	border-color: #ff4d4f;
+}
+
+.submitImageButton {
+	background-color: #52c41a;
+	color: white;
+	border-color: #52c41a;
+}
+
+.submitImageButton:hover,
+.submitImageButton:focus {
+	background-color: #73d13d;
+	border-color: #73d13d;
 }
