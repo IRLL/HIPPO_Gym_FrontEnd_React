@@ -18,8 +18,7 @@ import produce, { enablePatches, applyPatches } from "immer";
 
 enablePatches();
 
-// TODO: make pendingTime dependent on whether we're testing or not
-const pendingTime = 5;
+const pendingTime = 30;
 
 const undo = [];
 const redo = [];
@@ -588,7 +587,7 @@ class Game extends React.Component {
 		} = this.state;
 
 		return (
-			<div className="game" data-testid="game">
+			<div className="game" id="game">
 				<Radio.Group
 					defaultValue="vertical"
 					onChange={(e) => {
@@ -649,7 +648,12 @@ class Game extends React.Component {
 						</Col>
 
 						<Col flex={1}>
-							<MessageViewer title="Message Out" data={outMessage} visible={DEBUG} />
+							<MessageViewer
+								title="Message Out"
+								id="message-view-1"
+								data={outMessage}
+								visible={DEBUG}
+							/>
 						</Col>
 					</Row>
 
