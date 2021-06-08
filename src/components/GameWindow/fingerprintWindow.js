@@ -175,9 +175,9 @@ class FingerprintWindow extends React.Component {
 									width={width}
 									height={height}
 									style={{
-										filter: `brightness(${brightness}%) 
+										filter: `brightness(${brightness}%)
                                                 contrast(${contrast}%)
-                                                saturate(${saturation}%) 
+                                                saturate(${saturation}%)
                                                 hue-rotate(${hue}deg)`,
 									}}
 								/>
@@ -276,9 +276,9 @@ class FingerprintWindow extends React.Component {
 									height={height}
 									// Apply filters to mini-map
 									style={{
-										filter: `brightness(${brightness}%) 
+										filter: `brightness(${brightness}%)
                                         	contrast(${contrast}%)
-                                        	saturate(${saturation}%) 
+                                        	saturate(${saturation}%)
                                         	hue-rotate(${hue}deg)`,
 									}}
 								/>

@@ -12,6 +12,7 @@
     "antd": "^4.3.5",
     "axios": "^0.21.1",
     "immer": "^9.0.2",
+    "ionicons": "^5.5.1",
     "react": "^16.13.1",
     "react-device-detect": "^1.13.1",
     "react-dom": "^16.13.1",

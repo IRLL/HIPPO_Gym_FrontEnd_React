@@ -63,15 +63,15 @@ class Game extends React.Component {
 		minutiae: [],
 
 		// webcam options
-		webcam : true, // toggle to switch the webcam on and off                    
-		webcamViewer: true,	// allow user to watch a preview of the webcam on their screens
-		webcameRequired: true,	// true if webcam is required for this 
-		webcamFps: 10,	// rate at which to capture webcam images 
+		webcam : false, // toggle to switch the webcam on and off
+		webcamViewer: false,	// allow user to watch a preview of the webcam on their screens
+		webcamRequired: false,	// true if webcam is required for this
+		webcamFps: 10,	// rate at which to capture webcam images. 10 is default
 		webcamCapture: false, // requests a capture of the current webcam image
 		webcamLeft: false,	// if true, then display webcam as imageL
 		webcamRight: false,	// if true, display webcam as imageR
 		webcamSmall: false, // if webcamLeft or webcamRight are not un UIList then default webcam to upper left
-		webcamCaptureButton: false,	// if true, user can access a button to capture images 
+		webcamCaptureButton: true,	// if true, user can access a button to capture images
 
 		// Widths and heights for responsiveness
 		windowWidth: 700,
@@ -131,26 +131,73 @@ class Game extends React.Component {
 								inputBudget: parsedData.inputBudget,
 								usedInputBudget: parsedData.usedInputBudget,
 							});
-						}
+					  }
+
 						//Check if UI in response
 						if (parsedData.UI) {
 							this.setState({
 								UIlist: parsedData.UI,
 							});
+              // capture webcam image if backend requests a capture
+              if (this.state.UIlist.includes("webcamCapture")) {
+                // create a promise if backend requests a webcam capture
+                var captureRequest = new Promise((resolve, reject) => {
+                  resolve(this.handleCapture());
+                  reject(new Error("Error!"));
+                });
+                captureRequest
+                  .then((error) => {
+                    console.log(error)
+                  })
+                  .catch((error) => {
+                    console.log("The Webcam component has not completely rendered ", error)
+                  })
+              }
 						}
-						//Check if Instructions in response
+
+            // Check if webcam is enabled for this activity
+            // TODO: move webcamCapture to4 here
+            if (parsedData.UI && this.state.UIlist.includes("webcam")) {
+              this.setState({webcam: true})
+              if (this.state.UIlist.includes("webcamRequired")){
+                this.setState({
+                  webcamRequired: true
+                })
+                this.handlePermissions(true)
+              } else{this.handlePermissions(false)}
+              if (this.state.UIlist.includes("webcamViewer")){
+                this.setState({
+                  webcamViewer: true
+                })
+                // decide positioning of webcam on screen
+                if (this.state.UIlist.includes("webcamRight")) {
+                  this.setState({webcamRight: true});
+                } else if (this.state.UIlist.includes("webcamLeft")) {
+                  this.setState({webcamSmall: true});
+                } else {
+                  this.setState({webcamSmall: true});
+                }
+              }
+              if (this.state.UIlist.includes("webcamCaptureButton")){
+                this.setState({
+                  webcamCaptureButton: true
+                })
+              }
+            }
+
+						// Check if Instructions in response
 						if (parsedData.Instructions) {
 							this.setState({
 								instructions: parsedData.Instructions,
 							});
 						}
-						//Check if Instructions in response
+						// Check if Instructions in response
 						if (parsedData.fingerprint) {
 							this.setState({
 								fingerprint: parsedData.fingerprint,
 							});
 						}
-						//Check if frame related information in response
+						// Check if frame related information in response
 						if (parsedData.frame && parsedData.frameId) {
 							let frame = parsedData.frame;
 							let frameId = parsedData.frameId;
@@ -169,7 +216,7 @@ class Game extends React.Component {
 								});
 							};
 						}
-						
+
 						//check if imageL is in server's response
 						if (parsedData.imageL) {
 							this.setState({
@@ -197,15 +244,6 @@ class Game extends React.Component {
 								inMessage: [parsedData, ...prevState.inMessage],
 							}));
 						}
-
-						// decide positioning of webcam on screen
-						if (this.state.UIlist.includes("webcamRight")) {
-							this.setState({webcamRight: true});
-						} else if (this.state.UIlist.includes("webcamLeft")) {
-							this.setState({webcamLeft: true});
-						} else {
-							this.setState({webcamSmall: true});
-						}
 					}
 				};
 
@@ -222,33 +260,14 @@ class Game extends React.Component {
 			SERVER ? 0 : pendingTime * 1000
 		);
 
-		// ask users for permission to access the webcam
-		// if allowed, start capturing images at the provided fps
-		// if denied, confirm decision
-		if (this.state.webcam && 'permissions' in navigator){
-			navigator.permissions.query({ name: 'camera'})
-				.then(permissionStatus => {
-					permissionStatus.onchange = () => {
-					  console.log('permission status has changed to ', permissionStatus.state);
-					  if (permissionStatus.state == "denied"){
-							if (this.state.webcameRequired){
-								window.alert("Webcam is required for this activity. Please grant access to camera.")
-							} 
-							this.setState({
-								webcam: false,
-					  		})
-					  } else if (permissionStatus.state == "granted"){
-						  this.startCapture()
-					  }
-					}
-					if (permissionStatus.state == "granted"){
-						this.startCapture()
-					}
-				})
-				.catch((error) => {
-					console.log('Caught error when asking for camera permissions ', error)
-				})
-		}
+    // check if browser supports getUserMedia
+    // send an alert if it doesn't
+    if('mediaDevices' in navigator && 'getUserMedia' in navigator.mediaDevices){
+      console.log("This browser supports getUserMedia api")
+    } else {
+      window.alert("This browser does not support the getUserMedia API. There might be \
+      problems with media access permissions.")
+    }
 
 		// Listen to the user's keyboard inputs
 		document.addEventListener("keydown", (event) => {
@@ -295,6 +314,49 @@ class Game extends React.Component {
 	componentWillUnmount() {
 		if (this.setInMessage) clearInterval(this.setInMessage);
 	}
+
+  // ask users for permission to access the webcam
+	// if allowed, start capturing images at the provided fps
+	// if denied, confirm decision
+  handlePermissions = (webcamRequired) => {
+		if ('permissions' in navigator){
+			navigator.permissions.query({ name: 'camera'})
+				.then(permissionStatus => {
+          if (permissionStatus.state == "denied") {
+            if (webcamRequired) {
+              if (window.confirm("This activity requires the use of camera but your browser has blocked access. Change permissions in your browser settings and press \"OK\" to refresh the page or press \"Cancel\" to start a new activity: "))
+              {window.location.href = window.location.href}
+              else {window.location.href ="/"}
+            }
+          }
+					permissionStatus.onchange = () => {
+					  console.log('permission status has changed to', permissionStatus.state);
+					  if (permissionStatus.state === "denied"){
+							if (webcamRequired){
+								if (window.confirm("Camera is required for this activity. Change permissions in your browser settings and press \"OK\" to refresh the page or press \"Cancel\" to start a new activity: ")){
+                  window.location.href = window.location.href
+                }
+                else {
+                  window.location.href ="/"
+                }
+							} else {
+                // TODO: here ask if user wants to continue without camera
+                this.setState({webcam: false})
+                }
+					  } else if (permissionStatus.state === "granted"){
+						  // setTimeout(this.startCapture, 10000)
+					    }
+					}
+					if (permissionStatus.state === "granted"){
+            console.log("camera was already set to allowed")
+						// setTimeout(this.startCapture)
+					}
+				})
+				.catch((error) => {
+					console.log('Caught error when asking for camera permissions ', error)
+				})
+		}
+  }
 
 	// Change the confirmation modal to be invisible
 	// Navigate to the post-game page
@@ -598,35 +660,33 @@ class Game extends React.Component {
         this.webcam = webcam;
     };
 
-    // handle image captured by the webcam 
-    handleCapture = (method) => {
-		var timestamp = new Date()
-        const webcamScreenshot = this.webcam.getScreenshot();
-		console.log("here we captured ")
-		console.log(webcamScreenshot)
-		this.sendMessage({
-			webcamImage : webcamScreenshot, // webcamScreenshot, send back image (base64)
-			webcamMethod : method, // available options: ["frameRate", "captureButton", "captureRequest"]
-			webcamTimestamp: timestamp.getTime(),
-		});
-    };
+  // handle image captured by the webcam
+  handleCapture = (method) => {
+    var timestamp = new Date()
+    const webcamScreenshot = this.webcam.getScreenshot();
+    console.log("webcam screenshot: ", webcamScreenshot)
+    this.sendMessage({
+      webcamImage : webcamScreenshot,
+      webcamMethod : method, // available options: ["frameRate", "captureButton", "captureRequest"]
+      webcamTimestamp: timestamp.getTime(),
+    });
+  };
 
 	// call handleCapture at the rate provided by webcamFps
-	// startCapture = () => {
-	// 	console.log("startCapture has been called")
-	// 	var count = 0;
-	// 	var timestamp = new Date();
-	// 	if (count < 10){
-	// 		var temp = setTimeout(() => {
-	// 			++count
-	// 			console.log(count)
-	// 			this.handleCapture();
-	// 			// this.startCapture();
-	// 			console.log(Date.now())
-	// 		},1000)
-	// 	}	
-	// 	clearTimeout(temp)	
-	// }
+	startCapture = async () => {
+		console.log("startCapture has been called")
+    setInterval(() => {
+      var timestamp = new Date();
+      console.log(timestamp)
+      this.handleCapture("frame rate");
+    },1000/10)
+		// if (true){
+		// 	var temp = setTimeout(() => {
+		// 		this.handleCapture("frame rate");
+		// 		this.startCapture();
+		// 	},1000/10)
+		// }
+	}
 
 
 	render() {
@@ -672,7 +732,6 @@ class Game extends React.Component {
             width: 410,
             height: 410,
             facingMode: "user",
-			
         };
 
 		return (
@@ -686,9 +745,8 @@ class Game extends React.Component {
 							screenshotFormat="image/jpeg"
 							videoConstraints={videoConstraints}
 						/>
-					{webcamCaptureButton ? 
+					{webcamCaptureButton ?
 						<Button onClick={() =>  this.handleCapture('capture button')}>Capture picture</Button>
-						// {webcamImg && <img src={webcamImg}/>}
 					:null}
 					</div>
 				: null}
@@ -747,7 +805,7 @@ class Game extends React.Component {
 									webcamLeft={webcamLeft}
 									webcamRight={webcamRight}
 									videoConstraints={videoConstraints}
-									setRef={setRef}									
+									setRef={setRef}
 									progress={progress}
 								/>
 							)}
