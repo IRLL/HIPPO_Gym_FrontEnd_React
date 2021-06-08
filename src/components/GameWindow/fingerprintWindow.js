@@ -180,7 +180,7 @@ class FingerprintWindow extends React.Component {
                                         contrast(${contrast}%)
                                         saturate(${saturation}%) 
                                         hue-rotate(${hue}deg)`}
-									onLoad={zoom.clear}
+									onLoad={zoom.clear} // recenter the image when a new one loads
 								/>
 							</g>
 
