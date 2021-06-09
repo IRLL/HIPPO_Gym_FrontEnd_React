@@ -7,7 +7,7 @@ class Footer extends React.PureComponent {
 	render() {
 		return (
 			<footer className="pageFooter">
-				<Divider />
+				<Divider style={{ marginBottom: "0.75rem" }} />
 				<Row align="bottom">
 					<Col flex={1}>
 						<p className="footerContent">
