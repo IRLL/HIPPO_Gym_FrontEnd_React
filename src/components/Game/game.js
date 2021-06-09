@@ -362,17 +362,7 @@ class Game extends React.Component {
 		} else if (status === "submitImage") {
 			this.sendMessage({
 				command: status,
-				minutiaList: this.state.minutiae,
-			});
-			//empty undo and redo arrays
-			undo.length = 0;
-			redo.length = 0;
-			this.setState({
-				minutiae: [],
-				brightness: 100,
-				contrast: 100,
-				saturation: 100,
-				hue: 0,
+				minutiaList: this.normalizeMinutiae(this.state.minutiae),
 			});
 		} else {
 			this.sendMessage({
@@ -466,8 +456,7 @@ class Game extends React.Component {
 				this.setState(nextStateMinutiae);
 				break;
 			case "submitImage":
-				const newMinutiae = this.normalizeMinutiae(this.state.minutiae);
-				this.setState({ minutiae: newMinutiae, scoreModalVisible: true }, () => {
+				this.setState({ scoreModalVisible: true }, () => {
 					this.handleCommand(command);
 				});
 				break;
@@ -788,6 +777,17 @@ class Game extends React.Component {
 										nextframeSrc: null,
 										nextframeId: null,
 									}));
+
+									//empty undo and redo arrays
+									undo.length = 0;
+									redo.length = 0;
+									this.setState({
+										minutiae: [],
+										brightness: 100,
+										contrast: 100,
+										saturation: 100,
+										hue: 0,
+									});
 								}}
 							>
 								Next Image
