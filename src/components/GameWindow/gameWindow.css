@@ -15,7 +15,7 @@ Center align the game window both horizontally and vertically */
 /* Center align the progress bar both horizontally and vertically */
 .progressBar {
     display: flex;
-    flex-direction: column; 
+    flex-direction: column;
     justify-content: center;
     align-items: center;
     margin: auto;

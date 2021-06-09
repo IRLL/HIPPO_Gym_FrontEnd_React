@@ -5,7 +5,7 @@ import "./game.css";
 import { message, Modal, Row, Col, Button, Radio } from "antd";
 import { w3cwebsocket } from "websocket";
 import { browserName, osName, browserVersion, osVersion } from "react-device-detect";
-import Webcam from "react-webcam";
+// import Webcam from "react-webcam";
 
 import getKeyInput from "../../utils/getKeyInput";
 import { WS_URL, USER_ID, PROJECT_ID, SERVER, DEBUG } from "../../utils/constants";
@@ -16,6 +16,7 @@ import DisplayBar from "../DisplayBar/displayBar";
 import MessageViewer from "../Message/MessageViewer";
 import GameWindow from "../GameWindow/gameWindow";
 import FingerprintWindow from "../GameWindow/fingerprintWindow";
+import WebcamWindow from "../WebcamWindow/webcamWindow";
 
 import produce, { enablePatches, applyPatches } from "immer";
 
@@ -349,13 +350,20 @@ class Game extends React.Component {
 					}
 					if (permissionStatus.state === "granted"){
             console.log("camera was already set to allowed")
-						// setTimeout(this.startCapture)
+						// setTimeout(this.startCapture())
 					}
 				})
 				.catch((error) => {
 					console.log('Caught error when asking for camera permissions ', error)
 				})
 		}
+  }
+
+  /// Reference: https://stackoverflow.com/a/62647006
+  startCapture= () => {}
+
+  setStartCapture = (newMethod) => {
+    this.startCapture = newMethod;
   }
 
 	// Change the confirmation modal to be invisible
@@ -656,38 +664,6 @@ class Game extends React.Component {
 		});
 	}
 
-	setRef = (webcam) => {
-        this.webcam = webcam;
-    };
-
-  // handle image captured by the webcam
-  handleCapture = (method) => {
-    var timestamp = new Date()
-    const webcamScreenshot = this.webcam.getScreenshot();
-    console.log("webcam screenshot: ", webcamScreenshot)
-    this.sendMessage({
-      webcamImage : webcamScreenshot,
-      webcamMethod : method, // available options: ["frameRate", "captureButton", "captureRequest"]
-      webcamTimestamp: timestamp.getTime(),
-    });
-  };
-
-	// call handleCapture at the rate provided by webcamFps
-	startCapture = async () => {
-		console.log("startCapture has been called")
-    setInterval(() => {
-      var timestamp = new Date();
-      console.log(timestamp)
-      this.handleCapture("frame rate");
-    },1000/10)
-		// if (true){
-		// 	var temp = setTimeout(() => {
-		// 		this.handleCapture("frame rate");
-		// 		this.startCapture();
-		// 	},1000/10)
-		// }
-	}
-
 
 	render() {
 		const {
@@ -726,29 +702,18 @@ class Game extends React.Component {
 			setRef,
 		} = this.state;
 
-		// these are the MediaStreamConstraints
-        // width and height here, refer to the resolution
-        const videoConstraints = {
-            width: 410,
-            height: 410,
-            facingMode: "user",
-        };
-
 		return (
 			<div className="game">
 				{/* optional webcam element */}
 				{webcam && webcamSmall ?
-					<div className="webcam" flex={1} style={{visibility: webcamViewer ? "visible":"hidden"}}>
-						<Webcam
-							audio={false}
-							ref={this.setRef}
-							screenshotFormat="image/jpeg"
-							videoConstraints={videoConstraints}
-						/>
-					{webcamCaptureButton ?
-						<Button onClick={() =>  this.handleCapture('capture button')}>Capture picture</Button>
-					:null}
-					</div>
+          <div className="webcamWindow" flex={1} style={{visibility: webcamViewer ? "visible":"hidden"}}>
+            <WebcamWindow
+              setStartCapture={this.setStartCapture}
+              sendMessage={this.sendMessage}
+              ref={this.WebcamWindow}
+              webcamCaptureButton={webcamCaptureButton}
+            />
+          </div>
 				: null}
 				<Radio.Group
 					defaultValue="vertical"
@@ -804,8 +769,8 @@ class Game extends React.Component {
 									imageR={imageR}
 									webcamLeft={webcamLeft}
 									webcamRight={webcamRight}
-									videoConstraints={videoConstraints}
-									setRef={setRef}
+									// videoConstraints={videoConstraints}
+									// setRef={setRef}
 									progress={progress}
 								/>
 							)}

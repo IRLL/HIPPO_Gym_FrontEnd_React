@@ -2,7 +2,6 @@
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	position: relative;
 }
 
 /* Set the font size and font for text in model */
@@ -14,12 +13,16 @@
 		"Noto Color Emoji";
 }
 
-.webcam {
-	position: absolute;
+.webcamWindow {
+	/* z-index: 2; */
+	position: fixed;
 	align-self: flex-start;
 	padding-left: 20px;
-	display: flex;
-	flex-direction: column;
+	/* position: fixed;
+	align-self: flex-start;
+	padding-left: 20px; */
+	/* display: flex;
+	flex-direction: column; */
 }
 
 .verticalGrid {

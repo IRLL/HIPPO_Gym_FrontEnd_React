@@ -74,5 +74,5 @@ export const icons = {
 	minutiaType: <GoldOutlined />,
 	verticalSplit: <VscSplitVertical />,
 	horizontalSplit: <VscSplitHorizontal />,
-  camera: <IoIosCamera />
+  camera: <IoIosCamera size={25}/>
 };

@@ -8,7 +8,7 @@ import Webcam from "react-webcam";
 class GameWindow extends React.Component {
 
     render() {
-        const {isLoading, frameSrc, progress, imageL, imageR, webcamLeft, webcamRight, videoConstraints,setRef} = this.props;
+        const {isLoading, frameSrc, progress, imageL, imageR, webcamLeft, webcamRight,setRef} = this.props;
 
         return (
             <div className="container" >
@@ -20,7 +20,7 @@ class GameWindow extends React.Component {
                                 audio={false}
                                 ref={setRef}
                                 screenshotFormat="image/jpeg"
-                                videoConstraints={videoConstraints}
+                                // videoConstraints={videoConstraints}
                             />
 					              </div>
                     : null}
@@ -44,7 +44,7 @@ class GameWindow extends React.Component {
                                   audio={false}
                                   ref={setRef}
                                   screenshotFormat="image/jpeg"
-                                  videoConstraints={videoConstraints}
+                                  // videoConstraints={videoConstraints}
                               />
                           </div>
                       : null}
