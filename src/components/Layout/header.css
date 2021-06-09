@@ -1,9 +1,4 @@
-/* Add space on the top of the header*/
+/* Add space on the top and side of the header*/
 .header {
-    margin-top: 1%;
-}
-
-/* Add space on the left of the logo */
-.irllLogo {
-    margin-left: 5%;
+	margin: 0.5rem 10vw 0 10vw;
 }

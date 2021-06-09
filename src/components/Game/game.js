@@ -52,7 +52,7 @@ class Game extends React.Component {
 		// TODO: Add the fingerprint prop to config.yml
 		fingerprint: true, // if this is a fingerprint trial
 		resetModalVisible: false, // if the reset image dialog is visible
-		orientation: "vertical", // default orientation is vertical
+		orientation: "horizontal", // default orientation is horizontal
 
 		// For image marking functionality
 		brightness: 100,
@@ -582,7 +582,7 @@ class Game extends React.Component {
 		return (
 			<div className="game">
 				<Radio.Group
-					defaultValue="vertical"
+					defaultValue="horizontal"
 					onChange={(e) => {
 						this.setState({ orientation: e.target.value });
 					}}
