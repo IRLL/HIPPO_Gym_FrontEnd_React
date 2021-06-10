@@ -50,15 +50,25 @@ class WebcamWindow extends React.Component {
 
   render() {
 
-    const {webcamCaptureButton, sendMessage } = this.props;
+    const {webcamCaptureButton, webcamSmall} = this.props;
 
     // videoConstraints are the MediaStreamConstraints: https://developer.mozilla.org/en-US/docs/Web/API/MediaStreamConstraints
     // width and height here, refer to the resolution
-    let videoConstraints = {
-      width: 200,
-      height: 150,
-      facingMode: "user",
-    };
+    let videoConstraints;
+    if (webcamSmall){
+      videoConstraints = {
+        width: 200,
+        height: 150,
+        facingMode: "user",
+      };
+    } else {
+      videoConstraints = {
+        width: 310,
+        height: 580,
+        facingMode: "user",
+      };
+    }
+
 
     return (
       <div className="webcam">
@@ -69,7 +79,7 @@ class WebcamWindow extends React.Component {
           videoConstraints={videoConstraints}
         />
         {webcamCaptureButton ?
-          <Button onClick={() => this.handleCapture('capture button')} className="webcamButton" type="primary" shape="circle" icon={icons["camera"]}></Button>
+          <Button onClick={() => this.handleCapture('capture button')} className="webcamButton" type="primary" shape="circle" icon={icons["camera"]}/>
         : null}
 			</div>
     )

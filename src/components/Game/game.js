@@ -174,7 +174,7 @@ class Game extends React.Component {
                 if (this.state.UIlist.includes("webcamRight")) {
                   this.setState({webcamRight: true});
                 } else if (this.state.UIlist.includes("webcamLeft")) {
-                  this.setState({webcamSmall: true});
+                  this.setState({webcamLeft: true});
                 } else {
                   this.setState({webcamSmall: true});
                 }
@@ -359,6 +359,7 @@ class Game extends React.Component {
 		}
   }
 
+  // capture webcam images at the given fps
   /// Reference: https://stackoverflow.com/a/62647006
   startCapture= () => {}
 
@@ -699,8 +700,15 @@ class Game extends React.Component {
 			webcamRight,
 			webcamLeft,
 			webcamSmall,
-			setRef,
 		} = this.state;
+
+
+    // var gameWindow = document.getElementsByClassName('gameWindow');
+    // var position = gameWindow.offset();
+    // document.getElementsByClassName('webcamWindowLeft').offset({
+    //   top: position.top,
+    //   left: position.left
+    // })
 
 		return (
 			<div className="game">
@@ -710,8 +718,8 @@ class Game extends React.Component {
             <WebcamWindow
               setStartCapture={this.setStartCapture}
               sendMessage={this.sendMessage}
-              ref={this.WebcamWindow}
               webcamCaptureButton={webcamCaptureButton}
+              webcamSmall={webcamSmall}
             />
           </div>
 				: null}
@@ -739,14 +747,22 @@ class Game extends React.Component {
 					usedInputBudget={usedInputBudget}
 					inputBudget={inputBudget}
 				/>
-
 				<div className={`${orientation}Grid`}>
 					<Row>
 						<Col flex={1}>
 							<MessageViewer title="Message In" data={inMessage} visible={DEBUG} />
 						</Col>
-
 						<Col flex={2} align="center">
+              {webcamLeft ?
+                <div className="webcamWindowLeft" style={{visibility: webcamViewer ? "visible":"hidden"}}>
+                  <WebcamWindow
+                    setStartCapture={this.setStartCapture}
+                    sendMessage={this.sendMessage}
+                    webcamCaptureButton={webcamCaptureButton}
+                    webcamSmall={webcamSmall}
+                  />
+                </div>
+              : null}
 							{fingerprint ? (
 								<FingerprintWindow
 									frameSrc={frameSrc}
@@ -762,20 +778,20 @@ class Game extends React.Component {
 									handleMinutia={this.handleMinutia}
 								/>
 							) : (
-								<GameWindow
+								<GameWindow className="gameWindow"
 									isLoading={isLoading}
 									frameSrc={frameSrc}
 									imageL={imageL}
 									imageR={imageR}
 									webcamLeft={webcamLeft}
 									webcamRight={webcamRight}
-									// videoConstraints={videoConstraints}
-									// setRef={setRef}
+                  setStartCapture={this.setStartCapture}
+                  sendMessage={this.sendMessage}
+                  webcamCaptureButton={webcamCaptureButton}
 									progress={progress}
 								/>
 							)}
 						</Col>
-
 						<Col flex={1}>
 							<MessageViewer title="Message Out" data={outMessage} visible={DEBUG} />
 						</Col>

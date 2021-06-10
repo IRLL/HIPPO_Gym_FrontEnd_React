@@ -34,10 +34,10 @@ Center align the game window both horizontally and vertically */
 }
 
 /* Add border to each image component */
-.imageComponent, .webcam {
+.imageComponent {
     padding: 5px;
-    /* border : solid #1890ff; */
-    /* border-radius: 10px; */
+    border : solid #1890ff;
+    border-radius: 10px;
 }
 
 /* Set the height and width of the container of each image component */

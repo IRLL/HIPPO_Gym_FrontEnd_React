@@ -3,26 +3,25 @@ import {Progress} from 'antd';
 import './gameWindow.css';
 import 'antd/dist/antd.css';
 
-import Webcam from "react-webcam";
+import WebcamWindow from "../WebcamWindow/webcamWindow";
 
 class GameWindow extends React.Component {
 
     render() {
-        const {isLoading, frameSrc, progress, imageL, imageR, webcamLeft, webcamRight,setRef} = this.props;
+        const {isLoading, frameSrc, progress, imageL, imageR, webcamLeft, webcamRight, setStartCapture, sendMessage, webcamCaptureButton} = this.props;
 
         return (
             <div className="container" >
               {webcamLeft || imageL ?
                 <div className="imageContainer" >
                     { webcamLeft ?
-                        <div className="webcam">
-                            <Webcam
-                                audio={false}
-                                ref={setRef}
-                                screenshotFormat="image/jpeg"
-                                // videoConstraints={videoConstraints}
-                            />
-					              </div>
+                      <div className="webcam">
+                        {/* <WebcamWindow
+                            setStartCapture={setStartCapture}
+                            sendMessage={sendMessage}
+                            webcamCaptureButton={webcamCaptureButton}
+                        /> */}
+                      </div>
                     : null}
                     {imageL ? <img src={imageL} className="imageComponent" alt="imageLeft" width="400px" height="400px" /> : null}
                 </div>
@@ -40,12 +39,11 @@ class GameWindow extends React.Component {
                   <div className="imageContainer" >
                       { webcamRight ?
                           <div className="webcam">
-                              <Webcam
-                                  audio={false}
-                                  ref={setRef}
-                                  screenshotFormat="image/jpeg"
-                                  // videoConstraints={videoConstraints}
-                              />
+                              {/* <WebcamWindow
+                                setStartCapture={setStartCapture}
+                                sendMessage={sendMessage}
+                                webcamCaptureButton={webcamCaptureButton}
+                              /> */}
                           </div>
                       : null}
                       {imageR ? <img src={imageR} className="imageComponent" alt="imageRight" width="400px" height="400px" /> : null}
