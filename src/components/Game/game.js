@@ -169,18 +169,28 @@ class Game extends React.Component {
 							let frame = parsedData.frame;
 							let frameId = parsedData.frameId;
 
-							this.state.score
-								? this.setState((prevState) => ({
-										nextframeSrc: "data:image/jpeg;base64, " + frame,
-										nextframeCount: prevState.frameCount + 1,
-										nextframeId: frameId,
-								  }))
-								: this.setState((prevState) => ({
-										frameSrc: "data:image/jpeg;base64, " + frame,
-										frameCount: prevState.frameCount + 1,
-										frameId: frameId,
-								  }));
+							if (this.state.score)
+								this.setState((prevState) => ({
+									nextframeSrc: "data:image/jpeg;base64, " + frame,
+									nextframeCount: prevState.frameCount + 1,
+									nextframeId: frameId,
+								}));
+							else {
+								this.setState((prevState) => ({
+									frameSrc: "data:image/jpeg;base64, " + frame,
+									frameCount: prevState.frameCount + 1,
+									frameId: frameId,
+									minutiae: [],
+									brightness: 100,
+									contrast: 100,
+									saturation: 100,
+									hue: 0,
+								}));
 
+								//empty undo and redo arrays
+								undo.length = 0;
+								redo.length = 0;
+							}
 							const img = new Image();
 							img.src = "data:image/jpeg;base64, " + frame;
 							img.onload = () => {
@@ -759,7 +769,7 @@ class Game extends React.Component {
 					) : (
 						<div className="scoreModal">
 							<p>You scored...</p>
-							<Progress width={100} type="circle" percent={score / maxScore} />
+							<Progress width={100} type="circle" percent={score} />
 							<Button
 								disabled={!score}
 								icon={icons["next"]}
