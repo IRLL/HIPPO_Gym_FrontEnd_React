@@ -1,14 +1,16 @@
 
 .webcam {
-	/* position: absolute; */
+	position: relative;
+	overflow: hidden;
 	align-self: flex-start;
-	padding-left: 20px;
-	/* display: flex;
-	flex-direction: column; */
+	border-radius: 10px;
+	/* padding-left: 20px; */
+	display: flex;
+	flex-direction: column;
 }
 
 .webcamButton{
 	position: absolute;
-	right: 15px;
-	bottom: 20px;
+	right: 10px;
+	bottom: 10px;
 }

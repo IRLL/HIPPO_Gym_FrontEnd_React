@@ -15,34 +15,13 @@
 
 .webcamWindow {
 	z-index: 2;
-	position: absolute;
+	position: fixed;
 	align-self: flex-start;
 	padding-left: 20px;
-	/* position: fixed;
-	align-self: flex-start;
-	padding-left: 20px; */
-	/* display: flex;
-	flex-direction: column; */
-}
-
-.webcamWindowLeft {
-	z-index: 2;
-	position: absolute;
-	right: 700px;
-	transform: translate(0%,2%);
-	/* align-self: flex-start; */
-	/* left: 40px; */
-}
-
-.webcamWindowRight {
-	z-index: 2;
-	/* position: absolute; */
-	left: 730px;
 }
 
 .verticalGrid {
 	width: min(80vw, 705px);
-	position: relative;
 }
 
 .horizontalGrid {
@@ -53,11 +32,13 @@
 }
 
 .verticalOrientationToggle {
-	margin-right: auto;
-	margin-left: max(10vw, calc((100vw - 705px) / 2));
+	align-self: flex-end;
+	margin-right: 20px;
+	/* margin-left: max(10vw, calc((100vw - 705px) / 1.5)); */
 }
 
 .horizontalOrientationToggle {
-	margin-right: auto;
-	margin-left: max(10vw, calc((100vw - 1410px) / 2));
+	align-self: flex-end;
+	margin-right: 20px;
+	/* margin-left: max(10vw, calc((100vw - 1410px) / 2)); */
 }

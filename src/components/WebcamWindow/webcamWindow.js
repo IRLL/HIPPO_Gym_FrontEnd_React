@@ -5,14 +5,16 @@ import { Button } from "antd";
 import { icons } from "../../utils/icons";
 import Webcam from "react-webcam";
 
-
 // this class contains the webcam component
 // it also handles the capturing of
-class WebcamWindow extends React.Component {
 
+var fpsCapture;
+
+class WebcamWindow extends React.Component {
 
   componentDidMount() {
     this.props.setStartCapture(this.startCapture);
+    this.props.setStopCapture(this.stopCapture);
   }
 
   setRef = (webcam) => {
@@ -23,7 +25,7 @@ class WebcamWindow extends React.Component {
   handleCapture = (method) => {
     var timestamp = new Date()
     const webcamScreenshot = this.webcam.getScreenshot();
-    console.log("webcam screenshot: ", webcamScreenshot)
+    // console.log("webcam screenshot: ", webcamScreenshot)
     this.props.sendMessage({
       webcamImage : webcamScreenshot,
       webcamMethod : method, // available options: ["frameRate", "captureButton", "captureRequest"]
@@ -32,21 +34,29 @@ class WebcamWindow extends React.Component {
   };
 
   // call handleCapture at the rate provided by webcamFps
+  // TODO: check that permission for camera has been granted
 	startCapture = () => {
-		console.log("startCapture has been called")
-    setInterval(() => {
-      var timestamp = new Date();
-      console.log(timestamp)
+    // var arr = new Array();
+    var count = 0;
+    console.log("start time: ", Date())
+    fpsCapture = setInterval(() => {
+      // var timestamp = new Date();
+      count++
+      // console.log(timestamp)
+      // arr.push(timestamp)
       this.handleCapture("frame rate");
-    },1000/10)
-		// if (true){
-		// 	var temp = setTimeout(() => {
-		// 		this.handleCapture("frame rate");
-		// 		this.startCapture();
-		// 	},1000/10)
-		// }
+    },1000/30)
+    setTimeout(() => {
+      // console.log("length of timestamp arr: ", arr.length)
+      console.log("count : ", count)
+      console.log("stop time: ", Date())
+      clearInterval(fpsCapture)
+    }, 20000)
 	}
 
+  stopCapture = () => {
+    clearInterval(fpsCapture)
+  }
 
   render() {
 
@@ -63,8 +73,8 @@ class WebcamWindow extends React.Component {
       };
     } else {
       videoConstraints = {
-        width: 310,
-        height: 580,
+        width: 398,
+        height: 398,
         facingMode: "user",
       };
     }
@@ -77,6 +87,7 @@ class WebcamWindow extends React.Component {
           ref={this.setRef}
           screenshotFormat="image/jpeg"
           videoConstraints={videoConstraints}
+          mirrored={true}
         />
         {webcamCaptureButton ?
           <Button onClick={() => this.handleCapture('capture button')} className="webcamButton" type="primary" shape="circle" icon={icons["camera"]}/>

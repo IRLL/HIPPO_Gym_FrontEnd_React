@@ -49,6 +49,7 @@ class Game extends React.Component {
 		outMessage: [], // a list of outgoing messages
 		holdKey: null, // the key that is holding
 		instructions: [], // list of instructions for the game
+    gameWindow: true,
 
 		// TODO: Add the fingerprint prop to config.yml
 		fingerprint: false, // if this is a fingerprint trial
@@ -64,7 +65,7 @@ class Game extends React.Component {
 		minutiae: [],
 
 		// webcam options
-		webcam : false, // toggle to switch the webcam on and off
+		webcam: false, // toggle to switch the webcam on and off
 		webcamViewer: false,	// allow user to watch a preview of the webcam on their screens
 		webcamRequired: false,	// true if webcam is required for this
 		webcamFps: 10,	// rate at which to capture webcam images. 10 is default
@@ -73,6 +74,7 @@ class Game extends React.Component {
 		webcamRight: false,	// if true, display webcam as imageR
 		webcamSmall: false, // if webcamLeft or webcamRight are not un UIList then default webcam to upper left
 		webcamCaptureButton: true,	// if true, user can access a button to capture images
+    webcamPermission: false, // if true, permission to access webcam was granted
 
 		// Widths and heights for responsiveness
 		windowWidth: 700,
@@ -119,6 +121,7 @@ class Game extends React.Component {
 				this.websocket.onmessage = (message) => {
 					//"done" means the game has ended
 					if (message.data === "done") {
+            this.stopCapture()
 						this.setState({
 							isEnd: true,
 							isVisible: true,
@@ -157,7 +160,8 @@ class Game extends React.Component {
 						}
 
             // Check if webcam is enabled for this activity
-            // TODO: move webcamCapture to4 here
+            // also decide if gameWindow should be shown or not
+            // TODO: move webcamCapture to here
             if (parsedData.UI && this.state.UIlist.includes("webcam")) {
               this.setState({webcam: true})
               if (this.state.UIlist.includes("webcamRequired")){
@@ -171,10 +175,17 @@ class Game extends React.Component {
                   webcamViewer: true
                 })
                 // decide positioning of webcam on screen
-                if (this.state.UIlist.includes("webcamRight")) {
-                  this.setState({webcamRight: true});
-                } else if (this.state.UIlist.includes("webcamLeft")) {
-                  this.setState({webcamLeft: true});
+                // if webcamLeft or right are true then hide the main game window
+                if (this.state.UIlist.includes("webcamLeft")) {
+                  this.setState({
+                    webcamSmall: true,
+                    // gameWindow: false,
+                  });
+                } else if (this.state.UIlist.includes("webcamRight")) {
+                  this.setState({
+                    webcamRight: true,
+                    gameWindow: false,
+                  });
                 } else {
                   this.setState({webcamSmall: true});
                 }
@@ -220,15 +231,17 @@ class Game extends React.Component {
 
 						//check if imageL is in server's response
 						if (parsedData.imageL) {
+              console.log("imageL")
 							this.setState({
-								imageL: parsedData.imageL,
+								imageR: "data:image/jpeg;base64, " + parsedData.imageL,
 							});
 						}
 
 						//check if imageR is in server's response
 						if (parsedData.imageR) {
+              console.log("imageR")
 							this.setState({
-								imageR: parsedData.imageR,
+								imageR: "data:image/jpeg;base64, " + parsedData.imageR,
 							});
 						}
 
@@ -266,8 +279,7 @@ class Game extends React.Component {
     if('mediaDevices' in navigator && 'getUserMedia' in navigator.mediaDevices){
       console.log("This browser supports getUserMedia api")
     } else {
-      window.alert("This browser does not support the getUserMedia API. There might be \
-      problems with media access permissions.")
+      window.alert("This browser does not support the getUserMedia API. There might be problems with media access permissions.")
     }
 
 		// Listen to the user's keyboard inputs
@@ -323,7 +335,7 @@ class Game extends React.Component {
 		if ('permissions' in navigator){
 			navigator.permissions.query({ name: 'camera'})
 				.then(permissionStatus => {
-          if (permissionStatus.state == "denied") {
+          if (permissionStatus.state === "denied") {
             if (webcamRequired) {
               if (window.confirm("This activity requires the use of camera but your browser has blocked access. Change permissions in your browser settings and press \"OK\" to refresh the page or press \"Cancel\" to start a new activity: "))
               {window.location.href = window.location.href}
@@ -345,26 +357,18 @@ class Game extends React.Component {
                 this.setState({webcam: false})
                 }
 					  } else if (permissionStatus.state === "granted"){
-						  // setTimeout(this.startCapture, 10000)
+                this.setState({webcamPermission: true})
 					    }
 					}
 					if (permissionStatus.state === "granted"){
             console.log("camera was already set to allowed")
-						// setTimeout(this.startCapture())
+						this.setState({webcamPermission: true})
 					}
 				})
 				.catch((error) => {
-					console.log('Caught error when asking for camera permissions ', error)
+					console.log('Caught error when requesting camera permissions ', error)
 				})
 		}
-  }
-
-  // capture webcam images at the given fps
-  /// Reference: https://stackoverflow.com/a/62647006
-  startCapture= () => {}
-
-  setStartCapture = (newMethod) => {
-    this.startCapture = newMethod;
   }
 
 	// Change the confirmation modal to be invisible
@@ -430,6 +434,20 @@ class Game extends React.Component {
 		}
 	};
 
+  // capture webcam images at the given fps
+  /// Reference: https://stackoverflow.com/a/62647006
+  startCapture = () => {}
+
+  setStartCapture = (newMethod) => {
+    this.startCapture = newMethod;
+  }
+
+  stopCapture = () => {}
+
+  setStopCapture = (newMethod) => {
+    this.stopCapture = newMethod;
+  }
+
 	// Send game control commands to the websocket server
 	handleCommand = (status) => {
 		if (this.state.isLoading) {
@@ -437,6 +455,9 @@ class Game extends React.Component {
 			return;
 		}
 		if (status === "start") {
+      if (this.state.webcamPermission === true){
+        this.startCapture()
+      }
 			this.sendMessage({
 				command: status,
 				system: osName,
@@ -461,6 +482,9 @@ class Game extends React.Component {
 				hue: 0,
 			});
 		} else {
+      if (status === "stop"){
+        this.stopCapture()
+      }
 			this.sendMessage({
 				command: status,
 			});
@@ -700,23 +724,16 @@ class Game extends React.Component {
 			webcamRight,
 			webcamLeft,
 			webcamSmall,
+      gameWindow,
 		} = this.state;
-
-
-    // var gameWindow = document.getElementsByClassName('gameWindow');
-    // var position = gameWindow.offset();
-    // document.getElementsByClassName('webcamWindowLeft').offset({
-    //   top: position.top,
-    //   left: position.left
-    // })
 
 		return (
 			<div className="game">
-				{/* optional webcam element */}
 				{webcam && webcamSmall ?
           <div className="webcamWindow" flex={1} style={{visibility: webcamViewer ? "visible":"hidden"}}>
             <WebcamWindow
               setStartCapture={this.setStartCapture}
+              setStopCapture={this.setStopCapture}
               sendMessage={this.sendMessage}
               webcamCaptureButton={webcamCaptureButton}
               webcamSmall={webcamSmall}
@@ -753,16 +770,6 @@ class Game extends React.Component {
 							<MessageViewer title="Message In" data={inMessage} visible={DEBUG} />
 						</Col>
 						<Col flex={2} align="center">
-              {webcamLeft ?
-                <div className="webcamWindowLeft" style={{visibility: webcamViewer ? "visible":"hidden"}}>
-                  <WebcamWindow
-                    setStartCapture={this.setStartCapture}
-                    sendMessage={this.sendMessage}
-                    webcamCaptureButton={webcamCaptureButton}
-                    webcamSmall={webcamSmall}
-                  />
-                </div>
-              : null}
 							{fingerprint ? (
 								<FingerprintWindow
 									frameSrc={frameSrc}
@@ -783,12 +790,16 @@ class Game extends React.Component {
 									frameSrc={frameSrc}
 									imageL={imageL}
 									imageR={imageR}
+                  progress={progress}
 									webcamLeft={webcamLeft}
 									webcamRight={webcamRight}
+                  webcamSmall={webcamSmall}
+                  webcamViewer={webcamViewer}
                   setStartCapture={this.setStartCapture}
+                  setStopCapture={this.setStopCapture}
                   sendMessage={this.sendMessage}
                   webcamCaptureButton={webcamCaptureButton}
-									progress={progress}
+                  gameWindow={gameWindow}
 								/>
 							)}
 						</Col>
