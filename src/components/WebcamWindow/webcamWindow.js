@@ -22,10 +22,10 @@ class WebcamWindow extends React.Component {
   };
 
   // handle image captured by the webcam
-  handleCapture = (method) => {
+  handleCapture = (method, count) => {
+    // console.log(count)
     var timestamp = new Date()
     const webcamScreenshot = this.webcam.getScreenshot();
-    // console.log("webcam screenshot: ", webcamScreenshot)
     this.props.sendMessage({
       webcamImage : webcamScreenshot,
       webcamMethod : method, // available options: ["frameRate", "captureButton", "captureRequest"]
@@ -40,18 +40,21 @@ class WebcamWindow extends React.Component {
     var count = 0;
     console.log("start time: ", Date())
     fpsCapture = setInterval(() => {
-      // var timestamp = new Date();
       count++
-      // console.log(timestamp)
-      // arr.push(timestamp)
-      this.handleCapture("frame rate");
-    },1000/30)
+      this.handleCapture("frame rate", count );
+    },1000/10)
+    // if (true) {
+    //   fpsCapture = setTimeout(() => {
+    //     count++;
+    //     this.handleCapture("frame rate");
+    //     this.startCapture()
+    //   }, 1000/10)
+    // }
     setTimeout(() => {
-      // console.log("length of timestamp arr: ", arr.length)
       console.log("count : ", count)
       console.log("stop time: ", Date())
       clearInterval(fpsCapture)
-    }, 20000)
+    }, 50000)
 	}
 
   stopCapture = () => {

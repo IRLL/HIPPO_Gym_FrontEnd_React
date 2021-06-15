@@ -49,7 +49,7 @@ class Game extends React.Component {
 		outMessage: [], // a list of outgoing messages
 		holdKey: null, // the key that is holding
 		instructions: [], // list of instructions for the game
-    gameWindow: true,
+    gameWindow: true, // if true, gameWindow will be shown
 
 		// TODO: Add the fingerprint prop to config.yml
 		fingerprint: false, // if this is a fingerprint trial
@@ -357,12 +357,22 @@ class Game extends React.Component {
                 this.setState({webcam: false})
                 }
 					  } else if (permissionStatus.state === "granted"){
-                this.setState({webcamPermission: true})
+                if (this.state.UIlist.includes('start')){
+                  this.setState({webcamPermission: true})
+                }
+                else {
+                  this.startCapture()
+                }
 					    }
 					}
 					if (permissionStatus.state === "granted"){
             console.log("camera was already set to allowed")
-						this.setState({webcamPermission: true})
+						if (this.state.UIlist.includes('start')){
+              this.setState({webcamPermission: true})
+            }
+            else {
+              this.startCapture()
+            }
 					}
 				})
 				.catch((error) => {
