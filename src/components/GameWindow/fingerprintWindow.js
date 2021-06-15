@@ -145,9 +145,11 @@ class FingerprintWindow extends React.Component {
 		// If the frame has not loaded, show the loading screen
 		if (isLoading || !frameSrc)
 			return (
-				<div className="progressBar">
-					<Progress width={80} type="circle" percent={Math.round(progress)} />
-					<p className="promptText">The robot is about to start the game, please wait ...</p>
+				<div className="gameWindow">
+					<div className="progressBar">
+						<Progress width={80} type="circle" percent={Math.round(progress)} />
+						<p className="promptText">The robot is about to start the game, please wait ...</p>
+					</div>
 				</div>
 			);
 
@@ -218,7 +220,7 @@ class FingerprintWindow extends React.Component {
 									const point = localPoint(event) || { x: 0, y: 0 };
 									zoom.scale({ scaleX: 1.1, scaleY: 1.1, point });
 								}}
-								className={addingMinutiae ? "pointerCursor" : ""}
+								className={addingMinutiae ? "custom-cursor" : ""}
 							/>
 
 							{/* Minutiae overlay */}
