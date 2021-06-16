@@ -178,9 +178,9 @@ class FingerprintWindow extends React.Component {
 									href={frameSrc}
 									width={width}
 									height={height}
-									filter={`brightness(${brightness}%) 
+									filter={`brightness(${brightness}%)
                                         contrast(${contrast}%)
-                                        saturate(${saturation}%) 
+                                        saturate(${saturation}%)
                                         hue-rotate(${hue}deg)`}
 									onLoad={zoom.clear} // recenter the image when a new one loads
 								/>
@@ -216,6 +216,20 @@ class FingerprintWindow extends React.Component {
 										);
 									}
 								}}
+								onContextMenu={(event) => {
+									event.preventDefault();
+									const point = localPoint(event);
+									const transformedPt = zoom.applyInverseToPoint(point);
+									addMinutia(
+										transformedPt.x,
+										// add y-offset
+										transformedPt.y - 0.65625,
+										270,
+										this.state.defaultSize,
+										this.state.defaultColor,
+										"Unknown"
+									);
+								}}
 								onDoubleClick={(event) => {
 									const point = localPoint(event) || { x: 0, y: 0 };
 									zoom.scale({ scaleX: 1.1, scaleY: 1.1, point });
@@ -226,7 +240,12 @@ class FingerprintWindow extends React.Component {
 							{/* Minutiae overlay */}
 							<g transform={zoom.toString()}>
 								{minutiae.map((minutia, i) => (
-									<Popover trigger="click" content={popupMenu} key={`minutia${i}`}>
+									<Popover
+										trigger="click"
+										content={popupMenu}
+										key={`minutia${i}`}
+										defaultVisible={true}
+									>
 										<image
 											alt="minutia"
 											x={minutia.x - Math.round(minutia.size / 2)}
