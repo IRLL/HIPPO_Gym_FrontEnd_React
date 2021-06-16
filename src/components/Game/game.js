@@ -50,7 +50,7 @@ class Game extends React.Component {
 		instructions: [], // list of instructions for the game
 
 		// TODO: Add the fingerprint prop to config.yml
-		fingerprint: true, // if this is a fingerprint trial
+		fingerprint: false, // if this is a fingerprint trial
 		resetModalVisible: false, // if the reset image dialog is visible
 		orientation: "horizontal", // default orientation is horizontal
 
@@ -479,7 +479,10 @@ class Game extends React.Component {
 	// x and y are the coordinates on the image
 	// orientation goes from 0 (up) to 359 degrees clockwise
 	// send added minutia to websocket
-	addMinutia = (x, y, orientation, size, color, type) => {
+	addMinutia = (x, y, orientation=null, size=null, color=null, type=null) => {
+    console.log("x: ", x);
+    console.log("y: ", y);
+    console.log("here in addMinutia")
 		const nextStateMinutiae = produce(
 			this.state,
 			(draft) => {
@@ -673,9 +676,12 @@ class Game extends React.Component {
 								<GameWindow
 									isLoading={isLoading}
 									frameSrc={frameSrc}
+                  width={windowWidth || 700}
+									height={windowHeight || 600}
 									imageL={imageL}
 									imageR={imageR}
 									progress={progress}
+                  addMinutia={this.addMinutia}
 									data-testid="game-window"
 								/>
 							)}
@@ -748,7 +754,7 @@ class Game extends React.Component {
 					</p>
 				</Modal>
 
-				<Modal visible={scoreModalVisible} closable={false} footer={null}>
+				<Modal visible={false} closable={false} footer={null}>
 					{!score ? (
 						<div className="scoreModal">
 							<p>Please wait while we calculate your score</p>

@@ -176,9 +176,9 @@ class FingerprintWindow extends React.Component {
 									href={frameSrc}
 									width={width}
 									height={height}
-									filter={`brightness(${brightness}%) 
+									filter={`brightness(${brightness}%)
                                         contrast(${contrast}%)
-                                        saturate(${saturation}%) 
+                                        saturate(${saturation}%)
                                         hue-rotate(${hue}deg)`}
 									onLoad={zoom.clear} // recenter the image when a new one loads
 								/>
@@ -278,9 +278,9 @@ class FingerprintWindow extends React.Component {
 									width={width}
 									height={height}
 									// Apply filters to mini-map
-									filter={`brightness(${brightness}%) 
+									filter={`brightness(${brightness}%)
                                         	contrast(${contrast}%)
-                                        	saturate(${saturation}%) 
+                                        	saturate(${saturation}%)
                                         	hue-rotate(${hue}deg)`}
 								/>
 								{/* Add minutiae to minimap */}
