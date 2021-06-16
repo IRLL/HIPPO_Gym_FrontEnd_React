@@ -5,6 +5,8 @@ import { Button } from "antd";
 import { icons } from "../../utils/icons";
 import Webcam from "react-webcam";
 
+import worker_script from "./worker.js";
+
 // this class contains the webcam component
 // it also handles the capturing of
 
@@ -15,6 +17,13 @@ class WebcamWindow extends React.Component {
   componentDidMount() {
     this.props.setStartCapture(this.startCapture);
     this.props.setStopCapture(this.stopCapture);
+
+    this.worker = new Worker(worker_script);
+    this.worker.onmessage = ev => {
+      console.log("got data back from worker");
+      console.log(ev);
+    };
+
   }
 
   setRef = (webcam) => {
@@ -23,7 +32,6 @@ class WebcamWindow extends React.Component {
 
   // handle image captured by the webcam
   handleCapture = (method, count) => {
-    // console.log(count)
     var timestamp = new Date()
     const webcamScreenshot = this.webcam.getScreenshot();
     this.props.sendMessage({
@@ -36,25 +44,18 @@ class WebcamWindow extends React.Component {
   // call handleCapture at the rate provided by webcamFps
   // TODO: check that permission for camera has been granted
 	startCapture = () => {
-    // var arr = new Array();
+    // this.worker.postMessage(this.setRef);
     var count = 0;
     console.log("start time: ", Date())
     fpsCapture = setInterval(() => {
       count++
-      this.handleCapture("frame rate", count );
-    },1000/10)
-    // if (true) {
-    //   fpsCapture = setTimeout(() => {
-    //     count++;
-    //     this.handleCapture("frame rate");
-    //     this.startCapture()
-    //   }, 1000/10)
-    // }
-    setTimeout(() => {
-      console.log("count : ", count)
-      console.log("stop time: ", Date())
-      clearInterval(fpsCapture)
-    }, 50000)
+      // this.handleCapture("frame rate", count );
+    },1000/20)
+    // setTimeout(() => {
+    //   console.log("count : ", count)
+    //   console.log("stop time: ", Date())
+    //   clearInterval(fpsCapture)
+    // }, 50000)
 	}
 
   stopCapture = () => {
