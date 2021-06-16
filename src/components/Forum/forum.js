@@ -5,6 +5,16 @@ import "./forum.css";
 import ReactHtmlParser from "react-html-parser";
 
 class Forum extends React.Component {
+	state = {
+		submitable: true,
+	};
+
+	componentDidMount() {
+		if (this.props.content.includes("You may exit now")) {
+			this.setState({ submitable: false });
+		}
+	}
+
 	render() {
 		const { is400Error, content } = this.props;
 
@@ -20,7 +30,7 @@ class Forum extends React.Component {
 				<div>
 					{ReactHtmlParser(content)}
 					<br />
-					{!is400Error ? (
+					{!is400Error && this.state.submitable ? (
 						<Tooltip
 							placement="top"
 							title="Submit the form and navigate to next step"

@@ -494,6 +494,7 @@ class Game extends React.Component {
 				}
 				break;
 			default:
+				this.handleCommand(command);
 				return;
 		}
 	};
