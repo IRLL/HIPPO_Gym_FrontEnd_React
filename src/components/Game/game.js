@@ -754,7 +754,7 @@ class Game extends React.Component {
 					</p>
 				</Modal>
 
-				<Modal visible={false} closable={false} footer={null}>
+				<Modal visible={scoreModalVisible} closable={false} footer={null}>
 					{!score ? (
 						<div className="scoreModal">
 							<p>Please wait while we calculate your score</p>
