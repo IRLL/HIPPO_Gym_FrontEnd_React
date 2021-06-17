@@ -480,9 +480,8 @@ class Game extends React.Component {
 	// orientation goes from 0 (up) to 359 degrees clockwise
 	// send added minutia to websocket
 	addMinutia = (x, y, orientation=null, size=null, color=null, type=null) => {
-    console.log("x: ", x);
-    console.log("y: ", y);
-    console.log("here in addMinutia")
+    x = parseInt(x)
+    y = parseInt(y)
 		const nextStateMinutiae = produce(
 			this.state,
 			(draft) => {
