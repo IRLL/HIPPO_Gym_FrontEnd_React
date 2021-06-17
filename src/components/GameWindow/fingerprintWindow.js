@@ -9,13 +9,13 @@ import { RectClipPath } from "@vx/clip-path";
 
 // Reference: https://vx-demo.vercel.app/zoom-iu
 class FingerprintWindow extends React.Component {
-  state = {
-    currMinutia: null,
-    move: false,
-    moving: false,
-    defaultColor: "blue",
-    defaultSize: 50,
-  };
+	state = {
+		currMinutia: null,
+		move: false,
+		moving: false,
+		defaultColor: "blue",
+		defaultSize: 30,
+	};
 
   render() {
     const { currMinutia } = this.state;
@@ -87,19 +87,19 @@ class FingerprintWindow extends React.Component {
       </Radio.Group>
     );
 
-    // Menu when minutia type is selected from popup menu
-    const minutiaType = (
-      <Radio.Group
-        defaultValue={minutiae[currMinutia] ? minutiae[currMinutia].type : "unknown"}
-        onChange={(e) => {
-          handleMinutia("changeType", currMinutia, e.target.value);
-        }}
-      >
-        <Radio value="bifurcation">Bifurcation</Radio>
-        <Radio value="ending">Ending</Radio>
-        <Radio value="unknown">Unknown</Radio>
-      </Radio.Group>
-    );
+		// Menu when minutia type is selected from popup menu
+		const minutiaType = (
+			<Radio.Group
+				defaultValue={minutiae[currMinutia] ? minutiae[currMinutia].type : "Unknown"}
+				onChange={(e) => {
+					handleMinutia("changeType", currMinutia, e.target.value);
+				}}
+			>
+				<Radio value="Bifurcation">Bifurcation</Radio>
+				<Radio value="Ending">Ending</Radio>
+				<Radio value="Unknown">Unknown</Radio>
+			</Radio.Group>
+		);
 
     // Popup menu when a minutia is clicked on
     const popupMenu = (
@@ -151,72 +151,75 @@ class FingerprintWindow extends React.Component {
         </div>
       );
 
-    return (
-      <Zoom
-        width={width}
-        height={height}
-        scaleXMin={1 / 2}
-        scaleXMax={10}
-        scaleYMin={1 / 2}
-        scaleYMax={10}
-      >
-        {(zoom) => (
-          <div className="fingerprintWindowContainer">
-            <svg
-              width={width}
-              height={height}
-              style={{ cursor: zoom.isDragging ? "grabbing" : "grab" }}
-            >
-              {/* Image with filters applied */}
-              <g transform={zoom.toString()}>
-                <image
-                  alt="frame"
-                  href={frameSrc}
-                  width={width}
-                  height={height}
-                  style={{
-                    filter: `brightness(${brightness}%) 
-                                                contrast(${contrast}%)
-                                                saturate(${saturation}%) 
-                                                hue-rotate(${hue}deg)`,
-                  }}
-                />
-              </g>
+		return (
+			<Zoom
+				data-testid="fingerprint-window"
+				width={width}
+				height={height}
+				scaleXMin={1 / 2}
+				scaleXMax={10}
+				scaleYMin={1 / 2}
+				scaleYMax={10}
+			>
+				{(zoom) => (
+					<div className="fingerprintWindowContainer">
+						<svg
+							width={width}
+							height={height}
+							style={{ cursor: zoom.isDragging ? "grabbing" : "grab" }}
+						>
+							{/* Image with filters applied */}
+							<g transform={zoom.toString()}>
+								<image
+									id="image-overlay"
+									alt="fingerprint image"
+									href={frameSrc}
+									width={width}
+									height={height}
+									filter={`brightness(${brightness}%)
+                                        contrast(${contrast}%)
+                                        saturate(${saturation}%)
+                                        hue-rotate(${hue}deg)`}
+									onLoad={zoom.clear} // recenter the image when a new one loads
+								/>
+							</g>
 
-              {/* Overlay for sensing zoom controls */}
-              <rect
-                width={width}
-                height={height}
-                fill="transparent"
-                onTouchStart={zoom.dragStart}
-                onTouchMove={zoom.dragMove}
-                onTouchEnd={zoom.dragEnd}
-                onMouseDown={zoom.dragStart}
-                onMouseMove={zoom.dragMove}
-                onMouseUp={zoom.dragEnd}
-                onMouseLeave={() => {
-                  if (zoom.isDragging) zoom.dragEnd();
-                }}
-                onClick={(event) => {
-                  const point = localPoint(event);
-                  const transformedPt = zoom.applyInverseToPoint(point);
-                  if (addingMinutiae) {
-                    addMinutia(
-                      transformedPt.x,
-                      transformedPt.y,
-                      270,
-                      this.state.defaultSize,
-                      this.state.defaultColor,
-                      "unknown"
-                    );
-                  }
-                }}
-                onDoubleClick={(event) => {
-                  const point = localPoint(event) || { x: 0, y: 0 };
-                  zoom.scale({ scaleX: 1.1, scaleY: 1.1, point });
-                }}
-                className={addingMinutiae ? "pointerCursor" : ""}
-              />
+							{/* Overlay for sensing zoom controls */}
+							<rect
+								id="fingerprint-overlay"
+								width={width}
+								height={height}
+								fill="transparent"
+								onTouchStart={zoom.dragStart}
+								onTouchMove={zoom.dragMove}
+								onTouchEnd={zoom.dragEnd}
+								onMouseDown={zoom.dragStart}
+								onMouseMove={zoom.dragMove}
+								onMouseUp={zoom.dragEnd}
+								onMouseLeave={() => {
+									if (zoom.isDragging) zoom.dragEnd();
+								}}
+								onClick={(event) => {
+									const point = localPoint(event);
+									const transformedPt = zoom.applyInverseToPoint(point);
+									if (addingMinutiae) {
+										addMinutia(
+											transformedPt.x,
+											// add y-offset
+											transformedPt.y - 0.65625,
+											270,
+											this.state.defaultSize,
+											this.state.defaultColor,
+											"Unknown"
+										);
+									}
+								}}
+								onDoubleClick={(event) => {
+									const point = localPoint(event) || { x: 0, y: 0 };
+									zoom.scale({ scaleX: 1.1, scaleY: 1.1, point });
+								}}
+								className={addingMinutiae ? "pointerCursor" : ""}
+							/>
 
               {/* Minutiae overlay */}
               <g transform={zoom.toString()}>
@@ -258,46 +261,44 @@ class FingerprintWindow extends React.Component {
                 ))}
               </g>
 
-              {/* Minimap */}
-              {/* Clip the minimap to be just the field of view */}
-              <RectClipPath id="zoom-clip" width={width} height={height} />
-              <g
-                clipPath="url(#zoom-clip)"
-                transform={`
-                  scale(0.25)
-                  translate(${width * 4 - width - 60} ${height * 4 - height - 60})`}
-                className="fingerprintMinimap"
-              >
-                <rect width={width} height={height} fill="#1a1a1a" />
-                <image
-                  alt="frame"
-                  href={frameSrc}
-                  width={width}
-                  height={height}
-                  // Apply filters to mini-map
-                  style={{
-                    filter: `brightness(${brightness}%) 
-                                          contrast(${contrast}%)
-                                          saturate(${saturation}%) 
-                                          hue-rotate(${hue}deg)`,
-                  }}
-                />
-                {/* Add minutiae to minimap */}
-                {minutiae.map((minutia, i) => (
-                  <image
-                    key={`minutia${i}`}
-                    alt="minutia"
-                    x={minutia.x - Math.round(minutia.size / 2)}
-                    y={minutia.y - Math.round(minutia.size / 2)}
-                    width={minutia.size}
-                    height={minutia.size}
-                    href={process.env.PUBLIC_URL + `./fingerprint_minutia_${minutia.color}.svg`}
-                    style={{
-                      transform: `rotate(${minutia.orientation}deg)`,
-                      transformOrigin: `${minutia.x}px ${minutia.y}px`,
-                    }}
-                  />
-                ))}
+							{/* Minimap */}
+							{/* Clip the minimap to be just the field of view */}
+							<RectClipPath id="zoom-clip" width={width} height={height} />
+							<g
+								clipPath="url(#zoom-clip)"
+								transform={`
+									scale(0.25)
+									translate(${width * 4 - width - 60} ${height * 4 - height - 60})`}
+								className="fingerprintMinimap"
+							>
+								<rect width={width} height={height} fill="#1a1a1a" />
+								<image
+									alt="frame"
+									href={frameSrc}
+									width={width}
+									height={height}
+									// Apply filters to mini-map
+									filter={`brightness(${brightness}%)
+                                        	contrast(${contrast}%)
+                                        	saturate(${saturation}%)
+                                        	hue-rotate(${hue}deg)`}
+								/>
+								{/* Add minutiae to minimap */}
+								{minutiae.map((minutia, i) => (
+									<image
+										key={`minutia${i}`}
+										alt="minutia"
+										x={minutia.x - Math.round(minutia.size / 2)}
+										y={minutia.y - Math.round(minutia.size / 2)}
+										width={minutia.size}
+										height={minutia.size}
+										href={process.env.PUBLIC_URL + `./fingerprint_minutia_${minutia.color}.svg`}
+										style={{
+											transform: `rotate(${minutia.orientation}deg)`,
+											transformOrigin: `${minutia.x}px ${minutia.y}px`,
+										}}
+									/>
+								))}
 
                 {/* Minimap field of view indication rectangle */}
                 <rect

@@ -44,8 +44,8 @@ class ControlPanel extends React.Component {
 		];
 		const fps = ["fpsUp", "fpsDown", "fpsSet"];
 		const imageControls = [
-			{ name: "brightness", min: 0, max: 200, default: 100, ref: brightness },
-			{ name: "contrast", min: 0, max: 200, default: 100, ref: contrast },
+			{ name: "brightness", min: 0, max: 1000, default: 100, ref: brightness },
+			{ name: "contrast", min: 0, max: 500, default: 100, ref: contrast },
 			{ name: "saturation", min: 0, max: 100, default: 100, ref: saturation },
 			{ name: "hue", min: 0, max: 360, default: 0, ref: hue },
 		];
@@ -190,6 +190,7 @@ class ControlPanel extends React.Component {
 							icon={icons[command]}
 							size="large"
 							onClick={() => this.props.handleImageCommands(command)}
+							date-testid={command}
 						>
 							{capitalize(sentenceCase(command))}
 						</Button>
@@ -244,9 +245,9 @@ class ControlPanel extends React.Component {
 		});
 
 		return (
-			<div>
+			<div data-testid="control-panel">
 				{!isLoading && (
-					<div className={`controlPanel ${orientation == "horizontal" ? "addMargin" : ""}`}>
+					<div className={`controlPanel ${orientation === "horizontal" ? "addMargin" : ""}`}>
 						<div className="panelContainer">
 							{instructions !== [] && <Divider>Instructions </Divider>}
 							<Row gutter={[4, 8]} justify="start" className="instructions">
