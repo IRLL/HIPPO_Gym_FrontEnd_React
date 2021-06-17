@@ -13,11 +13,8 @@ if (host === "localhost" || host === "127.0.0.1") {
 	host = "irll.net";
 } else if (host.includes("testing")) {
 	host = host.replace("testing.", "");
-<<<<<<< HEAD
-=======
 } else if (host.includes("fingerprint")) {
 	host = host.replace("fingerprint.", "");
->>>>>>> fingerprint-cursor
 }
 
 export const SERVER = params.get("server");
