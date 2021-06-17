@@ -1,20 +1,23 @@
 import React from "react";
 import "antd/dist/antd.css";
 import "./game.css";
-import { message, Modal, Row, Col, Button, Radio } from "antd";
+import { message, Modal, Row, Col, Button, Radio, Progress, Skeleton } from "antd";
 import { w3cwebsocket } from "websocket";
 import { browserName, osName, browserVersion, osVersion } from "react-device-detect";
+import produce, { enablePatches, applyPatches } from "immer";
+
+// Import utilities
 import getKeyInput from "../../utils/getKeyInput";
 import { WS_URL, USER_ID, PROJECT_ID, SERVER, DEBUG } from "../../utils/constants";
 import { icons } from "../../utils/icons";
+
+// Import components
 import ControlPanel from "../Control/control";
 import BudgetBar from "../BudgetBar/budgetBar";
 import DisplayBar from "../DisplayBar/displayBar";
 import MessageViewer from "../Message/MessageViewer";
 import GameWindow from "../GameWindow/gameWindow";
 import FingerprintWindow from "../GameWindow/fingerprintWindow";
-
-import produce, { enablePatches, applyPatches } from "immer";
 
 enablePatches();
 
@@ -34,7 +37,7 @@ class Game extends React.Component {
 		isLoading: !SERVER ? true : false, // if the server is ready to send out the data
 		isEnd: false, // if the game is finished
 		isConnection: false, // if the connection to the server is established
-		isVisible: false, // if the game end dialog is visible
+		gameEndVisible: false, // if the game end dialog is visible
 		UIlist: [], // a list of UI components
 		progress: 0, // the status of the server
 		inputBudget: 0, // the total budget available for the feedback buttons
@@ -44,30 +47,36 @@ class Game extends React.Component {
 		inMessage: [], // a list of incoming messages
 		outMessage: [], // a list of outgoing messages
 		holdKey: null, // the key that is holding
+		instructions: [], // list of instructions for the game
+		orientation: "horizontal", // default orientation is horizontal
 
-		// TODO: Add the fingerprint prop to config.yml
+		// Fingerprint trial configurations
 		fingerprint: true, // if this is a fingerprint trial
+		minMinutiae: null, // the minimum number of minutiae required to be marked per step
 		resetModalVisible: false, // if the reset image dialog is visible
-		orientation: "vertical", // default orientation is vertical
 
 		// For image marking functionality
-		brightness: 100,
-		contrast: 100,
-		saturation: 100,
-		hue: 0,
-		addingMinutiae: false,
-		minutiae: [],
+		brightness: 100, // default image brightness (out of 100)
+		contrast: 100, // default image contrast (out of 100)
+		saturation: 100, // default image saturation (out of 100)
+		hue: 0, // default image hue rotation (out of 360)
+		addingMinutiae: false, // if currently adding minutiae
+		minutiae: [], // list of all available minutiae within the image
+
+		// For the score modal
+		scoreModalVisible: false, // if the score modal is visible
+		score: null, // the user's score
+		maxScore: 100, // the maximum score a user can get
 
 		// For undo and redo functionality
-		undoList: [],
-		redoList: [],
-		instructions: [],
+		undoList: [], // list of states before
+		redoList: [], // list of states aftere
 
 		// Widths and heights for responsiveness
-		windowWidth: 700,
-		windowHeight: 600,
-		imageWidth: null,
-		imageHeight: null,
+		windowWidth: 700, // width of the game window
+		windowHeight: 600, // height of the game window
+		imageWidth: null, // default width of the frame image source
+		imageHeight: null, // default height of the frame image source
 	};
 
 	componentDidMount() {
@@ -80,6 +89,14 @@ class Game extends React.Component {
 					progress: prevState.progress + 100 / pendingTime,
 				})),
 			1000
+		);
+
+		setInterval(
+			() =>
+				this.setState((prevState) => ({
+					scoreCalcProgress: prevState.scoreCalcProgress + 1,
+				})),
+			100
 		);
 		// To ensure the websocket server is ready to connect
 		// we try to connect the websocket server periodically
@@ -106,15 +123,16 @@ class Game extends React.Component {
 
 				// Listen to the data from the websocket server
 				this.websocket.onmessage = (message) => {
-					//"done" means the game has ended
 					if (message.data === "done") {
+						//"done" means the game has ended
 						this.setState({
 							isEnd: true,
-							isVisible: true,
+							gameEndVisible: true,
 						});
-						//parse the data from the websocket server
 					} else {
+						//parse the data from the websocket server
 						let parsedData = JSON.parse(message.data);
+
 						//Check if budget bar should be loaded
 						if (parsedData.inputBudget) {
 							this.setState({
@@ -134,22 +152,57 @@ class Game extends React.Component {
 								instructions: parsedData.Instructions,
 							});
 						}
-						//Check if Instructions in response
-						if (parsedData.fingerprint) {
+						//Check if Fingerprint in response
+						if (parsedData.Fingerprint) {
 							this.setState({
-								fingerprint: parsedData.fingerprint,
+								fingerprint: parsedData.Fingerprint,
+							});
+						}
+						//Check if Score in response
+						if (parsedData.Score) {
+							this.setState({
+								score: parsedData.Score,
+							});
+						}
+						//Check if Score in response
+						if (parsedData.MaxScore) {
+							this.setState({
+								maxScore: parsedData.MaxScore,
+							});
+						}
+						//Check if Score in response
+						if (parsedData.MinMinutiae) {
+							this.setState({
+								minMinutiae: parsedData.MinMinutiae,
 							});
 						}
 						//Check if frame related information in response
 						if (parsedData.frame && parsedData.frameId) {
 							let frame = parsedData.frame;
 							let frameId = parsedData.frameId;
-							this.setState((prevState) => ({
-								frameSrc: "data:image/jpeg;base64, " + frame,
-								frameCount: prevState.frameCount + 1,
-								frameId: frameId,
-							}));
 
+							if (this.state.score)
+								this.setState((prevState) => ({
+									nextframeSrc: "data:image/jpeg;base64, " + frame,
+									nextframeCount: prevState.frameCount + 1,
+									nextframeId: frameId,
+								}));
+							else {
+								this.setState((prevState) => ({
+									frameSrc: "data:image/jpeg;base64, " + frame,
+									frameCount: prevState.frameCount + 1,
+									frameId: frameId,
+									minutiae: [],
+									brightness: 100,
+									contrast: 100,
+									saturation: 100,
+									hue: 0,
+								}));
+
+								//empty undo and redo arrays
+								undo.length = 0;
+								redo.length = 0;
+							}
 							const img = new Image();
 							img.src = "data:image/jpeg;base64, " + frame;
 							img.onload = () => {
@@ -196,7 +249,7 @@ class Game extends React.Component {
 					this.setState({
 						isConnection: false,
 						isEnd: true,
-						isVisible: true,
+						gameEndVisible: true,
 					});
 				};
 			},
@@ -252,7 +305,10 @@ class Game extends React.Component {
 	// Change the confirmation modal to be invisible
 	// Navigate to the post-game page
 	handleOk = (e) => {
-		if (e.currentTarget.id === "keepMinutiae") {
+		if (e.currentTarget.id === "keepMinutiae" || e.currentTarget.id === "resetAll") {
+			// clear out undo and redo
+			undo.length = 0;
+			redo.length = 0;
 			this.setState({
 				brightness: 100,
 				contrast: 100,
@@ -260,24 +316,21 @@ class Game extends React.Component {
 				hue: 0,
 				resetModalVisible: false,
 			});
-			this.sendMessage({
-				info: "reset excluding minutiae",
-			});
-		} else if (e.currentTarget.id === "resetAll") {
-			this.setState({
-				minutiae: [],
-				brightness: 100,
-				contrast: 100,
-				saturation: 100,
-				hue: 0,
-				resetModalVisible: false,
-			});
-			this.sendMessage({
-				info: "reset all",
-			});
+			if (e.currentTarget.id === "resetAll") {
+				this.setState({
+					minutiae: [],
+				});
+				this.sendMessage({
+					info: "reset all",
+				});
+			} else {
+				this.sendMessage({
+					info: "reset excluding minutiae",
+				});
+			}
 		} else {
 			this.setState({
-				isVisible: false,
+				gameEndVisible: false,
 			});
 			this.props.action();
 		}
@@ -293,7 +346,7 @@ class Game extends React.Component {
 			});
 		} else {
 			this.setState({
-				isVisible: false,
+				gameEndVisible: false,
 			});
 		}
 	};
@@ -331,17 +384,7 @@ class Game extends React.Component {
 		} else if (status === "submitImage") {
 			this.sendMessage({
 				command: status,
-				minutiaList: this.state.minutiae,
-				imageName: "current_image",
-			});
-			this.setState({
-				minutiae: [],
-				brightness: 100,
-				contrast: 100,
-				saturation: 100,
-				hue: 0,
-				undoList: [],
-				redoList: [],
+				minutiaList: this.normalizeMinutiae(this.state.minutiae),
 			});
 		} else {
 			this.sendMessage({
@@ -368,9 +411,9 @@ class Game extends React.Component {
 	};
 
 	// Handle undo and redo buttons
-	handleAddPatch = (patch, inversePatches) => {
+	handleAddPatch = (patches, inversePatches) => {
 		undo.push(inversePatches);
-		redo.push(patch);
+		redo.push(patches);
 	};
 
 	// Apply color filters to the image in the fingerprint window
@@ -395,8 +438,6 @@ class Game extends React.Component {
 					default:
 						return;
 				}
-				draft.undoList.push({ name: type });
-				draft.redoList.push({ name: type });
 			},
 			this.handleAddPatch
 		);
@@ -431,23 +472,39 @@ class Game extends React.Component {
 					this.state,
 					(draft) => {
 						draft.addingMinutiae = !this.state.addingMinutiae;
-						draft.undoList.push({ name: "minutiae" });
-						draft.redoList.push({ name: "minutiae" });
 					},
 					this.handleAddPatch
 				);
 				this.setState(nextStateMinutiae);
 				break;
 			case "submitImage":
-				const newMinutiae = this.normalizeMinutiae(this.state.minutiae);
-				this.setState({ minutiae: newMinutiae }, () => {
-					this.handleCommand(command);
-				});
+				if (this.state.minMinutiae && this.state.minutiae.length < this.state.minMinutiae) {
+					this.showError(
+						"Not enough minutiae",
+						<p>
+							You only have <b>{this.state.minutiae.length}</b> minutia
+							{this.state.minutiae.length !== 1 && "e"} out of the minimum of{" "}
+							<b>{this.state.minMinutiae}</b> needed
+						</p>
+					);
+				} else {
+					this.setState({ scoreModalVisible: true }, () => {
+						this.handleCommand(command);
+					});
+				}
 				break;
 			default:
+				this.handleCommand(command);
 				return;
 		}
 	};
+
+	showError(title, message) {
+		Modal.error({
+			title,
+			content: message,
+		});
+	}
 
 	// Adds a minutia to the minutiae array
 	// x and y are the coordinates on the image
@@ -459,8 +516,6 @@ class Game extends React.Component {
 			(draft) => {
 				draft.minutiae = [...this.state.minutiae, { x, y, orientation, size, color, type }];
 				draft.addingMinutiae = false;
-				draft.undoList.push({ name: "minutiae" });
-				draft.redoList.push({ name: "minutiae" });
 			},
 			this.handleAddPatch
 		);
@@ -506,8 +561,6 @@ class Game extends React.Component {
 			this.state,
 			(draft) => {
 				draft.minutiae = prevMinutiae;
-				draft.undoList.push({ name: type });
-				draft.redoList.push({ name: type });
 			},
 			this.handleAddPatch
 		);
@@ -517,6 +570,13 @@ class Game extends React.Component {
 			value,
 		});
 	};
+
+	scrollToTop() {
+		window.scrollTo({
+			top: 0,
+			behavior: "smooth",
+		});
+	}
 
 	// Return a minutiae array such that each minutia's
 	// x and y values are accurate pixel coordinates
@@ -533,9 +593,10 @@ class Game extends React.Component {
 				const scaledHeight = imageHeight / scale;
 				const offset = (windowHeight - scaledHeight) / 2; // the y-offset from the window border
 				const newMinutia = {
-					...minutia,
 					x: minutia.x * scale,
 					y: (minutia.y - offset) * scale,
+					orientation: minutia.orientation,
+					type: minutia.type,
 				};
 
 				return newMinutia;
@@ -546,9 +607,10 @@ class Game extends React.Component {
 				const offset = (windowWidth - scaledWidth) / 2; // the x-offset from the window border
 
 				const newMinutia = {
-					...minutia,
 					x: (minutia.x - offset) * scale,
 					y: minutia.y * scale,
+					orientation: minutia.orientation,
+					type: minutia.type,
 				};
 
 				return newMinutia;
@@ -568,7 +630,7 @@ class Game extends React.Component {
 			UIlist,
 			instructions,
 			progress,
-			isVisible,
+			gameEndVisible,
 			inputBudget,
 			usedInputBudget,
 			imageL,
@@ -584,12 +646,15 @@ class Game extends React.Component {
 			orientation,
 			windowWidth,
 			windowHeight,
+			score,
+			scoreModalVisible,
+			maxScore,
 		} = this.state;
 
 		return (
-			<div className="game" id="game">
+			<div className={`game ${addingMinutiae ? "custom-cursor" : ""}`} data-testid="game" id="game">
 				<Radio.Group
-					defaultValue="vertical"
+					defaultValue="horizontal"
 					onChange={(e) => {
 						this.setState({ orientation: e.target.value });
 					}}
@@ -624,6 +689,7 @@ class Game extends React.Component {
 								<FingerprintWindow
 									isLoading={isLoading}
 									frameSrc={frameSrc}
+									progress={progress}
 									width={windowWidth || 700}
 									height={windowHeight || 600}
 									brightness={brightness}
@@ -682,7 +748,7 @@ class Game extends React.Component {
 
 				<Modal
 					title="Game end message"
-					visible={isVisible}
+					visible={gameEndVisible}
 					onOk={this.handleOk}
 					onCancel={this.handleCancel}
 				>
@@ -698,7 +764,6 @@ class Game extends React.Component {
 				<Modal
 					title="Reset Image"
 					visible={resetModalVisible}
-					cancelText="Keep Minutiae"
 					footer={[
 						<Button key="cancel" id="resetCancel" type="default" onClick={this.handleCancel}>
 							Cancel
@@ -718,6 +783,79 @@ class Game extends React.Component {
 					<p className="resetModal">
 						Press <b>"Keep minutiae"</b> to avoid clearing minutiae
 					</p>
+				</Modal>
+
+				<Modal visible={scoreModalVisible} closable={false} footer={null}>
+					{!score ? (
+						<div className="scoreModal">
+							<p>Please wait while we calculate your score</p>
+							<Skeleton.Avatar
+								active={!score}
+								size={100}
+								shape="circle"
+								style={{
+									display: "block !important",
+									alignSelf: "center !important",
+									justifyContent: "center",
+								}}
+							/>
+							<Button disabled={!score} icon={icons["next"]} shape="round" type="primary">
+								Next Image
+							</Button>
+						</div>
+					) : (
+						<div className="scoreModal">
+							<h4>Your rank is</h4>
+							<Progress
+								width={100}
+								type="circle"
+								percent={1 - score / maxScore}
+								strokeColor={{
+									"0%": "#108ee9",
+									"100%": "#87d068",
+								}}
+								format={(percent) => (
+									<div className="scoreModalProgress">
+										<p>{score}</p>
+										<div></div>
+										<p>{maxScore}</p>
+									</div>
+								)}
+							/>
+							<Button
+								disabled={!score}
+								icon={icons["next"]}
+								shape="round"
+								type="primary"
+								onClick={() => {
+									this.scrollToTop();
+									this.setState((prevState) => ({
+										scoreModalVisible: false,
+										score: null,
+										frameSrc: prevState.nextframeSrc,
+										frameCount: prevState.nextframeCount,
+										frameId: prevState.nextframeId,
+										nextframeCount: null,
+										nextframeSrc: null,
+										nextframeId: null,
+									}));
+
+									//empty undo and redo arrays
+									undo.length = 0;
+									redo.length = 0;
+									this.setState({
+										minutiae: [],
+										brightness: 100,
+										contrast: 100,
+										saturation: 100,
+										hue: 0,
+									});
+								}}
+							>
+								Next Image
+							</Button>
+						</div>
+					)}
 				</Modal>
 			</div>
 		);

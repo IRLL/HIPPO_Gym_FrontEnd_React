@@ -90,14 +90,14 @@ class FingerprintWindow extends React.Component {
 		// Menu when minutia type is selected from popup menu
 		const minutiaType = (
 			<Radio.Group
-				defaultValue={minutiae[currMinutia] ? minutiae[currMinutia].type : "unknown"}
+				defaultValue={minutiae[currMinutia] ? minutiae[currMinutia].type : "Unknown"}
 				onChange={(e) => {
 					handleMinutia("changeType", currMinutia, e.target.value);
 				}}
 			>
-				<Radio value="bifurcation">Bifurcation</Radio>
-				<Radio value="ending">Ending</Radio>
-				<Radio value="unknown">Unknown</Radio>
+				<Radio value="Bifurcation">Bifurcation</Radio>
+				<Radio value="Ending">Ending</Radio>
+				<Radio value="Unknown">Unknown</Radio>
 			</Radio.Group>
 		);
 
@@ -145,14 +145,17 @@ class FingerprintWindow extends React.Component {
 		// If the frame has not loaded, show the loading screen
 		if (isLoading || !frameSrc)
 			return (
-				<div className="progressBar">
-					<Progress width={80} type="circle" percent={Math.round(progress)} />
-					<p className="promptText">The robot is about to start the game, please wait ...</p>
+				<div className="gameWindow">
+					<div className="progressBar">
+						<Progress width={80} type="circle" percent={Math.round(progress)} />
+						<p className="promptText">The robot is about to start the game, please wait ...</p>
+					</div>
 				</div>
 			);
 
 		return (
 			<Zoom
+				data-testid="fingerprint-window"
 				width={width}
 				height={height}
 				scaleXMin={1 / 2}
@@ -179,6 +182,7 @@ class FingerprintWindow extends React.Component {
                                         contrast(${contrast}%)
                                         saturate(${saturation}%) 
                                         hue-rotate(${hue}deg)`}
+									onLoad={zoom.clear} // recenter the image when a new one loads
 								/>
 							</g>
 
@@ -208,7 +212,7 @@ class FingerprintWindow extends React.Component {
 											270,
 											this.state.defaultSize,
 											this.state.defaultColor,
-											"unknown"
+											"Unknown"
 										);
 									}
 								}}
@@ -216,7 +220,7 @@ class FingerprintWindow extends React.Component {
 									const point = localPoint(event) || { x: 0, y: 0 };
 									zoom.scale({ scaleX: 1.1, scaleY: 1.1, point });
 								}}
-								className={addingMinutiae ? "pointerCursor" : ""}
+								className={addingMinutiae ? "custom-cursor" : ""}
 							/>
 
 							{/* Minutiae overlay */}

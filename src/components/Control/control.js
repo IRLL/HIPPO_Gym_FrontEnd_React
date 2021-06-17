@@ -19,6 +19,12 @@ class ControlPanel extends React.Component {
 			hue,
 			instructions,
 			orientation,
+			handleFPS,
+			sendMessage,
+			handleCommand,
+			handleImage,
+			handleImageCommands,
+			addingMinutiae,
 		} = this.props;
 
 		const directions = [
@@ -44,8 +50,8 @@ class ControlPanel extends React.Component {
 		];
 		const fps = ["fpsUp", "fpsDown", "fpsSet"];
 		const imageControls = [
-			{ name: "brightness", min: 0, max: 200, default: 100, ref: brightness },
-			{ name: "contrast", min: 0, max: 200, default: 100, ref: contrast },
+			{ name: "brightness", min: 0, max: 1000, default: 100, ref: brightness },
+			{ name: "contrast", min: 0, max: 500, default: 100, ref: contrast },
 			{ name: "saturation", min: 0, max: 100, default: 100, ref: saturation },
 			{ name: "hue", min: 0, max: 360, default: 0, ref: hue },
 		];
@@ -59,6 +65,7 @@ class ControlPanel extends React.Component {
 			"addMinutia",
 			"resetImage",
 			"submitImage",
+			"stop",
 		];
 		const defaultButtons = [...directions, ...fps];
 		const UIFiltered = UIlist.filter(
@@ -92,7 +99,7 @@ class ControlPanel extends React.Component {
 								className="fpsUpButton"
 								size="large"
 								icon={icons["fpsUp"]}
-								onClick={() => this.props.handleFPS("faster")}
+								onClick={() => handleFPS("faster")}
 							>
 								Increase
 							</Button>
@@ -110,7 +117,7 @@ class ControlPanel extends React.Component {
 								className="fpsDownButton"
 								size="large"
 								icon={icons["fpsDown"]}
-								onClick={() => this.props.handleFPS("slower")}
+								onClick={() => handleFPS("slower")}
 							>
 								Decrease
 							</Button>
@@ -120,19 +127,18 @@ class ControlPanel extends React.Component {
 			),
 		};
 		directions.forEach((dir) => {
-			elements[dir] = (
-				<Col key={dir} span={2}>
-					{UIlist.includes(dir) ? (
+			if (UIlist.includes(dir))
+				elements[dir] = (
+					<Col key={dir} span={2}>
 						<Button
 							id={dir}
 							shape="round"
 							size="large"
 							icon={icons[dir]}
-							onClick={() => this.props.sendMessage({ actionType: "mousedown", action: dir })}
+							onClick={() => sendMessage({ actionType: "mousedown", action: dir })}
 						/>
-					) : null}
-				</Col>
-			);
+					</Col>
+				);
 		});
 		commands.forEach((command) => {
 			elements[command] = (
@@ -144,7 +150,7 @@ class ControlPanel extends React.Component {
 						className={`${command}Button`}
 						icon={icons[command]}
 						size="large"
-						onClick={() => this.props.handleCommand(command)}
+						onClick={() => handleCommand(command)}
 					>
 						{capitalize(command)}
 					</Button>
@@ -171,7 +177,7 @@ class ControlPanel extends React.Component {
 								value={control.ref}
 								min={control.min}
 								max={control.max}
-								onChange={(value) => this.props.handleImage(control.name, value)}
+								onChange={(value) => handleImage(control.name, value)}
 							/>
 						</div>
 					)}
@@ -179,6 +185,11 @@ class ControlPanel extends React.Component {
 			);
 		});
 		imageCommands.forEach((command) => {
+			let className = `${command}Button`;
+			if (command === "addMinutia" && addingMinutiae) {
+				className = className.concat(" adding");
+			}
+			// console.log(className);
 			elements[command] = (
 				<Col key={command}>
 					{UIlist.includes(command) && (
@@ -186,10 +197,10 @@ class ControlPanel extends React.Component {
 							shape="round"
 							type="primary"
 							id={command}
-							className={`${command}Button`}
+							className={className}
 							icon={icons[command]}
 							size="large"
-							onClick={() => this.props.handleImageCommands(command)}
+							onClick={() => handleImageCommands(command)}
 							date-testid={command}
 						>
 							{capitalize(sentenceCase(command))}
@@ -207,7 +218,7 @@ class ControlPanel extends React.Component {
 							shape="round"
 							type="primary"
 							size="large"
-							onClick={() => this.props.handleCommand(ele)}
+							onClick={() => handleCommand(ele)}
 						>
 							{capitalize(ele)}
 						</Button>
@@ -232,7 +243,7 @@ class ControlPanel extends React.Component {
 			elements["rightDown"],
 			elements["fpsDown"],
 		];
-		const lastRow = [elements["submitImage"]];
+		const lastRow = [elements["submitImage"], elements["stop"]];
 
 		UIFiltered.forEach((ele, idx) => {
 			if (idx % 3 === 0) {
@@ -247,7 +258,7 @@ class ControlPanel extends React.Component {
 		return (
 			<div data-testid="control-panel">
 				{!isLoading && (
-					<div className={`controlPanel ${orientation == "horizontal" ? "addMargin" : ""}`}>
+					<div className={`controlPanel ${orientation === "horizontal" ? "addMargin" : ""}`}>
 						<div className="panelContainer">
 							{instructions !== [] && <Divider>Instructions </Divider>}
 							<Row gutter={[4, 8]} justify="start" className="instructions">
