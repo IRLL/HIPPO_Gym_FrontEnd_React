@@ -11,6 +11,7 @@
 		"@vx/zoom": "^0.0.199",
 		"antd": "^4.3.5",
 		"axios": "^0.21.1",
+		"cypress": "^7.4.0",
 		"immer": "^9.0.2",
 		"react": "^16.13.1",
 		"react-device-detect": "^1.13.1",
@@ -48,5 +49,8 @@
 			"last 1 firefox version",
 			"last 1 safari version"
 		]
+	},
+	"devDependencies": {
+		"cypress-react-selector": "^2.3.7"
 	}
 }

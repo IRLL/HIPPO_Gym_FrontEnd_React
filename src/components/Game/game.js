@@ -652,7 +652,7 @@ class Game extends React.Component {
 		} = this.state;
 
 		return (
-			<div className={`game ${addingMinutiae ? "custom-cursor" : ""}`} data-testid="game">
+			<div className={`game ${addingMinutiae ? "custom-cursor" : ""}`} data-testid="game" id="game">
 				<Radio.Group
 					defaultValue="horizontal"
 					onChange={(e) => {
@@ -714,7 +714,12 @@ class Game extends React.Component {
 						</Col>
 
 						<Col flex={1}>
-							<MessageViewer title="Message Out" data={outMessage} visible={DEBUG} />
+							<MessageViewer
+								title="Message Out"
+								id="message-view-1"
+								data={outMessage}
+								visible={DEBUG}
+							/>
 						</Col>
 					</Row>
 
