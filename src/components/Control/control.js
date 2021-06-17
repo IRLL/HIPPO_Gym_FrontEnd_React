@@ -7,6 +7,11 @@ import capitalize from "../../utils/capitalize";
 import sentenceCase from "../../utils/sentenceCase";
 
 class ControlPanel extends React.Component {
+
+  onFPSChange = value => {
+    console.log(value)
+  }
+
 	render() {
 		const {
 			isEnd,
@@ -71,6 +76,7 @@ class ControlPanel extends React.Component {
 		const elements = {
 			fpsSet: (
 				<Col key="fpsSet" span={4}>
+          {/* {console.log("frameRate: ", frameRate)} */}
 					{UIlist.includes("fpsSet") ? (
 						<Input
 							id="fpsSet"
@@ -78,6 +84,7 @@ class ControlPanel extends React.Component {
 							defaultValue={30}
 							value={frameRate}
 							suffix="FPS"
+              onChange={this.onFPSChange}
 						/>
 					) : null}
 				</Col>
@@ -85,7 +92,7 @@ class ControlPanel extends React.Component {
 			fpsUp: (
 				<Col key="fpsUp" span={4}>
 					{UIlist.includes("fpsUp") ? (
-						<Tooltip placement="top" title="Increase the FPS by 5" arrowPointAtCenter>
+						<Tooltip placement="top" title="Increase the FPS by 1" arrowPointAtCenter>
 							<Button
 								shape="round"
 								id="fpsUp"
@@ -103,7 +110,7 @@ class ControlPanel extends React.Component {
 			fpsDown: (
 				<Col key="fpsDown" span={4}>
 					{UIlist.includes("fpsDown") ? (
-						<Tooltip placement="bottom" title="Decrease the FPS by 5" arrowPointAtCenter>
+						<Tooltip placement="bottom" title="Decrease the FPS by 1" arrowPointAtCenter>
 							<Button
 								shape="round"
 								id="fpsDown"
@@ -224,12 +231,9 @@ class ControlPanel extends React.Component {
 			elements["addMinutia"],
 			elements["resetImage"],
 		];
-		const firstRow = [elements["leftUp"], elements["up"], elements["rightUp"], elements["fpsUp"]];
-		const secondRow = [elements["left"], elements["fire"], elements["right"], elements["fpsSet"]];
+		const firstRow = [elements["fpsUp"]];
+		const secondRow = [ elements["fpsSet"]];
 		const thirdRow = [
-			elements["leftDown"],
-			elements["down"],
-			elements["rightDown"],
 			elements["fpsDown"],
 		];
 		const lastRow = [elements["submitImage"]];
@@ -249,12 +253,16 @@ class ControlPanel extends React.Component {
 				{!isLoading && (
 					<div className={`controlPanel ${orientation === "horizontal" ? "addMargin" : ""}`}>
 						<div className="panelContainer">
-							{instructions !== [] && <Divider>Instructions </Divider>}
-							<Row gutter={[4, 8]} justify="start" className="instructions">
-								<ul>{instructionUI}</ul>
-							</Row>
-							<Divider>Controls </Divider>
-							<Row gutter={[4, 8]} justify="space-around" className="imageCommands">
+							{instructions.length ?
+                <div>
+                  <Divider>Instructions </Divider>
+                  <Row gutter={[4, 8]} justify="start" className="instructions">
+                    <ul>{instructionUI}</ul>
+                  </Row>
+                  <Divider>Controls </Divider>
+                </div>
+              : null}
+							{/* <Row gutter={[4, 8]} justify="space-around" className="imageCommands">
 								{imgCommands}
 							</Row>
 							<Row gutter={[4, 8]} justify="space-between">
@@ -265,13 +273,14 @@ class ControlPanel extends React.Component {
 							</Row>
 							<Row gutter={[4, 8]} justify="space-around">
 								{lastRow}
-							</Row>
-							<Row gutter={[4, 8]}>{firstRow}</Row>
-							<Row gutter={[4, 8]}>{secondRow}</Row>
-							<Row gutter={[4, 8]}>
+							</Row> */}
+							<Row gutter={[4, 8]} className="row">{firstRow}</Row>
+							<Row gutter={[4, 8]} className="row">{secondRow}</Row>
+							<Row gutter={[4, 8]} className="row">
 								{thirdRow}
-								<Col key="nextStep">
+
 									{isEnd ? (
+                    <Col key="nextStep">
 										<Tooltip placement="bottom" title="Move to next step" arrowPointAtCenter>
 											<Button
 												id="nextStep"
@@ -284,8 +293,8 @@ class ControlPanel extends React.Component {
 												Next
 											</Button>
 										</Tooltip>
+                    </Col>
 									) : null}
-								</Col>
 							</Row>
 						</div>
 					</div>

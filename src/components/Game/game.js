@@ -168,7 +168,6 @@ class Game extends React.Component {
 						if (parsedData.frame && parsedData.frameId) {
 							let frame = parsedData.frame;
 							let frameId = parsedData.frameId;
-
 							if (this.state.score)
 								this.setState((prevState) => ({
 									nextframeSrc: "data:image/jpeg;base64, " + frame,
@@ -382,16 +381,17 @@ class Game extends React.Component {
 	};
 
 	// Change the FPS of the game
+  // TODO: change the frame increase adn decrease rate back to 5
 	handleFPS = (speed) => {
 		if (
-			(speed === "faster" && this.state.frameRate + 5 > 90) ||
-			(speed === "slower" && this.state.frameRate - 5 < 1)
+			(speed === "faster" && this.state.frameRate + 1 > 90) ||
+			(speed === "slower" && this.state.frameRate - 1 < 1)
 		) {
 			message.error("Invalid FPS, the FPS can only between 1 - 90!");
 		} else {
-			this.setState((prevState) => ({
-				frameRate: speed === "faster" ? prevState.frameRate + 5 : prevState.frameRate - 5,
-			}));
+        this.setState((prevState) => ({
+          frameRate: speed === "faster" ? prevState.frameRate + 1 : prevState.frameRate - 1,
+        }));
 			this.sendMessage({
 				changeFrameRate: speed,
 			});
@@ -492,10 +492,17 @@ class Game extends React.Component {
 			this.handleAddPatch
 		);
 		this.setState(nextStateMinutiae);
-		this.sendMessage({
-			info: "minutia added",
-			minutia: { x, y, orientation, size, color, type },
-		});
+    if (this.state.fingerprint){
+      this.sendMessage({
+        info: "minutia added",
+        minutia: { x, y, orientation, size, color, type },
+      });
+    } else {
+      this.sendMessage({
+        info: "point clicked",
+        coordinates: { x, y},
+      });
+    }
 	};
 
 	// Edit the minutia at position index in the minutiae array
@@ -753,7 +760,6 @@ class Game extends React.Component {
 						Press <b>"Keep minutiae"</b> to avoid clearing minutiae
 					</p>
 				</Modal>
-
 				<Modal visible={scoreModalVisible} closable={false} footer={null}>
 					{!score ? (
 						<div className="scoreModal">

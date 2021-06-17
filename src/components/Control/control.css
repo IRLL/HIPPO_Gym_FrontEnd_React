@@ -1,5 +1,5 @@
 /* Add a solid border to the panel
-   Make the corners of panel rounded 
+   Make the corners of panel rounded
    Add space to the top of the panel */
 .controlPanel {
 	border: solid 1px rgb(237, 237, 237);
@@ -7,6 +7,7 @@
 	margin-top: 20px;
 	padding: 1rem 2rem;
 	flex: 1;
+	width: fit-content;
 }
 
 /* Remove the default border of the container
@@ -16,10 +17,14 @@
 	margin-top: 10px;
 }
 
-/* Set the height of fps input field 
+.row{
+	justify-content: space-between;
+}
+
+/* Set the height of fps input field
  Make the corners of this field rounded */
 .fpsInput {
-	width: auto;
+	width: 100px;
 	height: 40px;
 	border-radius: 20px;
 }
