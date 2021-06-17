@@ -47,7 +47,7 @@ class Game extends React.Component {
     instructions: [], // list of instructions for the game
 
     // TODO: Add the fingerprint prop to config.yml
-    fingerprint: true, // if this is a fingerprint trial
+    fingerprint: false, // if this is a fingerprint trial
     resetModalVisible: false, // if the reset image dialog is visible
     orientation: "vertical", // default orientation is vertical
 
@@ -346,6 +346,7 @@ class Game extends React.Component {
   };
 
   // Change the FPS of the game
+  // TODO: hanle fps limits with user input
   handleFPS = (speed) => {
     if (
       (speed === "faster" && this.state.frameRate + 5 > 90) ||
@@ -353,6 +354,9 @@ class Game extends React.Component {
     ) {
       message.error("Invalid FPS, the FPS can only between 1 - 90!");
     } else {
+      if (speed === "userInput") {
+        console.log("heeloo")
+      }
       this.setState((prevState) => ({
         frameRate: speed === "faster" ? prevState.frameRate + 5 : prevState.frameRate - 5,
       }));
@@ -454,10 +458,17 @@ class Game extends React.Component {
       this.handleAddPatch
     );
     this.setState(nextStateMinutiae);
-    this.sendMessage({
-      info: "minutia added",
-      minutia: { x, y, orientation, size, color, type },
-    });
+    if (this.state.fingerprint){
+      this.sendMessage({
+        info: "minutia added",
+        minutia: { x, y, orientation, size, color, type },
+      });
+    } else {
+      this.sendMessage({
+        info: "point clicked",
+        coordinates: { x, y,},
+      });
+    }
   };
 
   // Edit the minutia at position index in the minutiae array

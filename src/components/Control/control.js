@@ -71,13 +71,15 @@ class ControlPanel extends React.Component {
 		const elements = {
 			fpsSet: (
 				<Col key="fpsSet" span={4}>
+          {console.log("frameRate: ", frameRate)}
 					{UIlist.includes("fpsSet") ? (
 						<Input
 							id="fpsSet"
 							className="fpsInput"
-							defaultValue={30}
+							defaultValue={frameRate}
 							value={frameRate}
 							suffix="FPS"
+              // onChange={this.props.handleFPS("userInput")}
 						/>
 					) : null}
 				</Col>
@@ -246,13 +248,17 @@ class ControlPanel extends React.Component {
 		return (
 			<div>
 				{!isLoading && (
-					<div className={`controlPanel ${orientation == "horizontal" ? "addMargin" : ""}`}>
+					<div className={`controlPanel ${orientation === "horizontal" ? "addMargin" : ""}`}>
 						<div className="panelContainer">
-							{instructions !== [] && <Divider>Instructions </Divider>}
-							<Row gutter={[4, 8]} justify="start" className="instructions">
-								<ul>{instructionUI}</ul>
-							</Row>
-							<Divider>Controls </Divider>
+							{instructions.length ?
+                <div>
+                  <Divider>Instructions </Divider>
+                  <Row gutter={[4, 8]} justify="start" className="instructions">
+                    <ul>{instructionUI}</ul>
+                  </Row>
+                  <Divider>Controls </Divider>
+                </div>
+              : null}
 							<Row gutter={[4, 8]} justify="space-around" className="imageCommands">
 								{imgCommands}
 							</Row>
