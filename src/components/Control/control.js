@@ -7,6 +7,11 @@ import capitalize from "../../utils/capitalize";
 import sentenceCase from "../../utils/sentenceCase";
 
 class ControlPanel extends React.Component {
+
+  onFPSChange = value => {
+    console.log(value)
+  }
+
 	render() {
 		const {
 			isEnd,
@@ -71,15 +76,15 @@ class ControlPanel extends React.Component {
 		const elements = {
 			fpsSet: (
 				<Col key="fpsSet" span={4}>
-          {console.log("frameRate: ", frameRate)}
+          {/* {console.log("frameRate: ", frameRate)} */}
 					{UIlist.includes("fpsSet") ? (
 						<Input
 							id="fpsSet"
 							className="fpsInput"
-							defaultValue={frameRate}
+							defaultValue={30}
 							value={frameRate}
 							suffix="FPS"
-              // onChange={this.props.handleFPS("userInput")}
+              onChange={this.onFPSChange}
 						/>
 					) : null}
 				</Col>
@@ -226,12 +231,9 @@ class ControlPanel extends React.Component {
 			elements["addMinutia"],
 			elements["resetImage"],
 		];
-		const firstRow = [elements["leftUp"], elements["up"], elements["rightUp"], elements["fpsUp"]];
-		const secondRow = [elements["left"], elements["fire"], elements["right"], elements["fpsSet"]];
+		const firstRow = [elements["fpsUp"]];
+		const secondRow = [ elements["fpsSet"]];
 		const thirdRow = [
-			elements["leftDown"],
-			elements["down"],
-			elements["rightDown"],
 			elements["fpsDown"],
 		];
 		const lastRow = [elements["submitImage"]];
@@ -260,7 +262,7 @@ class ControlPanel extends React.Component {
                   <Divider>Controls </Divider>
                 </div>
               : null}
-							<Row gutter={[4, 8]} justify="space-around" className="imageCommands">
+							{/* <Row gutter={[4, 8]} justify="space-around" className="imageCommands">
 								{imgCommands}
 							</Row>
 							<Row gutter={[4, 8]} justify="space-between">
@@ -271,13 +273,14 @@ class ControlPanel extends React.Component {
 							</Row>
 							<Row gutter={[4, 8]} justify="space-around">
 								{lastRow}
-							</Row>
-							<Row gutter={[4, 8]}>{firstRow}</Row>
-							<Row gutter={[4, 8]}>{secondRow}</Row>
-							<Row gutter={[4, 8]}>
+							</Row> */}
+							<Row gutter={[4, 8]} className="row">{firstRow}</Row>
+							<Row gutter={[4, 8]} className="row">{secondRow}</Row>
+							<Row gutter={[4, 8]} className="row">
 								{thirdRow}
-								<Col key="nextStep">
+
 									{isEnd ? (
+                    <Col key="nextStep">
 										<Tooltip placement="bottom" title="Move to next step" arrowPointAtCenter>
 											<Button
 												id="nextStep"
@@ -290,8 +293,8 @@ class ControlPanel extends React.Component {
 												Next
 											</Button>
 										</Tooltip>
+                    </Col>
 									) : null}
-								</Col>
 							</Row>
 						</div>
 					</div>
