@@ -19,18 +19,41 @@ class Main extends React.Component {
 		isWait: false, //if the websocket server has been resolved
 		is400Error: false, //if there are any error occur
 		ifRedirect: SERVER && REDIRECT ? true : false, //if redirect to another url after game ends
+		loadingMessages: [
+			"Waiting for the crime scene to be swept...",
+			"Bagging evidence...",
+			"Dusting for fingerprints...",
+			"Interviewing witnesses...",
+			"Adjusting microscope...",
+		],
+		loadingMessageIndex: 0,
 	};
+
+	loadingMessageInterval;
+	iterations = 0;
 
 	componentDidMount() {
 		if (!SERVER) this.fetchFormData(); //if server is not specified, load the form data
 		//if css file is specified, apply the css to the page
+
+		this.loadingMessageInterval = setInterval(() => {
+			const i = this.state.loadingMessageIndex;
+			const length = this.state.loadingMessages.length;
+			this.setState({
+				loadingMessageIndex: (i + 1) % length,
+			});
+			this.iterations++;
+		}, 5000);
 	}
 
 	componentDidUpdate(prevState) {
 		//always scroll the page to the top when moving to next page
-		if (prevState.formContent !== this.state.formContent) {
-			// TODO: make this only run if not testing
+		if (prevState.formContent !== this.state.formContent && prevState.formContent) {
 			window.scrollTo(0, 0);
+		}
+
+		if (this.iterations >= 10) {
+			clearInterval(this.loadingMessageInterval);
 		}
 	}
 
@@ -149,7 +172,15 @@ class Main extends React.Component {
 	};
 
 	render() {
-		const { isLoading, formContent, isGame, isWait, is400Error } = this.state;
+		const {
+			isLoading,
+			formContent,
+			isGame,
+			isWait,
+			is400Error,
+			loadingMessages,
+			loadingMessageIndex: i,
+		} = this.state;
 
 		let preGame;
 		if (is400Error) {
@@ -165,11 +196,7 @@ class Main extends React.Component {
 						<Spin
 							className="Loader"
 							size="large"
-							tip={
-								isWait
-									? "Waiting for the robot to wake up, please wait ..."
-									: "Loading next step, please wait ..."
-							}
+							tip={isWait ? loadingMessages[i] : "Loading next step, please wait ..."}
 						/>
 					) : (
 						<Forum content={formContent} action={this.handleSubmit} is400Error={is400Error} />

@@ -48,35 +48,35 @@ class Game extends React.Component {
 		outMessage: [], // a list of outgoing messages
 		holdKey: null, // the key that is holding
 		instructions: [], // list of instructions for the game
-
-		// TODO: Add the fingerprint prop to config.yml
-		fingerprint: true, // if this is a fingerprint trial
-		resetModalVisible: false, // if the reset image dialog is visible
 		orientation: "horizontal", // default orientation is horizontal
 
+		// Fingerprint trial configurations
+		fingerprint: true, // if this is a fingerprint trial
+		minMinutiae: null, // the minimum number of minutiae required to be marked per step
+		resetModalVisible: false, // if the reset image dialog is visible
+
 		// For image marking functionality
-		brightness: 100,
-		contrast: 100,
-		saturation: 100,
-		hue: 0,
-		addingMinutiae: false,
-		minutiae: [],
+		brightness: 100, // default image brightness (out of 100)
+		contrast: 100, // default image contrast (out of 100)
+		saturation: 100, // default image saturation (out of 100)
+		hue: 0, // default image hue rotation (out of 360)
+		addingMinutiae: false, // if currently adding minutiae
+		minutiae: [], // list of all available minutiae within the image
 
 		// For the score modal
-		scoreModalVisible: false,
-		score: null,
-		maxScore: 100,
+		scoreModalVisible: false, // if the score modal is visible
+		score: null, // the user's score
+		maxScore: 100, // the maximum score a user can get
 
 		// For undo and redo functionality
-		undoList: [],
-		redoList: [],
-		instructions: [],
+		undoList: [], // list of states before
+		redoList: [], // list of states aftere
 
 		// Widths and heights for responsiveness
-		windowWidth: 700,
-		windowHeight: 600,
-		imageWidth: null,
-		imageHeight: null,
+		windowWidth: 700, // width of the game window
+		windowHeight: 600, // height of the game window
+		imageWidth: null, // default width of the frame image source
+		imageHeight: null, // default height of the frame image source
 	};
 
 	componentDidMount() {
@@ -162,6 +162,18 @@ class Game extends React.Component {
 						if (parsedData.Score) {
 							this.setState({
 								score: parsedData.Score,
+							});
+						}
+						//Check if Score in response
+						if (parsedData.MaxScore) {
+							this.setState({
+								maxScore: parsedData.MaxScore,
+							});
+						}
+						//Check if Score in response
+						if (parsedData.MinMinutiae) {
+							this.setState({
+								minMinutiae: parsedData.MinMinutiae,
 							});
 						}
 						//Check if frame related information in response
@@ -466,14 +478,33 @@ class Game extends React.Component {
 				this.setState(nextStateMinutiae);
 				break;
 			case "submitImage":
-				this.setState({ scoreModalVisible: true }, () => {
-					this.handleCommand(command);
-				});
+				if (this.state.minMinutiae && this.state.minutiae.length < this.state.minMinutiae) {
+					this.showError(
+						"Not enough minutiae",
+						<p>
+							You only have <b>{this.state.minutiae.length}</b> minutia
+							{this.state.minutiae.length !== 1 && "e"} out of the minimum of{" "}
+							<b>{this.state.minMinutiae}</b> needed
+						</p>
+					);
+				} else {
+					this.setState({ scoreModalVisible: true }, () => {
+						this.handleCommand(command);
+					});
+				}
 				break;
 			default:
+				this.handleCommand(command);
 				return;
 		}
 	};
+
+	showError(title, message) {
+		Modal.error({
+			title,
+			content: message,
+		});
+	}
 
 	// Adds a minutia to the minutiae array
 	// x and y are the coordinates on the image
@@ -621,7 +652,7 @@ class Game extends React.Component {
 		} = this.state;
 
 		return (
-			<div className="game" data-testid="game">
+			<div className={`game ${addingMinutiae ? "custom-cursor" : ""}`} data-testid="game" id="game">
 				<Radio.Group
 					defaultValue="horizontal"
 					onChange={(e) => {
@@ -658,6 +689,7 @@ class Game extends React.Component {
 								<FingerprintWindow
 									isLoading={isLoading}
 									frameSrc={frameSrc}
+									progress={progress}
 									width={windowWidth || 700}
 									height={windowHeight || 600}
 									brightness={brightness}
@@ -682,7 +714,12 @@ class Game extends React.Component {
 						</Col>
 
 						<Col flex={1}>
-							<MessageViewer title="Message Out" data={outMessage} visible={DEBUG} />
+							<MessageViewer
+								title="Message Out"
+								id="message-view-1"
+								data={outMessage}
+								visible={DEBUG}
+							/>
 						</Col>
 					</Row>
 
@@ -768,8 +805,23 @@ class Game extends React.Component {
 						</div>
 					) : (
 						<div className="scoreModal">
-							<p>You scored...</p>
-							<Progress width={100} type="circle" percent={score} />
+							<h4>Your rank is</h4>
+							<Progress
+								width={100}
+								type="circle"
+								percent={1 - score / maxScore}
+								strokeColor={{
+									"0%": "#108ee9",
+									"100%": "#87d068",
+								}}
+								format={(percent) => (
+									<div className="scoreModalProgress">
+										<p>{score}</p>
+										<div></div>
+										<p>{maxScore}</p>
+									</div>
+								)}
+							/>
 							<Button
 								disabled={!score}
 								icon={icons["next"]}
