@@ -381,22 +381,20 @@ class Game extends React.Component {
 	};
 
 	// Change the FPS of the game
+  // TODO: change the frame increase adn decrease rate back to 5
 	handleFPS = (speed) => {
 		if (
-			(speed === "faster" && this.state.frameRate + 5 > 90) ||
-			(speed === "slower" && this.state.frameRate - 5 < 1)
+			(speed === "faster" && this.state.frameRate + 1 > 90) ||
+			(speed === "slower" && this.state.frameRate - 1 < 1)
 		) {
 			message.error("Invalid FPS, the FPS can only between 1 - 90!");
 		} else {
-      if (speed==="user"){
-      } else {
         this.setState((prevState) => ({
-          frameRate: speed === "faster" ? prevState.frameRate + 5 : prevState.frameRate - 5,
+          frameRate: speed === "faster" ? prevState.frameRate + 1 : prevState.frameRate - 1,
         }));
-      }
-			// this.sendMessage({
-			// 	changeFrameRate: speed,
-			// });
+			this.sendMessage({
+				changeFrameRate: speed,
+			});
 		}
 	};
 
