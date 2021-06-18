@@ -712,6 +712,7 @@ class Game extends React.Component {
 						handleImage={this.handleImage}
 						handleImageCommands={this.handleImageCommands}
 						sendMessage={this.sendMessage}
+            fingerprint={this.state.fingerprint}
 						addMinutia={this.addMinutia}
 						brightness={brightness}
 						contrast={contrast}

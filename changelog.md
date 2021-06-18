@@ -16,3 +16,6 @@
 ### Changed
 - Changed the the gamewindow and control panel to have thinner borders
 - style changes for header, footer and main page
+
+### Fixed
+- UI for debug mode is fixed. Debug mode will not allow to toggle orientation
