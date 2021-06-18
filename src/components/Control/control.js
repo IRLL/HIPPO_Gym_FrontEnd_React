@@ -8,9 +8,6 @@ import sentenceCase from "../../utils/sentenceCase";
 
 class ControlPanel extends React.Component {
 
-  onFPSChange = value => {
-    console.log(value)
-  }
 
 	render() {
 		const {
@@ -77,18 +74,19 @@ class ControlPanel extends React.Component {
 		const elements = {
 			fpsSet: (
 				<Col key="fpsSet" span={4}>
-          {/* {console.log("frameRate: ", frameRate)} */}
 					{UIlist.includes("fpsSet") ? (
-						<Input
-							id="fpsSet"
-							className="fpsInput"
-              key="fpsInput"
-							defaultValue={30}
-              type="number"
-							suffix="FPS"
-              // onChange={(e) => this.props.handleFPS("input", e.target.value)}
-              onPressEnter={(e) => this.props.handleFPS("input", e.target.value)}
-						/>
+            <Tooltip placement="left" title="Press Enter to change fps" arrowPointAtCenter>
+              <Input
+                id="fpsSet"
+                className="fpsInput"
+                defaultValue={30}
+                value={this.props.inputFrameRate}
+                type="number"
+                suffix="FPS"
+                onChange={(e) => this.props.handleFPS("input",e.target.value)}
+                onPressEnter={(e) => this.props.handleFPS("enter", e.target.value)}
+              />
+            </Tooltip>
 					) : null}
 				</Col>
 			),
@@ -102,7 +100,7 @@ class ControlPanel extends React.Component {
 								className="fpsUpButton"
 								size="large"
 								icon={icons["fpsUp"]}
-								onClick={() => this.props.handleFPS("faster")}
+								onClick={() => this.props.handleFPS("faster", null)}
 							>
 								Increase
 							</Button>
@@ -120,7 +118,7 @@ class ControlPanel extends React.Component {
 								className="fpsDownButton"
 								size="large"
 								icon={icons["fpsDown"]}
-								onClick={() => this.props.handleFPS("slower")}
+								onClick={() => this.props.handleFPS("slower", null)}
 							>
 								Decrease
 							</Button>

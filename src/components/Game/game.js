@@ -31,6 +31,7 @@ class Game extends React.Component {
 		frameCount: 0, // count how many frames has received from the server
 		frameId: 0, // the id of current frame
 		frameRate: 30, // default FPS is 30
+    inputFrameRate: 30, // this stores the input of frame rate input box
 		frameSrc: "", // the image source of frame
 		imageL: null, // the image source of left image component
 		imageR: null, // the image source of right image component
@@ -391,18 +392,27 @@ class Game extends React.Component {
 	};
 
 	// Change the FPS of the game
-  // TODO: change the frame increase adn decrease rate back to 5
 	handleFPS = (type, value) => {
     // set frame rate based on user input in the input box
-      if (type === "input") {
-          console.log("on enter: ", value)
-      if (value < 1 || value > 90) {
+    var reg = new RegExp('^[0-9]+$');                 // value should only contain numbers
+    if (type === "input"){
+      console.log("on input: ", value)
+      this.setState({
+        inputFrameRate: value,
+      })
+      return;
+    }
+    if (type === "enter") {
+      if (value < 1 || value > 90 ) {
         message.error("Invalid FPS, the FPS can only between 1 - 90!")
         return;
-      }else {
+      } else if (!reg.test(value)){
+        message.error("Invalid FPS, the FPS should be an integer value!")
+      } else {
         this.setState({
-          frameRate: value
-        })
+          inputFrameRate: value,
+          frameRate: value,
+        }, () => console.log("on enter: ", value))
         this.sendMessage({
           changeFrameRate: value,
         })
@@ -417,6 +427,7 @@ class Game extends React.Component {
 			message.error("Invalid FPS, the FPS can only between 1 - 90!");
 		} else {
         this.setState((prevState) => ({
+          inputFrameRate: type === "faster" ? prevState.frameRate + 5 : prevState.frameRate - 5,
           frameRate: type === "faster" ? prevState.frameRate + 5 : prevState.frameRate - 5,
         }));
 			this.sendMessage({
@@ -729,6 +740,7 @@ class Game extends React.Component {
 						isEnd={isEnd}
 						isLoading={isLoading}
 						frameRate={frameRate}
+            inputFrameRate={this.state.inputFrameRate}
 						UIlist={UIlist}
 						instructions={instructions}
             DEBUG={DEBUG}
