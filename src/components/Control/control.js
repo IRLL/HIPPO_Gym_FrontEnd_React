@@ -263,9 +263,11 @@ class ControlPanel extends React.Component {
                   <Divider>Controls </Divider>
                 </div>
               : null}
-							{/* <Row gutter={[4, 8]} justify="space-around" className="imageCommands">
+              {imgCommands.length !== 0 ?
+							<Row gutter={[4, 8]} justify="space-around" className="imageCommands">
 								{imgCommands}
 							</Row>
+              :null}
 							<Row gutter={[4, 8]} justify="space-between">
 								{sliders1}
 							</Row>
@@ -274,7 +276,7 @@ class ControlPanel extends React.Component {
 							</Row>
 							<Row gutter={[4, 8]} justify="space-around">
 								{lastRow}
-							</Row> */}
+							</Row>
 							<Row gutter={[4, 8]} className="row">{firstRow}</Row>
 							<Row gutter={[4, 8]} className="row">{secondRow}</Row>
 							<Row gutter={[4, 8]} className="row">
