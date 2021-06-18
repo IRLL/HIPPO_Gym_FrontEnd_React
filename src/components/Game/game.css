@@ -53,3 +53,9 @@
 .scoreModal Button {
 	margin-left: auto;
 }
+
+#test-target {
+  display: block;
+  width: 100%;
+  margin-bottom: 10px;
+}

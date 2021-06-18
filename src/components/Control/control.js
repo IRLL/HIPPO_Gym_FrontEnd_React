@@ -9,7 +9,7 @@ import sentenceCase from "../../utils/sentenceCase";
 class ControlPanel extends React.Component {
 
   onFPSChange = value => {
-    // console.log(value)
+    console.log(value)
   }
 
 	render() {
@@ -84,9 +84,10 @@ class ControlPanel extends React.Component {
 							className="fpsInput"
               key="fpsInput"
 							defaultValue={30}
-							value={frameRate}
+              type="number"
 							suffix="FPS"
-              onChange={this.onFPSChange()}
+              // onChange={(e) => this.props.handleFPS("input", e.target.value)}
+              onPressEnter={(e) => this.props.handleFPS("input", e.target.value)}
 						/>
 					) : null}
 				</Col>
@@ -94,7 +95,7 @@ class ControlPanel extends React.Component {
 			fpsUp: (
 				<Col key="fpsUp" span={4}>
 					{UIlist.includes("fpsUp") ? (
-						<Tooltip placement="top" title="Increase the FPS by 1" arrowPointAtCenter>
+						<Tooltip placement="top" title="Increase the FPS by 5" arrowPointAtCenter>
 							<Button
 								shape="round"
 								id="fpsUp"
@@ -112,7 +113,7 @@ class ControlPanel extends React.Component {
 			fpsDown: (
 				<Col key="fpsDown" span={4}>
 					{UIlist.includes("fpsDown") ? (
-						<Tooltip placement="bottom" title="Decrease the FPS by 1" arrowPointAtCenter>
+						<Tooltip placement="bottom" title="Decrease the FPS by 5" arrowPointAtCenter>
 							<Button
 								shape="round"
 								id="fpsDown"

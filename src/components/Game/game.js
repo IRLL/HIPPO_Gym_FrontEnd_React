@@ -244,32 +244,40 @@ class Game extends React.Component {
 		);
 
 		// Listen to the user's keyboard inputs
-		document.addEventListener("keydown", (event) => {
-			//Used to prevent arrow keys and space key from scrolling the page
-			let dataToSend = getKeyInput(event.code);
-			if (dataToSend.actionType !== null) {
-				event.preventDefault();
-			}
+		// document.addEventListener("keydown", (event) => {
+		// 	//Used to prevent arrow keys and space key from scrolling the page
+		// 	let dataToSend = getKeyInput(event.code);
+		// 	if (dataToSend.actionType !== null) {
+    //     console.log("is this preventing?")
+		// 		event.preventDefault();
+		// 	}
 
-			if (this.state.UIlist.includes(dataToSend.action)) {
-				if (this.state.holdKey !== dataToSend.actionType) {
-					this.setState({ holdKey: dataToSend.actionType });
-					this.sendMessage(dataToSend);
-				}
-			}
-		});
+		// 	if (this.state.UIlist.includes(dataToSend.action)) {
+		// 		if (this.state.holdKey !== dataToSend.actionType) {
+		// 			this.setState({ holdKey: dataToSend.actionType });
+		// 			this.sendMessage(dataToSend);
+		// 		}
+		// 	}
+		// });
 
-		document.addEventListener("keyup", (event) => {
-			//Used to prevent arrow keys and space key from scrolling the page
-			let dataToSend = getKeyInput(event.code);
-			if (this.state.UIlist.includes(dataToSend.action)) {
-				dataToSend.action = "noop";
-				if (this.state.holdKey === dataToSend.actionType) {
-					this.setState({ holdKey: null });
-				}
-				this.sendMessage(dataToSend);
-			}
-		});
+		// document.addEventListener("keyup", (event) => {
+		// 	//Used to prevent arrow keys and space key from scrolling the page
+    //   console.log("pressed: ", event.key)
+		// 	let dataToSend = getKeyInput(event.code);
+		// 	if (this.state.UIlist.includes(dataToSend.action)) {
+		// 		dataToSend.action = "noop";
+		// 		if (this.state.holdKey === dataToSend.actionType) {
+		// 			this.setState({ holdKey: null });
+		// 		}
+		// 		this.sendMessage(dataToSend);
+		// 	}
+		// });
+
+    // let textarea = document.getElementById('test-target')
+    // textarea.addEventListener("input", (event) => {
+		// 	//Used to prevent arrow keys and space key from scrolling the page
+    //   console.log("pressed input: ", event.data)
+		// });
 
 		// Get the client window width to make the game window responsive
 		window.addEventListener("resize", () => {
@@ -288,6 +296,8 @@ class Game extends React.Component {
 	componentWillUnmount() {
 		if (this.setInMessage) clearInterval(this.setInMessage);
 	}
+
+
 
 	// Change the confirmation modal to be invisible
 	// Navigate to the post-game page
@@ -382,18 +392,35 @@ class Game extends React.Component {
 
 	// Change the FPS of the game
   // TODO: change the frame increase adn decrease rate back to 5
-	handleFPS = (speed) => {
+	handleFPS = (type, value) => {
+    // set frame rate based on user input in the input box
+      if (type === "input") {
+          console.log("on enter: ", value)
+      if (value < 1 || value > 90) {
+        message.error("Invalid FPS, the FPS can only between 1 - 90!")
+        return;
+      }else {
+        this.setState({
+          frameRate: value
+        })
+        this.sendMessage({
+          changeFrameRate: value,
+        })
+      }
+      return
+    }
+    // set frame rate based on "increase" and "decrease" keys
 		if (
-			(speed === "faster" && this.state.frameRate + 1 > 90) ||
-			(speed === "slower" && this.state.frameRate - 1 < 1)
+			(type === "faster" && this.state.frameRate + 5 > 90) ||
+			(type === "slower" && this.state.frameRate - 5 < 1)
 		) {
 			message.error("Invalid FPS, the FPS can only between 1 - 90!");
 		} else {
         this.setState((prevState) => ({
-          frameRate: speed === "faster" ? prevState.frameRate + 1 : prevState.frameRate - 1,
+          frameRate: type === "faster" ? prevState.frameRate + 5 : prevState.frameRate - 5,
         }));
 			this.sendMessage({
-				changeFrameRate: speed,
+				changeFrameRate: type,
 			});
 		}
 	};
@@ -656,7 +683,6 @@ class Game extends React.Component {
 					usedInputBudget={usedInputBudget}
 					inputBudget={inputBudget}
 				/>
-
 				<div className={DEBUG ? "" : `${orientation}Grid`}>
           <div className={DEBUG ? "debugGrid" : ""}>
               {DEBUG ?
