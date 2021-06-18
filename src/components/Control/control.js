@@ -24,6 +24,7 @@ class ControlPanel extends React.Component {
 			hue,
 			instructions,
 			orientation,
+      DEBUG
 		} = this.props;
 
 		const directions = [
@@ -251,7 +252,7 @@ class ControlPanel extends React.Component {
 		return (
 			<div data-testid="control-panel">
 				{!isLoading && (
-					<div className={`controlPanel ${orientation === "horizontal" ? "addMargin" : ""}`}>
+					<div className={`controlPanel ${orientation === "horizontal" && !DEBUG? "addMargin" : ""}`}>
 						<div className="panelContainer">
 							{instructions.length ?
                 <div>

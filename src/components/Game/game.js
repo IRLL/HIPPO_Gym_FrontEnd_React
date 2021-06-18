@@ -638,6 +638,7 @@ class Game extends React.Component {
 					}}
 					buttonStyle="solid"
 					className={`${orientation}OrientationToggle`}
+          disabled={DEBUG ? true : false}
 				>
 					<Radio.Button value="vertical">{icons["verticalSplit"]}</Radio.Button>
 					<Radio.Button value="horizontal">{icons["horizontalSplit"]}</Radio.Button>
@@ -656,48 +657,47 @@ class Game extends React.Component {
 					inputBudget={inputBudget}
 				/>
 
-				<div className={`${orientation}Grid`}>
-					<Row>
-						<Col flex={1}>
-							<MessageViewer title="Message In" data={inMessage} visible={DEBUG} />
-						</Col>
-
-						<Col flex={2} align="center">
-							{fingerprint ? (
-								<FingerprintWindow
-									isLoading={isLoading}
-									frameSrc={frameSrc}
-									width={windowWidth || 700}
-									height={windowHeight || 600}
-									brightness={brightness}
-									contrast={contrast}
-									saturation={saturation}
-									hue={hue}
-									minutiae={minutiae}
-									addingMinutiae={addingMinutiae}
-									addMinutia={this.addMinutia}
-									handleMinutia={this.handleMinutia}
-								/>
-							) : (
-								<GameWindow
-									isLoading={isLoading}
-									frameSrc={frameSrc}
-                  width={windowWidth || 700}
-									height={windowHeight || 600}
-									imageL={imageL}
-									imageR={imageR}
-									progress={progress}
-                  addMinutia={this.addMinutia}
-									data-testid="game-window"
-								/>
-							)}
-						</Col>
-
-						<Col flex={1}>
-							<MessageViewer title="Message Out" data={outMessage} visible={DEBUG} />
-						</Col>
-					</Row>
-
+				<div className={DEBUG ? "" : `${orientation}Grid`}>
+          <div className={DEBUG ? "debugGrid" : ""}>
+              {DEBUG ?
+                  <Col>
+                    <MessageViewer title="Message In" data={inMessage} visible={DEBUG}/>
+                  </Col>
+              : null}
+                {fingerprint ? (
+                  <FingerprintWindow
+                    isLoading={isLoading}
+                    frameSrc={frameSrc}
+                    width={windowWidth || 700}
+                    height={windowHeight || 600}
+                    brightness={brightness}
+                    contrast={contrast}
+                    saturation={saturation}
+                    hue={hue}
+                    minutiae={minutiae}
+                    addingMinutiae={addingMinutiae}
+                    addMinutia={this.addMinutia}
+                    handleMinutia={this.handleMinutia}
+                  />
+                ) : (
+                  <GameWindow
+                    isLoading={isLoading}
+                    frameSrc={frameSrc}
+                    width={windowWidth || 700}
+                    height={windowHeight || 600}
+                    imageL={imageL}
+                    imageR={imageR}
+                    progress={progress}
+                    addMinutia={this.addMinutia}
+                    data-testid="game-window"
+                  />
+                )}
+              {DEBUG ?
+                <Col>
+                  <MessageViewer title="Message Out" data={outMessage} visible={DEBUG} />
+                </Col>
+              : null}
+          </div>
 					<ControlPanel
 						className="gameControlPanel"
 						isEnd={isEnd}
@@ -705,6 +705,7 @@ class Game extends React.Component {
 						frameRate={frameRate}
 						UIlist={UIlist}
 						instructions={instructions}
+            DEBUG={DEBUG}
 						handleOk={this.handleOk}
 						handleFPS={this.handleFPS}
 						handleCommand={this.handleCommand}
