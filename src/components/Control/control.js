@@ -13,7 +13,6 @@ class ControlPanel extends React.Component {
 		const {
 			isEnd,
 			isLoading,
-			frameRate,
 			UIlist,
 			brightness,
 			contrast,

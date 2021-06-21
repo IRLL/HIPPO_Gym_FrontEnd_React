@@ -245,40 +245,35 @@ class Game extends React.Component {
 		);
 
 		// Listen to the user's keyboard inputs
-		// document.addEventListener("keydown", (event) => {
-		// 	//Used to prevent arrow keys and space key from scrolling the page
-		// 	let dataToSend = getKeyInput(event.code);
-		// 	if (dataToSend.actionType !== null) {
-    //     console.log("is this preventing?")
-		// 		event.preventDefault();
-		// 	}
+		document.addEventListener("keydown", (event) => {
+			//Used to prevent arrow keys and space key from scrolling the page
+			let dataToSend = getKeyInput(event.code);
+			if (dataToSend.actionType !== "null") {
+        console.log("not null: ", typeof(dataToSend.actionType))
+        console.log("is this preventing?")
+				event.preventDefault();
+			}
 
-		// 	if (this.state.UIlist.includes(dataToSend.action)) {
-		// 		if (this.state.holdKey !== dataToSend.actionType) {
-		// 			this.setState({ holdKey: dataToSend.actionType });
-		// 			this.sendMessage(dataToSend);
-		// 		}
-		// 	}
-		// });
+			if (this.state.UIlist.includes(dataToSend.action)) {
+				if (this.state.holdKey !== dataToSend.actionType) {
+					this.setState({ holdKey: dataToSend.actionType });
+					this.sendMessage(dataToSend);
+				}
+			}
+		});
 
-		// document.addEventListener("keyup", (event) => {
-		// 	//Used to prevent arrow keys and space key from scrolling the page
-    //   console.log("pressed: ", event.key)
-		// 	let dataToSend = getKeyInput(event.code);
-		// 	if (this.state.UIlist.includes(dataToSend.action)) {
-		// 		dataToSend.action = "noop";
-		// 		if (this.state.holdKey === dataToSend.actionType) {
-		// 			this.setState({ holdKey: null });
-		// 		}
-		// 		this.sendMessage(dataToSend);
-		// 	}
-		// });
-
-    // let textarea = document.getElementById('test-target')
-    // textarea.addEventListener("input", (event) => {
-		// 	//Used to prevent arrow keys and space key from scrolling the page
-    //   console.log("pressed input: ", event.data)
-		// });
+		document.addEventListener("keyup", (event) => {
+			//Used to prevent arrow keys and space key from scrolling the page
+      console.log("pressed: ", event.key)
+			let dataToSend = getKeyInput(event.code);
+			if (this.state.UIlist.includes(dataToSend.action)) {
+				dataToSend.action = "noop";
+				if (this.state.holdKey === dataToSend.actionType) {
+					this.setState({ holdKey: null });
+				}
+				this.sendMessage(dataToSend);
+			}
+		});
 
 		// Get the client window width to make the game window responsive
 		window.addEventListener("resize", () => {
@@ -396,16 +391,13 @@ class Game extends React.Component {
     // set frame rate based on user input in the input box
     var reg = new RegExp('^[0-9]+$');                 // value should only contain numbers
     if (type === "input"){
-      console.log("on input: ", value)
       this.setState({
         inputFrameRate: value,
       })
-      return;
     }
     if (type === "enter") {
       if (value < 1 || value > 90 ) {
         message.error("Invalid FPS, the FPS can only between 1 - 90!")
-        return;
       } else if (!reg.test(value)){
         message.error("Invalid FPS, the FPS should be an integer value!")
       } else {
@@ -417,18 +409,16 @@ class Game extends React.Component {
           changeFrameRate: value,
         })
       }
-      return
-    }
-    // set frame rate based on "increase" and "decrease" keys
-		if (
-			(type === "faster" && this.state.frameRate + 5 > 90) ||
-			(type === "slower" && this.state.frameRate - 5 < 1)
+    } else if (
+      // set frame rate based on "increase" and "decrease" keys
+			(type === "faster" && Number(this.state.frameRate) + 5 > 90) ||
+			(type === "slower" && Number(this.state.frameRate) - 5 < 1)
 		) {
 			message.error("Invalid FPS, the FPS can only between 1 - 90!");
-		} else {
+		} else if (type === "faster" ||type === "slower") {
         this.setState((prevState) => ({
-          inputFrameRate: type === "faster" ? prevState.frameRate + 5 : prevState.frameRate - 5,
-          frameRate: type === "faster" ? prevState.frameRate + 5 : prevState.frameRate - 5,
+          inputFrameRate: type === "faster" ? Number(prevState.frameRate) + 5 : prevState.frameRate - 5,
+          frameRate: type === "faster" ? Number(prevState.frameRate) + 5 : prevState.frameRate - 5,
         }));
 			this.sendMessage({
 				changeFrameRate: type,
