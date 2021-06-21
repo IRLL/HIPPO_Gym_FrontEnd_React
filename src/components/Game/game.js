@@ -42,8 +42,7 @@ class Game extends React.Component {
 		outMessage: [], // a list of outgoing messages
 		holdKey: null, // the key that is holding
 		instructions: [], // list of instructions for the game
-		//TODO: change default to horizontal
-		orientation: "vertical", // default orientation is horizontal
+		orientation: "horizontal", // default orientation is horizontal
 
 		// Fingerprint trial configurations
 		fingerprint: true, // if this is a fingerprint trial
@@ -614,18 +613,18 @@ class Game extends React.Component {
 		});
 	};
 
+	// If the sliders are still changing
+	handleChanging = (changing) => {
+		if (changing) this.pushUndo();
+		this.setState({ changing });
+	};
+
 	// Pops up an error modal with the message
 	showError = (title, message) => {
 		Modal.error({
 			title,
 			content: message,
 		});
-	};
-
-	// If the sliders are still changing
-	handleChanging = (changing) => {
-		if (changing) this.pushUndo();
-		this.setState({ changing });
 	};
 
 	// Scrolls to the top of the window
@@ -646,27 +645,27 @@ class Game extends React.Component {
 			const imageAspect = imageWidth / imageHeight;
 
 			if (imageAspect > defaultAspect) {
-				// the width = window width and the height is scaled to that
+				// current width = window width and the height is scaled to that
 				const scale = imageWidth / windowWidth;
 				const scaledHeight = imageHeight / scale;
 				const offset = (windowHeight - scaledHeight) / 2; // the y-offset from the window border
 				const newMinutia = {
-					x: minutia.x * scale,
-					y: (minutia.y - offset) * scale,
+					x: Math.round(minutia.x * scale),
+					y: Math.round((minutia.y - offset) * scale),
 					orientation: minutia.orientation,
 					type: minutia.type,
 				};
 
 				return newMinutia;
 			} else {
-				// the height = window height and the width is scaled to that
+				// current height = window height and the width is scaled to that
 				const scale = imageHeight / windowHeight;
 				const scaledWidth = imageWidth / scale;
 				const offset = (windowWidth - scaledWidth) / 2; // the x-offset from the window border
 
 				const newMinutia = {
-					x: (minutia.x - offset) * scale,
-					y: minutia.y * scale,
+					x: Math.round((minutia.x - offset) * scale),
+					y: Math.round(minutia.y * scale),
 					orientation: minutia.orientation,
 					type: minutia.type,
 				};

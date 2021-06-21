@@ -46,9 +46,10 @@ class FingerprintWindow extends React.Component {
 				}}
 			>
 				<Slider
-					defaultValue={minutiae[currMinutia] ? minutiae[currMinutia].orientation : 0}
+					defaultValue={minutiae[currMinutia] ? minutiae[currMinutia].orientation : 270}
 					min={0}
 					max={359}
+					step={1}
 					onChange={(value) => handleMinutia("rotate", currMinutia, value)}
 				/>
 			</div>
