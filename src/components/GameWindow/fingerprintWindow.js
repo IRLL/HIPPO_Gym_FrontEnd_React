@@ -34,29 +34,44 @@ class FingerprintWindow extends React.Component {
 			addingMinutiae,
 			addMinutia,
 			handleMinutia,
+			handleChanging,
 		} = this.props;
 
 		// Slider when rotate is selected from popup menu
 		const rotationSlider = (
-			<Slider
-				defaultValue={minutiae[currMinutia] ? minutiae[currMinutia].orientation : 0}
-				min={0}
-				max={359}
-				onChange={(value) => handleMinutia("rotate", currMinutia, value)}
-			/>
+			<div
+				onMouseDown={() => handleChanging(true)}
+				onMouseUp={() => {
+					handleChanging(false);
+				}}
+			>
+				<Slider
+					defaultValue={minutiae[currMinutia] ? minutiae[currMinutia].orientation : 0}
+					min={0}
+					max={359}
+					onChange={(value) => handleMinutia("rotate", currMinutia, value)}
+				/>
+			</div>
 		);
 
 		// Slider when resize is selected from popup menu
 		const sizeSlider = (
-			<Slider
-				defaultValue={minutiae[currMinutia] ? minutiae[currMinutia].size : 50}
-				min={0}
-				max={100}
-				onChange={(value) => {
-					handleMinutia("resize", currMinutia, value);
-					this.setState({ defaultSize: value });
+			<div
+				onMouseDown={() => handleChanging(true)}
+				onMouseUp={() => {
+					handleChanging(false);
 				}}
-			/>
+			>
+				<Slider
+					defaultValue={minutiae[currMinutia] ? minutiae[currMinutia].size : 50}
+					min={0}
+					max={100}
+					onChange={(value) => {
+						handleMinutia("resize", currMinutia, value);
+						this.setState({ defaultSize: value });
+					}}
+				/>
+			</div>
 		);
 
 		// Menu when recolor is selected from popup menu
