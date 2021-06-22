@@ -31,6 +31,7 @@ class Game extends React.Component {
 		frameCount: 0, // count how many frames has received from the server
 		frameId: 0, // the id of current frame
 		frameRate: 30, // default FPS is 30
+    inputFrameRate: 30, // this stores the input of frame rate input box
 		frameSrc: "", // the image source of frame
 		imageL: null, // the image source of left image component
 		imageR: null, // the image source of right image component
@@ -70,11 +71,11 @@ class Game extends React.Component {
 		// For undo and redo functionality
 		undoList: [],
 		redoList: [],
-		instructions: [],
 
 		// Widths and heights for responsiveness
 		windowWidth: 700,
 		windowHeight: 600,
+    windowSize: "responsive",
 		imageWidth: null,
 		imageHeight: null,
 	};
@@ -247,7 +248,7 @@ class Game extends React.Component {
 		document.addEventListener("keydown", (event) => {
 			//Used to prevent arrow keys and space key from scrolling the page
 			let dataToSend = getKeyInput(event.code);
-			if (dataToSend.actionType !== null) {
+			if (dataToSend.actionType !== "null") {
 				event.preventDefault();
 			}
 
@@ -273,21 +274,25 @@ class Game extends React.Component {
 
 		// Get the client window width to make the game window responsive
 		window.addEventListener("resize", () => {
-			const value =
-				this.state.orientation === "vertical"
-					? document.documentElement.clientWidth > 700
-						? 700
-						: 0.8 * document.documentElement.clientWidth
-					: 0.4 * document.documentElement.clientWidth > 700
-					? 700
-					: 0.4 * document.documentElement.clientWidth;
-			this.setState({ windowWidth: value });
+			if (this.state.windowSize !== "strict"){
+        const value =
+        this.state.orientation === "vertical"
+          ? document.documentElement.clientWidth > 700
+            ? 700
+            : 0.8 * document.documentElement.clientWidth
+          : 0.4 * document.documentElement.clientWidth > 700
+          ? 700
+          : 0.4 * document.documentElement.clientWidth;
+        this.setState({ windowWidth: value });
+      }
 		});
 	}
 
 	componentWillUnmount() {
 		if (this.setInMessage) clearInterval(this.setInMessage);
 	}
+
+
 
 	// Change the confirmation modal to be invisible
 	// Navigate to the post-game page
@@ -381,19 +386,41 @@ class Game extends React.Component {
 	};
 
 	// Change the FPS of the game
-  // TODO: change the frame increase adn decrease rate back to 5
-	handleFPS = (speed) => {
-		if (
-			(speed === "faster" && this.state.frameRate + 1 > 90) ||
-			(speed === "slower" && this.state.frameRate - 1 < 1)
+	handleFPS = (type, value) => {
+    // set frame rate based on user input in the input box
+    var reg = new RegExp('^[0-9]+$');                 // value should only contain numbers
+    if (type === "input"){
+      this.setState({
+        inputFrameRate: value,
+      })
+    }
+    if (type === "enter") {
+      if (value < 1 || value > 90 ) {
+        message.error("Invalid FPS, the FPS can only between 1 - 90!")
+      } else if (!reg.test(value)){
+        message.error("Invalid FPS, the FPS should be an integer value!")
+      } else {
+        this.setState({
+          inputFrameRate: value,
+          frameRate: value,
+        })
+        this.sendMessage({
+          changeFrameRate: value,
+        })
+      }
+    } else if (
+      // set frame rate based on "increase" and "decrease" keys
+			(type === "faster" && Number(this.state.frameRate) + 5 > 90) ||
+			(type === "slower" && Number(this.state.frameRate) - 5 < 1)
 		) {
 			message.error("Invalid FPS, the FPS can only between 1 - 90!");
-		} else {
+		} else if (type === "faster" ||type === "slower") {
         this.setState((prevState) => ({
-          frameRate: speed === "faster" ? prevState.frameRate + 1 : prevState.frameRate - 1,
+          inputFrameRate: type === "faster" ? Number(prevState.frameRate) + 5 : prevState.frameRate - 5,
+          frameRate: type === "faster" ? Number(prevState.frameRate) + 5 : prevState.frameRate - 5,
         }));
 			this.sendMessage({
-				changeFrameRate: speed,
+				changeFrameRate: type,
 			});
 		}
 	};
@@ -480,9 +507,8 @@ class Game extends React.Component {
 	// orientation goes from 0 (up) to 359 degrees clockwise
 	// send added minutia to websocket
 	addMinutia = (x, y, orientation=null, size=null, color=null, type=null) => {
-    console.log("x: ", x);
-    console.log("y: ", y);
-    console.log("here in addMinutia")
+    x = parseInt(x)
+    y = parseInt(y)
 		const nextStateMinutiae = produce(
 			this.state,
 			(draft) => {
@@ -639,6 +665,7 @@ class Game extends React.Component {
 					}}
 					buttonStyle="solid"
 					className={`${orientation}OrientationToggle`}
+          disabled={DEBUG ? true : false}
 				>
 					<Radio.Button value="vertical">{icons["verticalSplit"]}</Radio.Button>
 					<Radio.Button value="horizontal">{icons["horizontalSplit"]}</Radio.Button>
@@ -656,62 +683,63 @@ class Game extends React.Component {
 					usedInputBudget={usedInputBudget}
 					inputBudget={inputBudget}
 				/>
-
-				<div className={`${orientation}Grid`}>
-					<Row>
-						<Col flex={1}>
-							<MessageViewer title="Message In" data={inMessage} visible={DEBUG} />
-						</Col>
-
-						<Col flex={2} align="center">
-							{fingerprint ? (
-								<FingerprintWindow
-									isLoading={isLoading}
-									frameSrc={frameSrc}
-									width={windowWidth || 700}
-									height={windowHeight || 600}
-									brightness={brightness}
-									contrast={contrast}
-									saturation={saturation}
-									hue={hue}
-									minutiae={minutiae}
-									addingMinutiae={addingMinutiae}
-									addMinutia={this.addMinutia}
-									handleMinutia={this.handleMinutia}
-								/>
-							) : (
-								<GameWindow
-									isLoading={isLoading}
-									frameSrc={frameSrc}
-                  width={windowWidth || 700}
-									height={windowHeight || 600}
-									imageL={imageL}
-									imageR={imageR}
-									progress={progress}
-                  addMinutia={this.addMinutia}
-									data-testid="game-window"
-								/>
-							)}
-						</Col>
-
-						<Col flex={1}>
-							<MessageViewer title="Message Out" data={outMessage} visible={DEBUG} />
-						</Col>
-					</Row>
-
+				<div className={DEBUG ? "" : `${orientation}Grid`}>
+          <div className={DEBUG ? "debugGrid" : ""}>
+              {DEBUG ?
+                  <Col>
+                    <MessageViewer title="Message In" data={inMessage} visible={DEBUG}/>
+                  </Col>
+              : null}
+                {fingerprint ? (
+                  <FingerprintWindow
+                    isLoading={isLoading}
+                    frameSrc={frameSrc}
+                    width={windowWidth || 700}
+                    height={windowHeight || 600}
+                    brightness={brightness}
+                    contrast={contrast}
+                    saturation={saturation}
+                    hue={hue}
+                    minutiae={minutiae}
+                    addingMinutiae={addingMinutiae}
+                    addMinutia={this.addMinutia}
+                    handleMinutia={this.handleMinutia}
+                  />
+                ) : (
+                  <GameWindow
+                    isLoading={isLoading}
+                    frameSrc={frameSrc}
+                    width={windowWidth || 700}
+                    height={windowHeight || 600}
+                    imageL={imageL}
+                    imageR={imageR}
+                    progress={progress}
+                    addMinutia={this.addMinutia}
+                    data-testid="game-window"
+                  />
+                )}
+              {DEBUG ?
+                <Col>
+                  <MessageViewer title="Message Out" data={outMessage} visible={DEBUG} />
+                </Col>
+              : null}
+          </div>
 					<ControlPanel
 						className="gameControlPanel"
 						isEnd={isEnd}
 						isLoading={isLoading}
 						frameRate={frameRate}
+            inputFrameRate={this.state.inputFrameRate}
 						UIlist={UIlist}
 						instructions={instructions}
+            DEBUG={DEBUG}
 						handleOk={this.handleOk}
 						handleFPS={this.handleFPS}
 						handleCommand={this.handleCommand}
 						handleImage={this.handleImage}
 						handleImageCommands={this.handleImageCommands}
 						sendMessage={this.sendMessage}
+            fingerprint={this.state.fingerprint}
 						addMinutia={this.addMinutia}
 						brightness={brightness}
 						contrast={contrast}

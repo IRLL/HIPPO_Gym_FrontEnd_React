@@ -8,15 +8,11 @@ import sentenceCase from "../../utils/sentenceCase";
 
 class ControlPanel extends React.Component {
 
-  onFPSChange = value => {
-    console.log(value)
-  }
 
 	render() {
 		const {
 			isEnd,
 			isLoading,
-			frameRate,
 			UIlist,
 			brightness,
 			contrast,
@@ -24,6 +20,7 @@ class ControlPanel extends React.Component {
 			hue,
 			instructions,
 			orientation,
+      DEBUG
 		} = this.props;
 
 		const directions = [
@@ -76,30 +73,33 @@ class ControlPanel extends React.Component {
 		const elements = {
 			fpsSet: (
 				<Col key="fpsSet" span={4}>
-          {/* {console.log("frameRate: ", frameRate)} */}
 					{UIlist.includes("fpsSet") ? (
-						<Input
-							id="fpsSet"
-							className="fpsInput"
-							defaultValue={30}
-							value={frameRate}
-							suffix="FPS"
-              onChange={this.onFPSChange}
-						/>
+            <Tooltip placement="left" title="Press Enter to change fps" arrowPointAtCenter>
+              <Input
+                id="fpsSet"
+                className="fpsInput"
+                defaultValue={30}
+                value={this.props.inputFrameRate}
+                type="number"
+                suffix="FPS"
+                onChange={(e) => this.props.handleFPS("input",e.target.value)}
+                onPressEnter={(e) => this.props.handleFPS("enter", e.target.value)}
+              />
+            </Tooltip>
 					) : null}
 				</Col>
 			),
 			fpsUp: (
 				<Col key="fpsUp" span={4}>
 					{UIlist.includes("fpsUp") ? (
-						<Tooltip placement="top" title="Increase the FPS by 1" arrowPointAtCenter>
+						<Tooltip placement="top" title="Increase the FPS by 5" arrowPointAtCenter>
 							<Button
 								shape="round"
 								id="fpsUp"
 								className="fpsUpButton"
 								size="large"
 								icon={icons["fpsUp"]}
-								onClick={() => this.props.handleFPS("faster")}
+								onClick={() => this.props.handleFPS("faster", null)}
 							>
 								Increase
 							</Button>
@@ -110,14 +110,14 @@ class ControlPanel extends React.Component {
 			fpsDown: (
 				<Col key="fpsDown" span={4}>
 					{UIlist.includes("fpsDown") ? (
-						<Tooltip placement="bottom" title="Decrease the FPS by 1" arrowPointAtCenter>
+						<Tooltip placement="bottom" title="Decrease the FPS by 5" arrowPointAtCenter>
 							<Button
 								shape="round"
 								id="fpsDown"
 								className="fpsDownButton"
 								size="large"
 								icon={icons["fpsDown"]}
-								onClick={() => this.props.handleFPS("slower")}
+								onClick={() => this.props.handleFPS("slower", null)}
 							>
 								Decrease
 							</Button>
@@ -251,7 +251,7 @@ class ControlPanel extends React.Component {
 		return (
 			<div data-testid="control-panel">
 				{!isLoading && (
-					<div className={`controlPanel ${orientation === "horizontal" ? "addMargin" : ""}`}>
+					<div className={`controlPanel ${orientation === "horizontal" && !DEBUG? "addMargin" : ""}`}>
 						<div className="panelContainer">
 							{instructions.length ?
                 <div>
@@ -262,40 +262,43 @@ class ControlPanel extends React.Component {
                   <Divider>Controls </Divider>
                 </div>
               : null}
-							{/* <Row gutter={[4, 8]} justify="space-around" className="imageCommands">
-								{imgCommands}
-							</Row>
-							<Row gutter={[4, 8]} justify="space-between">
-								{sliders1}
-							</Row>
-							<Row gutter={[4, 8]} justify="space-between">
-								{sliders2}
-							</Row>
-							<Row gutter={[4, 8]} justify="space-around">
-								{lastRow}
-							</Row> */}
+              {this.props.fingerprint ?
+                <>
+                  <Row gutter={[4, 8]} justify="space-around" className="imageCommands">
+                    {imgCommands}
+                  </Row>
+                  <Row gutter={[4, 8]} justify="space-between">
+                    {sliders1}
+                  </Row>
+                  <Row gutter={[4, 8]} justify="space-between">
+                    {sliders2}
+                  </Row>
+                  <Row gutter={[4, 8]} justify="space-around">
+                    {lastRow}
+                  </Row>
+                </>
+              :null}
 							<Row gutter={[4, 8]} className="row">{firstRow}</Row>
 							<Row gutter={[4, 8]} className="row">{secondRow}</Row>
-							<Row gutter={[4, 8]} className="row">
-								{thirdRow}
-
-									{isEnd ? (
-                    <Col key="nextStep">
-										<Tooltip placement="bottom" title="Move to next step" arrowPointAtCenter>
-											<Button
-												id="nextStep"
-												type="primary"
-												shape="round"
-												size="large"
-												icon={icons["next"]}
-												onClick={this.props.handleOk}
-											>
-												Next
-											</Button>
-										</Tooltip>
-                    </Col>
-									) : null}
-							</Row>
+							<Row gutter={[4, 8]} className="row">{thirdRow}</Row>
+                {isEnd ? (
+                  <Row gutter={[4, 8]} className="row">
+                  <Col key="nextStep">
+                  <Tooltip placement="bottom" title="Move to next step" arrowPointAtCenter>
+                    <Button
+                      id="nextStep"
+                      type="primary"
+                      shape="round"
+                      size="large"
+                      icon={icons["next"]}
+                      onClick={this.props.handleOk}
+                    >
+                      Next
+                    </Button>
+                  </Tooltip>
+                  </Col>
+                  </Row>
+                ) : null}
 						</div>
 					</div>
 				)}
