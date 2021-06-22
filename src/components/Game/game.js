@@ -73,8 +73,8 @@ class Game extends React.Component {
 		redoList: [],
 
 		// Widths and heights for responsiveness
-		windowWidth: 700,
-		windowHeight: 600,
+		windowWidth: 1065,
+		windowHeight: 719,
     windowSize: "responsive",
 		imageWidth: null,
 		imageHeight: null,
@@ -283,7 +283,12 @@ class Game extends React.Component {
           : 0.4 * document.documentElement.clientWidth > 700
           ? 700
           : 0.4 * document.documentElement.clientWidth;
-        this.setState({ windowWidth: value });
+        let newHeight  = value / (1065/719);
+        this.setState({
+          windowWidth: value,
+          windowHeight: newHeight
+         });
+
       }
 		});
 	}
