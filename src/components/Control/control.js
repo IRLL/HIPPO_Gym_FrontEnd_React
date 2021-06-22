@@ -24,7 +24,10 @@ class ControlPanel extends React.Component {
 			handleCommand,
 			handleImage,
 			handleImageCommands,
+			handleChanging,
 			addingMinutiae,
+			undoEnabled,
+			redoEnabled,
 		} = this.props;
 
 		const directions = [
@@ -165,7 +168,13 @@ class ControlPanel extends React.Component {
 			elements[control.name] = (
 				<Col key={control.name} className="space-align-container" flex="1" align="center">
 					{UIlist.includes(control.name) && (
-						<div className="space-align-block imageControlTextContainer">
+						<div
+							className="space-align-block imageControlTextContainer"
+							onMouseDown={() => handleChanging(true)}
+							onMouseUp={() => {
+								handleChanging(false);
+							}}
+						>
 							<Space align="center">
 								<span>{icons[control.name]}</span>
 								<p className="imageControlText">{capitalize(control.name)}</p>
@@ -177,7 +186,10 @@ class ControlPanel extends React.Component {
 								value={control.ref}
 								min={control.min}
 								max={control.max}
-								onChange={(value) => handleImage(control.name, value)}
+								onChange={(value) => {
+									handleImage(control.name, value);
+									this.currValue = value;
+								}}
 							/>
 						</div>
 					)}
@@ -189,8 +201,21 @@ class ControlPanel extends React.Component {
 			if (command === "addMinutia" && addingMinutiae) {
 				className = className.concat(" adding");
 			}
-			// console.log(className);
-			elements[command] = (
+
+			let enabled;
+			switch (command) {
+				case "undo":
+					enabled = undoEnabled;
+					break;
+				case "redo":
+					enabled = redoEnabled;
+					break;
+				default:
+					enabled = true;
+					break;
+			}
+
+			enabled = elements[command] = (
 				<Col key={command}>
 					{UIlist.includes(command) && (
 						<Button
@@ -202,6 +227,7 @@ class ControlPanel extends React.Component {
 							size="large"
 							onClick={() => handleImageCommands(command)}
 							date-testid={command}
+							disabled={!enabled}
 						>
 							{capitalize(sentenceCase(command))}
 						</Button>
