@@ -12,6 +12,7 @@ Center align the game window both horizontally and vertically */
     margin: auto;
 }
 
+
 /* Center align the progress bar both horizontally and vertically */
 .progressBar {
     display: flex;
@@ -31,6 +32,11 @@ Center align the game window both horizontally and vertically */
 /* Add rounded corners to the border */
 .gameContent {
     border-radius: 10px;
+}
+
+.gameContent:hover {
+    cursor: pointer;
+    /* cursor: url('./ms-icon-144x144.svg') 10 12, pointer; */
 }
 
 /* Add border to each image component */

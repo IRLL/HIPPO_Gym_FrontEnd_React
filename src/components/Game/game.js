@@ -71,11 +71,11 @@ class Game extends React.Component {
 		// For undo and redo functionality
 		undoList: [],
 		redoList: [],
-		instructions: [],
 
 		// Widths and heights for responsiveness
 		windowWidth: 700,
 		windowHeight: 600,
+    windowSize: "responsive",
 		imageWidth: null,
 		imageHeight: null,
 	};
@@ -249,8 +249,6 @@ class Game extends React.Component {
 			//Used to prevent arrow keys and space key from scrolling the page
 			let dataToSend = getKeyInput(event.code);
 			if (dataToSend.actionType !== "null") {
-        console.log("not null: ", typeof(dataToSend.actionType))
-        console.log("is this preventing?")
 				event.preventDefault();
 			}
 
@@ -264,7 +262,6 @@ class Game extends React.Component {
 
 		document.addEventListener("keyup", (event) => {
 			//Used to prevent arrow keys and space key from scrolling the page
-      console.log("pressed: ", event.key)
 			let dataToSend = getKeyInput(event.code);
 			if (this.state.UIlist.includes(dataToSend.action)) {
 				dataToSend.action = "noop";
@@ -277,15 +274,17 @@ class Game extends React.Component {
 
 		// Get the client window width to make the game window responsive
 		window.addEventListener("resize", () => {
-			const value =
-				this.state.orientation === "vertical"
-					? document.documentElement.clientWidth > 700
-						? 700
-						: 0.8 * document.documentElement.clientWidth
-					: 0.4 * document.documentElement.clientWidth > 700
-					? 700
-					: 0.4 * document.documentElement.clientWidth;
-			this.setState({ windowWidth: value });
+			if (this.state.windowSize !== "strict"){
+        const value =
+        this.state.orientation === "vertical"
+          ? document.documentElement.clientWidth > 700
+            ? 700
+            : 0.8 * document.documentElement.clientWidth
+          : 0.4 * document.documentElement.clientWidth > 700
+          ? 700
+          : 0.4 * document.documentElement.clientWidth;
+        this.setState({ windowWidth: value });
+      }
 		});
 	}
 
@@ -404,7 +403,7 @@ class Game extends React.Component {
         this.setState({
           inputFrameRate: value,
           frameRate: value,
-        }, () => console.log("on enter: ", value))
+        })
         this.sendMessage({
           changeFrameRate: value,
         })
