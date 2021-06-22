@@ -158,16 +158,6 @@ class FingerprintWindow extends React.Component {
       </div>
     );
 
-<<<<<<< HEAD
-    // If the frame has not loaded, show the loading screen
-    if (isLoading || !frameSrc)
-      return (
-        <div className="progressBar">
-          <Progress width={80} type="circle" percent={Math.round(progress)} />
-          <p className="promptText">The robot is about to start the game, please wait ...</p>
-        </div>
-      );
-=======
 		// If the frame has not loaded, show the loading screen
 		if (isLoading || !frameSrc)
 			return (
@@ -178,7 +168,6 @@ class FingerprintWindow extends React.Component {
 					</div>
 				</div>
 			);
->>>>>>> fingerprint
 
 		return (
 			<Zoom
