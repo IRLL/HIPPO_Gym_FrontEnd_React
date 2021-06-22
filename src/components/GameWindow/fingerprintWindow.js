@@ -20,44 +20,60 @@ class FingerprintWindow extends React.Component {
   render() {
     const { currMinutia } = this.state;
 
-    const {
-      frameSrc,
-      isLoading,
-      progress,
-      width,
-      height,
-      brightness,
-      contrast,
-      saturation,
-      hue,
-      minutiae,
-      addingMinutiae,
-      addMinutia,
-      handleMinutia,
-    } = this.props;
+		const {
+			frameSrc,
+			isLoading,
+			progress,
+			width,
+			height,
+			brightness,
+			contrast,
+			saturation,
+			hue,
+			minutiae,
+			addingMinutiae,
+			addMinutia,
+			handleMinutia,
+			handleChanging,
+		} = this.props;
 
-    // Slider when rotate is selected from popup menu
-    const rotationSlider = (
-      <Slider
-        defaultValue={minutiae[currMinutia] ? minutiae[currMinutia].orientation : 0}
-        min={0}
-        max={359}
-        onChange={(value) => handleMinutia("rotate", currMinutia, value)}
-      />
-    );
+		// Slider when rotate is selected from popup menu
+		const rotationSlider = (
+			<div
+				onMouseDown={() => handleChanging(true)}
+				onMouseUp={() => {
+					handleChanging(false);
+				}}
+			>
+				<Slider
+					defaultValue={minutiae[currMinutia] ? minutiae[currMinutia].orientation : 270}
+					min={0}
+					max={359}
+					step={1}
+					onChange={(value) => handleMinutia("rotate", currMinutia, value)}
+				/>
+			</div>
+		);
 
-    // Slider when resize is selected from popup menu
-    const sizeSlider = (
-      <Slider
-        defaultValue={minutiae[currMinutia] ? minutiae[currMinutia].size : 50}
-        min={0}
-        max={100}
-        onChange={(value) => {
-          handleMinutia("resize", currMinutia, value);
-          this.setState({ defaultSize: value });
-        }}
-      />
-    );
+		// Slider when resize is selected from popup menu
+		const sizeSlider = (
+			<div
+				onMouseDown={() => handleChanging(true)}
+				onMouseUp={() => {
+					handleChanging(false);
+				}}
+			>
+				<Slider
+					defaultValue={minutiae[currMinutia] ? minutiae[currMinutia].size : 50}
+					min={0}
+					max={100}
+					onChange={(value) => {
+						handleMinutia("resize", currMinutia, value);
+						this.setState({ defaultSize: value });
+					}}
+				/>
+			</div>
+		);
 
     // Menu when recolor is selected from popup menu
     const colorPicker = (
@@ -142,6 +158,7 @@ class FingerprintWindow extends React.Component {
       </div>
     );
 
+<<<<<<< HEAD
     // If the frame has not loaded, show the loading screen
     if (isLoading || !frameSrc)
       return (
@@ -150,6 +167,18 @@ class FingerprintWindow extends React.Component {
           <p className="promptText">The robot is about to start the game, please wait ...</p>
         </div>
       );
+=======
+		// If the frame has not loaded, show the loading screen
+		if (isLoading || !frameSrc)
+			return (
+				<div className="gameWindow">
+					<div className="progressBar">
+						<Progress width={80} type="circle" percent={Math.round(progress)} />
+						<p className="promptText">The robot is about to start the game, please wait ...</p>
+					</div>
+				</div>
+			);
+>>>>>>> fingerprint
 
 		return (
 			<Zoom
@@ -162,7 +191,7 @@ class FingerprintWindow extends React.Component {
 				scaleYMax={10}
 			>
 				{(zoom) => (
-					<div className="fingerprintWindowContainer">
+					<div className="fingerprintWindowContainer" id="fingerprint-window">
 						<svg
 							width={width}
 							height={height}
@@ -218,7 +247,7 @@ class FingerprintWindow extends React.Component {
 									const point = localPoint(event) || { x: 0, y: 0 };
 									zoom.scale({ scaleX: 1.1, scaleY: 1.1, point });
 								}}
-								className={addingMinutiae ? "pointerCursor" : ""}
+								className={addingMinutiae ? "custom-cursor" : ""}
 							/>
 
               {/* Minutiae overlay */}

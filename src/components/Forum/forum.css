@@ -1,7 +1,11 @@
 /* Add space to the top and left of the submit button
 Set the width of submit button */
-.submitButton{
-    margin-top: 10px;
-    margin-left: 45%;
-    width : 150px;
+.submitButton {
+	margin-top: 10px;
+	margin-left: 45%;
+	width: 150px;
+}
+
+.formContainer {
+	margin: 1rem 10vw;
 }

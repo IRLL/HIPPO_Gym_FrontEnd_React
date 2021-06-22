@@ -10,7 +10,7 @@ class Footer extends React.PureComponent {
 				<Divider style={{ marginBottom: "0.75rem" }} />
 				<Row align="bottom">
 					<Col flex={1}>
-						<p className="footerContent">
+						<div className="footerContent">
 							<div>
 								© 2020 The Intelligent Robot Learning Lab.
 								<br />
@@ -44,7 +44,7 @@ class Footer extends React.PureComponent {
 								</a>
 								.
 							</div>
-						</p>
+						</div>
 					</Col>
 					<Col>
 						<div className="footerImages">

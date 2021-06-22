@@ -8,7 +8,6 @@
 	padding: 1rem 2rem;
 	flex: 1;
 	width: fit-content;
-	/* margin-left: max(10vw, calc((100vw - 1410px) / 2)); */
 	margin-left: 30%;
 }
 
@@ -207,4 +206,16 @@
 .submitImageButton:focus {
 	background-color: #73d13d;
 	border-color: #73d13d;
+}
+
+.adding,
+.adding:hover,
+.adding:focus {
+	animation: blinker 1s ease-in-out infinite alternate;
+}
+
+@keyframes blinker {
+	100% {
+		opacity: 60%;
+	}
 }
