@@ -7,15 +7,50 @@ import capitalize from "../../utils/capitalize";
 import sentenceCase from "../../utils/sentenceCase";
 
 class ControlPanel extends React.Component {
+
 	render() {
-		const {isEnd, isLoading, UIlist, brightness, contrast, saturation, hue,
-			instructions, orientation, DEBUG } = this.props;
-
-		const directions = [ "left", "leftUp", "up", "rightUp", "down",
-			"leftDown", "rightDown", "fire", "right", ];
-
-		const commands = [ "start", "pause", "stop", "reset", "good",
-			"bad", "trainOnline", "trainOffline", ];
+		const {
+			isEnd,
+			isLoading,
+			UIlist,
+			brightness,
+			contrast,
+			saturation,
+			hue,
+			instructions,
+			orientation,
+      DEBUG,
+			handleFPS,
+			sendMessage,
+			handleCommand,
+			handleImage,
+			handleImageCommands,
+			handleChanging,
+			addingMinutiae,
+			undoEnabled,
+			redoEnabled,
+		} = this.props;
+    const directions = [
+			"left",
+			"leftUp",
+			"up",
+			"rightUp",
+			"down",
+			"leftDown",
+			"rightDown",
+			"fire",
+			"right",
+		];
+		const commands = [
+			"start",
+			"pause",
+			"stop",
+			"reset",
+			"good",
+			"bad",
+			"trainOnline",
+			"trainOffline",
+		];
 
 		const fps = ["fpsUp", "fpsDown", "fpsSet"];
 
@@ -27,10 +62,16 @@ class ControlPanel extends React.Component {
 		];
 
 		const instructionUI = [];
-
-		const imageCommands = [ "undo",	"redo", "resetImage", "submitImage",
-      "addMinutia", "resetImage", "submitImage", ];
-
+		const imageCommands = [
+			"undo",
+			"redo",
+			"resetImage",
+			"submitImage",
+			"addMinutia",
+			"resetImage",
+			"submitImage",
+			"stop",
+		];
 		const defaultButtons = [...directions, ...fps];
 
 		const UIFiltered = UIlist.filter(
@@ -52,8 +93,8 @@ class ControlPanel extends React.Component {
                   value={this.props.inputFrameRate}
                   type="number"
                   suffix="FPS"
-                  onChange={(e) => this.props.handleFPS("input",e.target.value)}
-                  onPressEnter={(e) => this.props.handleFPS("enter", e.target.value)}
+                  onChange={(e) => handleFPS("input",e.target.value)}
+                  onPressEnter={(e) => handleFPS("enter", e.target.value)}
                 />
               </Tooltip>
           </Col>
@@ -69,7 +110,7 @@ class ControlPanel extends React.Component {
                   className="fpsUpButton"
                   size="large"
                   icon={icons["fpsUp"]}
-                  onClick={() => this.props.handleFPS("faster", null)}
+                  onClick={() => handleFPS("faster", null)}
                 >
                   Increase
                 </Button>
@@ -87,7 +128,7 @@ class ControlPanel extends React.Component {
 								className="fpsDownButton"
 								size="large"
 								icon={icons["fpsDown"]}
-								onClick={() => this.props.handleFPS("slower", null)}
+								onClick={() => handleFPS("slower", null)}
 							>
 								Decrease
 							</Button>
@@ -97,48 +138,51 @@ class ControlPanel extends React.Component {
 			,
 		};
 		directions.forEach((dir) => {
-			elements[dir] =
-				UIlist.includes(dir) ? (
-          <Col key={dir} span={2}>
-              <Button
-                id={dir}
-                shape="round"
-                size="large"
-                icon={icons[dir]}
-                onClick={() => this.props.sendMessage({ actionType: "mousedown", action: dir })}
-                />
-          </Col>
-        ) : null
-        ;
-      });
-      commands.forEach((command) => {
-        elements[command] =
-        UIlist.includes(command) ? (
-          <Col key={command}>
-            <Button
-              shape="round"
-              type="primary"
-              id={command}
-              className={`${command}Button`}
-              icon={icons[command]}
-              size="large"
-              onClick={() => this.props.handleCommand(command)}
-              >
-              {capitalize(command)}
-            </Button>
-          </Col>
-        ) : null
-			;
+			if (UIlist.includes(dir))
+				elements[dir] = (
+					<Col key={dir} span={2}>
+						<Button
+							id={dir}
+							shape="round"
+							size="large"
+							icon={icons[dir]}
+							onClick={() => sendMessage({ actionType: "mousedown", action: dir })}
+						/>
+					</Col>
+				);
+		});
+		commands.forEach((command) => {
+			elements[command] = (
+				<Col key={command}>
+					<Button
+						shape="round"
+						type="primary"
+						id={command}
+						className={`${command}Button`}
+						icon={icons[command]}
+						size="large"
+						onClick={() => handleCommand(command)}
+					>
+						{capitalize(command)}
+					</Button>
+				</Col>
+			);
 		});
 		instructions.forEach((instruction, i) => {
 			elements[`instruction${i}`] = <li key={`instruction${i}`}>{instruction}</li>;
 			instructionUI.push(elements[`instruction${i}`]);
 		});
 		imageControls.forEach((control) => {
-			elements[control.name] =
-				UIlist.includes(control.name) && (
-				  <Col key={control.name} className="space-align-container" flex="1" align="center">
-						<div className="space-align-block imageControlTextContainer">
+			elements[control.name] = (
+				<Col key={control.name} className="space-align-container" flex="1" align="center">
+					{UIlist.includes(control.name) && (
+						<div
+							className="space-align-block imageControlTextContainer"
+							onMouseDown={() => handleChanging(true)}
+							onMouseUp={() => {
+								handleChanging(false);
+							}}
+						>
 							<Space align="center">
 								<span>{icons[control.name]}</span>
 								<p className="imageControlText">{capitalize(control.name)}</p>
@@ -150,48 +194,72 @@ class ControlPanel extends React.Component {
 								value={control.ref}
 								min={control.min}
 								max={control.max}
-								onChange={(value) => this.props.handleImage(control.name, value)}
+								onChange={(value) => {
+									handleImage(control.name, value);
+									this.currValue = value;
+								}}
 							/>
 						</div>
-          </Col>
-        );
+					)}
+				</Col>
+			);
 		});
-		imageCommands.forEach((command) => {
-			elements[command] =
-				UIlist.includes(command) && (
-				  <Col key={command}>
-						<Button
-							shape="round"
-							type="primary"
-							id={command}
-							className={`${command}Button`}
-							icon={icons[command]}
-							size="large"
-							onClick={() => this.props.handleImageCommands(command)}
-							date-testid={command}
-						>
-							{capitalize(sentenceCase(command))}
-						</Button>
-          </Col>
-        );
-		});
-		UIFiltered.forEach((ele) => {
-			if (!(ele in elements)) {
-				elements[ele] = (
-					<Col key={ele}>
-						<Button
-							id={ele}
-							shape="round"
-							type="primary"
-							size="large"
-							onClick={() => this.props.handleCommand(ele)}
-						>
-							{capitalize(ele)}
-						</Button>
-					</Col>
-				);
-			}
-		});
+    imageCommands.forEach((command) => {
+      let className = `${command}Button`;
+      if (command === "addMinutia" && addingMinutiae) {
+        className = className.concat(" adding");
+      }
+
+      let enabled;
+      switch (command) {
+        case "undo":
+          enabled = undoEnabled;
+          break;
+        case "redo":
+          enabled = redoEnabled;
+          break;
+        default:
+          enabled = true;
+          break;
+      }
+
+      enabled = elements[command] = (
+        <Col key={command}>
+          {UIlist.includes(command) && (
+            <Button
+              shape="round"
+              type="primary"
+              id={command}
+              className={className}
+              icon={icons[command]}
+              size="large"
+              onClick={() => handleImageCommands(command)}
+              date-testid={command}
+              disabled={!enabled}
+            >
+              {capitalize(sentenceCase(command))}
+            </Button>
+          )}
+        </Col>
+      );
+      });
+      UIFiltered.forEach((ele) => {
+        if (!(ele in elements)) {
+          elements[ele] = (
+            <Col key={ele}>
+              <Button
+                id={ele}
+                shape="round"
+                type="primary"
+                size="large"
+                onClick={() => handleCommand(ele)}
+              >
+                {capitalize(ele)}
+              </Button>
+            </Col>
+          );
+        }
+      });
     const next =
       (<Row gutter={[4, 8]} justify="space-around">
         <Col key="nextStep">

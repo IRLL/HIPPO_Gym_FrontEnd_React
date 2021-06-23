@@ -4,7 +4,6 @@ import "./game.css";
 import { message, Modal, Row, Col, Button, Radio, Progress, Skeleton } from "antd";
 import { w3cwebsocket } from "websocket";
 import { browserName, osName, browserVersion, osVersion } from "react-device-detect";
-import produce, { enablePatches, applyPatches } from "immer";
 
 // Import utilities
 import getKeyInput from "../../utils/getKeyInput";
@@ -19,12 +18,7 @@ import MessageViewer from "../Message/MessageViewer";
 import GameWindow from "../GameWindow/gameWindow";
 import FingerprintWindow from "../GameWindow/fingerprintWindow";
 
-enablePatches();
-
 const pendingTime = 30;
-
-const undo = [];
-const redo = [];
 
 class Game extends React.Component {
 	state = {
@@ -49,27 +43,32 @@ class Game extends React.Component {
 		outMessage: [], // a list of outgoing messages
 		holdKey: null, // the key that is holding
 		instructions: [], // list of instructions for the game
-
-		fingerprint: false, // if this is a fingerprint trial
-		resetModalVisible: false, // if the reset image dialog is visible
 		orientation: "horizontal", // default orientation is horizontal
 
+		// Fingerprint trial configurations
+		fingerprint: false, // if this is a fingerprint trial
+		minMinutiae: null, // the minimum number of minutiae required to be marked per step
+		resetModalVisible: false, // if the reset image dialog is visible
+
 		// For image marking functionality
-		brightness: 100,
-		contrast: 100,
-		saturation: 100,
-		hue: 0,
-		addingMinutiae: false,
-		minutiae: [],
+		brightness: 100, // default image brightness (out of 100)
+		contrast: 100, // default image contrast (out of 100)
+		saturation: 100, // default image saturation (out of 100)
+		hue: 0, // default image hue rotation (out of 360)
+		addingMinutiae: false, // if currently adding minutiae
+		minutiae: [], // list of all available minutiae within the image
 
 		// For the score modal
-		scoreModalVisible: false,
-		score: null,
-		maxScore: 100,
+		scoreModalVisible: false, // if the score modal is visible
+		score: null, // the user's score
+		maxScore: 100, // the maximum score a user can get
 
 		// For undo and redo functionality
-		undoList: [],
-		redoList: [],
+		undoList: [], // list of states before
+		undoEnabled: false, // if
+		redoList: [], // list of states after
+		redoEnabled: false,
+		changing: false, // a flag to set if the sliders are still changing
 
 		// Widths and heights for responsiveness
 		windowWidth: 1065,          // default is 700, researcher can provide custom value
@@ -92,13 +91,6 @@ class Game extends React.Component {
 			1000
 		);
 
-		setInterval(
-			() =>
-				this.setState((prevState) => ({
-					scoreCalcProgress: prevState.scoreCalcProgress + 1,
-				})),
-			100
-		);
 		// To ensure the websocket server is ready to connect
 		// we try to connect the websocket server periodically
 		// for every 30 seconds until the connection has been established
@@ -181,14 +173,26 @@ class Game extends React.Component {
 								score: parsedData.Score,
 							});
 						}
+						//Check if Score in response
+						if (parsedData.MaxScore) {
+							this.setState({
+								maxScore: parsedData.MaxScore,
+							});
+						}
+						//Check if Score in response
+						if (parsedData.MinMinutiae) {
+							this.setState({
+								minMinutiae: parsedData.MinMinutiae,
+							});
+						}
 						//Check if frame related information in response
 						if (parsedData.frame && parsedData.frameId) {
 							let frame = parsedData.frame;
 							let frameId = parsedData.frameId;
-              				console.log("width: ", this.state.windowWidth)
-              				this.setState({
-                				windowSizeRatio: (this.state.windowWidth / this.state.windowHeight),
-              				}, () => console.log("ratio: ", this.state.windowSizeRatio))
+              console.log("width: ", this.state.windowWidth)
+              this.setState({
+                windowSizeRatio: (this.state.windowWidth / this.state.windowHeight),
+              }, () => console.log("ratio: ", this.state.windowSizeRatio))
 
 							if (this.state.score)
 								this.setState((prevState) => ({
@@ -198,19 +202,24 @@ class Game extends React.Component {
 								}));
 							else {
 								this.setState((prevState) => ({
+									// Set new frame ID
 									frameSrc: "data:image/jpeg;base64, " + frame,
 									frameCount: prevState.frameCount + 1,
 									frameId: frameId,
+
+									// Reset minutiae and image filters
 									minutiae: [],
 									brightness: 100,
 									contrast: 100,
 									saturation: 100,
 									hue: 0,
-								}));
 
-								//empty undo and redo arrays
-								undo.length = 0;
-								redo.length = 0;
+									// Reset undo/redo stacks and buttons
+									undoList: [],
+									redoList: [],
+									undoEnabled: false,
+									redoEnabled: false,
+								}));
 							}
 							const img = new Image();
 							img.src = "data:image/jpeg;base64, " + frame;
@@ -304,7 +313,7 @@ class Game extends React.Component {
 
 	handleResize = () => {
 		if (this.state.windowSize !== "strict") {
-			const width = this.state.defaultWidth;
+			const width = this.state.windowWidth;
 			const value =
 				this.state.orientation === "vertical"
 				? document.documentElement.clientWidth > width
@@ -326,10 +335,10 @@ class Game extends React.Component {
 	// Navigate to the post-game page
 	handleOk = (e) => {
 		if (e.currentTarget.id === "keepMinutiae" || e.currentTarget.id === "resetAll") {
-			// clear out undo and redo
-			undo.length = 0;
-			redo.length = 0;
+			this.pushUndo();
+
 			this.setState({
+				// Reset image filters
 				brightness: 100,
 				contrast: 100,
 				saturation: 100,
@@ -453,38 +462,31 @@ class Game extends React.Component {
 		}
 	};
 
-	// Handle undo and redo buttons
-	handleAddPatch = (patches, inversePatches) => {
-		undo.push(inversePatches);
-		redo.push(patches);
-	};
-
 	// Apply color filters to the image in the fingerprint window
-	// Send applied filter to websocket
+	// - send applied filter to websocket
 	handleImage = (type, value) => {
-		const nextState = produce(
-			this.state,
-			(draft) => {
-				switch (type) {
-					case "brightness":
-						draft.brightness = value;
-						break;
-					case "contrast":
-						draft.contrast = value;
-						break;
-					case "saturation":
-						draft.saturation = value;
-						break;
-					case "hue":
-						draft.hue = value;
-						break;
-					default:
-						return;
-				}
-			},
-			this.handleAddPatch
-		);
-		this.setState(nextState);
+		switch (type) {
+			case "brightness":
+				this.setState({ brightness: value });
+				break;
+			case "contrast":
+				this.setState({ contrast: value });
+				break;
+			case "saturation":
+				this.setState({ saturation: value });
+				break;
+			case "hue":
+				this.setState({ hue: value });
+				break;
+			default:
+				return;
+		}
+
+		if (!this.state.changing) {
+			this.pushUndo();
+			this.setState({ redoEnabled: false, redoList: [] });
+		}
+
 		this.sendMessage({
 			info: type,
 			value,
@@ -494,6 +496,12 @@ class Game extends React.Component {
 	// Perform commands like add minutia, redo, undo, reset
 	// Send performed command to websocket
 	handleImageCommands = (command) => {
+		// console.log(
+		// 	"undo length: ",
+		// 	this.state.undoList.length,
+		// 	"redo length: ",
+		// 	this.state.redoList.length
+		// );
 		switch (command) {
 			case "resetImage":
 				this.setState({
@@ -501,52 +509,119 @@ class Game extends React.Component {
 				});
 				break;
 			case "undo":
-				const isNotEmptyUndo = undo.pop();
-				if (!isNotEmptyUndo) return;
-				this.setState(applyPatches(this.state, isNotEmptyUndo));
+				this.setState({
+					undoEnabled: this.state.undoList.length > 1,
+					redoEnabled: this.state.redoList.length > 0,
+				});
+
+				if (this.popUndo()) this.pushRedo();
 				break;
 			case "redo":
-				const isNotEmptyRedo = redo.pop();
-				if (!isNotEmptyRedo) return;
-				this.setState(applyPatches(this.state, isNotEmptyRedo));
+				this.setState({
+					undoEnabled: this.state.undoList.length > 0,
+					redoEnabled: this.state.redoList.length > 1,
+				});
+
+				if (this.popRedo()) this.pushUndo();
 				break;
 			case "addMinutia":
-				const nextStateMinutiae = produce(
-					this.state,
-					(draft) => {
-						draft.addingMinutiae = !this.state.addingMinutiae;
-					},
-					this.handleAddPatch
-				);
-				this.setState(nextStateMinutiae);
+				this.setState({ addingMinutiae: !this.state.addingMinutiae });
 				break;
 			case "submitImage":
-				this.setState({ scoreModalVisible: true }, () => {
-					this.handleCommand(command);
-				});
+				if (this.state.minMinutiae && this.state.minutiae.length < this.state.minMinutiae) {
+					this.showError(
+						"Not enough minutiae",
+						<p>
+							You only have <b>{this.state.minutiae.length}</b> minutia
+							{this.state.minutiae.length !== 1 && "e"} out of the minimum of{" "}
+							<b>{this.state.minMinutiae}</b> needed
+						</p>
+					);
+				} else {
+					this.setState({ scoreModalVisible: true }, () => {
+						this.handleCommand(command);
+					});
+				}
 				break;
 			default:
+				this.handleCommand(command);
 				return;
 		}
 	};
 
+	// Pushes the current state of image filters and
+	// minutia list onto undo stack
+	pushUndo = () => {
+		let undoList = this.state.undoList;
+
+		const currState = {
+			minutiae: this.state.minutiae,
+			brightness: this.state.brightness,
+			contrast: this.state.contrast,
+			saturation: this.state.saturation,
+			hue: this.state.hue,
+		};
+
+		undoList.push(currState);
+		this.setState({ undoList, undoEnabled: true });
+	};
+
+	// Returns true if undoList has elements to pop
+	// False otherwise
+	popUndo = () => {
+		let undoList = this.state.undoList;
+
+		if (undoList.length < 1) return false;
+
+		const state = undoList.pop();
+
+		this.setState({ ...state, undoList });
+		return true;
+	};
+
+	// Pushes the current state of image filters and
+	// minutia list onto redo stack
+	pushRedo = () => {
+		let redoList = this.state.redoList;
+
+		const currState = {
+			minutiae: this.state.minutiae,
+			brightness: this.state.brightness,
+			contrast: this.state.contrast,
+			saturation: this.state.saturation,
+			hue: this.state.hue,
+		};
+
+		redoList.push(currState);
+		this.setState({ redoList, redoEnabled: true });
+	};
+
+	// Returns true if redoList has elements to pop
+	// False otherwise
+	popRedo = () => {
+		let redoList = this.state.redoList;
+
+		if (redoList.length < 1) return false;
+		const state = redoList.pop();
+
+		this.setState({ ...state, redoList });
+		return true;
+	};
+
 	// Adds a minutia to the minutiae array
-	// x and y are the coordinates on the image
-	// orientation goes from 0 (up) to 359 degrees clockwise
-	// send added minutia to websocket
-	addMinutia = (x, y, orientation=null, size=null, color=null, type=null) => {
+	// - x and y are the coordinates on the image
+	// - orientation goes from 0 (up) to 359 degrees clockwise
+	// - resets adding minutia and send added minutia to websocket
+	addMinutia = (x, y, orientation, size, color, type) => {
     x = parseInt(x)
     y = parseInt(y)
-		const nextStateMinutiae = produce(
-			this.state,
-			(draft) => {
-				draft.minutiae = [...this.state.minutiae, { x, y, orientation, size, color, type }];
-				draft.addingMinutiae = false;
-			},
-			this.handleAddPatch
-		);
-		this.setState(nextStateMinutiae);
-    if (this.state.fingerprint){
+		this.pushUndo();
+
+		this.setState({
+			minutiae: [...this.state.minutiae, { x, y, orientation, size, color, type }],
+			addingMinutiae: false,
+		});
+		if (this.state.fingerprint){
       this.sendMessage({
         info: "minutia added",
         minutia: { x, y, orientation, size, color, type },
@@ -561,7 +636,7 @@ class Game extends React.Component {
 
 	// Edit the minutia at position index in the minutiae array
 	// corresponding to the type of command and value
-	// Send applied command to websocket
+	// - send applied command to websocket
 	handleMinutia = (type, index, value) => {
 		let prevMinutiae = [...this.state.minutiae];
 		switch (type) {
@@ -590,30 +665,45 @@ class Game extends React.Component {
 			default:
 				return;
 		}
-		const nextStateMinutiae = produce(
-			this.state,
-			(draft) => {
-				draft.minutiae = prevMinutiae;
-			},
-			this.handleAddPatch
-		);
-		this.setState(nextStateMinutiae);
+
+		this.setState({ minutiae: prevMinutiae });
+
+		if (!this.state.changing) {
+			this.pushUndo();
+			this.setState({ redoEnabled: false, redoList: [] });
+		}
+
 		this.sendMessage({
 			info: "minutia " + index + " edited: " + type,
 			value,
 		});
 	};
 
-	scrollToTop() {
+	// If the sliders are still changing
+	handleChanging = (changing) => {
+		if (changing) this.pushUndo();
+		this.setState({ changing });
+	};
+
+	// Pops up an error modal with the message
+	showError = (title, message) => {
+		Modal.error({
+			title,
+			content: message,
+		});
+	};
+
+	// Scrolls to the top of the window
+	scrollToTop = () => {
 		window.scrollTo({
 			top: 0,
 			behavior: "smooth",
 		});
-	}
+	};
 
 	// Return a minutiae array such that each minutia's
 	// x and y values are accurate pixel coordinates
-	normalizeMinutiae(minutiae) {
+	normalizeMinutiae = (minutiae) => {
 		return minutiae.map((minutia) => {
 			const { windowWidth, windowHeight, imageWidth, imageHeight } = this.state;
 
@@ -621,27 +711,27 @@ class Game extends React.Component {
 			const imageAspect = imageWidth / imageHeight;
 
 			if (imageAspect > defaultAspect) {
-				// the width = window width and the height is scaled to that
+				// current width = window width and the height is scaled to that
 				const scale = imageWidth / windowWidth;
 				const scaledHeight = imageHeight / scale;
 				const offset = (windowHeight - scaledHeight) / 2; // the y-offset from the window border
 				const newMinutia = {
-					x: minutia.x * scale,
-					y: (minutia.y - offset) * scale,
+					x: Math.round(minutia.x * scale),
+					y: Math.round((minutia.y - offset) * scale),
 					orientation: minutia.orientation,
 					type: minutia.type,
 				};
 
 				return newMinutia;
 			} else {
-				// the height = window height and the width is scaled to that
+				// current height = window height and the width is scaled to that
 				const scale = imageHeight / windowHeight;
 				const scaledWidth = imageWidth / scale;
 				const offset = (windowWidth - scaledWidth) / 2; // the x-offset from the window border
 
 				const newMinutia = {
-					x: (minutia.x - offset) * scale,
-					y: minutia.y * scale,
+					x: Math.round((minutia.x - offset) * scale),
+					y: Math.round(minutia.y * scale),
 					orientation: minutia.orientation,
 					type: minutia.type,
 				};
@@ -649,7 +739,7 @@ class Game extends React.Component {
 				return newMinutia;
 			}
 		});
-	}
+	};
 
 	render() {
 		const {
@@ -682,10 +772,12 @@ class Game extends React.Component {
 			score,
 			scoreModalVisible,
 			maxScore,
+			undoEnabled,
+			redoEnabled,
 		} = this.state;
 
 		return (
-			<div className="game" data-testid="game">
+			<div className={`game ${addingMinutiae ? "custom-cursor" : ""}`} data-testid="game" id="game">
 				<Radio.Group
 					defaultValue="horizontal"
 					onChange={(e) => {
@@ -722,6 +814,7 @@ class Game extends React.Component {
                   <FingerprintWindow
                     isLoading={isLoading}
                     frameSrc={frameSrc}
+                    progress={progress}
                     width={windowWidth || 700}
                     height={windowHeight || 600}
                     brightness={brightness}
@@ -732,6 +825,7 @@ class Game extends React.Component {
                     addingMinutiae={addingMinutiae}
                     addMinutia={this.addMinutia}
                     handleMinutia={this.handleMinutia}
+                    handleChanging={this.handleChanging}
                   />
                 ) : (
                   <GameWindow
@@ -766,6 +860,7 @@ class Game extends React.Component {
 						handleCommand={this.handleCommand}
 						handleImage={this.handleImage}
 						handleImageCommands={this.handleImageCommands}
+						handleChanging={this.handleChanging}
 						sendMessage={this.sendMessage}
             fingerprint={this.state.fingerprint}
 						addMinutia={this.addMinutia}
@@ -775,6 +870,8 @@ class Game extends React.Component {
 						hue={hue}
 						addingMinutiae={addingMinutiae}
 						orientation={orientation}
+						undoEnabled={undoEnabled}
+						redoEnabled={redoEnabled}
 					/>
 				</div>
 
@@ -836,8 +933,23 @@ class Game extends React.Component {
 						</div>
 					) : (
 						<div className="scoreModal">
-							<p>You scored...</p>
-							<Progress width={100} type="circle" percent={score} />
+							<h4>Your rank is</h4>
+							<Progress
+								width={100}
+								type="circle"
+								percent={1 - score / maxScore}
+								strokeColor={{
+									"0%": "#108ee9",
+									"100%": "#87d068",
+								}}
+								format={(percent) => (
+									<div className="scoreModalProgress">
+										<p>{score}</p>
+										<div></div>
+										<p>{maxScore}</p>
+									</div>
+								)}
+							/>
 							<Button
 								disabled={!score}
 								icon={icons["next"]}
@@ -845,27 +957,32 @@ class Game extends React.Component {
 								type="primary"
 								onClick={() => {
 									this.scrollToTop();
+
 									this.setState((prevState) => ({
 										scoreModalVisible: false,
 										score: null,
+
+										// Reset the frame source
 										frameSrc: prevState.nextframeSrc,
 										frameCount: prevState.nextframeCount,
 										frameId: prevState.nextframeId,
 										nextframeCount: null,
 										nextframeSrc: null,
 										nextframeId: null,
-									}));
 
-									//empty undo and redo arrays
-									undo.length = 0;
-									redo.length = 0;
-									this.setState({
+										// Reset minutiae list and image filters
 										minutiae: [],
 										brightness: 100,
 										contrast: 100,
 										saturation: 100,
 										hue: 0,
-									});
+
+										// Reset undo and redo stacks and buttons
+										undoList: [],
+										redoList: [],
+										undoEnabled: false,
+										redoEnabled: false,
+									}));
 								}}
 							>
 								Next Image
