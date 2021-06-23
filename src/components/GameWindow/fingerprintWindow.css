@@ -121,8 +121,8 @@
 Set the border color and style of the game window
 Center align the game window both horizontally and vertically */
 .gameWindow {
-	height: 605px;
-	width: 705px;
+	height: auto;
+	width: auto;
 	border: solid #1890ff;
 	border-radius: 10px;
 	display: flex;
