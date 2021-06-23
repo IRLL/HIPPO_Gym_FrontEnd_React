@@ -31,7 +31,7 @@ class Game extends React.Component {
 		frameCount: 0, // count how many frames has received from the server
 		frameId: 0, // the id of current frame
 		frameRate: 30, // default FPS is 30
-    inputFrameRate: 30, // this stores the input of frame rate input box
+    	inputFrameRate: 30, // this stores the input of frame rate input box
 		frameSrc: "", // the image source of frame
 		imageL: null, // the image source of left image component
 		imageR: null, // the image source of right image component
@@ -50,7 +50,6 @@ class Game extends React.Component {
 		holdKey: null, // the key that is holding
 		instructions: [], // list of instructions for the game
 
-		// TODO: Add the fingerprint prop to config.yml
 		fingerprint: false, // if this is a fingerprint trial
 		resetModalVisible: false, // if the reset image dialog is visible
 		orientation: "horizontal", // default orientation is horizontal
@@ -73,9 +72,10 @@ class Game extends React.Component {
 		redoList: [],
 
 		// Widths and heights for responsiveness
-		windowWidth: 700,
-		windowHeight: 600,
-    windowSize: "responsive",
+		windowWidth: 1065,          // default is 700, researcher can provide custom value
+		windowHeight: 719,          // default is 600, researcher can provide custom value
+    windowSize: "responsive",   // if strict, game or fingerprint window will not be responsive
+    windowSizeRatio: null,      // initial windowWidth/windowHeight
 		imageWidth: null,
 		imageHeight: null,
 	};
@@ -147,6 +147,22 @@ class Game extends React.Component {
 								UIlist: parsedData.UI,
 							});
 						}
+            // Check if window size is in the response
+            if (parsedData.gameWindowWidth) {
+              this.setState({
+                windowWidth: parsedData.gameWindowWidth
+              })
+            }
+            if (parsedData.gameWindowHeight) {
+              this.setState({
+                windowHeight: parsedData.gameWindowHeight
+              })
+            }
+            if (parsedData.gameWindowSize) {
+              this.setState({
+                windowSize: parsedData.gameWindowSize
+              })
+            }
 						//Check if Instructions in response
 						if (parsedData.Instructions) {
 							this.setState({
@@ -169,6 +185,11 @@ class Game extends React.Component {
 						if (parsedData.frame && parsedData.frameId) {
 							let frame = parsedData.frame;
 							let frameId = parsedData.frameId;
+              				console.log("width: ", this.state.windowWidth)
+              				this.setState({
+                				windowSizeRatio: (this.state.windowWidth / this.state.windowHeight),
+              				}, () => console.log("ratio: ", this.state.windowSizeRatio))
+
 							if (this.state.score)
 								this.setState((prevState) => ({
 									nextframeSrc: "data:image/jpeg;base64, " + frame,
@@ -273,26 +294,33 @@ class Game extends React.Component {
 		});
 
 		// Get the client window width to make the game window responsive
-		window.addEventListener("resize", () => {
-			if (this.state.windowSize !== "strict"){
-        const value =
-        this.state.orientation === "vertical"
-          ? document.documentElement.clientWidth > 700
-            ? 700
-            : 0.8 * document.documentElement.clientWidth
-          : 0.4 * document.documentElement.clientWidth > 700
-          ? 700
-          : 0.4 * document.documentElement.clientWidth;
-        this.setState({ windowWidth: value });
-      }
-		});
+		this.handleResize();
+		window.addEventListener("resize", this.handleResize);
 	}
 
 	componentWillUnmount() {
 		if (this.setInMessage) clearInterval(this.setInMessage);
 	}
 
+	handleResize = () => {
+		if (this.state.windowSize !== "strict") {
+			const width = this.state.defaultWidth;
+			const value =
+				this.state.orientation === "vertical"
+				? document.documentElement.clientWidth > width
+					? width
+					: 0.8 * document.documentElement.clientWidth
+				: 0.4 * document.documentElement.clientWidth > width
+				? width
+				: 0.5 * document.documentElement.clientWidth;
 
+			let newHeight  = value / (1065/719);
+			this.setState({
+				windowWidth: value,
+				windowHeight: newHeight
+			});
+		}
+	}
 
 	// Change the confirmation modal to be invisible
 	// Navigate to the post-game page
