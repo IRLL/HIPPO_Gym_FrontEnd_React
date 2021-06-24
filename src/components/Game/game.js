@@ -25,7 +25,7 @@ class Game extends React.Component {
 		frameCount: 0, // count how many frames has received from the server
 		frameId: 0, // the id of current frame
 		frameRate: 30, // default FPS is 30
-    	inputFrameRate: 30, // this stores the input of frame rate input box
+    inputFrameRate: 30, // this stores the input of frame rate input box
 		frameSrc: "", // the image source of frame
 		imageL: null, // the image source of left image component
 		imageR: null, // the image source of right image component

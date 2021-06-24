@@ -17,6 +17,7 @@
 - Changed the the gamewindow and control panel to have thinner borders
 - style changes for header, footer and main page
 - frame rate can now be changed through manual input in the input textbox
+- game window will maintain its width to height ratio on resizing
 
 ### Fixed
 - UI for debug mode is fixed. Debug mode will not allow to toggle orientation
