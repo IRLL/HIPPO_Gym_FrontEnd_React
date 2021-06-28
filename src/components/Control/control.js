@@ -286,7 +286,6 @@ class ControlPanel extends React.Component {
 		const thirdRow = [ elements["leftDown"], elements["down"], elements["rightDown"]];
     const fpsRow = [elements["fpsUp"], elements["fpsSet"], elements["fpsDown"]]
 		const lastRow = [elements["submitImage"], elements["start"], elements["stop"], elements["reset"]];
-
 		// UIFiltered.forEach((ele, idx) => {
 		// 	if (idx % 3 === 0) {
 		// 		firstRow.push(elements[ele]);
@@ -325,9 +324,11 @@ class ControlPanel extends React.Component {
                 </>
               :null}
               <Row gutter={[4, 8]} justify="space-around">{fpsRow}</Row>
-							<Row gutter={[4, 8]} className="row">{firstRow}</Row>
-							<Row gutter={[4, 8]} className="row">{secondRow}</Row>
-							<Row gutter={[4, 8]} className="row">{thirdRow}</Row>
+              <div className="directions">
+                <Row className="direction">{firstRow}</Row>
+                <Row className="direction">{secondRow}</Row>
+                <Row className="direction">{thirdRow}</Row>
+              </div>
               <Row gutter={[4, 8]} justify="space-around">{lastRow}</Row>
               {isEnd ? next : null}
 						</div>
