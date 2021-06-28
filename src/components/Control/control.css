@@ -18,8 +18,12 @@
 	margin-top: 10px;
 }
 
-.row{
-	justify-content: space-between;
+.directions {
+	padding-bottom: 1rem;
+}
+
+.direction{
+	justify-content: space-evenly;
 }
 
 /* Set the height of fps input field
@@ -206,4 +210,16 @@
 .submitImageButton:focus {
 	background-color: #73d13d;
 	border-color: #73d13d;
+}
+
+.adding,
+.adding:hover,
+.adding:focus {
+	animation: blinker 1s ease-in-out infinite alternate;
+}
+
+@keyframes blinker {
+	100% {
+		opacity: 60%;
+	}
 }

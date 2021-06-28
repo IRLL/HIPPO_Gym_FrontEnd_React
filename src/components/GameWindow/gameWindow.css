@@ -12,6 +12,24 @@ Center align the game window both horizontally and vertically */
     margin: auto;
 }
 
+/* Reference: https://dev.to/leonardoschmittk/how-to-make-a-mouse-ripple-click-effect-with-css-js-and-html-in-2-steps-2fcf */
+.ripple {
+    width: 3px;
+    height: 3px;
+    pointer-events: none;
+    cursor: pointer;
+    background-color: transparent;
+    position: fixed;
+    border-radius: 50%;
+    border: 1px solid #ffffff59;
+ }
+
+ @keyframes ripple-effect {
+    to {
+       transform:scale(15);
+       opacity: 0.01;
+    }
+ }
 
 /* Center align the progress bar both horizontally and vertically */
 .progressBar {
@@ -36,7 +54,6 @@ Center align the game window both horizontally and vertically */
 
 .gameContent:hover {
     cursor: pointer;
-    /* cursor: url('./ms-icon-144x144.svg') 10 12, pointer; */
 }
 
 /* Add border to each image component */
