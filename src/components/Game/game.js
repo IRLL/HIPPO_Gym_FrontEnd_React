@@ -71,8 +71,8 @@ class Game extends React.Component {
 		changing: false, // a flag to set if the sliders are still changing
 
 		// Widths and heights for responsiveness
-		windowWidth: 1065,          // default is 700, researcher can provide custom value
-		windowHeight: 719,          // default is 600, researcher can provide custom value
+		windowWidth: 700,          // default is 700, researcher can provide custom value
+		windowHeight: 600,          // default is 600, researcher can provide custom value
     windowSize: "responsive",   // if strict, game or fingerprint window will not be responsive
     windowSizeRatio: null,      // initial windowWidth/windowHeight
 		imageWidth: null,
@@ -152,7 +152,8 @@ class Game extends React.Component {
             }
             if (parsedData.gameWindowSize) {
               this.setState({
-                windowSize: parsedData.gameWindowSize
+                windowSize: parsedData.gameWindowSize,
+                windowSizeRatio: this.state.windowWidth/this.state.windowHeight
               })
             }
 						//Check if Instructions in response
@@ -322,7 +323,7 @@ class Game extends React.Component {
 				? width
 				: 0.5 * document.documentElement.clientWidth;
 
-			let newHeight  = value / (1065/719);
+			let newHeight  = value / this.state.windowSizeRatio;
 			this.setState({
 				windowWidth: value,
 				windowHeight: newHeight
@@ -626,9 +627,12 @@ class Game extends React.Component {
         minutia: { x, y, orientation, size, color, type },
       });
     } else {
+      // relative x and y values
+      var xRel = x/this.state.windowWidth
+      var yRel = y/this.state.windowHeight
       this.sendMessage({
         info: "point clicked",
-        coordinates: { x, y},
+        coordinates: { x, y, xRel, yRel},
       });
     }
 	};
