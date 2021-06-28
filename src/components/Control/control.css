@@ -179,15 +179,15 @@
 }
 
 .resetImageButton {
-	background-color: #f5222d;
-	color: white;
-	border-color: #f5222d;
+	background-color: white;
+	color: #1890ff;
+	border-color: #1890ff;
 }
 
 .resetImageButton:hover,
 .resetImageButton:focus {
-	background-color: #ff4d4f;
-	border-color: #ff4d4f;
+	color: #1890ff;
+	background-color: #e6f7ff;
 }
 
 .submitImageButton {

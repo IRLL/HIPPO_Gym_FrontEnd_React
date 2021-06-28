@@ -202,6 +202,7 @@ class ControlPanel extends React.Component {
 				className = className.concat(" adding");
 			}
 
+			// eslint-disable-next-line
 			let enabled;
 			switch (command) {
 				case "undo":
@@ -259,7 +260,7 @@ class ControlPanel extends React.Component {
 			elements["undo"],
 			elements["redo"],
 			elements["addMinutia"],
-			elements["resetImage"],
+			elements["stop"],
 		];
 		const firstRow = [elements["leftUp"], elements["up"], elements["rightUp"], elements["fpsUp"]];
 		const secondRow = [elements["left"], elements["fire"], elements["right"], elements["fpsSet"]];
@@ -269,7 +270,7 @@ class ControlPanel extends React.Component {
 			elements["rightDown"],
 			elements["fpsDown"],
 		];
-		const lastRow = [elements["submitImage"], elements["stop"]];
+		const lastRow = [elements["resetImage"], elements["submitImage"]];
 
 		UIFiltered.forEach((ele, idx) => {
 			if (idx % 3 === 0) {
