@@ -29,7 +29,8 @@ class GameWindow extends React.Component {
       return (
         <Zoom>
           {(zoom) => (
-            <div className="container" onClick={(e)=>this.applyCursorRippleEffect(e)} >
+            // for ripple effect add an onclick function to the div and call applyCursorRippleEffect()
+            <div className="container">
               {imageL ?
                 <div className="imageContainer" >
                     {<img src={imageL} className="imageComponent" alt="imageLeft" width="400px" height="400px" />}
