@@ -17,6 +17,7 @@ import DisplayBar from "../DisplayBar/displayBar";
 import MessageViewer from "../Message/MessageViewer";
 import GameWindow from "../GameWindow/gameWindow";
 import FingerprintWindow from "../GameWindow/fingerprintWindow";
+import Comparison from "../Comparison/comparison";
 
 const pendingTime = 30;
 
@@ -56,6 +57,10 @@ class Game extends React.Component {
 		hue: 0, // default image hue rotation (out of 360)
 		addingMinutiae: false, // if currently adding minutiae
 		minutiae: [], // list of all available minutiae within the image
+
+		// For expert markings
+		expertMarker1: null,
+		expertMarker2: null,
 
 		// For the score modal
 		scoreModalVisible: false, // if the score modal is visible
@@ -147,6 +152,15 @@ class Game extends React.Component {
 							this.setState({
 								fingerprint: parsedData.Fingerprint,
 							});
+						}
+						//Check if Expert Markings in response
+						if (parsedData.ExpertMarks1 || parsedData.ExpertMarks2) {
+							this.setState({
+								expertMarker1: parsedData.ExpertMarks1,
+								expertMarker2: parsedData.ExpertMarks2,
+							});
+
+							console.log(parsedData.ExpertMarks1, parsedData.ExpertMarks2);
 						}
 						//Check if Score in response
 						if (parsedData.Score) {
@@ -675,6 +689,36 @@ class Game extends React.Component {
 		});
 	};
 
+	resetAll = () => {
+		this.scrollToTop();
+
+		this.setState((prevState) => ({
+			scoreModalVisible: false,
+			score: null,
+
+			// Reset the frame source
+			frameSrc: prevState.nextframeSrc,
+			frameCount: prevState.nextframeCount,
+			frameId: prevState.nextframeId,
+			nextframeCount: null,
+			nextframeSrc: null,
+			nextframeId: null,
+
+			// Reset minutiae list and image filters
+			minutiae: [],
+			brightness: 100,
+			contrast: 100,
+			saturation: 100,
+			hue: 0,
+
+			// Reset undo and redo stacks and buttons
+			undoList: [],
+			redoList: [],
+			undoEnabled: false,
+			redoEnabled: false,
+		}));
+	};
+
 	render() {
 		const {
 			inMessage,
@@ -708,6 +752,8 @@ class Game extends React.Component {
 			maxScore,
 			undoEnabled,
 			redoEnabled,
+			expertMarker1,
+			expertMarker2,
 		} = this.state;
 
 		return (
@@ -848,82 +894,57 @@ class Game extends React.Component {
 					</p>
 				</Modal>
 
-				<Modal visible={scoreModalVisible} closable={false} footer={null}>
-					{!score ? (
-						<div className="scoreModal">
-							<p>Please wait while we calculate your score</p>
-							<Skeleton.Avatar
-								active={!score}
-								size={100}
-								shape="circle"
-								style={{
-									display: "block !important",
-									alignSelf: "center !important",
-									justifyContent: "center",
-								}}
-							/>
-							<Button disabled={!score} icon={icons["next"]} shape="round" type="primary">
-								Next Image
-							</Button>
-						</div>
-					) : (
-						<div className="scoreModal">
-							<h4>Your rank is</h4>
-							<Progress
-								width={100}
-								type="circle"
-								percent={1 - score / maxScore}
-								strokeColor={{
-									"0%": "#108ee9",
-									"100%": "#87d068",
-								}}
-								format={(percent) => (
-									<div className="scoreModalProgress">
-										<p>{score}</p>
-										<div></div>
-										<p>{maxScore}</p>
-									</div>
-								)}
-							/>
-							<Button
-								disabled={!score}
-								icon={icons["next"]}
-								shape="round"
-								type="primary"
-								onClick={() => {
-									this.scrollToTop();
+				<Modal
+					visible={scoreModalVisible}
+					closable={false}
+					footer={null}
+					width="max-content"
+					// centered={true}
+				>
+					<div className="scoreModal">
+						{score ? (
+							<>
+								<p>Your score is...</p>
+								<Progress
+									width={100}
+									type="circle"
+									percent={1 - score / maxScore}
+									strokeColor={{
+										"0%": "#108ee9",
+										"100%": "#87d068",
+									}}
+									format={() => (
+										<div className="scoreModalProgress">
+											<p>{score}</p>
+											<div />
+											<p>{maxScore}</p>
+										</div>
+									)}
+								/>
+							</>
+						) : (
+							<>
+								<p>Calculating your score, please wait...</p>
+								<Skeleton.Avatar active={!score} size={100} shape="circle" />
+							</>
+						)}
+						<h4>Here is your edition compared to experts:</h4>
+						<Comparison
+							frameSrc={frameSrc}
+							expertMarkers={[expertMarker1, expertMarker2]}
+							userMarkers={this.normalizeMinutiae(minutiae)}
+						/>
 
-									this.setState((prevState) => ({
-										scoreModalVisible: false,
-										score: null,
-
-										// Reset the frame source
-										frameSrc: prevState.nextframeSrc,
-										frameCount: prevState.nextframeCount,
-										frameId: prevState.nextframeId,
-										nextframeCount: null,
-										nextframeSrc: null,
-										nextframeId: null,
-
-										// Reset minutiae list and image filters
-										minutiae: [],
-										brightness: 100,
-										contrast: 100,
-										saturation: 100,
-										hue: 0,
-
-										// Reset undo and redo stacks and buttons
-										undoList: [],
-										redoList: [],
-										undoEnabled: false,
-										redoEnabled: false,
-									}));
-								}}
-							>
-								Next Image
-							</Button>
-						</div>
-					)}
+						<Button
+							disabled={!score}
+							icon={icons["next"]}
+							shape="round"
+							type="primary"
+							onClick={this.resetAll}
+						>
+							Next Image
+						</Button>
+					</div>
 				</Modal>
 			</div>
 		);
