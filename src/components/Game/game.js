@@ -1,7 +1,7 @@
 import React from "react";
 import "antd/dist/antd.css";
 import "./game.css";
-import { message, Modal, Row, Col, Button, Radio, Progress, Skeleton } from "antd";
+import { message, Modal, Col, Button, Radio, Progress, Skeleton } from "antd";
 import { w3cwebsocket } from "websocket";
 import { browserName, osName, browserVersion, osVersion } from "react-device-detect";
 
@@ -19,6 +19,9 @@ import GameWindow from "../GameWindow/gameWindow";
 import FingerprintWindow from "../GameWindow/fingerprintWindow";
 
 const pendingTime = 30;
+let initialWindowWidth = 700;
+let initialWindowHeight = 600;
+let windowSizeRatio = 700/600;
 
 class Game extends React.Component {
 	state = {
@@ -74,7 +77,6 @@ class Game extends React.Component {
 		windowWidth: 700,          // default is 700, researcher can provide custom value
 		windowHeight: 600,          // default is 600, researcher can provide custom value
     windowSize: "responsive",   // if strict, game or fingerprint window will not be responsive
-    windowSizeRatio: null,      // initial windowWidth/windowHeight
 		imageWidth: null,
 		imageHeight: null,
 	};
@@ -141,19 +143,21 @@ class Game extends React.Component {
 						}
             // Check if window size is in the response
             if (parsedData.gameWindowWidth) {
+              initialWindowWidth = parsedData.gameWindowWidth
               this.setState({
                 windowWidth: parsedData.gameWindowWidth
               })
             }
             if (parsedData.gameWindowHeight) {
+              initialWindowHeight = parsedData.gameWindowHeight
               this.setState({
                 windowHeight: parsedData.gameWindowHeight
               })
             }
             if (parsedData.gameWindowSize) {
+              windowSizeRatio = this.state.windowWidth/this.state.windowHeight
               this.setState({
                 windowSize: parsedData.gameWindowSize,
-                windowSizeRatio: this.state.windowWidth/this.state.windowHeight
               })
             }
 						//Check if Instructions in response
@@ -190,9 +194,6 @@ class Game extends React.Component {
 						if (parsedData.frame && parsedData.frameId) {
 							let frame = parsedData.frame;
 							let frameId = parsedData.frameId;
-              this.setState({
-                windowSizeRatio: (this.state.windowWidth / this.state.windowHeight),
-              })
 
 							if (this.state.score)
 								this.setState((prevState) => ({
@@ -313,20 +314,18 @@ class Game extends React.Component {
 
 	handleResize = () => {
 		if (this.state.windowSize !== "strict") {
-			const width = this.state.windowWidth;
 			const value =
 				this.state.orientation === "vertical"
-				? document.documentElement.clientWidth > width
-					? width
+				? document.documentElement.clientWidth > initialWindowWidth
+					? initialWindowWidth
 					: 0.8 * document.documentElement.clientWidth
-				: 0.4 * document.documentElement.clientWidth > width
-				? width
+				: 0.4 * document.documentElement.clientWidth > initialWindowWidth
+				? initialWindowWidth
 				: 0.5 * document.documentElement.clientWidth;
-
-			let newHeight  = value / this.state.windowSizeRatio;
+			let newHeight  = value / windowSizeRatio;
 			this.setState({
 				windowWidth: value,
-				windowHeight: newHeight
+				windowHeight: newHeight,
 			});
 		}
 	}
