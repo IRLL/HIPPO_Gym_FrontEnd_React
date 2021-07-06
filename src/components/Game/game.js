@@ -17,6 +17,7 @@ import DisplayBar from "../DisplayBar/displayBar";
 import MessageViewer from "../Message/MessageViewer";
 import GameWindow from "../GameWindow/gameWindow";
 import FingerprintWindow from "../GameWindow/fingerprintWindow";
+import worker_script from "./websocket.worker";
 
 const pendingTime = 30;
 
@@ -96,6 +97,15 @@ class Game extends React.Component {
 		// for every 30 seconds until the connection has been established
 		this.timer = setTimeout(
 			() => {
+        // add WORKER script
+        this.worker = new Worker(worker_script);
+        this.worker.onmessage = ev => {
+          console.log("got data back from worker");
+          console.log(ev);
+        };
+        this.worker.postMessage(WS_URL)
+        // end WORKER script
+
 				//connect the websocket server
 				this.websocket = new w3cwebsocket(WS_URL);
 				this.websocket.onopen = () => {
@@ -125,7 +135,6 @@ class Game extends React.Component {
 					} else {
 						//parse the data from the websocket server
 						let parsedData = JSON.parse(message.data);
-
 						//Check if budget bar should be loaded
 						if (parsedData.inputBudget) {
 							this.setState({
