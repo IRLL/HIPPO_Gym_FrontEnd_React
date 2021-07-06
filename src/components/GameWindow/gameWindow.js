@@ -42,14 +42,6 @@ class GameWindow extends React.Component {
                       point.y - 0.65625,
                     )
                   }}
-                  onMouseUp={(event) => {
-                    const point = localPoint(event);
-                    getMouseData(
-                      point.x,
-                      point.y - 0.65625,
-                      event.buttons,            // the button integer value
-                    )
-                  }}
                   onMouseDown={(event) => {
                     const point = localPoint(event);
                     getMouseData(
