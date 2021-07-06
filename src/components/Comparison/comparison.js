@@ -1,24 +1,81 @@
 import React from "react";
 import "antd/dist/antd.css";
 import "./comparison.css";
-import { Radio, Row, Col } from "antd";
+import { Radio, Row, Col, Button, Popover, Tooltip, Slider } from "antd";
 import LabelledImage from "./labelledImage";
+import { icons } from "../../utils/icons";
 
 class Comparison extends React.Component {
 	state = {
 		sideBySide: true,
 		idx: 0,
+		brightness: 100,
+		contrast: 100,
+		saturation: 100,
+		hue: 0,
+	};
+
+	handleFilters = (filter, value) => {
+		switch (filter) {
+			case "brightness":
+				this.setState({ brightness: value });
+				break;
+			case "contrast":
+				this.setState({ contrast: value });
+				break;
+			case "saturation":
+				this.setState({ saturation: value });
+				break;
+			case "hue":
+				this.setState({ hue: value });
+				break;
+			default:
+				break;
+		}
 	};
 
 	render() {
 		const { frameSrc, expertMarkers, userMarkers } = this.props;
-		const { idx, sideBySide } = this.state;
-		const minutiaSize = 20;
-		const width = 400,
-			height = 400;
+		const { idx, sideBySide, brightness, contrast, saturation, hue } = this.state;
 
-		const userColor = "blue";
-		const expertColor = "red";
+		const minutiaSize = 20,
+			scale = 0.9,
+			width = 400,
+			height = 400;
+		const userColor = "blue",
+			expertColor = "red";
+
+		const filters = [
+			{ name: "brightness", min: 0, max: 1000, default: brightness },
+			{ name: "contrast", min: 0, max: 500, default: contrast },
+			{ name: "saturation", min: 0, max: 100, default: saturation },
+			{ name: "hue", min: 0, max: 360, default: hue },
+		];
+
+		const popupMenu = (
+			<div className="popupMenu">
+				{filters.map((filter) => (
+					<Tooltip key={filter.name} placement="bottom" title={`Adjust ${filter.name}`}>
+						<Popover
+							trigger="click"
+							content={
+								<Slider
+									defaultValue={filter.default}
+									min={filter.min}
+									max={filter.max}
+									onChange={(value) => {
+										this.handleFilters(filter.name, value);
+									}}
+								/>
+							}
+							title={`Adjust ${filter.name}`}
+						>
+							<Button type="default" icon={icons[filter.name]} />
+						</Popover>
+					</Tooltip>
+				))}
+			</div>
+		);
 
 		return (
 			<div className="comparisonContainer">
@@ -33,8 +90,8 @@ class Comparison extends React.Component {
 							}}
 							buttonStyle="solid"
 						>
-							<Radio.Button value={true}>Side-by-Side Comparison</Radio.Button>
-							<Radio.Button value={false}>Overlay Comparison</Radio.Button>
+							<Radio.Button value={true}>Side-by-Side</Radio.Button>
+							<Radio.Button value={false}>Overlay</Radio.Button>
 						</Radio.Group>
 					</Col>
 
@@ -53,22 +110,25 @@ class Comparison extends React.Component {
 				</Row>
 
 				{/* Legend */}
-				<Row gutter={[16, 8]}>
+				<Row gutter={[16, 8]} align="middle" justify="space-between">
 					<Col>
 						<img
 							alt="minutia"
 							src={process.env.PUBLIC_URL + `./fingerprint_minutia_${userColor}.svg`}
 							style={{ transform: "rotate(270deg)" }}
 						/>
-						<span>Your minutiae</span>
-					</Col>
-					<Col>
+						<span style={{ marginRight: 16 }}>Your minutiae</span>
 						<img
 							alt="minutia"
 							src={process.env.PUBLIC_URL + `./fingerprint_minutia_${expertColor}.svg`}
 							style={{ transform: "rotate(270deg)" }}
 						/>
 						<span>Expert minutiae</span>
+					</Col>
+					<Col>
+						<Popover trigger="click" content={popupMenu}>
+							<Button shape="circle" icon={icons["settings"]} type="primary" />
+						</Popover>
 					</Col>
 				</Row>
 
@@ -78,26 +138,28 @@ class Comparison extends React.Component {
 						{/* User markers */}
 						<Col>
 							<LabelledImage
-								scale={0.75}
+								scale={scale}
 								frameSrc={frameSrc}
 								markers={userMarkers}
 								minutiaeColor={userColor}
 								minutiaSize={minutiaSize}
 								width={width}
 								height={height}
+								filters={{ brightness, contrast, saturation, hue }}
 							/>
 						</Col>
 
 						{/* Expert markers */}
 						<Col>
 							<LabelledImage
-								scale={0.75}
+								scale={scale}
 								frameSrc={frameSrc}
 								markers={expertMarkers[idx]}
 								minutiaeColor={expertColor}
 								minutiaSize={minutiaSize}
 								width={width}
 								height={height}
+								filters={{ brightness, contrast, saturation, hue }}
 							/>
 						</Col>
 					</Row>
@@ -105,7 +167,7 @@ class Comparison extends React.Component {
 					/* User markers */
 					<Row justify="center">
 						<LabelledImage
-							scale={0.75}
+							scale={scale}
 							frameSrc={frameSrc}
 							markers={userMarkers}
 							markersOther={expertMarkers[idx]}
@@ -114,6 +176,7 @@ class Comparison extends React.Component {
 							minutiaSize={minutiaSize}
 							width={width}
 							height={height}
+							filters={{ brightness, contrast, saturation, hue }}
 						/>
 					</Row>
 				)}

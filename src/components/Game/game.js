@@ -899,16 +899,16 @@ class Game extends React.Component {
 					closable={false}
 					footer={null}
 					width="max-content"
-					// centered={true}
+					style={{ top: 20 }}
 				>
 					<div className="scoreModal">
 						{score ? (
 							<>
-								<p>Your score is...</p>
+								<h4>Your score is...</h4>
 								<Progress
 									width={100}
 									type="circle"
-									percent={1 - score / maxScore}
+									percent={(1 - score / maxScore) * 100}
 									strokeColor={{
 										"0%": "#108ee9",
 										"100%": "#87d068",
@@ -924,7 +924,7 @@ class Game extends React.Component {
 							</>
 						) : (
 							<>
-								<p>Calculating your score, please wait...</p>
+								<h4>Calculating your score, please wait...</h4>
 								<Skeleton.Avatar active={!score} size={100} shape="circle" />
 							</>
 						)}

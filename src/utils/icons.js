@@ -12,6 +12,7 @@ import {
 } from "react-icons/im";
 import { BsFillBrightnessHighFill, BsDropletHalf } from "react-icons/bs";
 import { GrVulnerability } from "react-icons/gr";
+import { GoSettings } from "react-icons/go";
 import { IoIosColorFilter, IoIosResize } from "react-icons/io";
 import { MdRotate90DegreesCcw } from "react-icons/md";
 import { VscSplitVertical, VscSplitHorizontal } from "react-icons/vsc";
@@ -74,4 +75,5 @@ export const icons = {
 	minutiaType: <GoldOutlined />,
 	verticalSplit: <VscSplitVertical />,
 	horizontalSplit: <VscSplitHorizontal />,
+	settings: <GoSettings />,
 };

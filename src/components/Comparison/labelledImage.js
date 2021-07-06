@@ -13,50 +13,45 @@ class LabelledImage extends React.Component {
 			width,
 			height,
 			scale,
+			filters,
 		} = this.props;
 
-		const opacity = markersOther ? 0.5 : 1;
+		const { brightness, saturation, contrast, hue } = filters;
+
+		const opacity = markersOther ? 0.9 : 1;
 
 		const size = { width: scale * width, height: scale * height };
+
+		const marker = (minutia, i, color) => (
+			<image
+				key={`minutia${i}`}
+				alt="minutia"
+				x={minutia.x - Math.round(minutiaSize / 2)}
+				y={minutia.y - Math.round(minutiaSize / 2)}
+				width={minutiaSize}
+				height={minutiaSize}
+				href={process.env.PUBLIC_URL + `./fingerprint_minutia_${color}.svg`}
+				style={{
+					transform: `rotate(${minutia.orientation}deg)`,
+					transformOrigin: `${minutia.x}px ${minutia.y}px`,
+					opacity: `${opacity}`,
+				}}
+			/>
+		);
 
 		return (
 			<svg width={size.width} height={size.height}>
 				<g style={{ transform: `scale(${scale})` }}>
-					<image alt="frame" href={frameSrc} />
-					{markers &&
-						markers.map((minutia, i) => (
-							<image
-								key={`minutia${i}`}
-								alt="minutia"
-								x={minutia.x - Math.round(minutiaSize / 2)}
-								y={minutia.y - Math.round(minutiaSize / 2)}
-								width={minutiaSize}
-								height={minutiaSize}
-								href={process.env.PUBLIC_URL + `./fingerprint_minutia_${minutiaeColor}.svg`}
-								style={{
-									transform: `rotate(${minutia.orientation}deg)`,
-									transformOrigin: `${minutia.x}px ${minutia.y}px`,
-									opacity: `${opacity}`,
-								}}
-							/>
-						))}
-					{markersOther &&
-						markersOther.map((minutia, i) => (
-							<image
-								key={`minutia${i}`}
-								alt="minutia"
-								x={minutia.x - Math.round(minutiaSize / 2)}
-								y={minutia.y - Math.round(minutiaSize / 2)}
-								width={minutiaSize}
-								height={minutiaSize}
-								href={process.env.PUBLIC_URL + `./fingerprint_minutia_${minutiaeColorOther}.svg`}
-								style={{
-									transform: `rotate(${minutia.orientation}deg)`,
-									transformOrigin: `${minutia.x}px ${minutia.y}px`,
-									opacity: `${opacity}`,
-								}}
-							/>
-						))}
+					<image
+						alt="frame"
+						href={frameSrc}
+						filter={`brightness(${brightness}%) 
+                                contrast(${contrast}%)
+                                saturate(${saturation}%) 
+                            	hue-rotate(${hue}deg)`}
+					/>
+					{markers && markers.map((minutia, i) => marker(minutia, i, minutiaeColor))}
+					{markersOther && markersOther.map((minutia, i) => marker(minutia, i, minutiaeColorOther))}
 				</g>
 			</svg>
 		);
