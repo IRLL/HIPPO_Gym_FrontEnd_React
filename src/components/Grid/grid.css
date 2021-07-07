@@ -1,8 +1,8 @@
-/* .grid {
-  outline: solid #1890ff;
-  outline-radius: 10px;
-} */
+.grid {
+  position: relative;
+}
 
+/* Add a blue border along outside of grid box */
 .grid:after {
   content: "";
   display: block;
@@ -11,6 +11,53 @@
   bottom: -3px;
   left: -3px;
   right: -3px;
-  border-radius: 5px;
+  border-radius: 3px;
   border: solid 3px #1890ff;
+}
+
+/* Add a black border along inside of grid box */
+.grid:before {
+  content: "";
+  display: block;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  border: solid 1px black;
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* Style tiles */
+.tile {
+  position: absolute;
+  border-left: solid 1px black;
+  border-bottom: solid 1px black;
+  display: grid;
+  place-items: center;
+  font-size: 1.5rem;
+  pointer-events: all;
+  cursor: pointer;
+  z-index: 1;
+}
+
+.selectedTile::before {
+  content: "";
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  position: absolute;
+  background-color: #1890ff;
+  opacity: 0.5;
+}
+
+.noselect {
+  -webkit-touch-callout: none; /* iOS Safari */
+  -webkit-user-select: none; /* Safari */
+  -khtml-user-select: none; /* Konqueror HTML */
+  -moz-user-select: none; /* Old versions of Firefox */
+  -ms-user-select: none; /* Internet Explorer/Edge */
+  user-select: none; /* Non-prefixed version, currently supported by Chrome, Edge, Opera and Firefox */
 }
