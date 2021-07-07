@@ -317,7 +317,6 @@ class ControlPanel extends React.Component {
     const lastRow = [
       elements["submitImage"],
       elements["start"],
-      elements["pause"],
       elements["stop"],
       elements["reset"],
     ];
