@@ -3,14 +3,12 @@ import "./grid.css";
 
 class Grid extends React.Component {
   state = {
-    tiles: [],
     tile_size: 50,
     background_color: "white",
-    rows: 0,
-    columns: 0,
+    selecting: false,
   };
 
-  componentDidMount() {
+  componentWillMount() {
     const { grid } = this.props;
     const { rows, columns, tiles: specialTiles } = grid;
     const tiles = [];
@@ -23,20 +21,56 @@ class Grid extends React.Component {
 
     for (let tile of specialTiles) {
       const index = tile.row * columns + tile.col;
-
       tiles[index] = tile;
     }
 
     this.setState({ tiles, rows, columns });
   }
 
-  handleClick = (i) => {
+  componentDidMount() {
+    this.props.setResetGrid(this.handleReset);
+    this.props.setSubmitGrid(this.handleSubmit);
+  }
+
+  handleClick = (i, method) => {
     const tiles = [...this.state.tiles];
+
+    const selected = tiles[i].selected;
 
     tiles[i] = { ...tiles[i], selected: !tiles[i].selected };
 
     this.setState({ tiles });
+
+    // send info about tile that was selected currently
+    if (method === "sendMessage"){              // only sendMessage on mouseDown and mouseEnter events. Don't send on onClick or mouseUp
+      this.props.sendMessage({
+        info: !selected ? "tile selected" : "tile unselected",
+        tileCoordinates: {x: tiles[i].col, y: tiles[i].row},
+      })
+    }
   };
+
+  handleReset = () => {
+    this.componentWillMount();
+  }
+
+  handleSubmit = () => {
+    // Get a list of all the selected tiles
+    const { tiles } = this.state;
+    const selected = tiles.filter((tile) => tile.selected);
+
+    // Send that list was submitted and list of selected tiles
+    this.props.sendMessage({
+      info: "submitted",
+      selectedTileList: selected,
+    })
+  }
+
+  setSelecting = (selecting) => {
+    this.setState({selecting})
+  }
+
+  getSelecting = () => this.state.selecting
 
   render() {
     const { tiles, rows, columns, tile_size, background_color } = this.state;
@@ -61,6 +95,8 @@ class Grid extends React.Component {
             key={i}
             index={i}
             handleClick={this.handleClick}
+            getSelecting={this.getSelecting}
+            setSelecting={this.setSelecting}
           />
         ))}
       </div>
@@ -70,9 +106,8 @@ class Grid extends React.Component {
 
 class Tile extends React.Component {
   render() {
-    const { size, color, text, x, y, selected, index, handleClick } =
+    const { size, color, text, x, y, selected, index, handleClick, getSelecting, setSelecting } =
       this.props;
-
     return (
       <div
         className={`tile noselect ${selected ? "selectedTile" : ""}`}
@@ -83,7 +118,16 @@ class Tile extends React.Component {
           top: y,
           left: x,
         }}
+        onMouseDown={() => {
+          handleClick(index, "sendMessage");
+          setSelecting(true);
+        }}
+        onMouseUp={() => {
+          handleClick(index);
+          setSelecting(false);
+        }}
         onClick={() => handleClick(index)}
+        onMouseEnter={() => {if (getSelecting()) handleClick(index, "sendMessage");}}
       >
         {text}
       </div>

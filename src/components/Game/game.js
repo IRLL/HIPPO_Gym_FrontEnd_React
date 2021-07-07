@@ -91,6 +91,8 @@ class Game extends React.Component {
     windowSize: "responsive", // if strict, game or fingerprint window will not be responsive
     imageWidth: null,
     imageHeight: null,
+
+    // grid variables
     grid: null,
   };
 
@@ -368,6 +370,7 @@ class Game extends React.Component {
         hue: 0,
         resetModalVisible: false,
       });
+
       if (e.currentTarget.id === "resetAll") {
         this.setState({
           minutiae: [],
@@ -438,7 +441,19 @@ class Game extends React.Component {
         command: status,
         minutiaList: this.normalizeMinutiae(this.state.minutiae),
       });
+    } else if (status === "reset"){
+      if (this.state.grid) {
+        this.resetGrid();
+        this.sendMessage({
+          command: status,
+          info: "reset grid",
+        });
+      }
     } else {
+      if(this.state.grid) {
+        this.submitGrid();
+      }
+
       this.sendMessage({
         command: status,
       });
@@ -491,6 +506,16 @@ class Game extends React.Component {
     }
   };
 
+  resetGrid = () => {}
+  setResetGrid = (handleReset) => {
+    this.resetGrid = handleReset;
+  }
+
+  submitGrid = () => {}
+  setSubmitGrid = (handleSubmit) => {
+    this.submitGrid = handleSubmit;
+  }
+
   // Apply color filters to the image in the fingerprint window
   // - send applied filter to websocket
   handleImage = (type, value) => {
@@ -525,12 +550,6 @@ class Game extends React.Component {
   // Perform commands like add minutia, redo, undo, reset
   // Send performed command to websocket
   handleImageCommands = (command) => {
-    // console.log(
-    // 	"undo length: ",
-    // 	this.state.undoList.length,
-    // 	"redo length: ",
-    // 	this.state.redoList.length
-    // );
     switch (command) {
       case "resetImage":
         this.setState({
@@ -877,7 +896,12 @@ class Game extends React.Component {
                 handleChanging={this.handleChanging}
               />
             ) : grid ? (
-              <Grid grid={grid} />
+              <Grid
+              grid={grid}
+              sendMessage={this.sendMessage}
+              setResetGrid={this.setResetGrid}
+              setSubmitGrid={this.setSubmitGrid}
+              />
             ) : (
               <GameWindow
                 isLoading={isLoading}
@@ -901,6 +925,7 @@ class Game extends React.Component {
               </Col>
             ) : null}
           </div>
+
           <ControlPanel
             className="gameControlPanel"
             isEnd={isEnd}
@@ -985,6 +1010,7 @@ class Game extends React.Component {
             Press <b>"Keep minutiae"</b> to avoid clearing minutiae
           </p>
         </Modal>
+
         <Modal visible={scoreModalVisible} closable={false} footer={null}>
           {!score ? (
             <div className="scoreModal">
