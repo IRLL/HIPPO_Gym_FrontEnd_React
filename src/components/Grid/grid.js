@@ -42,12 +42,10 @@ class Grid extends React.Component {
     this.setState({ tiles });
 
     // send info about tile that was selected currently
-    if (method === "sendMessage"){              // only sendMessage on mouseDown and mouseEnter events. Don't send on onClick or mouseUp
-      this.props.sendMessage({
-        info: !selected ? "tile selected" : "tile unselected",
-        tileCoordinates: {x: tiles[i].col, y: tiles[i].row},
-      })
-    }
+    this.props.sendMessage({
+      info: !selected ? "tile selected" : "tile unselected",
+      tileCoordinates: {x: tiles[i].col, y: tiles[i].row},
+    })
   };
 
   handleReset = () => {
@@ -119,15 +117,13 @@ class Tile extends React.Component {
           left: x,
         }}
         onMouseDown={() => {
-          handleClick(index, "sendMessage");
+          handleClick(index);
           setSelecting(true);
         }}
         onMouseUp={() => {
-          handleClick(index);
           setSelecting(false);
         }}
-        onClick={() => handleClick(index)}
-        onMouseEnter={() => {if (getSelecting()) handleClick(index, "sendMessage");}}
+        onMouseEnter={() => {if (getSelecting()) handleClick(index);}}
       >
         {text}
       </div>
