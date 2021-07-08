@@ -17,7 +17,9 @@ import DisplayBar from "../DisplayBar/displayBar";
 import MessageViewer from "../Message/MessageViewer";
 import GameWindow from "../GameWindow/gameWindow";
 import FingerprintWindow from "../GameWindow/fingerprintWindow";
-import worker_script from "./websocket.worker";
+import worker from "./websocket.worker";
+import WebWorker from "./workerSteup";
+// import worker_script from "./websocket.worker";
 
 const pendingTime = 30;
 let initialWindowWidth = 700;
@@ -101,7 +103,7 @@ class Game extends React.Component {
 		this.timer = setTimeout(
 			() => {
         // add WORKER script
-        this.worker = new Worker(worker_script);
+        this.worker = new WebWorker(worker);
         this.worker.onmessage = ev => {
           console.log("got data back from worker");
           console.log(ev);
@@ -114,7 +116,7 @@ class Game extends React.Component {
         // end WORKER script
 
 				//connect the websocket server
-				this.websocket = new WebSocket(WS_URL);
+				this.websocket = new w3cwebsocket(WS_URL);
 				this.websocket.onopen = () => {
 					// Once the websocket connection has been established
 					// we remove all the unnecessary timer
@@ -129,12 +131,10 @@ class Game extends React.Component {
 						userId: USER_ID,
 						projectId: PROJECT_ID,
 					});
-          console.log("in GAme - ", PROJECT_ID, USER_ID)
 				};
 
 				// Listen to the data from the websocket server
 				this.websocket.onmessage = (message) => {
-          console.log("game.js - onmessage")
 					if (message.data === "done") {
 						//"done" means the game has ended
 						this.setState({
