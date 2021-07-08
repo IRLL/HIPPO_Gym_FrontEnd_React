@@ -640,7 +640,6 @@ class Game extends React.Component {
   // create a tuple to indicate which mouse button was pressed
   // (left, center/mouse wheel, right)
   getButtonTuple = (button) => {
-    console.log("butttttons")
     if (button === 1) {return [1,0,0]}          // left button
     else if (button === 2) {return [0,0,1]}     // right button
     else if (button === 4) {return [0,1,0]}     // center button/mouse wheel
