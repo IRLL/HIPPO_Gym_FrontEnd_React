@@ -43,6 +43,7 @@ class GameWindow extends React.Component {
                     )
                   }}
                   onMouseDown={(event) => {
+                    event.preventDefault()
                     const point = localPoint(event);
                     getMouseData(
                       point.x,
@@ -51,12 +52,18 @@ class GameWindow extends React.Component {
                     )
                   }}
                   onMouseMove={(event) => {
+                    event.preventDefault()
                     const point = localPoint(event);
                     getMouseData(
                       point.x,
                       point.y - 0.65625,
                       event.buttons,
                     )
+                  }}
+                  // prevent context menu from popping up when right mouse button is clicked in the gamewindow
+                  onContextMenu={(event) => {
+                    event.preventDefault();
+                    return false;
                   }}
                 >
                     {isLoading || !frameSrc ?
