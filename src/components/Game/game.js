@@ -103,11 +103,15 @@ class Game extends React.Component {
           console.log("got data back from worker");
           console.log(ev);
         };
-        this.worker.postMessage(WS_URL)
+        this.worker.postMessage({
+          WS_URL: WS_URL,
+          USER_ID: USER_ID,
+          PROJECT_ID: PROJECT_ID,
+        })
         // end WORKER script
 
 				//connect the websocket server
-				this.websocket = new w3cwebsocket(WS_URL);
+				this.websocket = new WebSocket(WS_URL);
 				this.websocket.onopen = () => {
 					// Once the websocket connection has been established
 					// we remove all the unnecessary timer
@@ -122,10 +126,12 @@ class Game extends React.Component {
 						userId: USER_ID,
 						projectId: PROJECT_ID,
 					});
+          console.log("in GAme - ", PROJECT_ID, USER_ID)
 				};
 
 				// Listen to the data from the websocket server
 				this.websocket.onmessage = (message) => {
+          console.log("game.js - onmessage")
 					if (message.data === "done") {
 						//"done" means the game has ended
 						this.setState({

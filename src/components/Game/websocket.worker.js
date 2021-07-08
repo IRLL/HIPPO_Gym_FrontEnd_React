@@ -3,21 +3,27 @@
 const workercode = () => {
   onmessage = function(event) {
   console.log("we are in the webworker now")
-  var ws = new WebSocket(event.data)
+  console.log(event.data)
+  var ws = new WebSocket(event.data.WS_URL)
 
   ws.onopen = () => {
-    console.log("A websocket connection has been established");
-    // ws.send = () => {
-    //   consol
-    // }
+    console.log("A websocket connection has been established in the webworker");
+    ws.send(JSON.stringify(
+      {
+        userId: event.data.USER_ID,
+        projectId: event.data.PROJECT_ID,
+        frameCount: 0,
+        frameId: 0,
+      }
+    ))
   }
 
   ws.onmessage = (message) => {
-    console.log("Message has been recieved and the data includes: ", message)
+    console.log("WORKER - Message has been recieved and the data includes: ", message)
   }
 
   ws.onclose = () => {
-    console.log("CLOSED WS")
+    console.log("closed websocket connection")
   }
   };
 };
