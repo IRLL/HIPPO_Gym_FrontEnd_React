@@ -20,12 +20,10 @@ class GameWindow extends React.Component {
 
     ripple.style.animation = "ripple-effect .4s  linear";
     ripple.onanimationend = () => document.body.removeChild(ripple);
-
  }
 
   render() {
-      const {isLoading, frameSrc, progress, imageL, imageR, addMinutia, width, height} = this.props;
-
+      const {isLoading, frameSrc, progress, imageL, imageR, addMinutia, width, height, getMouseData} = this.props;
       return (
         <Zoom>
           {(zoom) => (
@@ -42,6 +40,22 @@ class GameWindow extends React.Component {
                     addMinutia(
                       point.x,
                       point.y - 0.65625,
+                    )
+                  }}
+                  onMouseDown={(event) => {
+                    const point = localPoint(event);
+                    getMouseData(
+                      point.x,
+                      point.y - 0.65625,
+                      event.buttons,
+                    )
+                  }}
+                  onMouseMove={(event) => {
+                    const point = localPoint(event);
+                    getMouseData(
+                      point.x,
+                      point.y - 0.65625,
+                      event.buttons,
                     )
                   }}
                 >
