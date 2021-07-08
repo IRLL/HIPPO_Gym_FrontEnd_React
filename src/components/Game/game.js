@@ -1,7 +1,7 @@
 import React from "react";
 import "antd/dist/antd.css";
 import "./game.css";
-import { message, Modal, Row, Col, Button, Radio, Progress, Skeleton } from "antd";
+import { message, Modal, Col, Button, Radio, Progress, Skeleton } from "antd";
 import { w3cwebsocket } from "websocket";
 import { browserName, osName, browserVersion, osVersion } from "react-device-detect";
 
@@ -20,6 +20,10 @@ import FingerprintWindow from "../GameWindow/fingerprintWindow";
 import worker_script from "./websocket.worker";
 
 const pendingTime = 30;
+let initialWindowWidth = 700;
+let initialWindowHeight = 600;
+let windowSizeRatio = 700/600;
+let prevFrameCount = 0;       // used by getMouseData to check if the frame has changed
 
 class Game extends React.Component {
 	state = {
@@ -75,7 +79,6 @@ class Game extends React.Component {
 		windowWidth: 700,          // default is 700, researcher can provide custom value
 		windowHeight: 600,          // default is 600, researcher can provide custom value
     windowSize: "responsive",   // if strict, game or fingerprint window will not be responsive
-    windowSizeRatio: null,      // initial windowWidth/windowHeight
 		imageWidth: null,
 		imageHeight: null,
 	};
@@ -156,19 +159,21 @@ class Game extends React.Component {
 						}
             // Check if window size is in the response
             if (parsedData.gameWindowWidth) {
+              initialWindowWidth = parsedData.gameWindowWidth
               this.setState({
                 windowWidth: parsedData.gameWindowWidth
               })
             }
             if (parsedData.gameWindowHeight) {
+              initialWindowHeight = parsedData.gameWindowHeight
               this.setState({
                 windowHeight: parsedData.gameWindowHeight
               })
             }
             if (parsedData.gameWindowSize) {
+              windowSizeRatio = this.state.windowWidth/this.state.windowHeight
               this.setState({
                 windowSize: parsedData.gameWindowSize,
-                windowSizeRatio: this.state.windowWidth/this.state.windowHeight
               })
             }
 						//Check if Instructions in response
@@ -205,9 +210,6 @@ class Game extends React.Component {
 						if (parsedData.frame && parsedData.frameId) {
 							let frame = parsedData.frame;
 							let frameId = parsedData.frameId;
-              this.setState({
-                windowSizeRatio: (this.state.windowWidth / this.state.windowHeight),
-              })
 
 							if (this.state.score)
 								this.setState((prevState) => ({
@@ -328,20 +330,18 @@ class Game extends React.Component {
 
 	handleResize = () => {
 		if (this.state.windowSize !== "strict") {
-			const width = this.state.windowWidth;
 			const value =
 				this.state.orientation === "vertical"
-				? document.documentElement.clientWidth > width
-					? width
+				? document.documentElement.clientWidth > initialWindowWidth
+					? initialWindowWidth
 					: 0.8 * document.documentElement.clientWidth
-				: 0.4 * document.documentElement.clientWidth > width
-				? width
+				: 0.4 * document.documentElement.clientWidth > initialWindowWidth
+				? initialWindowWidth
 				: 0.5 * document.documentElement.clientWidth;
-
-			let newHeight  = value / this.state.windowSizeRatio;
+			let newHeight  = value / windowSizeRatio;
 			this.setState({
 				windowWidth: value,
-				windowHeight: newHeight
+				windowHeight: newHeight,
 			});
 		}
 	}
@@ -652,6 +652,35 @@ class Game extends React.Component {
     }
 	};
 
+  // create a tuple to indicate which mouse button was pressed
+  // (left, center/mouse wheel, right)
+  getButtonTuple = (button) => {
+    console.log("butttttons")
+    if (button === 1) {return [1,0,0]}          // left button
+    else if (button === 2) {return [0,0,1]}     // right button
+    else if (button === 4) {return [0,1,0]}     // center button/mouse wheel
+    else {return [0,0,0]}
+  }
+  // every time a new frame is recieve, send information about the mouse motion
+  getMouseData = (x, y, button) => {
+    if (this.state.frameCount !== prevFrameCount){
+      x = parseInt(x)
+      y = parseInt(y)
+      var xRel = x/this.state.windowWidth
+      var yRel = y/this.state.windowHeight
+      var buttonTuple = this.getButtonTuple(button)
+      this.sendMessage({
+        info: "mouse motion",
+        pos: {x, y},
+        rel: {xRel, yRel},
+        buttons: buttonTuple,         // button pressed in tuple format
+        button,                       // integer value of button pressed
+      })
+      // set prevFrameCount to the current frame count
+      prevFrameCount = this.state.frameCount
+    }
+  }
+
 	// Edit the minutia at position index in the minutiae array
 	// corresponding to the type of command and value
 	// - send applied command to websocket
@@ -855,6 +884,7 @@ class Game extends React.Component {
                     imageR={imageR}
                     progress={progress}
                     addMinutia={this.addMinutia}
+                    getMouseData={this.getMouseData}
                     data-testid="game-window"
                   />
                 )}
