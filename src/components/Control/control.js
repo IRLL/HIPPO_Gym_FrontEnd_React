@@ -72,13 +72,13 @@ class ControlPanel extends React.Component {
 			"submitImage",
 			"stop",
 		];
-		const defaultButtons = [...directions, ...fps];
+		const defaultButtons = [...directions, ...fps, ...imageCommands, ...commands];
 
+    // filter out UIlist to avoid duplicate buttons
 		const UIFiltered = UIlist.filter(
 			(ele) =>
 				!defaultButtons.includes(ele) &&
-				!imageControls.map((control) => control.name).includes(ele) &&
-				!imageCommands.includes(ele)
+				!imageControls.map((control) => control.name).includes(ele)
 		);
 
 		const elements = {
@@ -152,21 +152,23 @@ class ControlPanel extends React.Component {
 				);
 		});
 		commands.forEach((command) => {
-			elements[command] = (
-				<Col key={command}>
-					<Button
-						shape="round"
-						type="primary"
-						id={command}
-						className={`${command}Button`}
-						icon={icons[command]}
-						size="large"
-						onClick={() => handleCommand(command)}
-					>
-						{capitalize(command)}
-					</Button>
-				</Col>
-			);
+      if (UIlist.includes(command)){
+        elements[command] = (
+          <Col key={command}>
+            <Button
+              shape="round"
+              type="primary"
+              id={command}
+              className={`${command}Button`}
+              icon={icons[command]}
+              size="large"
+              onClick={() => handleCommand(command)}
+            >
+              {capitalize(command)}
+            </Button>
+          </Col>
+        );
+      }
 		});
 		instructions.forEach((instruction, i) => {
 			elements[`instruction${i}`] = <li key={`instruction${i}`}>{instruction}</li>;
@@ -223,25 +225,25 @@ class ControlPanel extends React.Component {
           break;
       }
 
-      enabled = elements[command] = (
-        <Col key={command}>
-          {UIlist.includes(command) && (
-            <Button
-              shape="round"
-              type="primary"
-              id={command}
-              className={className}
-              icon={icons[command]}
-              size="large"
-              onClick={() => handleImageCommands(command)}
-              date-testid={command}
-              disabled={!enabled}
-            >
-              {capitalize(sentenceCase(command))}
-            </Button>
-          )}
-        </Col>
-      );
+      if (UIlist.includes(command)) {
+        elements[command] = (
+          <Col key={command}>
+              <Button
+                shape="round"
+                type="primary"
+                id={command}
+                className={className}
+                icon={icons[command]}
+                size="large"
+                onClick={() => handleImageCommands(command)}
+                date-testid={command}
+                disabled={!enabled}
+              >
+                {capitalize(sentenceCase(command))}
+              </Button>
+          </Col>
+        );
+      }
       });
       UIFiltered.forEach((ele) => {
         if (!(ele in elements)) {
@@ -285,7 +287,14 @@ class ControlPanel extends React.Component {
 		const secondRow = [elements["left"], elements["fire"], elements["right"]];
 		const thirdRow = [ elements["leftDown"], elements["down"], elements["rightDown"]];
     const fpsRow = [elements["fpsUp"], elements["fpsSet"], elements["fpsDown"]]
-		const lastRow = [elements["submitImage"], elements["start"], elements["stop"], elements["reset"]];
+		const lastRow = [elements["submitImage"], elements["start"], elements["pause"], elements["stop"], elements["reset"]];
+    const customRow = [];           // store custom buttons
+
+    // TODO: this is a temporary method of arranging cutom buttons. It needs to be redone
+    // add custom buttons
+    UIFiltered.forEach((ele) => {
+      customRow.push(elements[ele])
+		});
 		// UIFiltered.forEach((ele, idx) => {
 		// 	if (idx % 3 === 0) {
 		// 		firstRow.push(elements[ele]);
@@ -329,6 +338,9 @@ class ControlPanel extends React.Component {
                 <Row className="direction">{secondRow}</Row>
                 <Row className="direction">{thirdRow}</Row>
               </div>
+              {customRow.length ?
+                <Row gutter={[4, 8]} justify="space-around">{customRow}</Row>
+              : null}
               <Row gutter={[4, 8]} justify="space-around">{lastRow}</Row>
               {isEnd ? next : null}
 						</div>
