@@ -22,7 +22,11 @@ const pendingTime = 30;
 let initialWindowWidth = 700;
 let initialWindowHeight = 600;
 let windowSizeRatio = 700/600;
-let prevFrameCount = 0;       // used by getMouseData to check if the frame has changed
+let prevMouseData = {
+  frameCount: 0,
+  x: 0,
+  y: 0,
+}
 
 class Game extends React.Component {
 	state = {
@@ -635,7 +639,7 @@ class Game extends React.Component {
         coordinates: { x, y, xRel, yRel},
       });
     }
-	};
+	};z
 
   // create a tuple to indicate which mouse button was pressed
   // (left, center/mouse wheel, right)
@@ -645,23 +649,35 @@ class Game extends React.Component {
     else if (button === 4) {return [0,1,0]}     // center button/mouse wheel
     else {return [0,0,0]}
   }
+
+  // calculate the difference in current vs previous mouse positions
+  getMouseMovement = (currX, currY) => {
+    var [width, height] = [this.state.windowWidth, this.state.windowHeight]
+    currX = parseInt(currX)
+    currY = parseInt(currY)
+    var [currXRel, currYRel] = [currX/width, currY/height]
+    var [prevXRel, prevYRel] = [prevMouseData.x / width, prevMouseData.y / height]
+    let pxsMovement = [currX - prevMouseData.x, currY - prevMouseData.y]
+    let relMovement = [ currXRel - prevXRel, currYRel - prevYRel]
+    prevMouseData.x = currX
+    prevMouseData.y = currY
+    return ([pxsMovement[0], pxsMovement[1], relMovement[0], relMovement[1]])
+  }
+
   // every time a new frame is recieve, send information about the mouse motion
   getMouseData = (x, y, button) => {
-    if (this.state.frameCount !== prevFrameCount){
-      x = parseInt(x)
-      y = parseInt(y)
-      var xRel = x/this.state.windowWidth
-      var yRel = y/this.state.windowHeight
+    if (this.state.frameCount !== prevMouseData.frameCount){
       var buttonTuple = this.getButtonTuple(button)
+      var [xMovement, yMovement, xRelMovement, yRelMovement] = this.getMouseMovement(x, y)
       this.sendMessage({
         info: "mouse motion",
-        pos: {x, y},
-        rel: {xRel, yRel},
+        pos: {xMovement, yMovement},
+        rel: {xRelMovement, yRelMovement},
         buttons: buttonTuple,         // button pressed in tuple format
         button,                       // integer value of button pressed
       })
       // set prevFrameCount to the current frame count
-      prevFrameCount = this.state.frameCount
+      prevMouseData.frameCount = this.state.frameCount
     }
   }
 
