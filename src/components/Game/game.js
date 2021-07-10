@@ -79,6 +79,8 @@ class Game extends React.Component {
 		windowHeight: 600, // height of the game window
 		imageWidth: null, // default width of the frame image source
 		imageHeight: null, // default height of the frame image source
+
+		requestingFeedback: false,
 	};
 
 	componentDidMount() {
@@ -159,8 +161,6 @@ class Game extends React.Component {
 								expertMarker1: parsedData.ExpertMarks1,
 								expertMarker2: parsedData.ExpertMarks2,
 							});
-
-							console.log(parsedData.ExpertMarks1, parsedData.ExpertMarks2);
 						}
 						//Check if Score in response
 						if (parsedData.Score) {
@@ -179,6 +179,10 @@ class Game extends React.Component {
 							this.setState({
 								minMinutiae: parsedData.MinMinutiae,
 							});
+						}
+						if (parsedData.ScoreChange) {
+							this.setState({ requestingFeedback: false });
+							this.handleFeedback(parsedData.ScoreChange);
 						}
 						//Check if frame related information in response
 						if (parsedData.frame && parsedData.frameId) {
@@ -382,23 +386,44 @@ class Game extends React.Component {
 			return;
 		}
 
-		if (status === "start") {
-			this.sendMessage({
-				command: status,
-				system: osName,
-				systemVersion: osVersion,
-				browser: browserName,
-				browserVersion: browserVersion,
-			});
-		} else if (status === "submitImage") {
-			this.sendMessage({
-				command: status,
-				minutiaList: this.normalizeMinutiae(this.state.minutiae),
-			});
-		} else {
-			this.sendMessage({
-				command: status,
-			});
+		switch (status) {
+			case "start":
+				this.sendMessage({
+					command: status,
+					system: osName,
+					systemVersion: osVersion,
+					browser: browserName,
+					browserVersion: browserVersion,
+				});
+				break;
+			case "getFeedback":
+				if (this.state.minMinutiae && this.state.minutiae.length < 4) {
+					this.showError(
+						"Not enough minutiae",
+						<p>
+							You only have <b>{this.state.minutiae.length}</b> minutia
+							{this.state.minutiae.length !== 1 && "e"} and you need at least 4 minutiae to request
+							feedback
+						</p>
+					);
+				} else {
+					this.setState({ requestingFeedback: true });
+					this.sendMessage({
+						command: status,
+						minutiaList: this.normalizeMinutiae(this.state.minutiae),
+					});
+				}
+				break;
+			case "submitImage":
+				this.sendMessage({
+					command: status,
+					minutiaList: this.normalizeMinutiae(this.state.minutiae),
+				});
+				break;
+			default:
+				this.sendMessage({
+					command: status,
+				});
 		}
 	};
 
@@ -453,12 +478,11 @@ class Game extends React.Component {
 	// Perform commands like add minutia, redo, undo, reset
 	// Send performed command to websocket
 	handleImageCommands = (command) => {
-		// console.log(
-		// 	"undo length: ",
-		// 	this.state.undoList.length,
-		// 	"redo length: ",
-		// 	this.state.redoList.length
-		// );
+		if (this.state.isLoading) {
+			message.error("Please wait for the connection to be established first!");
+			return;
+		}
+
 		switch (command) {
 			case "resetImage":
 				this.setState({
@@ -504,6 +528,20 @@ class Game extends React.Component {
 				this.handleCommand(command);
 				return;
 		}
+	};
+
+	// Change all the colors in the current minutiae
+	// based on the feedback
+	handleFeedback = (feedback) => {
+		const minutiae = this.state.minutiae.map((minutia, i) => {
+			let color = minutia.color;
+			console.log(feedback[i][1]);
+			if (feedback[i][1] < 0) color = "red";
+			else if (feedback[i][1] > 0) color = "green";
+			return { ...minutia, color };
+		});
+
+		this.setState({ minutiae });
 	};
 
 	// Pushes the current state of image filters and
@@ -616,15 +654,15 @@ class Game extends React.Component {
 
 		this.setState({ minutiae: prevMinutiae });
 
-		if (!this.state.changing) {
+		// if it's a slider command, then check if the user is still changing it
+		if (!["rotate", "move", "resize"].includes(type) || !this.state.changing) {
 			this.pushUndo();
 			this.setState({ redoEnabled: false, redoList: [] });
+			this.sendMessage({
+				info: "minutia " + index + " edited: " + type,
+				value,
+			});
 		}
-
-		this.sendMessage({
-			info: "minutia " + index + " edited: " + type,
-			value,
-		});
 	};
 
 	// If the sliders are still changing
@@ -754,6 +792,7 @@ class Game extends React.Component {
 			redoEnabled,
 			expertMarker1,
 			expertMarker2,
+			requestingFeedback,
 		} = this.state;
 
 		return (
@@ -783,13 +822,13 @@ class Game extends React.Component {
 					inputBudget={inputBudget}
 				/>
 
-				<div className={`${orientation}Grid`}>
-					<Row>
-						<Col flex={1}>
+				<div className={DEBUG ? "" : `${orientation}Grid`}>
+					<Row gutter={4} align="center" style={{ width: "100%" }}>
+						<Col span={4}>
 							<MessageViewer title="Message In" data={inMessage} visible={DEBUG} />
 						</Col>
 
-						<Col flex={2} align="center">
+						<Col span={DEBUG ? 16 : 24}>
 							{fingerprint ? (
 								<FingerprintWindow
 									isLoading={isLoading}
@@ -819,7 +858,7 @@ class Game extends React.Component {
 							)}
 						</Col>
 
-						<Col flex={1}>
+						<Col span={4}>
 							<MessageViewer
 								title="Message Out"
 								id="message-view-1"
@@ -830,7 +869,7 @@ class Game extends React.Component {
 					</Row>
 
 					<ControlPanel
-						className="gameControlPanel"
+						className={`gameControlPanel ${DEBUG && "verticalGrid"}`}
 						isEnd={isEnd}
 						isLoading={isLoading}
 						frameRate={frameRate}
@@ -852,6 +891,7 @@ class Game extends React.Component {
 						orientation={orientation}
 						undoEnabled={undoEnabled}
 						redoEnabled={redoEnabled}
+						requestingFeedback={requestingFeedback}
 					/>
 				</div>
 

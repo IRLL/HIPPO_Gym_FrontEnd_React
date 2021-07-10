@@ -28,6 +28,7 @@ class ControlPanel extends React.Component {
 			addingMinutiae,
 			undoEnabled,
 			redoEnabled,
+			requestingFeedback,
 		} = this.props;
 
 		const directions = [
@@ -68,6 +69,7 @@ class ControlPanel extends React.Component {
 			"addMinutia",
 			"resetImage",
 			"submitImage",
+			"getFeedback",
 			"stop",
 		];
 		const defaultButtons = [...directions, ...fps];
@@ -229,6 +231,7 @@ class ControlPanel extends React.Component {
 							onClick={() => handleImageCommands(command)}
 							date-testid={command}
 							disabled={!enabled}
+							loading={command === "getFeedback" ? requestingFeedback : false}
 						>
 							{capitalize(sentenceCase(command))}
 						</Button>
@@ -260,6 +263,7 @@ class ControlPanel extends React.Component {
 			elements["undo"],
 			elements["redo"],
 			elements["addMinutia"],
+			elements["getFeedback"],
 			elements["stop"],
 		];
 		const firstRow = [elements["leftUp"], elements["up"], elements["rightUp"], elements["fpsUp"]];

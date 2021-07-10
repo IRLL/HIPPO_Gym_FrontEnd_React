@@ -87,7 +87,7 @@ class FingerprintWindow extends React.Component {
 		);
 
 		// Menu when recolor is selected from popup menu
-		const colors = ["blue", "green", "yellow", "red", "orange"];
+		const colors = ["blue", "yellow", "orange"];
 		const colorPicker = (
 			<Radio.Group
 				defaultValue="blue"
@@ -135,13 +135,6 @@ class FingerprintWindow extends React.Component {
 						<Button type="default" icon={icons["resizeImage"]} />
 					</Popover>
 				</Tooltip>
-				{/* <Tooltip placement="bottom" title="Move Minutia">
-					<Button
-						type={this.state.move ? "primary" : "default"}
-						icon={icons["moveMinutia"]}
-						onClick={() => this.setState((prevState) => ({ move: !prevState.move }))}
-					/>
-				</Tooltip> */}
 				<Tooltip placement="bottom" title="Change Color">
 					<Popover trigger="click" content={colorPicker} title="Change Color">
 						<Button type="default" icon={icons["recolorMinutia"]} />
@@ -283,11 +276,11 @@ class FingerprintWindow extends React.Component {
 												}
 											}}
 											onDragStart={(e) => e.preventDefault()}
-											onMouseDown={() => this.setState({ moving: true })}
-											onTouchStart={() => this.setState({ moving: true })}
-											onMouseUp={() => this.setState({ moving: false })}
-											onTouchEnd={() => this.setState({ moving: false })}
-											onMouseLeave={() => this.setState({ moving: false })}
+											onMouseDown={() => handleChanging(true) || this.setState({ moving: true })}
+											onTouchStart={() => handleChanging(true) || this.setState({ moving: true })}
+											onMouseUp={() => handleChanging(false) || this.setState({ moving: false })}
+											onTouchEnd={() => handleChanging(false) || this.setState({ moving: false })}
+											onMouseLeave={() => handleChanging(false) || this.setState({ moving: false })}
 										/>
 									</Popover>
 								))}

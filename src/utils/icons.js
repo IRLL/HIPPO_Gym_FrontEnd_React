@@ -36,6 +36,7 @@ import {
 	DragOutlined,
 	BgColorsOutlined,
 	GoldOutlined,
+	QuestionCircleOutlined,
 } from "@ant-design/icons";
 
 export const icons = {
@@ -76,4 +77,5 @@ export const icons = {
 	verticalSplit: <VscSplitVertical />,
 	horizontalSplit: <VscSplitHorizontal />,
 	settings: <GoSettings />,
+	getFeedback: <QuestionCircleOutlined />,
 };
