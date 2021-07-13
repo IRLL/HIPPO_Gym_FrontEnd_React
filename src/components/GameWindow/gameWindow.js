@@ -23,7 +23,7 @@ class GameWindow extends React.Component {
  }
 
   render() {
-      const {isLoading, frameSrc, progress, imageL, imageR, addMinutia, width, height, getMouseData} = this.props;
+      const {isLoading, frameSrc, progress, imageL, imageR, addMinutia, width, height, sendMouseData} = this.props;
       return (
         <Zoom>
           {(zoom) => (
@@ -35,17 +35,11 @@ class GameWindow extends React.Component {
                 </div>
                 :null }
                 <div className="gameWindow"
-                  onClick={(event) => {
-                    const point = localPoint(event);
-                    addMinutia(
-                      point.x,
-                      point.y - 0.65625,
-                    )
-                  }}
                   onMouseDown={(event) => {
                     event.preventDefault()
                     const point = localPoint(event);
-                    getMouseData(
+                    sendMouseData(
+                      "mouse down",
                       point.x,
                       point.y - 0.65625,
                       event.buttons,
@@ -54,7 +48,18 @@ class GameWindow extends React.Component {
                   onMouseMove={(event) => {
                     event.preventDefault()
                     const point = localPoint(event);
-                    getMouseData(
+                    sendMouseData(
+                      "mouse move",
+                      point.x,
+                      point.y - 0.65625,
+                      event.buttons,
+                    )
+                  }}
+                  onMouseUp={(event) => {
+                    event.preventDefault()
+                    const point = localPoint(event);
+                    sendMouseData(
+                      "mouse up",
                       point.x,
                       point.y - 0.65625,
                       event.buttons,

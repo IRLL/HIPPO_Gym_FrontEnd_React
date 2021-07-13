@@ -630,16 +630,8 @@ class Game extends React.Component {
         info: "minutia added",
         minutia: { x, y, orientation, size, color, type },
       });
-    } else {
-      // relative x and y values
-      var xRel = x/this.state.windowWidth
-      var yRel = y/this.state.windowHeight
-      this.sendMessage({
-        info: "point clicked",
-        coordinates: { x, y, xRel, yRel},
-      });
     }
-	};z
+	};
 
   // create a tuple to indicate which mouse button was pressed
   // (left, center/mouse wheel, right)
@@ -651,7 +643,7 @@ class Game extends React.Component {
   }
 
   // calculate the difference in current vs previous mouse positions
-  getMouseMovement = (currX, currY) => {
+  getMouseData = (currX, currY) => {
     var [width, height] = [this.state.windowWidth, this.state.windowHeight]
     currX = parseInt(currX)
     currY = parseInt(currY)
@@ -661,23 +653,33 @@ class Game extends React.Component {
     let relMovement = [ currXRel - prevXRel, currYRel - prevYRel]
     prevMouseData.x = currX
     prevMouseData.y = currY
-    return ([pxsMovement[0], pxsMovement[1], relMovement[0], relMovement[1]])
+    return ([currXRel, currYRel, pxsMovement[0], pxsMovement[1], relMovement[0], relMovement[1]])
   }
 
-  // every time a new frame is recieve, send information about the mouse motion
-  getMouseData = (x, y, button) => {
-    if (this.state.frameCount !== prevMouseData.frameCount){
+  // every time a new frame is recieved, send information about the mouse motion
+  // also send message every time mouse up or down occurs
+  sendMouseData = (info, x, y, button) => {
+    if (this.state.frameCount !== prevMouseData.frameCount || info !== "mouse move" ){
       var buttonTuple = this.getButtonTuple(button)
-      var [xMovement, yMovement, xRelMovement, yRelMovement] = this.getMouseMovement(x, y)
-      this.sendMessage({
-        info: "mouse motion",
-        pos: {xMovement, yMovement},
-        rel: {xRelMovement, yRelMovement},
-        buttons: buttonTuple,         // button pressed in tuple format
-        button,                       // integer value of button pressed
-      })
-      // set prevFrameCount to the current frame count
-      prevMouseData.frameCount = this.state.frameCount
+      var [xRel, yRel, xMovement, yMovement, xRelMovement, yRelMovement] = this.getMouseData(x, y)
+      if (info === "mouse move") {
+        this.sendMessage({
+          info,
+          pos: {x, y, xRel, yRel},
+          rel: {xMovement, yMovement, xRelMovement, yRelMovement},
+          buttons: buttonTuple,         // button pressed in tuple format
+          button,                       // integer value of button pressed. If more than one button is pressed then a sum of buttons pressed should be recieved
+        })
+      }
+      else {
+        this.sendMessage({
+          info,
+          pos: {x, y, xRel, yRel},
+          buttons: buttonTuple,
+          button,
+        })
+      }
+      prevMouseData.frameCount = this.state.frameCount  // set prevFrameCount to the current frame count
     }
   }
 
@@ -884,7 +886,7 @@ class Game extends React.Component {
                     imageR={imageR}
                     progress={progress}
                     addMinutia={this.addMinutia}
-                    getMouseData={this.getMouseData}
+                    sendMouseData={this.sendMouseData}
                     data-testid="game-window"
                   />
                 )}
