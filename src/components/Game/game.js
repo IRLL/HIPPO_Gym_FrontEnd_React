@@ -25,7 +25,11 @@ const pendingTime = 30;
 let initialWindowWidth = 700;
 let initialWindowHeight = 600;
 let windowSizeRatio = 700/600;
-let prevFrameCount = 0;       // used by getMouseData to check if the frame has changed
+let prevMouseData = {
+  frameCount: 0,
+  x: 0,
+  y: 0,
+}
 
 class Game extends React.Component {
 	state = {
@@ -97,24 +101,56 @@ class Game extends React.Component {
 			1000
 		);
 
+    // add WORKER script
+    this.worker = new WebWorker(worker);
+
+    // listen for messages from the worker
+    this.worker.onmessage = (event) => {
+      console.log("Recieved data from worker");
+      var message = event.data
+
+      // deal with websocket connection
+      console.log("WebSocket Client Open - worker")
+      if (message.type === "connection") {
+        if (message.value === "open") {
+          this.setState({
+            isLoading:false,
+            isConnection: true,
+          })
+        } else if (message.value === "close") {
+          console.log("WebSocket Client Closed - worker")
+          this.setState({
+            isConnection: false,
+            isEnd: true,
+            gameEndVisible: true,
+          });
+        }
+      }
+      // deal with data recieved from the websocket server
+      else if (message.type === "data"){
+        // TODO: deal with "done" case
+        // TODO: deal with the parsed data inside the worker itself ?
+        console.log("Data recieved from the websocket - WORKER")
+        let data = JSON.parse(message.value)
+        console.log("worker-data: ", data)
+      }
+    };
+
+    // send messages to the worker
+    if (!this.state.isConnection && !this.state.isEnd) {
+      this.worker.postMessage({
+        WS_URL: WS_URL,
+        USER_ID: USER_ID,
+        PROJECT_ID: PROJECT_ID,
+      })
+    }
+    // end WORKER script
+
 		// To ensure the websocket server is ready to connect
 		// we try to connect the websocket server periodically
 		// for every 30 seconds until the connection has been established
 		this.timer = setTimeout(
 			() => {
-        // add WORKER script
-        this.worker = new WebWorker(worker);
-        this.worker.onmessage = ev => {
-          console.log("got data back from worker");
-          console.log(ev);
-        };
-        this.worker.postMessage({
-          WS_URL: WS_URL,
-          USER_ID: USER_ID,
-          PROJECT_ID: PROJECT_ID,
-        })
-        // end WORKER script
-
 				//connect the websocket server
 				this.websocket = new w3cwebsocket(WS_URL);
 				this.websocket.onopen = () => {
@@ -650,7 +686,7 @@ class Game extends React.Component {
         coordinates: { x, y, xRel, yRel},
       });
     }
-	};
+	};z
 
   // create a tuple to indicate which mouse button was pressed
   // (left, center/mouse wheel, right)
@@ -660,23 +696,35 @@ class Game extends React.Component {
     else if (button === 4) {return [0,1,0]}     // center button/mouse wheel
     else {return [0,0,0]}
   }
+
+  // calculate the difference in current vs previous mouse positions
+  getMouseMovement = (currX, currY) => {
+    var [width, height] = [this.state.windowWidth, this.state.windowHeight]
+    currX = parseInt(currX)
+    currY = parseInt(currY)
+    var [currXRel, currYRel] = [currX/width, currY/height]
+    var [prevXRel, prevYRel] = [prevMouseData.x / width, prevMouseData.y / height]
+    let pxsMovement = [currX - prevMouseData.x, currY - prevMouseData.y]
+    let relMovement = [ currXRel - prevXRel, currYRel - prevYRel]
+    prevMouseData.x = currX
+    prevMouseData.y = currY
+    return ([pxsMovement[0], pxsMovement[1], relMovement[0], relMovement[1]])
+  }
+
   // every time a new frame is recieve, send information about the mouse motion
   getMouseData = (x, y, button) => {
-    if (this.state.frameCount !== prevFrameCount){
-      x = parseInt(x)
-      y = parseInt(y)
-      var xRel = x/this.state.windowWidth
-      var yRel = y/this.state.windowHeight
+    if (this.state.frameCount !== prevMouseData.frameCount){
       var buttonTuple = this.getButtonTuple(button)
+      var [xMovement, yMovement, xRelMovement, yRelMovement] = this.getMouseMovement(x, y)
       this.sendMessage({
         info: "mouse motion",
-        pos: {x, y},
-        rel: {xRel, yRel},
+        pos: {xMovement, yMovement},
+        rel: {xRelMovement, yRelMovement},
         buttons: buttonTuple,         // button pressed in tuple format
         button,                       // integer value of button pressed
       })
       // set prevFrameCount to the current frame count
-      prevFrameCount = this.state.frameCount
+      prevMouseData.frameCount = this.state.frameCount
     }
   }
 
