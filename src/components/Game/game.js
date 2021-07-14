@@ -49,7 +49,7 @@ class Game extends React.Component {
 		inputBudget: 0, // the total budget available for the feedback buttons
 		usedInputBudget: 0, // the consumed budget for the feedback buttons
 		receiveData: null, // the received data from the server
-		displayData: null, // the data that will be displayed on the page
+		// display: null, // the data that will be displayed on the page
 		inMessage: [], // a list of incoming messages
 		outMessage: [], // a list of outgoing messages
 		holdKey: null, // the key that is holding
@@ -106,7 +106,6 @@ class Game extends React.Component {
 
     // listen for messages from the worker
     this.worker.onmessage = (event) => {
-      console.log("Recieved data from worker");
       var message = event.data
 
       // deal with websocket connection
@@ -130,9 +129,7 @@ class Game extends React.Component {
       else if (message.type === "data"){
         // TODO: deal with "done" case
         // TODO: deal with the parsed data inside the worker itself ?
-        console.log("Data recieved from the websocket - WORKER")
         let data = JSON.parse(message.value)
-        console.log("worker-data: ", data)
       }
     };
 
@@ -180,38 +177,51 @@ class Game extends React.Component {
 					} else {
 						//parse the data from the websocket server
 						let parsedData = JSON.parse(message.data);
+            console.log(parsedData)
+            // change state using variables
+            let newValues = Object.values(parsedData)
+            Object.keys(parsedData).forEach((element, index) =>
+              this.setState({[`${element}`]: newValues[index]})
+            )
+            if (parsedData.windowWidth){
+              this.setState({
+                initialWindowWidth: parsedData.windowWidth,
+                initialWindowHeight: parsedData.windowHeight,
+                windowSizeRatio: parsedData.windowWidth/parsedData.windowHeight
+              })
+            }
 						//Check if budget bar should be loaded
-						if (parsedData.inputBudget) {
-							this.setState({
-								inputBudget: parsedData.inputBudget,
-								usedInputBudget: parsedData.usedInputBudget,
-							});
-						}
+						// if (parsedData.inputBudget) {
+						// 	this.setState({
+						// 		inputBudget: parsedData.inputBudget,
+						// 		usedInputBudget: parsedData.usedInputBudget,
+						// 	});
+						// }
 						//Check if UI in response
-						if (parsedData.UI) {
-							this.setState({
-								UIlist: parsedData.UI,
-							});
-						}
+						// if (parsedData.UIlist) {
+						// 	this.setState({
+						// 		UIlist: parsedData.UIlist,
+						// 	});
+						// }
             // Check if window size is in the response
-            if (parsedData.gameWindowWidth) {
-              initialWindowWidth = parsedData.gameWindowWidth
-              this.setState({
-                windowWidth: parsedData.gameWindowWidth
-              })
-            }
-            if (parsedData.gameWindowHeight) {
-              initialWindowHeight = parsedData.gameWindowHeight
-              this.setState({
-                windowHeight: parsedData.gameWindowHeight
-              })
-            }
-            if (parsedData.gameWindowSize) {
-              windowSizeRatio = this.state.windowWidth/this.state.windowHeight
-              this.setState({
-                windowSize: parsedData.gameWindowSize,
-              })
-            }
+            // if (parsedData.windowWidth) {
+            //   initialWindowWidth = parsedData.windowWidth
+            //   this.setState({
+            //     windowWidth: parsedData.windowWidth
+            //   })
+            // }
+            // if (parsedData.gameWindowHeight) {
+            //   initialWindowHeight = parsedData.gameWindowHeight
+            //   this.setState({
+            //     windowHeight: parsedData.gameWindowHeight
+            //   })
+            // }
+            // if (parsedData.gameWindowSize) {
+            //   windowSizeRatio = this.state.windowWidth/this.state.windowHeight
+            //   this.setState({
+            //     windowSize: parsedData.gameWindowSize,
+            //   })
+            // }
 						//Check if Instructions in response
 						if (parsedData.Instructions) {
 							this.setState({
@@ -243,10 +253,9 @@ class Game extends React.Component {
 							});
 						}
 						//Check if frame related information in response
-						if (parsedData.frame && parsedData.frameId) {
-							let frame = parsedData.frame;
+						if (parsedData.frameSrc && parsedData.frameId) {
+							let frame = parsedData.frameSrc;
 							let frameId = parsedData.frameId;
-
 							if (this.state.score)
 								this.setState((prevState) => ({
 									nextframeSrc: "data:image/jpeg;base64, " + frame,
@@ -301,12 +310,12 @@ class Game extends React.Component {
 						//check if any information needed to display
 						if (parsedData.display) {
 							this.setState({
-								displayData: parsedData.display,
+								display: parsedData.display,
 							});
 						}
 						//log every message received from the server
 						if (DEBUG) {
-							delete parsedData.frame;
+							delete parsedData.frameSrc;
 							this.setState((prevState) => ({
 								inMessage: [parsedData, ...prevState.inMessage],
 							}));
@@ -366,6 +375,8 @@ class Game extends React.Component {
 
 	handleResize = () => {
 		if (this.state.windowSize !== "strict") {
+      // console.log("state: ", this.state.initialWindowHeight)
+      console.log("global: ", initialWindowHeight)
 			const value =
 				this.state.orientation === "vertical"
 				? document.documentElement.clientWidth > initialWindowWidth
@@ -842,7 +853,7 @@ class Game extends React.Component {
 			isLoading,
 			frameSrc,
 			frameRate,
-			displayData,
+			display,
 			isEnd,
 			UIlist,
 			instructions,
@@ -886,9 +897,9 @@ class Game extends React.Component {
 				</Radio.Group>
 
 				<DisplayBar
-					visible={displayData !== null}
+					visible={display !== null}
 					isLoading={isLoading}
-					displayData={displayData}
+					display={display}
 				/>
 
 				<BudgetBar

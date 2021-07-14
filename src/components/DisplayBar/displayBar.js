@@ -6,18 +6,18 @@ import capitalize from '../../utils/capitalize';
 class DisplayBar extends React.PureComponent{
 
     render(){
-        const {visible, isLoading, displayData} = this.props;
+        const {visible, isLoading, display} = this.props;
 
         let messageList = [];
-        for(let key in displayData){
+        for(let key in display){
             messageList.push(
-                <div key={key} className="displayMessage" ><strong>{capitalize(key)}</strong> : {displayData[key]}</div>
+                <div key={key} className="displayMessage" ><strong>{capitalize(key)}</strong> : {display[key]}</div>
             )
         }
 
         return (
             <div className="displayContainer">
-                {visible && !isLoading ? 
+                {visible && !isLoading ?
                 <div className="messageList" >
                     {messageList}
                 </div> : null}
