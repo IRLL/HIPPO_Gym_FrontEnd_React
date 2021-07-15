@@ -43,7 +43,7 @@ class Comparison extends React.Component {
 			width = 400,
 			height = 400;
 		const userColor = "blue",
-			expertColor = "red";
+			expertColor = "yellow";
 
 		const filters = [
 			{ name: "brightness", min: 0, max: 1000, default: brightness },

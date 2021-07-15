@@ -294,9 +294,9 @@ class FingerprintWindow extends React.Component {
 								transform={`
 									scale(0.25)
 									translate(${width * 4 - width - 60} ${height * 4 - height - 60})`}
-								className="fingerprintMinimap"
+								className="fingerprintMinimap notAllowedCursor"
 							>
-								<rect width={width} height={height} fill="#1a1a1a" />
+								<rect width={width} height={height} fill="#1a1a1a" className="notAllowedCursor" />
 								<image
 									alt="frame"
 									href={frameSrc}
@@ -334,6 +334,33 @@ class FingerprintWindow extends React.Component {
 									stroke="white"
 									strokeWidth={4}
 									transform={zoom.toStringInvert()}
+									onMouseDown={(e) => {
+										this.setState({ miniMapMoving: true, minimapStart: localPoint(e) });
+									}}
+									onMouseMove={(e) => {
+										if (this.state.miniMapMoving) {
+											const { minimapStart } = this.state;
+											const point = localPoint(e);
+											const transformedPt = {
+												x: point.x - minimapStart.x,
+												y: point.y - minimapStart.y,
+											};
+
+											zoom.translate({
+												translateX: -4 * transformedPt.x,
+												translateY: -4 * transformedPt.y,
+											});
+
+											this.setState({ minimapStart: point });
+										}
+									}}
+									onMouseUp={() => {
+										this.setState({ miniMapMoving: false });
+									}}
+									onMouseLeave={() => {
+										if (this.state.miniMapMoving) this.setState({ miniMapMoving: false });
+									}}
+									className="grabCursor"
 								/>
 							</g>
 						</svg>

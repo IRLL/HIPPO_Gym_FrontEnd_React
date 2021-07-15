@@ -57,6 +57,7 @@ class Game extends React.Component {
 		hue: 0, // default image hue rotation (out of 360)
 		addingMinutiae: false, // if currently adding minutiae
 		minutiae: [], // list of all available minutiae within the image
+		fingerprintCache: [],
 
 		// For expert markings
 		expertMarker1: null,
@@ -536,8 +537,8 @@ class Game extends React.Component {
 		const minutiae = this.state.minutiae.map((minutia, i) => {
 			let color = minutia.color;
 			console.log(feedback[i][1]);
-			if (feedback[i][1] < 0) color = "red";
-			else if (feedback[i][1] > 0) color = "green";
+			if (feedback[i][1] < 0) color = "green";
+			else if (feedback[i][1] > 0) color = "red";
 			return { ...minutia, color };
 		});
 
