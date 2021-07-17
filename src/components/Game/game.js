@@ -27,6 +27,10 @@ let prevMouseData = {
   x: 0,
   y: 0,
 }
+let prevDimensions = {
+  width: initialWindowWidth,
+  height: initialWindowHeight,
+}
 
 class Game extends React.Component {
 	state = {
@@ -42,6 +46,7 @@ class Game extends React.Component {
 		isConnection: false, // if the connection to the server is established
 		gameEndVisible: false, // if the game end dialog is visible
 		UIlist: [], // a list of UI components
+    keyList: ["a","b","c"], // a list of keys for which the researcher requires info
 		progress: 0, // the status of the server
 		inputBudget: 0, // the total budget available for the feedback buttons
 		usedInputBudget: 0, // the consumed budget for the feedback buttons
@@ -294,6 +299,14 @@ class Game extends React.Component {
 					this.sendMessage(dataToSend);
 				}
 			}
+
+      if (this.state.keyList.includes(event.key)){
+        this.sendMessage({
+          "KeyboardEvent": {
+            "KEYDOWN": [event.key, event.key.charCodeAt(0)]
+          }
+        })
+      }
 		});
 
 		document.addEventListener("keyup", (event) => {
@@ -317,7 +330,25 @@ class Game extends React.Component {
 		if (this.setInMessage) clearInterval(this.setInMessage);
 	}
 
+  // chack every second if the resize has stopped
+  resizeCalled = setInterval(() => {
+    var currWidth = this.state.windowWidth
+    var currHeight = this.state.windowHeight
+    if (currWidth === prevDimensions.width && currHeight === prevDimensions.height){
+      // the resize has stopped. Send new dimensions to backend
+      // TODO: also clear interval
+      this.sendMessage({ WindowEvent:
+        {
+          WINDOWRESIZED: [currWidth, currHeight]
+        }})
+    } else {
+      prevDimensions.width = currWidth
+      prevDimensions.height = currHeight
+    }
+  },1000)
+
 	handleResize = () => {
+    // TODO: add a variable to check if  resizeClled setinterval has been called already
 		if (this.state.windowSize !== "strict") {
 			const value =
 				this.state.orientation === "vertical"
@@ -420,9 +451,9 @@ class Game extends React.Component {
 				minutiaList: this.normalizeMinutiae(this.state.minutiae),
 			});
 		} else {
-			this.sendMessage({
-				command: status,
-			});
+			this.sendMessage({ ButtonEvent: {
+        BUTTONPRESSED: status,
+      }});
 		}
 	};
 
@@ -500,12 +531,6 @@ class Game extends React.Component {
 	// Perform commands like add minutia, redo, undo, reset
 	// Send performed command to websocket
 	handleImageCommands = (command) => {
-		// console.log(
-		// 	"undo length: ",
-		// 	this.state.undoList.length,
-		// 	"redo length: ",
-		// 	this.state.redoList.length
-		// );
 		switch (command) {
 			case "resetImage":
 				this.setState({
@@ -644,40 +669,30 @@ class Game extends React.Component {
 
   // calculate the difference in current vs previous mouse positions
   getMouseData = (currX, currY) => {
-    var [width, height] = [this.state.windowWidth, this.state.windowHeight]
-    currX = parseInt(currX)
-    currY = parseInt(currY)
-    var [currXRel, currYRel] = [currX/width, currY/height]
-    var [prevXRel, prevYRel] = [prevMouseData.x / width, prevMouseData.y / height]
     let pxsMovement = [currX - prevMouseData.x, currY - prevMouseData.y]
-    let relMovement = [ currXRel - prevXRel, currYRel - prevYRel]
     prevMouseData.x = currX
     prevMouseData.y = currY
-    return ([currXRel, currYRel, pxsMovement[0], pxsMovement[1], relMovement[0], relMovement[1]])
+    return ([pxsMovement[0], pxsMovement[1]])
   }
 
   // every time a new frame is recieved, send information about the mouse motion
   // also send message every time mouse up or down occurs
-  sendMouseData = (info, x, y, button) => {
-    if (this.state.frameCount !== prevMouseData.frameCount || info !== "mouse move" ){
+  sendMouseData = (eventType, x, y, button) => {
+    [x, y] = [parseInt(x), parseInt(y)]
+
+    if (this.state.frameCount !== prevMouseData.frameCount || eventType !== "MOUSEMOTION" ){
       var buttonTuple = this.getButtonTuple(button)
-      var [xRel, yRel, xMovement, yMovement, xRelMovement, yRelMovement] = this.getMouseData(x, y)
-      if (info === "mouse move") {
-        this.sendMessage({
-          info,
-          pos: {x, y, xRel, yRel},
-          rel: {xMovement, yMovement, xRelMovement, yRelMovement},
-          buttons: buttonTuple,         // button pressed in tuple format
-          button,                       // integer value of button pressed. If more than one button is pressed then a sum of buttons pressed should be recieved
-        })
+      var [xMovement, yMovement] = this.getMouseData(x, y)
+
+      if (eventType === "MOUSEMOTION") {
+        this.sendMessage({ MouseEvent:{
+          MOUSEMOTION : [{x, y}, {xMovement, yMovement}, buttonTuple, button]  // button represents an integer value for which button has been pressed
+        }})
       }
       else {
-        this.sendMessage({
-          info,
-          pos: {x, y, xRel, yRel},
-          buttons: buttonTuple,
-          button,
-        })
+        this.sendMessage({ MouseEvent: {
+          [eventType]: [{x, y}, buttonTuple, button]
+        }})
       }
       prevMouseData.frameCount = this.state.frameCount  // set prevFrameCount to the current frame count
     }

@@ -39,7 +39,7 @@ class GameWindow extends React.Component {
                     event.preventDefault()
                     const point = localPoint(event);
                     sendMouseData(
-                      "mouse down",
+                      "MOUSEBUTTONDOWN",
                       point.x,
                       point.y - 0.65625,
                       event.buttons,
@@ -47,9 +47,10 @@ class GameWindow extends React.Component {
                   }}
                   onMouseMove={(event) => {
                     event.preventDefault()
+                    console.log(event.type)
                     const point = localPoint(event);
                     sendMouseData(
-                      "mouse move",
+                      "MOUSEMOTION",
                       point.x,
                       point.y - 0.65625,
                       event.buttons,
@@ -59,7 +60,7 @@ class GameWindow extends React.Component {
                     event.preventDefault()
                     const point = localPoint(event);
                     sendMouseData(
-                      "mouse up",
+                      "MOUSEBUTTONUP",
                       point.x,
                       point.y - 0.65625,
                       event.buttons,

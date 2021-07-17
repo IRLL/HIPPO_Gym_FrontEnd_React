@@ -37,7 +37,7 @@ export default function getKeyInput(code) {
             actionType : "leftUp",
             action : "leftUp"
         });
-        case "keyE": return({
+        case "KeyE": return({
             actionType : "rightUp",
             action : "rightUp"
         });
@@ -45,7 +45,7 @@ export default function getKeyInput(code) {
             actionType : "leftDown",
             action : "leftDown"
         });
-        case "keyC": return({
+        case "KeyC": return({
             actionType : "rightDown",
             action : "rightDown"
         });

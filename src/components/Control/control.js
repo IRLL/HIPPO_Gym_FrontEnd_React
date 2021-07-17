@@ -295,15 +295,6 @@ class ControlPanel extends React.Component {
     UIFiltered.forEach((ele) => {
       customRow.push(elements[ele])
 		});
-		// UIFiltered.forEach((ele, idx) => {
-		// 	if (idx % 3 === 0) {
-		// 		firstRow.push(elements[ele]);
-		// 	} else if (idx % 3 === 1) {
-		// 		secondRow.push(elements[ele]);
-		// 	} else if (idx % 3 === 2) {
-		// 		thirdRow.push(elements[ele]);
-		// 	}
-		// });
 
 		return (
 			<div data-testid="control-panel">
