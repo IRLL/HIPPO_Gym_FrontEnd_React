@@ -19,6 +19,7 @@ import GameWindow from "../GameWindow/gameWindow";
 import FingerprintWindow from "../GameWindow/fingerprintWindow";
 
 const pendingTime = 30;
+let isResizeCalled = false;
 let initialWindowWidth = 700;
 let initialWindowHeight = 600;
 let windowSizeRatio = 700/600;
@@ -300,7 +301,8 @@ class Game extends React.Component {
 				}
 			}
 
-      if (this.state.keyList.includes(event.key)){
+      if (!this.state.keyList.includes(event.key)){
+        console.log(event)
         this.sendMessage({
           "KeyboardEvent": {
             "KEYDOWN": [event.key, event.key.charCodeAt(0)]
@@ -319,6 +321,13 @@ class Game extends React.Component {
 				}
 				this.sendMessage(dataToSend);
 			}
+      if (this.state.keyList.includes(event.key)){
+        this.sendMessage({
+          "KeyboardEvent": {
+            "KEYUP": [event.key]
+          }
+        })
+      }
 		});
 
 		// Get the client window width to make the game window responsive
@@ -330,25 +339,36 @@ class Game extends React.Component {
 		if (this.setInMessage) clearInterval(this.setInMessage);
 	}
 
-  // chack every second if the resize has stopped
-  resizeCalled = setInterval(() => {
-    var currWidth = this.state.windowWidth
-    var currHeight = this.state.windowHeight
-    if (currWidth === prevDimensions.width && currHeight === prevDimensions.height){
-      // the resize has stopped. Send new dimensions to backend
-      // TODO: also clear interval
-      this.sendMessage({ WindowEvent:
-        {
-          WINDOWRESIZED: [currWidth, currHeight]
-        }})
-    } else {
-      prevDimensions.width = currWidth
-      prevDimensions.height = currHeight
-    }
-  },1000)
+  // check every second if the resize has stopped
+  resizeCalled = () => {
+    var resizeCalled = setInterval(() => {
+      console.log("resizeCalled")
+      var currWidth = this.state.windowWidth
+      var currHeight = this.state.windowHeight
+      if (currWidth === prevDimensions.width && currHeight === prevDimensions.height){
+        // the resize has stopped. Send new dimensions to backend
+        // TODO: also clear interval
+        this.sendMessage({ WindowEvent:
+          {
+            WINDOWRESIZED: [currWidth, currHeight]
+          }});
+        // this.stopResizeCalled();
+        clearInterval(resizeCalled);
+        isResizeCalled = false;
+      } else {
+        prevDimensions.width = currWidth
+        prevDimensions.height = currHeight
+      }
+    }, 1000)
+  }
 
 	handleResize = () => {
-    // TODO: add a variable to check if  resizeClled setinterval has been called already
+    // TODO: add a variable to check if  resizeCalled setinterval has been called already
+    console.log("handleResize")
+    if (!isResizeCalled) {
+      isResizeCalled = true;
+      this.resizeCalled()
+    }
 		if (this.state.windowSize !== "strict") {
 			const value =
 				this.state.orientation === "vertical"
