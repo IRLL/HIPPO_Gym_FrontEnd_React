@@ -41,7 +41,7 @@ class FingerprintWindow extends React.Component {
 				<div className="gameWindow">
 					<div className="progressBar">
 						<Progress width={80} type="circle" percent={Math.round(progress)} />
-						<p className="promptText">The robot is about to start the game, please wait ...</p>
+						<p className="promptText">Hold on while we fingerprint our suspects...</p>
 					</div>
 				</div>
 			);

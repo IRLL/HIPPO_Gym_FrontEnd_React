@@ -408,17 +408,31 @@ class Game extends React.Component {
 						</p>
 					);
 				} else {
-					this.setState({ requestingFeedback: true });
+					// add to fingerprint cache
+					const fingerprintCache = [...this.state.fingerprintCache];
+					const minutiaList = this.normalizeMinutiae(this.state.minutiae);
+					fingerprintCache.push(minutiaList);
+					this.setState({ requestingFeedback: true, fingerprintCache });
 					this.sendMessage({
 						command: status,
-						minutiaList: this.normalizeMinutiae(this.state.minutiae),
+						minutiaList,
 					});
 				}
 				break;
 			case "submitImage":
+				const fingerprintCache = [...this.state.fingerprintCache];
+				const minutiaList = this.normalizeMinutiae(this.state.minutiae);
+				fingerprintCache.push(minutiaList);
+				this.setState({ fingerprintCache });
+				// if (
+				// 	fingerprintCache &&
+				// 	!this.equals(minutiaList, fingerprintCache[fingerprintCache.length - 1])
+				// ) {
+				// 	console.log("cache");
+				// }
 				this.sendMessage({
 					command: status,
-					minutiaList: this.normalizeMinutiae(this.state.minutiae),
+					minutiaList,
 				});
 				break;
 			default:
@@ -536,7 +550,6 @@ class Game extends React.Component {
 	handleFeedback = (feedback) => {
 		const minutiae = this.state.minutiae.map((minutia, i) => {
 			let color = minutia.color;
-			console.log(feedback[i][1]);
 			if (feedback[i][1] < 0) color = "green";
 			else if (feedback[i][1] > 0) color = "red";
 			return { ...minutia, color };
@@ -728,6 +741,8 @@ class Game extends React.Component {
 		});
 	};
 
+	equals = (a, b) => a.length === b.length && a.every((v, i) => v === b[i]);
+
 	resetAll = () => {
 		this.scrollToTop();
 
@@ -751,6 +766,7 @@ class Game extends React.Component {
 			hue: 0,
 
 			// Reset undo and redo stacks and buttons
+			fingerprintCache: [],
 			undoList: [],
 			redoList: [],
 			undoEnabled: false,
@@ -973,7 +989,7 @@ class Game extends React.Component {
 						<Comparison
 							frameSrc={frameSrc}
 							expertMarkers={[expertMarker1, expertMarker2]}
-							userMarkers={this.normalizeMinutiae(minutiae)}
+							userMarkers={this.state.fingerprintCache}
 						/>
 
 						<Button

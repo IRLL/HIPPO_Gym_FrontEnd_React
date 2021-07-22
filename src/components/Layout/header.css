@@ -2,3 +2,9 @@
 .header {
 	margin: 0.5rem 10vw 0 10vw;
 }
+
+.header-images {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
