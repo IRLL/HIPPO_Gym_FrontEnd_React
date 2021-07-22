@@ -1,19 +1,14 @@
 /* Set the height and width 
-   Set the style of the border
-   Place items in the container vertically*/
-.messageContainer{
-    height : 605px;
-    width: 330px;
-    overflow : auto;
-    border : solid #389e0d;
-    border-radius: 15px;
-    display: flex;
-    flex-direction: column; 
-    margin: auto;
+   Set the style of the border */
+.messageContainer {
+	height: 600px;
+	overflow: auto;
+	border: solid #389e0d;
+	border-radius: 10px;
 }
 
 /* Center the message title and make it bold */
-.messageTitle{
-    text-align: center;
-    font-weight: bold;
+.messageTitle {
+	text-align: center;
+	font-weight: bold;
 }

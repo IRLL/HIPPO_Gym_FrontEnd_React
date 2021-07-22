@@ -1,6 +1,7 @@
 import React from "react";
 import { Progress, Popover, Button, Slider, Tooltip, Radio } from "antd";
 import { icons } from "../../utils/icons";
+import capitalize from "../../utils/capitalize";
 import "./fingerprintWindow.css";
 
 import { Zoom } from "@vx/zoom";
@@ -11,15 +12,12 @@ import { RectClipPath } from "@vx/clip-path";
 class FingerprintWindow extends React.Component {
 	state = {
 		currMinutia: null,
-		move: false,
 		moving: false,
 		defaultColor: "blue",
 		defaultSize: 30,
 	};
 
 	render() {
-		const { currMinutia } = this.state;
-
 		const {
 			frameSrc,
 			isLoading,
@@ -36,6 +34,19 @@ class FingerprintWindow extends React.Component {
 			handleMinutia,
 			handleChanging,
 		} = this.props;
+
+		// If the frame has not loaded, show the loading screen
+		if (isLoading || !frameSrc)
+			return (
+				<div className="gameWindow">
+					<div className="progressBar">
+						<Progress width={80} type="circle" percent={Math.round(progress)} />
+						<p className="promptText">The robot is about to start the game, please wait ...</p>
+					</div>
+				</div>
+			);
+
+		const { currMinutia } = this.state;
 
 		// Slider when rotate is selected from popup menu
 		const rotationSlider = (
@@ -76,6 +87,7 @@ class FingerprintWindow extends React.Component {
 		);
 
 		// Menu when recolor is selected from popup menu
+		const colors = ["blue", "yellow", "orange"];
 		const colorPicker = (
 			<Radio.Group
 				defaultValue="blue"
@@ -85,25 +97,16 @@ class FingerprintWindow extends React.Component {
 				}}
 				className="colorPicker"
 			>
-				<Radio.Button value="blue" className="blueButton">
-					Blue
-				</Radio.Button>
-				<Radio.Button value="green" className="greenButton">
-					Green
-				</Radio.Button>
-				<Radio.Button value="yellow" className="yellowButton">
-					Yellow
-				</Radio.Button>
-				<Radio.Button value="red" className="redButton">
-					Red
-				</Radio.Button>
-				<Radio.Button value="orange" className="orangeButton">
-					Orange
-				</Radio.Button>
+				{colors.map((color, i) => (
+					<Radio.Button value={color} key={`${color}Button`} className={`${color}Button`}>
+						{capitalize(color)}
+					</Radio.Button>
+				))}
 			</Radio.Group>
 		);
 
 		// Menu when minutia type is selected from popup menu
+		const types = ["Bifurcation", "Ending", "Unknown"];
 		const minutiaType = (
 			<Radio.Group
 				defaultValue={minutiae[currMinutia] ? minutiae[currMinutia].type : "Unknown"}
@@ -111,9 +114,11 @@ class FingerprintWindow extends React.Component {
 					handleMinutia("changeType", currMinutia, e.target.value);
 				}}
 			>
-				<Radio value="Bifurcation">Bifurcation</Radio>
-				<Radio value="Ending">Ending</Radio>
-				<Radio value="Unknown">Unknown</Radio>
+				{types.map((type) => (
+					<Radio key={type} value={type}>
+						{type}
+					</Radio>
+				))}
 			</Radio.Group>
 		);
 
@@ -129,13 +134,6 @@ class FingerprintWindow extends React.Component {
 					<Popover trigger="click" content={sizeSlider} title="Resize Minutia">
 						<Button type="default" icon={icons["resizeImage"]} />
 					</Popover>
-				</Tooltip>
-				<Tooltip placement="bottom" title="Move Minutia">
-					<Button
-						type={this.state.move ? "primary" : "default"}
-						icon={icons["moveMinutia"]}
-						onClick={() => this.setState((prevState) => ({ move: !prevState.move }))}
-					/>
 				</Tooltip>
 				<Tooltip placement="bottom" title="Change Color">
 					<Popover trigger="click" content={colorPicker} title="Change Color">
@@ -157,17 +155,6 @@ class FingerprintWindow extends React.Component {
 				</Tooltip>
 			</div>
 		);
-
-		// If the frame has not loaded, show the loading screen
-		if (isLoading || !frameSrc)
-			return (
-				<div className="gameWindow">
-					<div className="progressBar">
-						<Progress width={80} type="circle" percent={Math.round(progress)} />
-						<p className="promptText">The robot is about to start the game, please wait ...</p>
-					</div>
-				</div>
-			);
 
 		return (
 			<Zoom
@@ -223,13 +210,13 @@ class FingerprintWindow extends React.Component {
 									if (addingMinutiae) {
 										addMinutia(
 											transformedPt.x,
-											// add y-offset
-											transformedPt.y - 0.65625,
+											transformedPt.y - 0.65625, // add y-offset
 											270,
 											this.state.defaultSize,
 											this.state.defaultColor,
 											"Unknown"
 										);
+										this.setState({ currMinutia: minutiae.length });
 									}
 								}}
 								onContextMenu={(event) => {
@@ -238,13 +225,13 @@ class FingerprintWindow extends React.Component {
 									const transformedPt = zoom.applyInverseToPoint(point);
 									addMinutia(
 										transformedPt.x,
-										// add y-offset
-										transformedPt.y - 0.65625,
+										transformedPt.y - 0.65625, // add y-offset
 										270,
 										this.state.defaultSize,
 										this.state.defaultColor,
 										"Unknown"
 									);
+									this.setState({ currMinutia: minutiae.length });
 								}}
 								onDoubleClick={(event) => {
 									const point = localPoint(event) || { x: 0, y: 0 };
@@ -277,22 +264,23 @@ class FingerprintWindow extends React.Component {
 											}}
 											onMouseMove={(e) => {
 												if (this.state.moving) {
+													e.preventDefault();
 													const point = zoom.applyInverseToPoint(localPoint(e));
-													console.log(point);
-													handleMinutia("move", currMinutia, point);
+													handleMinutia("move", i, point);
 												}
 											}}
 											onTouchMove={(e) => {
 												if (this.state.moving) {
 													const point = zoom.applyInverseToPoint(localPoint(e));
-													handleMinutia("move", currMinutia, point);
+													handleMinutia("move", i, point);
 												}
 											}}
-											onMouseDown={() => this.state.move && this.setState({ moving: true })}
-											onTouchStart={() => this.state.move && this.setState({ moving: true })}
-											onMouseUp={() => this.state.move && this.setState({ moving: false })}
-											onTouchEnd={() => this.state.move && this.setState({ moving: false })}
-											onMouseLeave={() => this.setState({ moving: false })}
+											onDragStart={(e) => e.preventDefault()}
+											onMouseDown={() => handleChanging(true) || this.setState({ moving: true })}
+											onTouchStart={() => handleChanging(true) || this.setState({ moving: true })}
+											onMouseUp={() => handleChanging(false) || this.setState({ moving: false })}
+											onTouchEnd={() => handleChanging(false) || this.setState({ moving: false })}
+											onMouseLeave={() => handleChanging(false) || this.setState({ moving: false })}
 										/>
 									</Popover>
 								))}
@@ -306,9 +294,9 @@ class FingerprintWindow extends React.Component {
 								transform={`
 									scale(0.25)
 									translate(${width * 4 - width - 60} ${height * 4 - height - 60})`}
-								className="fingerprintMinimap"
+								className="fingerprintMinimap notAllowedCursor"
 							>
-								<rect width={width} height={height} fill="#1a1a1a" />
+								<rect width={width} height={height} fill="#1a1a1a" className="notAllowedCursor" />
 								<image
 									alt="frame"
 									href={frameSrc}
@@ -346,6 +334,33 @@ class FingerprintWindow extends React.Component {
 									stroke="white"
 									strokeWidth={4}
 									transform={zoom.toStringInvert()}
+									onMouseDown={(e) => {
+										this.setState({ miniMapMoving: true, minimapStart: localPoint(e) });
+									}}
+									onMouseMove={(e) => {
+										if (this.state.miniMapMoving) {
+											const { minimapStart } = this.state;
+											const point = localPoint(e);
+											const transformedPt = {
+												x: point.x - minimapStart.x,
+												y: point.y - minimapStart.y,
+											};
+
+											zoom.translate({
+												translateX: -4 * transformedPt.x,
+												translateY: -4 * transformedPt.y,
+											});
+
+											this.setState({ minimapStart: point });
+										}
+									}}
+									onMouseUp={() => {
+										this.setState({ miniMapMoving: false });
+									}}
+									onMouseLeave={() => {
+										if (this.state.miniMapMoving) this.setState({ miniMapMoving: false });
+									}}
+									className="grabCursor"
 								/>
 							</g>
 						</svg>
