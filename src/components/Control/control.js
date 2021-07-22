@@ -337,8 +337,8 @@ class ControlPanel extends React.Component {
       elements["bottomBlocks"] = (
         <Row gutter={[16, 16]} justify="center" align="middle">
           {[
-            { name: "previous", i: 0 },
-            { name: "next", i: 2 },
+            { name: "Previous", i: 0 },
+            { name: "Next", i: 2 },
           ].map(({ name, i }) => (
             <Col key={`${name}Block`}>
               <Tooltip
