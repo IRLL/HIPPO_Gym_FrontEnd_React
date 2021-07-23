@@ -78,13 +78,11 @@ class ControlPanel extends React.Component {
       ...imageCommands,
       ...commands,
     ];
-    const placedButtons = ["backToGame"]; // buttons with a specific place
 
     // filter out UIlist to avoid duplicate buttons
     const UIFiltered = UIlist.filter(
       (ele) =>
         !defaultButtons.includes(ele) &&
-        !placedButtons.includes(ele) &&
         !imageControls.map((control) => control.name).includes(ele)
     );
 
@@ -333,7 +331,6 @@ class ControlPanel extends React.Component {
     const customRow = []; // store custom buttons
 
     if (blockButtons) {
-      const ele = "backToGame";
       elements["bottomBlocks"] = (
         <Row gutter={[16, 16]} justify="center" align="middle">
           {[
@@ -349,26 +346,16 @@ class ControlPanel extends React.Component {
                 <img
                   className="blockButton bottom"
                   src={blockButtons[i].image}
+                  alt="blockButton"
                   onClick={() =>
                     sendMessage({
-                      type: "blockButton",
-                      value: blockButtons[i].value,
+                      command: blockButtons[i].value,
                     })
                   }
                 />
               </Tooltip>
             </Col>
           ))}
-          <Col key={ele}>
-            <Button
-              id={ele}
-              shape="round"
-              type="primary"
-              onClick={() => handleCommand(ele)}
-            >
-              {capitalize(sentenceCase(ele))}
-            </Button>
-          </Col>
         </Row>
       );
 
@@ -384,10 +371,10 @@ class ControlPanel extends React.Component {
               <img
                 className="blockButton top"
                 src={blockButtons[1].image}
+                alt="blockButton"
                 onClick={() =>
                   sendMessage({
-                    type: "blockButton",
-                    value: blockButtons[1].value,
+                    command: blockButtons[1].value,
                   })
                 }
               />
