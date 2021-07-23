@@ -300,15 +300,12 @@ class Game extends React.Component {
 					this.sendMessage(dataToSend);
 				}
 			}
-
-      if (!this.state.keyList.includes(event.key)){
-        console.log(event)
-        this.sendMessage({
-          "KeyboardEvent": {
-            "KEYDOWN": [event.key, event.key.charCodeAt(0)]
-          }
-        })
-      }
+      console.log(event)
+      this.sendMessage({
+        "KeyboardEvent": {
+          "KEYDOWN": [event.key, event.key.charCodeAt(0)]
+        }
+      })
 		});
 
 		document.addEventListener("keyup", (event) => {
@@ -321,13 +318,11 @@ class Game extends React.Component {
 				}
 				this.sendMessage(dataToSend);
 			}
-      if (this.state.keyList.includes(event.key)){
         this.sendMessage({
           "KeyboardEvent": {
             "KEYUP": [event.key]
           }
         })
-      }
 		});
 
 		// Get the client window width to make the game window responsive
