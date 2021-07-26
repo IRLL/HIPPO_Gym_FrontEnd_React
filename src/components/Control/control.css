@@ -227,6 +227,7 @@
 .blockButton {
   border: 0.25rem solid #f4aa02;
   border-radius: 8px;
+  margin-bottom: 0.5rem;
 }
 
 .bottom {

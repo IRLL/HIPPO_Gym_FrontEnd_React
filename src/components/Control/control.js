@@ -336,8 +336,9 @@ class ControlPanel extends React.Component {
           {[
             { name: "Previous", i: 0 },
             { name: "Next", i: 2 },
-          ].map(({ name, i }) => (
-            <Col key={`${name}Block`}>
+          ].map(({ name, i }) =>
+          {return blockButtons[i].value !== null ?
+           (<Col key={`${name}Block`}>
               <Tooltip
                 placement="bottom"
                 title={`${name} Library item (${blockButtons[i].name})`}
@@ -355,11 +356,12 @@ class ControlPanel extends React.Component {
                 />
               </Tooltip>
             </Col>
-          ))}
+            ): null}
+          )}
         </Row>
       );
-
-      elements["topBlock"] = (
+      if (blockButtons[1].value !== null){
+       elements["topBlock"] = (
         <Row justify="center" gutter={[0, 16]}>
           <Col key="currentBlock">
             <Tooltip
@@ -382,6 +384,8 @@ class ControlPanel extends React.Component {
           </Col>
         </Row>
       );
+      }
+
     }
 
     // TODO: this is a temporary method of arranging custom buttons. It needs to be redone
