@@ -200,7 +200,7 @@ class Game extends React.Component {
                   image:
                     "data:image/jpeg;base64, " + parsedData.currentBlock.image,
                 },
-              });
+              }, () => console.log(this.state.previousBlock));
             }
             //Check if Instructions in response
             if (parsedData.Instructions) {
