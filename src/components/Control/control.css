@@ -2,224 +2,250 @@
    Make the corners of panel rounded
    Add space to the top of the panel */
 .controlPanel {
-	border: solid 1px rgb(237, 237, 237);
-	border-radius: 10px;
-	margin-top: 20px;
-	padding: 1rem 2rem;
-	flex: 1;
-	width: fit-content;
-	margin: 1rem auto;
+  border: solid 1px rgb(237, 237, 237);
+  border-radius: 10px;
+  margin-top: 20px;
+  padding: 1rem 2rem;
+  flex: 1;
+  width: fit-content;
+  margin: 1rem auto;
 }
 
 /* Remove the default border of the container
  Add space to the top of the container */
 .panelContainer {
-	border: none;
-	margin-top: 10px;
+  border: none;
+  margin-top: 10px;
 }
 
 .directions {
-	padding-bottom: 1rem;
+  padding-bottom: 1rem;
 }
 
-.direction{
-	justify-content: space-evenly;
+.direction {
+  justify-content: space-evenly;
 }
 
 /* Set the height of fps input field
  Make the corners of this field rounded */
 .fpsInput {
-	width: 7rem;
-	height: 2.5rem;
-	border-radius: 20px;
+  width: 7rem;
+  height: 2.5rem;
+  border-radius: 20px;
 }
 
 /* set animation for instructions */
 .instructions {
-	animation-name: example;
-	animation-duration: 5s;
-	transition: 3s;
+  animation-name: example;
+  animation-duration: 5s;
+  transition: 3s;
 }
 
 @keyframes example {
-	0% {
-		color: rgb(164, 165, 152);
-	}
-	20% {
-		color: rgb(146, 25, 55);
-	}
-	40% {
-		color: rgb(180, 55, 86);
-	}
-	60% {
-		color: rgb(146, 25, 55);
-	}
-	80% {
-		color: rgb(180, 55, 86);
-	}
+  0% {
+    color: rgb(164, 165, 152);
+  }
+  20% {
+    color: rgb(146, 25, 55);
+  }
+  40% {
+    color: rgb(180, 55, 86);
+  }
+  60% {
+    color: rgb(146, 25, 55);
+  }
+  80% {
+    color: rgb(180, 55, 86);
+  }
 }
 
 /* Set the width of the sliders to be more responsive */
 .imageControl {
-	min-width: 10rem;
-	max-width: 30rem;
+  min-width: 10rem;
+  max-width: 30rem;
 }
 
 /* Add margin to the bottom of slider text */
 .imageControlText {
-	margin-bottom: 0.25rem;
+  margin-bottom: 0.25rem;
 }
 
 /* Utility class to add left margin to control
 	panel when orientation is horizonal */
 .addMargin {
-	margin-left: 2rem;
+  margin: 0 2rem;
 }
 
 /* Add a bottom padding to the image commands */
 .imageCommands {
-	padding-bottom: 1rem;
+  padding-bottom: 1rem;
 }
 
 /* Set the background color for each button
    Set the text color for each button
    Set the border color for each button */
 .startButton {
-	background-color: #1890ff;
-	color: white;
-	border-color: #1890ff;
+  background-color: #1890ff;
+  color: white;
+  border-color: #1890ff;
 }
 
 .startButton:hover {
-	background-color: #40a9ff;
-	border-color: #40a9ff;
+  background-color: #40a9ff;
+  border-color: #40a9ff;
 }
 
 .pauseButton {
-	background-color: #fa541c;
-	color: white;
-	border-color: #fa541c;
+  background-color: #fa541c;
+  color: white;
+  border-color: #fa541c;
 }
 
 .pauseButton:hover {
-	background-color: #ff7a45;
-	border-color: #ff7a45;
+  background-color: #ff7a45;
+  border-color: #ff7a45;
 }
 
 .stopButton {
-	background-color: #f5222d;
-	color: white;
-	border-color: #f5222d;
+  background-color: #f5222d;
+  color: white;
+  border-color: #f5222d;
 }
 
 .stopButton:hover {
-	background-color: #ff4d4f;
-	border-color: #ff4d4f;
+  background-color: #ff4d4f;
+  border-color: #ff4d4f;
 }
 
 .resetButton {
-	background-color: #52c41a;
-	color: white;
-	border-color: #52c41a;
+  background-color: #52c41a;
+  color: white;
+  border-color: #52c41a;
 }
 
 .resetButton:hover {
-	background-color: #73d13d;
-	border-color: #73d13d;
+  background-color: #73d13d;
+  border-color: #73d13d;
 }
 
 .trainOnlineButton {
-	background-color: #faad14;
-	color: white;
-	border-color: #faad14;
+  background-color: #faad14;
+  color: white;
+  border-color: #faad14;
 }
 
 .trainOnlineButton:hover {
-	background-color: #ffc53d;
-	border-color: #ffc53d;
+  background-color: #ffc53d;
+  border-color: #ffc53d;
 }
 
 .trainOfflineButton {
-	background-color: #13c2c2;
-	color: white;
-	border-color: #13c2c2;
+  background-color: #13c2c2;
+  color: white;
+  border-color: #13c2c2;
 }
 
 .trainOfflineButton:hover {
-	background-color: #36cfc9;
-	border-color: #36cfc9;
+  background-color: #36cfc9;
+  border-color: #36cfc9;
 }
 
 .goodButton {
-	background-color: #fadb14;
-	color: white;
-	border-color: #fadb14;
+  background-color: #fadb14;
+  color: white;
+  border-color: #fadb14;
 }
 
 .goodButton:hover {
-	background-color: #ffec3d;
-	border-color: #ffec3d;
+  background-color: #ffec3d;
+  border-color: #ffec3d;
 }
 
 .badButton {
-	background-color: #a0d911;
-	color: white;
-	border-color: #a0d911;
+  background-color: #a0d911;
+  color: white;
+  border-color: #a0d911;
 }
 
 .badButton:hover {
-	background-color: #bae637;
-	border-color: #bae637;
+  background-color: #bae637;
+  border-color: #bae637;
 }
 
 .undoButton,
 .redoButton {
-	background-color: white;
-	color: black;
-	border-color: black;
+  background-color: white;
+  color: black;
+  border-color: black;
 }
 
 .undoButton:hover,
 .undoButton:focus,
 .redoButton:hover,
 .redoButton:focus {
-	background-color: #eeeeee;
-	color: black;
-	border-color: black;
+  background-color: #eeeeee;
+  color: black;
+  border-color: black;
 }
 
 .resetImageButton {
-	background-color: #f5222d;
-	color: white;
-	border-color: #f5222d;
+  background-color: #f5222d;
+  color: white;
+  border-color: #f5222d;
 }
 
 .resetImageButton:hover,
 .resetImageButton:focus {
-	background-color: #ff4d4f;
-	border-color: #ff4d4f;
+  background-color: #ff4d4f;
+  border-color: #ff4d4f;
 }
 
 .submitImageButton {
-	background-color: #52c41a;
-	color: white;
-	border-color: #52c41a;
+  background-color: #52c41a;
+  color: white;
+  border-color: #52c41a;
 }
 
 .submitImageButton:hover,
 .submitImageButton:focus {
-	background-color: #73d13d;
-	border-color: #73d13d;
+  background-color: #73d13d;
+  border-color: #73d13d;
 }
 
 .adding,
 .adding:hover,
 .adding:focus {
-	animation: blinker 1s ease-in-out infinite alternate;
+  animation: blinker 1s ease-in-out infinite alternate;
 }
 
 @keyframes blinker {
-	100% {
-		opacity: 60%;
-	}
+  100% {
+    opacity: 60%;
+  }
+}
+
+.blockButton {
+  border: 0.25rem solid #f4aa02;
+  border-radius: 8px;
+  margin-bottom: 0.5rem;
+}
+
+.bottom {
+  width: 5rem;
+  cursor: pointer;
+}
+
+.top {
+  width: 7rem;
+}
+
+@import url("http://fonts.cdnfonts.com/css/minecraft-3");
+
+.blockText {
+  text-align: center;
+  font-size: 2rem;
+  font-family: "Minecraft", sans-serif;
+  margin: 0;
+  text-shadow: 1px 1px 1px black;
+  color: rgb(162, 162, 162);
 }
