@@ -452,9 +452,11 @@ class ControlPanel extends React.Component {
               <Row gutter={[4, 8]} justify="space-around" className="addPadding">
                 {feedbackRow}
               </Row>
-              <Row gutter={[4, 8]} justify="space-around" className="addPadding">
-                {customRow}
-              </Row>
+              {customRow.length ?
+                <Row gutter={[4, 8]} justify="space-around" className="addPadding">
+                  {customRow}
+                </Row>
+              :null}
               <Row gutter={[4, 8]} justify="space-around" className="addPadding">
                 {lastRow}
               </Row>

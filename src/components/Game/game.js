@@ -200,7 +200,7 @@ class Game extends React.Component {
                   image:
                     "data:image/jpeg;base64, " + parsedData.currentBlock.image,
                 },
-              }, () => console.log(this.state.previousBlock));
+              });
             }
             //Check if Instructions in response
             if (parsedData.Instructions) {
@@ -545,12 +545,6 @@ class Game extends React.Component {
   // Perform commands like add minutia, redo, undo, reset
   // Send performed command to websocket
   handleImageCommands = (command) => {
-    // console.log(
-    // 	"undo length: ",
-    // 	this.state.undoList.length,
-    // 	"redo length: ",
-    // 	this.state.redoList.length
-    // );
     switch (command) {
       case "resetImage":
         this.setState({
