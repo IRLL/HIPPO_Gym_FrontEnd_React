@@ -38,15 +38,11 @@ let prevMouseData = {
   frameCount: 0,
   x: 0,
   y: 0,
-<<<<<<< HEAD
 }
 let prevDimensions = {
   width: initialWindowWidth,
   height: initialWindowHeight,
 }
-=======
-};
->>>>>>> master
 
 class Game extends React.Component {
   state = {
@@ -54,121 +50,6 @@ class Game extends React.Component {
     frameId: 0, // the id of current frame
     frameRate: 30, // default FPS is 30
     inputFrameRate: 30, // this stores the input of frame rate input box
-<<<<<<< HEAD
-		frameSrc: "", // the image source of frame
-		imageL: null, // the image source of left image component
-		imageR: null, // the image source of right image component
-		isLoading: !SERVER ? true : false, // if the server is ready to send out the data
-		isEnd: false, // if the game is finished
-		isConnection: false, // if the connection to the server is established
-		gameEndVisible: false, // if the game end dialog is visible
-		UIlist: [], // a list of UI components
-    keyList: ["a","b","c"], // a list of keys for which the researcher requires info
-		progress: 0, // the status of the server
-		inputBudget: 0, // the total budget available for the feedback buttons
-		usedInputBudget: 0, // the consumed budget for the feedback buttons
-		receiveData: null, // the received data from the server
-		displayData: null, // the data that will be displayed on the page
-		inMessage: [], // a list of incoming messages
-		outMessage: [], // a list of outgoing messages
-		holdKey: null, // the key that is holding
-		instructions: [], // list of instructions for the game
-		orientation: "horizontal", // default orientation is horizontal
-
-		// Fingerprint trial configurations
-		fingerprint: false, // if this is a fingerprint trial
-		minMinutiae: null, // the minimum number of minutiae required to be marked per step
-		resetModalVisible: false, // if the reset image dialog is visible
-
-		// For image marking functionality
-		brightness: 100, // default image brightness (out of 100)
-		contrast: 100, // default image contrast (out of 100)
-		saturation: 100, // default image saturation (out of 100)
-		hue: 0, // default image hue rotation (out of 360)
-		addingMinutiae: false, // if currently adding minutiae
-		minutiae: [], // list of all available minutiae within the image
-
-		// For the score modal
-		scoreModalVisible: false, // if the score modal is visible
-		score: null, // the user's score
-		maxScore: 100, // the maximum score a user can get
-
-		// For undo and redo functionality
-		undoList: [], // list of states before
-		undoEnabled: false, // if
-		redoList: [], // list of states after
-		redoEnabled: false,
-		changing: false, // a flag to set if the sliders are still changing
-
-		// Widths and heights for responsiveness
-		windowWidth: 700,          // default is 700, researcher can provide custom value
-		windowHeight: 600,          // default is 600, researcher can provide custom value
-    windowSize: "responsive",   // if strict, game or fingerprint window will not be responsive
-		imageWidth: null,
-		imageHeight: null,
-	};
-
-	componentDidMount() {
-		// To update the progress of loading game content
-		// Since we always need to wait 30 seconds before the game
-		// content get loaded, we update the progress (100/30) per second
-		this.updateProgress = setInterval(
-			() =>
-				this.setState((prevState) => ({
-					progress: prevState.progress + 100 / pendingTime,
-				})),
-			1000
-		);
-
-		// To ensure the websocket server is ready to connect
-		// we try to connect the websocket server periodically
-		// for every 30 seconds until the connection has been established
-		this.timer = setTimeout(
-			() => {
-				//connect the websocket server
-				this.websocket = new w3cwebsocket(WS_URL);
-				this.websocket.onopen = () => {
-					// Once the websocket connection has been established
-					// we remove all the unnecessary timer
-					clearTimeout(this.timer);
-					clearInterval(this.updateProgress);
-					console.log("WebSocket Client Connected");
-					this.setState({
-						isLoading: false,
-						isConnection: true,
-					});
-					this.sendMessage({
-						userId: USER_ID,
-						projectId: PROJECT_ID,
-					});
-				};
-
-				// Listen to the data from the websocket server
-				this.websocket.onmessage = (message) => {
-					if (message.data === "done") {
-						//"done" means the game has ended
-						this.setState({
-							isEnd: true,
-							gameEndVisible: true,
-						});
-					} else {
-						//parse the data from the websocket server
-						let parsedData = JSON.parse(message.data);
-
-						//Check if budget bar should be loaded
-						if (parsedData.inputBudget) {
-							this.setState({
-								inputBudget: parsedData.inputBudget,
-								usedInputBudget: parsedData.usedInputBudget,
-							});
-						}
-						//Check if UI in response
-						if (parsedData.UI) {
-							this.setState({
-								UIlist: parsedData.UI,
-							});
-						}
-=======
     frameSrc: "", // the image source of frame
     imageL: null, // the image source of left image component
     imageR: null, // the image source of right image component
@@ -281,7 +162,6 @@ class Game extends React.Component {
                 UIlist: parsedData.UI,
               });
             }
->>>>>>> master
             // Check if window size is in the response
             if (parsedData.gameWindowWidth) {
               initialWindowWidth = parsedData.gameWindowWidth;
@@ -325,7 +205,7 @@ class Game extends React.Component {
                   image:
                     "data:image/jpeg;base64, " + parsedData.currentBlock.image,
                 },
-              }, () => console.log(this.state.previousBlock));
+              });
             }
             //Check if Instructions in response
             if (parsedData.Instructions) {
@@ -412,7 +292,6 @@ class Game extends React.Component {
                 imageR: parsedData.imageR,
               });
             }
-<<<<<<< HEAD
 						//Check if Instructions in response
 						if (parsedData.Instructions) {
 							this.setState({
@@ -542,7 +421,6 @@ class Game extends React.Component {
 					this.sendMessage(dataToSend);
 				}
 			}
-      console.log(event)
       this.sendMessage({
         "KeyboardEvent": {
           "KEYDOWN": [event.key, event.key.charCodeAt(0)]
@@ -579,7 +457,6 @@ class Game extends React.Component {
   // check every second if the resize has stopped
   resizeCalled = () => {
     var resizeCalled = setInterval(() => {
-      console.log("resizeCalled")
       var currWidth = this.state.windowWidth
       var currHeight = this.state.windowHeight
       if (currWidth === prevDimensions.width && currHeight === prevDimensions.height){
@@ -601,7 +478,6 @@ class Game extends React.Component {
 
 	handleResize = () => {
     // TODO: add a variable to check if  resizeCalled setinterval has been called already
-    console.log("handleResize")
     if (!isResizeCalled) {
       isResizeCalled = true;
       this.resizeCalled()
@@ -716,188 +592,6 @@ class Game extends React.Component {
 
 	// Change the FPS of the game
 	handleFPS = (type, value) => {
-=======
-
-            //check if any information needed to display
-            if (parsedData.display) {
-              this.setState({
-                displayData: parsedData.display,
-              });
-            }
-            //log every message received from the server
-            if (DEBUG) {
-              delete parsedData.frame;
-              this.setState((prevState) => ({
-                inMessage: [parsedData, ...prevState.inMessage],
-              }));
-            }
-          }
-        };
-
-        //listen to the websocket closing status
-        this.websocket.onclose = () => {
-          console.log("WebSocket Client Closed");
-          this.setState({
-            isConnection: false,
-            isEnd: true,
-            gameEndVisible: true,
-          });
-        };
-      },
-      SERVER ? 0 : pendingTime * 1000
-    );
-
-    // Listen to the user's keyboard inputs
-    document.addEventListener("keydown", (event) => {
-      //Used to prevent arrow keys and space key from scrolling the page
-      let dataToSend = getKeyInput(event.code);
-      if (dataToSend.actionType !== "null") {
-        event.preventDefault();
-      }
-
-      if (this.state.UIlist.includes(dataToSend.action)) {
-        if (this.state.holdKey !== dataToSend.actionType) {
-          this.setState({ holdKey: dataToSend.actionType });
-          this.sendMessage(dataToSend);
-        }
-      }
-    });
-
-    document.addEventListener("keyup", (event) => {
-      //Used to prevent arrow keys and space key from scrolling the page
-      let dataToSend = getKeyInput(event.code);
-      if (this.state.UIlist.includes(dataToSend.action)) {
-        dataToSend.action = "noop";
-        if (this.state.holdKey === dataToSend.actionType) {
-          this.setState({ holdKey: null });
-        }
-        this.sendMessage(dataToSend);
-      }
-    });
-
-    // Get the client window width to make the game window responsive
-    window.addEventListener("resize", this.handleResize);
-  }
-
-  componentWillUnmount() {
-    if (this.setInMessage) clearInterval(this.setInMessage);
-  }
-
-  handleResize = () => {
-    if (this.state.windowSize !== "strict") {
-      const value =
-        this.state.orientation === "vertical"
-          ? document.documentElement.clientWidth > initialWindowWidth
-            ? initialWindowWidth
-            : 0.8 * document.documentElement.clientWidth
-          : 0.4 * document.documentElement.clientWidth > initialWindowWidth
-          ? initialWindowWidth
-          : 0.5 * document.documentElement.clientWidth;
-      let newHeight = value / windowSizeRatio;
-      this.setState({
-        windowWidth: value,
-        windowHeight: newHeight,
-      });
-    }
-  };
-
-  // Change the confirmation modal to be invisible
-  // Navigate to the post-game page
-  handleOk = (e) => {
-    if (
-      e.currentTarget.id === "keepMinutiae" ||
-      e.currentTarget.id === "resetAll"
-    ) {
-      this.pushUndo();
-
-      this.setState({
-        // Reset image filters
-        brightness: 100,
-        contrast: 100,
-        saturation: 100,
-        hue: 0,
-        resetModalVisible: false,
-      });
-      if (e.currentTarget.id === "resetAll") {
-        this.setState({
-          minutiae: [],
-        });
-        this.sendMessage({
-          info: "reset all",
-        });
-      } else {
-        this.sendMessage({
-          info: "reset excluding minutiae",
-        });
-      }
-    } else {
-      this.setState({
-        gameEndVisible: false,
-      });
-      this.props.action();
-    }
-  };
-
-  // Change the confirmation modal to be invisible
-  // Stay on the game page
-  handleCancel = (e) => {
-    // this is for the cancel button in the "reset image" modal
-    if (e.currentTarget.id === "resetCancel") {
-      this.setState({
-        resetModalVisible: false,
-      });
-    } else {
-      this.setState({
-        gameEndVisible: false,
-      });
-    }
-  };
-
-  // Send data to websocket server in JSON format
-  sendMessage = (data) => {
-    if (this.state.isConnection) {
-      const allData = {
-        ...data,
-        frameCount: this.state.frameCount,
-        frameId: this.state.frameId,
-      };
-      this.setState((prevState) => ({
-        outMessage: [allData, ...prevState.outMessage],
-      }));
-      this.websocket.send(JSON.stringify(allData));
-    }
-  };
-
-  // Send game control commands to the websocket server
-  handleCommand = (status) => {
-    if (this.state.isLoading) {
-      message.error("Please wait for the connection to be established first!");
-      return;
-    }
-
-    if (status === "start") {
-      this.sendMessage({
-        command: status,
-        system: osName,
-        systemVersion: osVersion,
-        browser: browserName,
-        browserVersion: browserVersion,
-      });
-    } else if (status === "submitImage") {
-      this.sendMessage({
-        command: status,
-        minutiaList: this.normalizeMinutiae(this.state.minutiae),
-      });
-    } else {
-      this.sendMessage({
-        command: status,
-      });
-    }
-  };
-
-  // Change the FPS of the game
-  handleFPS = (type, value) => {
->>>>>>> master
     // set frame rate based on user input in the input box
     var reg = new RegExp("^[0-9]+$"); // value should only contain numbers
     if (type === "input") {
@@ -976,12 +670,6 @@ class Game extends React.Component {
   // Perform commands like add minutia, redo, undo, reset
   // Send performed command to websocket
   handleImageCommands = (command) => {
-    // console.log(
-    // 	"undo length: ",
-    // 	this.state.undoList.length,
-    // 	"redo length: ",
-    // 	this.state.redoList.length
-    // );
     switch (command) {
       case "resetImage":
         this.setState({
@@ -1134,7 +822,6 @@ class Game extends React.Component {
 
   // calculate the difference in current vs previous mouse positions
   getMouseData = (currX, currY) => {
-<<<<<<< HEAD
     let pxsMovement = [currX - prevMouseData.x, currY - prevMouseData.y]
     prevMouseData.x = currX
     prevMouseData.y = currY
@@ -1159,55 +846,6 @@ class Game extends React.Component {
         this.sendMessage({ MouseEvent: {
           [eventType]: [{x, y}, buttonTuple, button]
         }})
-=======
-    var [width, height] = [this.state.windowWidth, this.state.windowHeight];
-    currX = parseInt(currX);
-    currY = parseInt(currY);
-    var [currXRel, currYRel] = [currX / width, currY / height];
-    var [prevXRel, prevYRel] = [
-      prevMouseData.x / width,
-      prevMouseData.y / height,
-    ];
-    let pxsMovement = [currX - prevMouseData.x, currY - prevMouseData.y];
-    let relMovement = [currXRel - prevXRel, currYRel - prevYRel];
-    prevMouseData.x = currX;
-    prevMouseData.y = currY;
-    return [
-      currXRel,
-      currYRel,
-      pxsMovement[0],
-      pxsMovement[1],
-      relMovement[0],
-      relMovement[1],
-    ];
-  };
-
-  // every time a new frame is recieved, send information about the mouse motion
-  // also send message every time mouse up or down occurs
-  sendMouseData = (info, x, y, button) => {
-    if (
-      this.state.frameCount !== prevMouseData.frameCount ||
-      info !== "mouse move"
-    ) {
-      var buttonTuple = this.getButtonTuple(button);
-      var [xRel, yRel, xMovement, yMovement, xRelMovement, yRelMovement] =
-        this.getMouseData(x, y);
-      if (info === "mouse move") {
-        this.sendMessage({
-          info,
-          pos: { x, y, xRel, yRel },
-          rel: { xMovement, yMovement, xRelMovement, yRelMovement },
-          buttons: buttonTuple, // button pressed in tuple format
-          button, // integer value of button pressed. If more than one button is pressed then a sum of buttons pressed should be recieved
-        });
-      } else {
-        this.sendMessage({
-          info,
-          pos: { x, y, xRel, yRel },
-          buttons: buttonTuple,
-          button,
-        });
->>>>>>> master
       }
       prevMouseData.frameCount = this.state.frameCount; // set prevFrameCount to the current frame count
     }
