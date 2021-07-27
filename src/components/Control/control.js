@@ -328,6 +328,7 @@ class ControlPanel extends React.Component {
       elements["stop"],
       elements["reset"],
     ];
+    const feedbackRow = [elements["good"], elements["bad"]]
     const customRow = []; // store custom buttons
 
     if (blockButtons) {
@@ -423,7 +424,7 @@ class ControlPanel extends React.Component {
                 </div>
               ) : null}
               {this.props.fingerprint ? (
-                <>
+                <div>
                   <Row
                     gutter={[4, 8]}
                     justify="space-around"
@@ -437,23 +438,24 @@ class ControlPanel extends React.Component {
                   <Row gutter={[4, 8]} justify="space-between">
                     {sliders2}
                   </Row>
-                </>
+                </div>
               ) : null}
               {[elements["bottomBlocks"]]}
               <Row gutter={[4, 8]} justify="space-around">
                 {fpsRow}
               </Row>
-              <div className="directions">
+              <div className="addPadding">
                 <Row className="direction">{firstRow}</Row>
                 <Row className="direction">{secondRow}</Row>
                 <Row className="direction">{thirdRow}</Row>
               </div>
-              {customRow.length ? (
-                <Row gutter={[4, 8]} justify="space-around">
-                  {customRow}
-                </Row>
-              ) : null}
-              <Row gutter={[4, 8]} justify="space-around">
+              <Row gutter={[4, 8]} justify="space-around" className="addPadding">
+                {feedbackRow}
+              </Row>
+              <Row gutter={[4, 8]} justify="space-around" className="addPadding">
+                {customRow}
+              </Row>
+              <Row gutter={[4, 8]} justify="space-around" className="addPadding">
                 {lastRow}
               </Row>
               {isEnd ? next : null}
