@@ -28,6 +28,7 @@ class ControlPanel extends React.Component {
       addingMinutiae,
       undoEnabled,
       redoEnabled,
+      blockButtons,
     } = this.props;
     const directions = [
       "left",
@@ -71,13 +72,18 @@ class ControlPanel extends React.Component {
       "submitImage",
       "stop",
     ];
-    const defaultButtons = [...directions, ...fps];
+    const defaultButtons = [
+      ...directions,
+      ...fps,
+      ...imageCommands,
+      ...commands,
+    ];
 
+    // filter out UIlist to avoid duplicate buttons
     const UIFiltered = UIlist.filter(
       (ele) =>
         !defaultButtons.includes(ele) &&
-        !imageControls.map((control) => control.name).includes(ele) &&
-        !imageCommands.includes(ele)
+        !imageControls.map((control) => control.name).includes(ele)
     );
 
     const elements = {
@@ -159,21 +165,23 @@ class ControlPanel extends React.Component {
         );
     });
     commands.forEach((command) => {
-      elements[command] = (
-        <Col key={command}>
-          <Button
-            shape="round"
-            type="primary"
-            id={command}
-            className={`${command}Button`}
-            icon={icons[command]}
-            size="large"
-            onClick={() => handleCommand(command)}
-          >
-            {capitalize(command)}
-          </Button>
-        </Col>
-      );
+      if (UIlist.includes(command)) {
+        elements[command] = (
+          <Col key={command}>
+            <Button
+              shape="round"
+              type="primary"
+              id={command}
+              className={`${command}Button`}
+              icon={icons[command]}
+              size="large"
+              onClick={() => handleCommand(command)}
+            >
+              {capitalize(command)}
+            </Button>
+          </Col>
+        );
+      }
     });
     instructions.forEach((instruction, i) => {
       elements[`instruction${i}`] = (
@@ -237,9 +245,9 @@ class ControlPanel extends React.Component {
           break;
       }
 
-      elements[command] = (
-        <Col key={command}>
-          {UIlist.includes(command) && (
+      if (UIlist.includes(command)) {
+        elements[command] = (
+          <Col key={command}>
             <Button
               shape="round"
               type="primary"
@@ -253,9 +261,9 @@ class ControlPanel extends React.Component {
             >
               {capitalize(sentenceCase(command))}
             </Button>
-          )}
-        </Col>
-      );
+          </Col>
+        );
+      }
     });
     UIFiltered.forEach((ele) => {
       if (!(ele in elements)) {
@@ -268,13 +276,12 @@ class ControlPanel extends React.Component {
               size="large"
               onClick={() => handleCommand(ele)}
             >
-              {capitalize(ele)}
+              {capitalize(sentenceCase(ele))}
             </Button>
           </Col>
         );
       }
     });
-
     const next = (
       <Row gutter={[4, 8]} justify="space-around">
         <Col key="nextStep">
@@ -317,21 +324,88 @@ class ControlPanel extends React.Component {
     const lastRow = [
       elements["submitImage"],
       elements["start"],
+      elements["pause"],
       elements["stop"],
       elements["reset"],
     ];
+    const feedbackRow = [elements["good"], elements["bad"]];
+    const customRow = []; // store custom buttons
+
+    if (blockButtons) {
+      elements["bottomBlocks"] = (
+        <Row gutter={[16, 16]} justify="center" align="middle">
+          {[
+            { name: "Previous", i: 0 },
+            { name: "Next", i: 2 },
+          ].map(({ name, i }) => {
+            return blockButtons[i] !== null ? (
+              <Col key={`${name}Block`}>
+                <Tooltip
+                  placement="bottom"
+                  title={`${name} Library item (${blockButtons[i].name})`}
+                  arrowPointAtCenter
+                >
+                  <img
+                    className="blockButton bottom"
+                    src={blockButtons[i].image}
+                    alt="blockButton"
+                    onClick={() =>
+                      sendMessage({
+                        command: blockButtons[i].value,
+                      })
+                    }
+                  />
+                </Tooltip>
+              </Col>
+            ) : null;
+          })}
+        </Row>
+      );
+      if (blockButtons[1] !== null) {
+        elements["topBlock"] = (
+          <Row justify="center" gutter={[0, 16]}>
+            <Col key="currentBlock">
+              <Tooltip
+                placement="bottom"
+                title={`Current Block (${blockButtons[1].name})`}
+                arrowPointAtCenter
+              >
+                <p className="blockText">{blockButtons[1].name}</p>
+                <img
+                  className="blockButton top"
+                  src={blockButtons[1].image}
+                  alt="blockButton"
+                  onClick={() =>
+                    sendMessage({
+                      command: blockButtons[1].value,
+                    })
+                  }
+                />
+              </Tooltip>
+            </Col>
+          </Row>
+        );
+      }
+    }
+
+    // TODO: this is a temporary method of arranging custom buttons. It needs to be redone
+    // add custom buttons
+    UIFiltered.forEach((ele) => {
+      customRow.push(elements[ele]);
+    });
     // UIFiltered.forEach((ele, idx) => {
-    //   if (idx % 3 === 0) {
-    //     firstRow.push(elements[ele]);
-    //   } else if (idx % 3 === 1) {
-    //     secondRow.push(elements[ele]);
-    //   } else if (idx % 3 === 2) {
-    //     thirdRow.push(elements[ele]);
-    //   }
+    // 	if (idx % 3 === 0) {
+    // 		firstRow.push(elements[ele]);
+    // 	} else if (idx % 3 === 1) {
+    // 		secondRow.push(elements[ele]);
+    // 	} else if (idx % 3 === 2) {
+    // 		thirdRow.push(elements[ele]);
+    // 	}
     // });
 
     return (
       <div data-testid="control-panel">
+        {elements["topBlock"]}
         {!isLoading && (
           <div
             className={`controlPanel ${
@@ -349,7 +423,7 @@ class ControlPanel extends React.Component {
                 </div>
               ) : null}
               {this.props.fingerprint ? (
-                <>
+                <div>
                   <Row
                     gutter={[4, 8]}
                     justify="space-around"
@@ -363,17 +437,38 @@ class ControlPanel extends React.Component {
                   <Row gutter={[4, 8]} justify="space-between">
                     {sliders2}
                   </Row>
-                </>
+                </div>
               ) : null}
+              {[elements["bottomBlocks"]]}
               <Row gutter={[4, 8]} justify="space-around">
                 {fpsRow}
               </Row>
-              <div className="directions">
+              <div className="addPadding">
                 <Row className="direction">{firstRow}</Row>
                 <Row className="direction">{secondRow}</Row>
                 <Row className="direction">{thirdRow}</Row>
               </div>
-              <Row gutter={[4, 8]} justify="space-around">
+              <Row
+                gutter={[4, 8]}
+                justify="space-around"
+                className="addPadding"
+              >
+                {feedbackRow}
+              </Row>
+              {customRow.length ? (
+                <Row
+                  gutter={[4, 8]}
+                  justify="space-around"
+                  className="addPadding"
+                >
+                  {customRow}
+                </Row>
+              ) : null}
+              <Row
+                gutter={[4, 8]}
+                justify="space-around"
+                className="addPadding"
+              >
                 {lastRow}
               </Row>
               {isEnd ? next : null}

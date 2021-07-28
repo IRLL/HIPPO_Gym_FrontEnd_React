@@ -20,12 +20,10 @@ class GameWindow extends React.Component {
 
     ripple.style.animation = "ripple-effect .4s  linear";
     ripple.onanimationend = () => document.body.removeChild(ripple);
-
  }
 
   render() {
-      const {isLoading, frameSrc, progress, imageL, imageR, addMinutia, width, height} = this.props;
-
+      const {isLoading, frameSrc, progress, imageL, imageR, addMinutia, width, height, sendMouseData} = this.props;
       return (
         <Zoom>
           {(zoom) => (
@@ -37,12 +35,40 @@ class GameWindow extends React.Component {
                 </div>
                 :null }
                 <div className="gameWindow"
-                  onClick={(event) => {
+                  onMouseDown={(event) => {
+                    event.preventDefault()
                     const point = localPoint(event);
-                    addMinutia(
+                    sendMouseData(
+                      "mouse down",
                       point.x,
                       point.y - 0.65625,
+                      event.buttons,
                     )
+                  }}
+                  onMouseMove={(event) => {
+                    event.preventDefault()
+                    const point = localPoint(event);
+                    sendMouseData(
+                      "mouse move",
+                      point.x,
+                      point.y - 0.65625,
+                      event.buttons,
+                    )
+                  }}
+                  onMouseUp={(event) => {
+                    event.preventDefault()
+                    const point = localPoint(event);
+                    sendMouseData(
+                      "mouse up",
+                      point.x,
+                      point.y - 0.65625,
+                      event.buttons,
+                    )
+                  }}
+                  // prevent context menu from popping up when right mouse button is clicked in the gamewindow
+                  onContextMenu={(event) => {
+                    event.preventDefault();
+                    return false;
                   }}
                 >
                     {isLoading || !frameSrc ?

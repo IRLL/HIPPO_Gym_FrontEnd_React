@@ -34,6 +34,11 @@ const pendingTime = 30;
 let initialWindowWidth = 700;
 let initialWindowHeight = 600;
 let windowSizeRatio = 700 / 600;
+let prevMouseData = {
+  frameCount: 0,
+  x: 0,
+  y: 0,
+};
 
 class Game extends React.Component {
   state = {
@@ -176,6 +181,53 @@ class Game extends React.Component {
                 windowSize: parsedData.gameWindowSize,
               });
             }
+            this.handleResize(); // once new width.height and ratio has been defined, immediately run resize function
+
+            if (
+              parsedData.previousBlock ||
+              parsedData.currentBlock ||
+              parsedData.nextBlock
+            ) {
+              if (parsedData.previousBlock) {
+                this.setState({
+                  previousBlock: {
+                    ...parsedData.previousBlock,
+                    image:
+                      "data:image/jpeg;base64, " +
+                      parsedData.previousBlock.image,
+                  },
+                });
+              } else {
+                this.setState({ previousBlock: null });
+              }
+              if (parsedData.currentBlock) {
+                this.setState({
+                  currentBlock: {
+                    ...parsedData.currentBlock,
+                    image:
+                      "data:image/jpeg;base64, " +
+                      parsedData.currentBlock.image,
+                  },
+                });
+              } else {
+                this.setState({ currentBlock: null });
+              }
+              if (parsedData.nextBlock) {
+                this.setState({
+                  nextBlock: {
+                    ...parsedData.nextBlock,
+                    image:
+                      "data:image/jpeg;base64, " + parsedData.nextBlock.image,
+                  },
+                });
+              } else {
+                this.setState({ nextBlock: null });
+              }
+              // boolean to check if there are blocks in the UI
+              this.setState({
+                blocks: true,
+              });
+            }
             //Check if Instructions in response
             if (parsedData.Instructions) {
               this.setState({
@@ -194,13 +246,6 @@ class Game extends React.Component {
                 score: parsedData.Score,
               });
             }
-            //Check if Grid in response
-            if (parsedData.Grid) {
-              this.setState({
-                grid: parsedData.Grid,
-              });
-              console.log(parsedData.Grid);
-            }
             //Check if Score in response
             if (parsedData.MaxScore) {
               this.setState({
@@ -212,6 +257,13 @@ class Game extends React.Component {
               this.setState({
                 minMinutiae: parsedData.MinMinutiae,
               });
+            }
+            //Check if Grid in response
+            if (parsedData.Grid) {
+              this.setState({
+                grid: parsedData.Grid,
+              });
+              console.log(parsedData.Grid);
             }
             //Check if frame related information in response
             if (parsedData.frame && parsedData.frameId) {
@@ -327,7 +379,6 @@ class Game extends React.Component {
     });
 
     // Get the client window width to make the game window responsive
-    this.handleResize();
     window.addEventListener("resize", this.handleResize);
   }
 
@@ -370,7 +421,6 @@ class Game extends React.Component {
         hue: 0,
         resetModalVisible: false,
       });
-
       if (e.currentTarget.id === "resetAll") {
         this.setState({
           minutiae: [],
@@ -441,7 +491,7 @@ class Game extends React.Component {
         command: status,
         minutiaList: this.normalizeMinutiae(this.state.minutiae),
       });
-    } else if (status === "reset"){
+    } else if (status === "reset") {
       if (this.state.grid) {
         this.resetGrid();
         this.sendMessage({
@@ -450,7 +500,7 @@ class Game extends React.Component {
         });
       }
     } else {
-      if(this.state.grid) {
+      if (this.state.grid) {
         this.submitGrid();
       }
 
@@ -506,15 +556,15 @@ class Game extends React.Component {
     }
   };
 
-  resetGrid = () => {}
+  resetGrid = () => {};
   setResetGrid = (handleReset) => {
     this.resetGrid = handleReset;
-  }
+  };
 
-  submitGrid = () => {}
+  submitGrid = () => {};
   setSubmitGrid = (handleSubmit) => {
     this.submitGrid = handleSubmit;
-  }
+  };
 
   // Apply color filters to the image in the fingerprint window
   // - send applied filter to websocket
@@ -680,14 +730,77 @@ class Game extends React.Component {
         info: "minutia added",
         minutia: { x, y, orientation, size, color, type },
       });
-    } else {
-      // relative x and y values
-      var xRel = x / this.state.windowWidth;
-      var yRel = y / this.state.windowHeight;
-      this.sendMessage({
-        info: "point clicked",
-        coordinates: { x, y, xRel, yRel },
-      });
+    }
+  };
+
+  // create a tuple to indicate which mouse button was pressed
+  // (left, center/mouse wheel, right)
+  getButtonTuple = (button) => {
+    if (button === 1) {
+      return [1, 0, 0];
+    } // left button
+    else if (button === 2) {
+      return [0, 0, 1];
+    } // right button
+    else if (button === 4) {
+      return [0, 1, 0];
+    } // center button/mouse wheel
+    else {
+      return [0, 0, 0];
+    }
+  };
+
+  // calculate the difference in current vs previous mouse positions
+  getMouseData = (currX, currY) => {
+    var [width, height] = [this.state.windowWidth, this.state.windowHeight];
+    currX = parseInt(currX);
+    currY = parseInt(currY);
+    var [currXRel, currYRel] = [currX / width, currY / height];
+    var [prevXRel, prevYRel] = [
+      prevMouseData.x / width,
+      prevMouseData.y / height,
+    ];
+    let pxsMovement = [currX - prevMouseData.x, currY - prevMouseData.y];
+    let relMovement = [currXRel - prevXRel, currYRel - prevYRel];
+    prevMouseData.x = currX;
+    prevMouseData.y = currY;
+    return [
+      currXRel,
+      currYRel,
+      pxsMovement[0],
+      pxsMovement[1],
+      relMovement[0],
+      relMovement[1],
+    ];
+  };
+
+  // every time a new frame is recieved, send information about the mouse motion
+  // also send message every time mouse up or down occurs
+  sendMouseData = (info, x, y, button) => {
+    if (
+      this.state.frameCount !== prevMouseData.frameCount ||
+      info !== "mouse move"
+    ) {
+      var buttonTuple = this.getButtonTuple(button);
+      var [xRel, yRel, xMovement, yMovement, xRelMovement, yRelMovement] =
+        this.getMouseData(x, y);
+      if (info === "mouse move") {
+        this.sendMessage({
+          info,
+          pos: { x, y, xRel, yRel },
+          rel: { xMovement, yMovement, xRelMovement, yRelMovement },
+          buttons: buttonTuple, // button pressed in tuple format
+          button, // integer value of button pressed. If more than one button is pressed then a sum of buttons pressed should be recieved
+        });
+      } else {
+        this.sendMessage({
+          info,
+          pos: { x, y, xRel, yRel },
+          buttons: buttonTuple,
+          button,
+        });
+      }
+      prevMouseData.frameCount = this.state.frameCount; // set prevFrameCount to the current frame count
     }
   };
 
@@ -832,6 +945,10 @@ class Game extends React.Component {
       undoEnabled,
       redoEnabled,
       grid,
+      previousBlock,
+      currentBlock,
+      nextBlock,
+      blocks,
     } = this.state;
 
     return (
@@ -897,10 +1014,10 @@ class Game extends React.Component {
               />
             ) : grid ? (
               <Grid
-              grid={grid}
-              sendMessage={this.sendMessage}
-              setResetGrid={this.setResetGrid}
-              setSubmitGrid={this.setSubmitGrid}
+                grid={grid}
+                sendMessage={this.sendMessage}
+                setResetGrid={this.setResetGrid}
+                setSubmitGrid={this.setSubmitGrid}
               />
             ) : (
               <GameWindow
@@ -912,6 +1029,7 @@ class Game extends React.Component {
                 imageR={imageR}
                 progress={progress}
                 addMinutia={this.addMinutia}
+                sendMouseData={this.sendMouseData}
                 data-testid="game-window"
               />
             )}
@@ -925,7 +1043,6 @@ class Game extends React.Component {
               </Col>
             ) : null}
           </div>
-
           <ControlPanel
             className="gameControlPanel"
             isEnd={isEnd}
@@ -952,6 +1069,9 @@ class Game extends React.Component {
             orientation={orientation}
             undoEnabled={undoEnabled}
             redoEnabled={redoEnabled}
+            blockButtons={
+              blocks ? [previousBlock, currentBlock, nextBlock] : null
+            }
           />
         </div>
 
@@ -1010,7 +1130,6 @@ class Game extends React.Component {
             Press <b>"Keep minutiae"</b> to avoid clearing minutiae
           </p>
         </Modal>
-
         <Modal visible={scoreModalVisible} closable={false} footer={null}>
           {!score ? (
             <div className="scoreModal">
