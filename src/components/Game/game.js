@@ -29,6 +29,7 @@ import MessageViewer from "../Message/MessageViewer";
 import GameWindow from "../GameWindow/gameWindow";
 import FingerprintWindow from "../GameWindow/fingerprintWindow";
 
+
 const pendingTime = 30;
 let isResizeCalled = false;
 let initialWindowWidth = 700;
@@ -43,6 +44,15 @@ let prevDimensions = {
   width: initialWindowWidth,
   height: initialWindowHeight,
 }
+
+var sample = `{"ControlPanel": {
+                  "Buttons": [
+                    {"First": {"text":"first", "icon": "icon-name",
+                    "image": "B64Image", "color": "color",
+                    "bgcolor": "bgcolor", "value": "value"}}
+                  ],
+                  "Sliders": null
+              }}`
 
 class Game extends React.Component {
   state = {
@@ -100,6 +110,9 @@ class Game extends React.Component {
     windowSize: "responsive", // if strict, game or fingerprint window will not be responsive
     imageWidth: null,
     imageHeight: null,
+
+    // refactor
+    buttons: [],
   };
 
   componentDidMount() {
@@ -148,6 +161,19 @@ class Game extends React.Component {
           } else {
             //parse the data from the websocket server
             let parsedData = JSON.parse(message.data);
+
+            // refactor messages
+            var sampleParsedData = JSON.parse(sample)
+
+            if(sampleParsedData.ControlPanel) {
+              var controlPanel = sampleParsedData.ControlPanel
+              if (controlPanel.Buttons) {
+                this.setState({
+                  buttons: controlPanel.Buttons,
+                }, () => console.log(this.state.buttons))
+              }
+            }
+            // refactor - end
 
             //Check if budget bar should be loaded
             if (parsedData.inputBudget) {
