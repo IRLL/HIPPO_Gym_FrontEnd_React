@@ -49,7 +49,10 @@ var sample = `{"ControlPanel": {
                   "Buttons": [
                     {"First": {"text":"first", "icon": "icon-name",
                     "image": "B64Image", "color": "color",
-                    "bgcolor": "bgcolor", "value": "value"}}
+                    "bgcolor": "black", "value": "value"}},
+                    {"Second": {"text":"second", "icon": "icon-name",
+                    "image": "B64Image", "color": "color",
+                    "bgcolor": "golden", "value": "value"}}
                   ],
                   "Sliders": null
               }}`
@@ -166,12 +169,9 @@ class Game extends React.Component {
             var sampleParsedData = JSON.parse(sample)
 
             if(sampleParsedData.ControlPanel) {
-              var controlPanel = sampleParsedData.ControlPanel
-              if (controlPanel.Buttons) {
-                this.setState({
-                  buttons: controlPanel.Buttons,
-                }, () => console.log(this.state.buttons))
-              }
+              this.setState({
+                controlPanel: sampleParsedData.ControlPanel
+              })
             }
             // refactor - end
 
@@ -1020,6 +1020,7 @@ class Game extends React.Component {
       previousBlock,
       currentBlock,
       nextBlock,
+      controlPanel,
     } = this.state;
 
     return (
@@ -1136,6 +1137,7 @@ class Game extends React.Component {
             blockButtons={
               currentBlock ? [previousBlock, currentBlock, nextBlock] : null
             }
+            controlPanel={controlPanel}
           />
         </div>
 

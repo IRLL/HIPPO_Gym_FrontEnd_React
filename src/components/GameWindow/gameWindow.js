@@ -47,7 +47,6 @@ class GameWindow extends React.Component {
                   }}
                   onMouseMove={(event) => {
                     event.preventDefault()
-                    console.log(event.type)
                     const point = localPoint(event);
                     sendMouseData(
                       "MOUSEMOTION",

@@ -29,6 +29,7 @@ class ControlPanel extends React.Component {
       undoEnabled,
       redoEnabled,
       blockButtons,
+      controlPanel,
     } = this.props;
     const directions = [
       "left",
@@ -164,6 +165,30 @@ class ControlPanel extends React.Component {
           </Col>
         );
     });
+    // console.log(controlPanel)
+    // if (controlPanel){
+    //   if (controlPanel.Buttons) {
+    //     var buttons = controlPanel.Buttons
+    //     buttons.forEach((button) => {
+    //       elements[button.text] = (
+    //         <Col key={button.text}>
+    //         <Button
+    //           shape="round"
+    //           type="primary"
+    //           id={button.text}
+    //           className={`${button.text}Button`}
+    //           icon={icons["reset"]}
+    //           size="large"
+    //           style="backgroundColor:blue"
+    //           // onClick={() => handleCommand(button)}
+    //         >
+    //           {capitalize(button)}
+    //         </Button>
+    //       </Col>
+    //       )
+    //     })
+    //   }
+    // }
     commands.forEach((command) => {
       if (UIlist.includes(command)) {
         elements[command] = (
