@@ -338,7 +338,7 @@ class ControlPanel extends React.Component {
             { name: "Previous", i: 0 },
             { name: "Next", i: 2 },
           ].map(({ name, i }) =>
-          {return blockButtons[i].value !== null ?
+          {return blockButtons[i] !== null ?
            (<Col key={`${name}Block`}>
               <Tooltip
                 placement="bottom"
@@ -361,7 +361,7 @@ class ControlPanel extends React.Component {
           )}
         </Row>
       );
-      if (blockButtons[1].value !== null){
+      if (blockButtons[1] !== null){
        elements["topBlock"] = (
         <Row justify="center" gutter={[0, 16]}>
           <Col key="currentBlock">
