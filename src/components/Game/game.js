@@ -180,27 +180,41 @@ class Game extends React.Component {
             this.handleResize();                  // once new width.height and ratio has been defined, immediately run resize function
 
             if (
-              parsedData.previousBlock &&
-              parsedData.currentBlock &&
+              parsedData.previousBlock ||
+              parsedData.currentBlock ||
               parsedData.nextBlock
             ) {
+              if (parsedData.previousBlock) {
+                this.setState({
+                  previousBlock: {
+                    ...parsedData.previousBlock,
+                    image:
+                      "data:image/jpeg;base64, " + parsedData.previousBlock.image,
+                  }
+                })
+              } else {this.setState({previousBlock: null})}
+              if (parsedData.currentBlock) {
+                this.setState({
+                  currentBlock: {
+                    ...parsedData.currentBlock,
+                    image:
+                      "data:image/jpeg;base64, " + parsedData.currentBlock.image,
+                  },
+                })
+              } else {this.setState({currentBlock: null})}
+              if(parsedData.nextBlock){
+                this.setState({
+                  nextBlock: {
+                    ...parsedData.nextBlock,
+                    image:
+                      "data:image/jpeg;base64, " + parsedData.nextBlock.image,
+                  },
+                })
+              } else {this.setState({nextBlock: null})}
+              // boolean to check if there are blocks in the UI
               this.setState({
-                previousBlock: {
-                  ...parsedData.previousBlock,
-                  image:
-                    "data:image/jpeg;base64, " + parsedData.previousBlock.image,
-                },
-                nextBlock: {
-                  ...parsedData.nextBlock,
-                  image:
-                    "data:image/jpeg;base64, " + parsedData.nextBlock.image,
-                },
-                currentBlock: {
-                  ...parsedData.currentBlock,
-                  image:
-                    "data:image/jpeg;base64, " + parsedData.currentBlock.image,
-                },
-              });
+                blocks: true
+              })
             }
             //Check if Instructions in response
             if (parsedData.Instructions) {
@@ -892,6 +906,7 @@ class Game extends React.Component {
       previousBlock,
       currentBlock,
       nextBlock,
+      blocks
     } = this.state;
 
     return (
@@ -1006,7 +1021,7 @@ class Game extends React.Component {
             undoEnabled={undoEnabled}
             redoEnabled={redoEnabled}
             blockButtons={
-              currentBlock ? [previousBlock, currentBlock, nextBlock] : null
+              blocks ? [previousBlock, currentBlock, nextBlock] : null
             }
           />
         </div>
