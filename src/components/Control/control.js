@@ -338,7 +338,7 @@ class ControlPanel extends React.Component {
             { name: "Previous", i: 0 },
             { name: "Next", i: 2 },
           ].map(({ name, i }) =>
-          {return blockButtons[i] !== null ?
+          {return blockButtons[i] ?
            (<Col key={`${name}Block`}>
               <Tooltip
                 placement="bottom"
@@ -347,6 +347,7 @@ class ControlPanel extends React.Component {
               >
                 <img
                   className="blockButton bottom"
+                  id={`${name}Block`}
                   src={blockButtons[i].image}
                   alt="blockButton"
                   onClick={() =>
@@ -357,11 +358,15 @@ class ControlPanel extends React.Component {
                 />
               </Tooltip>
             </Col>
-            ): null}
+            ):
+            document.getElementById(name+"Block") ?
+            document.getElementById(name+"Block").remove()
+            : null
+          }
           )}
         </Row>
       );
-      if (blockButtons[1] !== null){
+      if (blockButtons[1]){
        elements["topBlock"] = (
         <Row justify="center" gutter={[0, 16]}>
           <Col key="currentBlock">
@@ -374,6 +379,7 @@ class ControlPanel extends React.Component {
               <img
                 className="blockButton top"
                 src={blockButtons[1].image}
+                id="currentBlock"
                 alt="blockButton"
                 onClick={() =>
                   sendMessage({
@@ -385,8 +391,11 @@ class ControlPanel extends React.Component {
           </Col>
         </Row>
       );
+      } else {
+        if (document.getElementById("currentBlock")) {
+          document.getElementById("currentBlock").remove()
+        }
       }
-
     }
 
     // TODO: this is a temporary method of arranging custom buttons. It needs to be redone

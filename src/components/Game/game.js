@@ -184,6 +184,7 @@ class Game extends React.Component {
               parsedData.currentBlock ||
               parsedData.nextBlock
             ) {
+              console.log("blocks recieved")
               if (parsedData.previousBlock) {
                 this.setState({
                   previousBlock: {
