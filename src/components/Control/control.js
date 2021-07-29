@@ -328,7 +328,7 @@ class ControlPanel extends React.Component {
       elements["stop"],
       elements["reset"],
     ];
-    const feedbackRow = [elements["good"], elements["bad"]]
+    const feedbackRow = [elements["good"], elements["bad"]];
     const customRow = []; // store custom buttons
 
     if (blockButtons) {
@@ -337,56 +337,55 @@ class ControlPanel extends React.Component {
           {[
             { name: "Previous", i: 0 },
             { name: "Next", i: 2 },
-          ].map(({ name, i }) =>
-          {return blockButtons[i] !== null ?
-           (<Col key={`${name}Block`}>
+          ].map(({ name, i }) => {
+            return blockButtons[i] !== null ? (
+              <Col key={`${name}Block`}>
+                <Tooltip
+                  placement="bottom"
+                  title={`${name} Library item (${blockButtons[i].name})`}
+                  arrowPointAtCenter
+                >
+                  <img
+                    className="blockButton bottom"
+                    src={blockButtons[i].image}
+                    alt="blockButton"
+                    onClick={() =>
+                      sendMessage({
+                        command: blockButtons[i].value,
+                      })
+                    }
+                  />
+                </Tooltip>
+              </Col>
+            ) : null;
+          })}
+        </Row>
+      );
+      if (blockButtons[1] !== null) {
+        elements["topBlock"] = (
+          <Row justify="center" gutter={[0, 16]}>
+            <Col key="currentBlock">
               <Tooltip
                 placement="bottom"
-                title={`${name} Library item (${blockButtons[i].name})`}
+                title={`Current Block (${blockButtons[1].name})`}
                 arrowPointAtCenter
               >
+                <p className="blockText">{blockButtons[1].name}</p>
                 <img
-                  className="blockButton bottom"
-                  src={blockButtons[i].image}
+                  className="blockButton top"
+                  src={blockButtons[1].image}
                   alt="blockButton"
                   onClick={() =>
                     sendMessage({
-                      command: blockButtons[i].value,
+                      command: blockButtons[1].value,
                     })
                   }
                 />
               </Tooltip>
             </Col>
-            ): null}
-          )}
-        </Row>
-      );
-      if (blockButtons[1] !== null){
-       elements["topBlock"] = (
-        <Row justify="center" gutter={[0, 16]}>
-          <Col key="currentBlock">
-            <Tooltip
-              placement="bottom"
-              title={`Current Block (${blockButtons[1].name})`}
-              arrowPointAtCenter
-            >
-              <p className="blockText">{blockButtons[1].name}</p>
-              <img
-                className="blockButton top"
-                src={blockButtons[1].image}
-                alt="blockButton"
-                onClick={() =>
-                  sendMessage({
-                    command: blockButtons[1].value,
-                  })
-                }
-              />
-            </Tooltip>
-          </Col>
-        </Row>
-      );
+          </Row>
+        );
       }
-
     }
 
     // TODO: this is a temporary method of arranging custom buttons. It needs to be redone
@@ -449,15 +448,27 @@ class ControlPanel extends React.Component {
                 <Row className="direction">{secondRow}</Row>
                 <Row className="direction">{thirdRow}</Row>
               </div>
-              <Row gutter={[4, 8]} justify="space-around" className="addPadding">
+              <Row
+                gutter={[4, 8]}
+                justify="space-around"
+                className="addPadding"
+              >
                 {feedbackRow}
               </Row>
-              {customRow.length ?
-                <Row gutter={[4, 8]} justify="space-around" className="addPadding">
+              {customRow.length ? (
+                <Row
+                  gutter={[4, 8]}
+                  justify="space-around"
+                  className="addPadding"
+                >
                   {customRow}
                 </Row>
-              :null}
-              <Row gutter={[4, 8]} justify="space-around" className="addPadding">
+              ) : null}
+              <Row
+                gutter={[4, 8]}
+                justify="space-around"
+                className="addPadding"
+              >
                 {lastRow}
               </Row>
               {isEnd ? next : null}
