@@ -342,10 +342,10 @@ class ControlPanel extends React.Component {
            (<Col key={`${name}Block`}>
               <Tooltip
                 placement="bottom"
-                title={`Current Block (${blockButtons[1].name})`}
+                title={`${name} Library item (${blockButtons[i].name})`}
                 arrowPointAtCenter
               >
-                <p className="blockText">{blockButtons[1].name}</p>
+                <p className="blockText">{blockButtons[i].name}</p>
                 <img
                   className="blockButton bottom"
                   id={`${name}Block`}
@@ -353,7 +353,7 @@ class ControlPanel extends React.Component {
                   alt="blockButton"
                   onClick={() =>
                     sendMessage({
-                      command: blockButtons[1].value,
+                      command: blockButtons[i].value,
                     })
                   }
                 />
