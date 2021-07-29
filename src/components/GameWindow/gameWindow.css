@@ -4,8 +4,8 @@ Center align the game window both horizontally and vertically */
 .gameWindow {
     height: auto;
     width : auto;
-    border : solid #1890ff;
     border-radius: 10px;
+    border: solid #1890ff;
     display: flex;
     justify-content: center;
     align-items: center;

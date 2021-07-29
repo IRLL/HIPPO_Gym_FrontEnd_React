@@ -270,6 +270,7 @@ class Game extends React.Component {
             if (parsedData.frame && parsedData.frameId) {
               let frame = parsedData.frame;
               let frameId = parsedData.frameId;
+              let borderColor = parsedData.borderColor;
 
               if (this.state.score)
                 this.setState((prevState) => ({
@@ -296,6 +297,9 @@ class Game extends React.Component {
                   redoList: [],
                   undoEnabled: false,
                   redoEnabled: false,
+
+                  // set new border color
+                  borderColor,
                 }));
               }
               const img = new Image();
@@ -919,6 +923,7 @@ class Game extends React.Component {
       isLoading,
       frameSrc,
       frameRate,
+      borderColor,
       displayData,
       isEnd,
       UIlist,
@@ -1024,6 +1029,7 @@ class Game extends React.Component {
               <GameWindow
                 isLoading={isLoading}
                 frameSrc={frameSrc}
+                borderColor={borderColor}
                 width={windowWidth || 700}
                 height={windowHeight || 600}
                 imageL={imageL}
