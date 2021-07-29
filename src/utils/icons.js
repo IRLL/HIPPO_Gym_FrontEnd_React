@@ -74,4 +74,6 @@ export const icons = {
 	minutiaType: <GoldOutlined />,
 	verticalSplit: <VscSplitVertical />,
 	horizontalSplit: <VscSplitHorizontal />,
+  first: <CheckCircleOutlined />,
+  second: <MdRotate90DegreesCcw />,
 };

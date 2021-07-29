@@ -47,12 +47,12 @@ let prevDimensions = {
 
 var sample = `{"ControlPanel": {
                   "Buttons": [
-                    {"First": {"text":"first", "icon": "icon-name",
-                    "image": "B64Image", "color": "color",
+                    {"First": {"text":"first", "icon": "first",
+                    "image": "B64Image", "color": "red",
                     "bgcolor": "black", "value": "value"}},
-                    {"Second": {"text":"second", "icon": "icon-name",
-                    "image": "B64Image", "color": "color",
-                    "bgcolor": "golden", "value": "value"}}
+                    {"Second": {"text":"second", "icon": "second",
+                    "image": "B64Image", "color": "black",
+                    "bgcolor": "gold", "value": "value"}}
                   ],
                   "Sliders": null
               }}`

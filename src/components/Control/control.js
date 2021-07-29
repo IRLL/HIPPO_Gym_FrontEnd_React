@@ -165,30 +165,34 @@ class ControlPanel extends React.Component {
           </Col>
         );
     });
-    // console.log(controlPanel)
-    // if (controlPanel){
-    //   if (controlPanel.Buttons) {
-    //     var buttons = controlPanel.Buttons
-    //     buttons.forEach((button) => {
-    //       elements[button.text] = (
-    //         <Col key={button.text}>
-    //         <Button
-    //           shape="round"
-    //           type="primary"
-    //           id={button.text}
-    //           className={`${button.text}Button`}
-    //           icon={icons["reset"]}
-    //           size="large"
-    //           style="backgroundColor:blue"
-    //           // onClick={() => handleCommand(button)}
-    //         >
-    //           {capitalize(button)}
-    //         </Button>
-    //       </Col>
-    //       )
-    //     })
-    //   }
-    // }
+    console.log(controlPanel)
+    if (controlPanel){
+      if (controlPanel.Buttons) {
+        var buttons = controlPanel.Buttons
+        buttons.forEach((button) => {
+          let currButton = button[Object.keys(button)[0]]
+          elements[currButton.text] = (
+            <Col key={currButton.text}>
+              <Button
+                shape="round"
+                type="primary"
+                id={currButton.text}
+                className={`${currButton.text}Button`}
+                icon={icons[currButton.icon]}
+                size="large"
+                style={{backgroundColor: currButton.bgcolor,
+                border: currButton.bgcolor,
+                color: currButton.color
+                }}
+                // onClick={() => handleCommand(button)}
+              >
+                {capitalize(sentenceCase(currButton.text))}
+              </Button>
+          </Col>
+          )
+        })
+      }
+    }
     commands.forEach((command) => {
       if (UIlist.includes(command)) {
         elements[command] = (
@@ -355,6 +359,8 @@ class ControlPanel extends React.Component {
     ];
     const customRow = []; // store custom buttons
 
+    const sampleButtons = [elements["first"], elements["second"]]
+
     if (blockButtons) {
       elements["bottomBlocks"] = (
         <Row gutter={[16, 16]} justify="center" align="middle">
@@ -456,6 +462,9 @@ class ControlPanel extends React.Component {
                 </>
               ) : null}
               {[elements["bottomBlocks"]]}
+              <Row gutter={[4, 8]} justify="space-around">
+                {sampleButtons}
+              </Row>
               <Row gutter={[4, 8]} justify="space-around">
                 {fpsRow}
               </Row>
