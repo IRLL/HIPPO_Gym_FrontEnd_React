@@ -328,7 +328,7 @@ class ControlPanel extends React.Component {
       elements["stop"],
       elements["reset"],
     ];
-    const feedbackRow = [elements["good"], elements["bad"]]
+    const feedbackRow = [elements["good"], elements["bad"]];
     const customRow = []; // store custom buttons
 
     if (blockButtons) {
@@ -342,9 +342,10 @@ class ControlPanel extends React.Component {
            (<Col key={`${name}Block`}>
               <Tooltip
                 placement="bottom"
-                title={`${name} Library item (${blockButtons[i].name})`}
+                title={`Current Block (${blockButtons[1].name})`}
                 arrowPointAtCenter
               >
+                <p className="blockText">{blockButtons[1].name}</p>
                 <img
                   className="blockButton bottom"
                   id={`${name}Block`}
@@ -352,7 +353,7 @@ class ControlPanel extends React.Component {
                   alt="blockButton"
                   onClick={() =>
                     sendMessage({
-                      command: blockButtons[i].value,
+                      command: blockButtons[1].value,
                     })
                   }
                 />
@@ -458,15 +459,27 @@ class ControlPanel extends React.Component {
                 <Row className="direction">{secondRow}</Row>
                 <Row className="direction">{thirdRow}</Row>
               </div>
-              <Row gutter={[4, 8]} justify="space-around" className="addPadding">
+              <Row
+                gutter={[4, 8]}
+                justify="space-around"
+                className="addPadding"
+              >
                 {feedbackRow}
               </Row>
-              {customRow.length ?
-                <Row gutter={[4, 8]} justify="space-around" className="addPadding">
+              {customRow.length ? (
+                <Row
+                  gutter={[4, 8]}
+                  justify="space-around"
+                  className="addPadding"
+                >
                   {customRow}
                 </Row>
-              :null}
-              <Row gutter={[4, 8]} justify="space-around" className="addPadding">
+              ) : null}
+              <Row
+                gutter={[4, 8]}
+                justify="space-around"
+                className="addPadding"
+              >
                 {lastRow}
               </Row>
               {isEnd ? next : null}

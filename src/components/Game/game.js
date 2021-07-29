@@ -28,6 +28,7 @@ import DisplayBar from "../DisplayBar/displayBar";
 import MessageViewer from "../Message/MessageViewer";
 import GameWindow from "../GameWindow/gameWindow";
 import FingerprintWindow from "../GameWindow/fingerprintWindow";
+import Grid from "../Grid/grid";
 
 const pendingTime = 30;
 let initialWindowWidth = 700;
@@ -95,6 +96,9 @@ class Game extends React.Component {
     windowSize: "responsive", // if strict, game or fingerprint window will not be responsive
     imageWidth: null,
     imageHeight: null,
+
+    // grid variables
+    grid: null,
   };
 
   componentDidMount() {
@@ -177,7 +181,7 @@ class Game extends React.Component {
                 windowSize: parsedData.gameWindowSize,
               });
             }
-            this.handleResize();                  // once new width.height and ratio has been defined, immediately run resize function
+            this.handleResize(); // once new width.height and ratio has been defined, immediately run resize function
 
             if (
               parsedData.previousBlock ||
@@ -190,32 +194,40 @@ class Game extends React.Component {
                   previousBlock: {
                     ...parsedData.previousBlock,
                     image:
-                      "data:image/jpeg;base64, " + parsedData.previousBlock.image,
-                  }
-                })
-              } else {this.setState({previousBlock: null})}
+                      "data:image/jpeg;base64, " +
+                      parsedData.previousBlock.image,
+                  },
+                });
+              } else {
+                this.setState({ previousBlock: null });
+              }
               if (parsedData.currentBlock) {
                 this.setState({
                   currentBlock: {
                     ...parsedData.currentBlock,
                     image:
-                      "data:image/jpeg;base64, " + parsedData.currentBlock.image,
+                      "data:image/jpeg;base64, " +
+                      parsedData.currentBlock.image,
                   },
-                })
-              } else {this.setState({currentBlock: null})}
-              if(parsedData.nextBlock){
+                });
+              } else {
+                this.setState({ currentBlock: null });
+              }
+              if (parsedData.nextBlock) {
                 this.setState({
                   nextBlock: {
                     ...parsedData.nextBlock,
                     image:
                       "data:image/jpeg;base64, " + parsedData.nextBlock.image,
                   },
-                })
-              } else {this.setState({nextBlock: null})}
+                });
+              } else {
+                this.setState({ nextBlock: null });
+              }
               // boolean to check if there are blocks in the UI
               this.setState({
-                blocks: true
-              })
+                blocks: true,
+              });
             }
             //Check if Instructions in response
             if (parsedData.Instructions) {
@@ -246,6 +258,13 @@ class Game extends React.Component {
               this.setState({
                 minMinutiae: parsedData.MinMinutiae,
               });
+            }
+            //Check if Grid in response
+            if (parsedData.Grid) {
+              this.setState({
+                grid: parsedData.Grid,
+              });
+              console.log(parsedData.Grid);
             }
             //Check if frame related information in response
             if (parsedData.frame && parsedData.frameId) {
@@ -473,7 +492,19 @@ class Game extends React.Component {
         command: status,
         minutiaList: this.normalizeMinutiae(this.state.minutiae),
       });
+    } else if (status === "reset") {
+      if (this.state.grid) {
+        this.resetGrid();
+        this.sendMessage({
+          command: status,
+          info: "reset grid",
+        });
+      }
     } else {
+      if (this.state.grid) {
+        this.submitGrid();
+      }
+
       this.sendMessage({
         command: status,
       });
@@ -524,6 +555,16 @@ class Game extends React.Component {
         changeFrameRate: type,
       });
     }
+  };
+
+  resetGrid = () => {};
+  setResetGrid = (handleReset) => {
+    this.resetGrid = handleReset;
+  };
+
+  submitGrid = () => {};
+  setSubmitGrid = (handleSubmit) => {
+    this.submitGrid = handleSubmit;
   };
 
   // Apply color filters to the image in the fingerprint window
@@ -904,10 +945,11 @@ class Game extends React.Component {
       maxScore,
       undoEnabled,
       redoEnabled,
+      grid,
       previousBlock,
       currentBlock,
       nextBlock,
-      blocks
+      blocks,
     } = this.state;
 
     return (
@@ -970,6 +1012,13 @@ class Game extends React.Component {
                 addMinutia={this.addMinutia}
                 handleMinutia={this.handleMinutia}
                 handleChanging={this.handleChanging}
+              />
+            ) : grid ? (
+              <Grid
+                grid={grid}
+                sendMessage={this.sendMessage}
+                setResetGrid={this.setResetGrid}
+                setSubmitGrid={this.setSubmitGrid}
               />
             ) : (
               <GameWindow
