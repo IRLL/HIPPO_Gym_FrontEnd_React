@@ -178,7 +178,7 @@ class ControlPanel extends React.Component {
                 type="primary"
                 id={currButton.text}
                 className={`${currButton.text}Button`}
-                icon={icons[currButton.icon]}
+                // icon={icons[currButton.icon]}
                 size="large"
                 style={{backgroundColor: currButton.bgcolor,
                 border: currButton.bgcolor,
@@ -186,6 +186,10 @@ class ControlPanel extends React.Component {
                 }}
                 // onClick={() => handleCommand(button)}
               >
+                {currButton.image ?
+                //TODO: fix the sizing of the image on the button
+                  <img alt="buttonImage" src={currButton.image} style={{width: "1rem"}}/>
+                :null}
                 {capitalize(sentenceCase(currButton.text))}
               </Button>
           </Col>
