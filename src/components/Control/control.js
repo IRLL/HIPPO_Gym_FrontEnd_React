@@ -337,34 +337,9 @@ class ControlPanel extends React.Component {
           {[
             { name: "Previous", i: 0 },
             { name: "Next", i: 2 },
-          ].map(({ name, i }) => {
-            return blockButtons[i] !== null ? (
-              <Col key={`${name}Block`}>
-                <Tooltip
-                  placement="bottom"
-                  title={`${name} Library item (${blockButtons[i].name})`}
-                  arrowPointAtCenter
-                >
-                  <img
-                    className="blockButton bottom"
-                    src={blockButtons[i].image}
-                    alt="blockButton"
-                    onClick={() =>
-                      sendMessage({
-                        command: blockButtons[i].value,
-                      })
-                    }
-                  />
-                </Tooltip>
-              </Col>
-            ) : null;
-          })}
-        </Row>
-      );
-      if (blockButtons[1] !== null) {
-        elements["topBlock"] = (
-          <Row justify="center" gutter={[0, 16]}>
-            <Col key="currentBlock">
+          ].map(({ name, i }) =>
+          {return blockButtons[i] ?
+           (<Col key={`${name}Block`}>
               <Tooltip
                 placement="bottom"
                 title={`Current Block (${blockButtons[1].name})`}
@@ -372,8 +347,9 @@ class ControlPanel extends React.Component {
               >
                 <p className="blockText">{blockButtons[1].name}</p>
                 <img
-                  className="blockButton top"
-                  src={blockButtons[1].image}
+                  className="blockButton bottom"
+                  id={`${name}Block`}
+                  src={blockButtons[i].image}
                   alt="blockButton"
                   onClick={() =>
                     sendMessage({
@@ -383,8 +359,43 @@ class ControlPanel extends React.Component {
                 />
               </Tooltip>
             </Col>
-          </Row>
-        );
+            ):
+            document.getElementById(name+"Block") ?
+            document.getElementById(name+"Block").remove()
+            : null
+          }
+          )}
+        </Row>
+      );
+      if (blockButtons[1]){
+       elements["topBlock"] = (
+        <Row justify="center" gutter={[0, 16]}>
+          <Col key="currentBlock">
+            <Tooltip
+              placement="bottom"
+              title={`Current Block (${blockButtons[1].name})`}
+              arrowPointAtCenter
+            >
+              <p className="blockText">{blockButtons[1].name}</p>
+              <img
+                className="blockButton top"
+                src={blockButtons[1].image}
+                id="currentBlock"
+                alt="blockButton"
+                onClick={() =>
+                  sendMessage({
+                    command: blockButtons[1].value,
+                  })
+                }
+              />
+            </Tooltip>
+          </Col>
+        </Row>
+      );
+      } else {
+        if (document.getElementById("currentBlock")) {
+          document.getElementById("currentBlock").remove()
+        }
       }
     }
 
