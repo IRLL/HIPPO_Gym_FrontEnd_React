@@ -183,7 +183,6 @@ class Game extends React.Component {
               });
             }
             this.handleResize(); // once new width.height and ratio has been defined, immediately run resize function
-
             if (
               parsedData.previousBlock ||
               parsedData.currentBlock ||
@@ -228,6 +227,12 @@ class Game extends React.Component {
               this.setState({
                 blocks: true,
               });
+            } else {
+              this.setState({
+                previousBlock: null,
+                currentBlock: null,
+                nextBlock: null,
+              })
             }
             //Check if Instructions in response
             if (parsedData.Instructions) {

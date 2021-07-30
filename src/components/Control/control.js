@@ -367,7 +367,7 @@ class ControlPanel extends React.Component {
           )}
         </Row>
       );
-      if (blockButtons[1]){
+      if (blockButtons[1] !== null){
        elements["topBlock"] = (
         <Row justify="center" gutter={[0, 16]}>
           <Col key="currentBlock">
