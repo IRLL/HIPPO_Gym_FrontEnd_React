@@ -120,13 +120,12 @@
 /* Set the height and width of the game window
 Set the border color and style of the game window
 Center align the game window both horizontally and vertically */
-.gameWindow {
+/* .gameWindow {
 	height: auto;
 	width: auto;
-	border: solid #1890ff;
 	border-radius: 10px;
 	display: flex;
 	justify-content: center;
 	align-items: center;
 	margin: auto;
-}
+} */

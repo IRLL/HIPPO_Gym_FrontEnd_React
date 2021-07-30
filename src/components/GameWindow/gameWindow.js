@@ -23,7 +23,7 @@ class GameWindow extends React.Component {
  }
 
   render() {
-      const {isLoading, frameSrc, progress, imageL, imageR, width, height, sendMouseData} = this.props;
+      const {isLoading, frameSrc, progress, imageL, imageR, width, height, sendMouseData, borderColor} = this.props;
       return (
         <Zoom>
           {(zoom) => (
@@ -35,6 +35,7 @@ class GameWindow extends React.Component {
                 </div>
                 :null }
                 <div className="gameWindow"
+                  style={{border: borderColor!=='default' ? borderColor===null ? "none" : "solid " + borderColor : "solid #1890ff"}}
                   onMouseDown={(event) => {
                     event.preventDefault()
                     const point = localPoint(event);
@@ -76,7 +77,7 @@ class GameWindow extends React.Component {
                             <Progress width={80} type="circle" percent={Math.round(progress)}/>
                             <p className="promptText">The robot is about to start the game, please wait ...</p>
                         </div>
-                        : <img className="gameContent" src={frameSrc} alt="frame" width={width} height={height} />
+                        : <img className="gameContent" src={frameSrc} alt="frame" width={width} height={height}/>
                     }
                 </div>
                 {imageR ?
