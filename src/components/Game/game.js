@@ -64,6 +64,7 @@ class Game extends React.Component {
     holdKey: null, // the key that is holding
     instructions: [], // list of instructions for the game
     orientation: "horizontal", // default orientation is horizontal
+    borderColor: "default", // set border color for game window
 
     // Fingerprint trial configurations
     fingerprint: false, // if this is a fingerprint trial
@@ -188,7 +189,6 @@ class Game extends React.Component {
               parsedData.currentBlock ||
               parsedData.nextBlock
             ) {
-              console.log("blocks recieved")
               if (parsedData.previousBlock) {
                 this.setState({
                   previousBlock: {
@@ -266,11 +266,18 @@ class Game extends React.Component {
               });
               console.log(parsedData.Grid);
             }
+
             //Check if frame related information in response
             if (parsedData.frame && parsedData.frameId) {
               let frame = parsedData.frame;
               let frameId = parsedData.frameId;
-              let borderColor = parsedData.borderColor;
+              // set new border color
+              if ("borderColor" in parsedData) {
+                console.log("hello")
+                this.setState({
+                  borderColor: parsedData.borderColor
+                })
+              }
 
               if (this.state.score)
                 this.setState((prevState) => ({
@@ -297,9 +304,6 @@ class Game extends React.Component {
                   redoList: [],
                   undoEnabled: false,
                   redoEnabled: false,
-
-                  // set new border color
-                  borderColor,
                 }));
               }
               const img = new Image();
