@@ -403,8 +403,7 @@ class Game extends React.Component {
 						"Not enough minutiae",
 						<p>
 							You only have <b>{this.state.minutiae.length}</b> minutia
-							{this.state.minutiae.length !== 1 && "e"} and you need at least 4 minutiae to request
-							feedback
+							{this.state.minutiae.length !== 1 && "e"} and you need at least 4 minutiae to request feedback
 						</p>
 					);
 				} else {
@@ -430,10 +429,7 @@ class Game extends React.Component {
 
 	// Change the FPS of the game
 	handleFPS = (speed) => {
-		if (
-			(speed === "faster" && this.state.frameRate + 5 > 90) ||
-			(speed === "slower" && this.state.frameRate - 5 < 1)
-		) {
+		if ((speed === "faster" && this.state.frameRate + 5 > 90) || (speed === "slower" && this.state.frameRate - 5 < 1)) {
 			message.error("Invalid FPS, the FPS can only between 1 - 90!");
 		} else {
 			this.setState((prevState) => ({
@@ -515,8 +511,7 @@ class Game extends React.Component {
 						"Not enough minutiae",
 						<p>
 							You only have <b>{this.state.minutiae.length}</b> minutia
-							{this.state.minutiae.length !== 1 && "e"} out of the minimum of{" "}
-							<b>{this.state.minMinutiae}</b> needed
+							{this.state.minutiae.length !== 1 && "e"} out of the minimum of <b>{this.state.minMinutiae}</b> needed
 						</p>
 					);
 				} else {
@@ -536,7 +531,6 @@ class Game extends React.Component {
 	handleFeedback = (feedback) => {
 		const minutiae = this.state.minutiae.map((minutia, i) => {
 			let color = minutia.color;
-			console.log(feedback[i][1]);
 			if (feedback[i][1] < 0) color = "green";
 			else if (feedback[i][1] > 0) color = "red";
 			return { ...minutia, color };
@@ -810,18 +804,9 @@ class Game extends React.Component {
 					<Radio.Button value="horizontal">{icons["horizontalSplit"]}</Radio.Button>
 				</Radio.Group>
 
-				<DisplayBar
-					visible={displayData !== null}
-					isLoading={isLoading}
-					displayData={displayData}
-				/>
+				<DisplayBar visible={displayData !== null} isLoading={isLoading} displayData={displayData} />
 
-				<BudgetBar
-					visible={inputBudget > 0}
-					isLoading={isLoading}
-					usedInputBudget={usedInputBudget}
-					inputBudget={inputBudget}
-				/>
+				<BudgetBar visible={inputBudget > 0} isLoading={isLoading} usedInputBudget={usedInputBudget} inputBudget={inputBudget} />
 
 				<div className={DEBUG ? "" : `${orientation}Grid`}>
 					<Row gutter={4} align="center" style={{ width: "100%" }}>
@@ -848,24 +833,12 @@ class Game extends React.Component {
 									handleChanging={this.handleChanging}
 								/>
 							) : (
-								<GameWindow
-									isLoading={isLoading}
-									frameSrc={frameSrc}
-									imageL={imageL}
-									imageR={imageR}
-									progress={progress}
-									data-testid="game-window"
-								/>
+								<GameWindow isLoading={isLoading} frameSrc={frameSrc} imageL={imageL} imageR={imageR} progress={progress} data-testid="game-window" />
 							)}
 						</Col>
 
 						<Col span={4}>
-							<MessageViewer
-								title="Message Out"
-								id="message-view-1"
-								data={outMessage}
-								visible={DEBUG}
-							/>
+							<MessageViewer title="Message Out" id="message-view-1" data={outMessage} visible={DEBUG} />
 						</Col>
 					</Row>
 
@@ -896,12 +869,7 @@ class Game extends React.Component {
 					/>
 				</div>
 
-				<Modal
-					title="Game end message"
-					visible={gameEndVisible}
-					onOk={this.handleOk}
-					onCancel={this.handleCancel}
-				>
+				<Modal title="Game end message" visible={gameEndVisible} onOk={this.handleOk} onCancel={this.handleCancel}>
 					<p className="modal">The game has ended</p>
 					<p className="modal">
 						Press <b>"Cancel"</b> to stay on this page
@@ -935,13 +903,7 @@ class Game extends React.Component {
 					</p>
 				</Modal>
 
-				<Modal
-					visible={scoreModalVisible}
-					closable={false}
-					footer={null}
-					width="max-content"
-					style={{ top: 20 }}
-				>
+				<Modal visible={scoreModalVisible} closable={false} footer={null} width="max-content" style={{ top: 20 }}>
 					<div className="scoreModal">
 						{score ? (
 							<>
@@ -970,19 +932,9 @@ class Game extends React.Component {
 							</>
 						)}
 						<h4>Here is your edition compared to experts:</h4>
-						<Comparison
-							frameSrc={frameSrc}
-							expertMarkers={[expertMarker1, expertMarker2]}
-							userMarkers={this.normalizeMinutiae(minutiae)}
-						/>
+						<Comparison frameSrc={frameSrc} expertMarkers={[expertMarker1, expertMarker2]} userMarkers={this.normalizeMinutiae(minutiae)} />
 
-						<Button
-							disabled={!score}
-							icon={icons["next"]}
-							shape="round"
-							type="primary"
-							onClick={this.resetAll}
-						>
+						<Button disabled={!score} icon={icons["next"]} shape="round" type="primary" onClick={this.resetAll}>
 							Next Image
 						</Button>
 					</div>
