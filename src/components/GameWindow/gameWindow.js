@@ -31,6 +31,7 @@ class GameWindow extends React.Component {
       width,
       height,
       sendMouseData,
+      borderColor,
     } = this.props;
     return (
       <Zoom>
@@ -52,6 +53,14 @@ class GameWindow extends React.Component {
             ) : null}
             <div
               className="gameWindow"
+              style={{
+                border:
+                  borderColor !== "default"
+                    ? borderColor === null
+                      ? "none"
+                      : "solid " + borderColor
+                    : "solid #1890ff",
+              }}
               onMouseDown={(event) => {
                 event.preventDefault();
                 const point = localPoint(event);
@@ -111,15 +120,13 @@ class GameWindow extends React.Component {
             </div>
             {imageR ? (
               <div className="imageContainer">
-                {
-                  <img
-                    src={imageR}
-                    className="imageComponent"
-                    alt="imageRight"
-                    width="400px"
-                    height="400px"
-                  />
-                }
+                <img
+                  src={imageR}
+                  className="imageComponent"
+                  alt="imageRight"
+                  width="400px"
+                  height="400px"
+                />
               </div>
             ) : null}
           </div>
