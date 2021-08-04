@@ -91,7 +91,7 @@ class Grid extends React.Component {
             text={tile.text}
             color={tile.color}
             icon={tile.icon}
-            image={tile.image}
+            image={tile.image ? "data:image/jpeg;base64, " + tile.image : null}
             selected={tile.selected}
             key={i}
             index={i}
@@ -144,7 +144,13 @@ class Tile extends React.Component {
       >
         {text}
         {icon ? icons[icon] : null}
-        {image ? <img src={image} alt="grid" /> : null}
+        {image ? (
+          <img
+            src={image}
+            style={{ width: size - 1, height: size - 1 }}
+            alt="grid"
+          />
+        ) : null}
       </div>
     );
   }
