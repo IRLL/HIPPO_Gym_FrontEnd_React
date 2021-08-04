@@ -32,6 +32,7 @@ import Grid from "../Grid/grid";
 
 const pendingTime = 30;
 let initialWindowWidth = 700;
+// eslint-disable-next-line
 let initialWindowHeight = 600;
 let windowSizeRatio = 700 / 600;
 let prevMouseData = {
@@ -270,7 +271,6 @@ class Game extends React.Component {
               this.setState({
                 grid: parsedData.Grid,
               });
-              console.log(parsedData.Grid);
             }
 
             //Check if frame related information in response
