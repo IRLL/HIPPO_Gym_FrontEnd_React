@@ -30,6 +30,7 @@ class ControlPanel extends React.Component {
       redoEnabled,
       blockButtons,
       controlPanel,
+      handleButton,
     } = this.props;
     const directions = [
       "left",
@@ -71,7 +72,7 @@ class ControlPanel extends React.Component {
       "addMinutia",
       "resetImage",
       "submitImage",
-      "stop",
+      "end",
     ];
     const defaultButtons = [
       ...directions,
@@ -165,38 +166,139 @@ class ControlPanel extends React.Component {
           </Col>
         );
     });
-    console.log(controlPanel)
     if (controlPanel){
       if (controlPanel.Buttons) {
         var buttons = controlPanel.Buttons
         buttons.forEach((button) => {
           let currButton = button[Object.keys(button)[0]]
-          elements[currButton.text] = (
-            <Col key={currButton.text}>
-              <Button
-                shape="round"
-                type="primary"
-                id={currButton.text}
-                className={`${currButton.text}Button`}
-                // icon={icons[currButton.icon]}
-                size="large"
-                style={{backgroundColor: currButton.bgcolor,
-                border: currButton.bgcolor,
-                color: currButton.color
-                }}
-                // onClick={() => handleCommand(button)}
+          if (!currButton.image) {
+          elements[currButton.value] = (
+            <Col key={currButton.value}>
+                <Button
+                    shape="round"
+                    type="primary"
+                    id={currButton.value}
+                    className={`${currButton.value}Button`}
+                    icon={currButton.icon ? icons[currButton.value] : null}
+                    size="large"
+                    style={{backgroundColor: currButton.bgcolor,
+                    border: "solid 1px " + currButton.border,
+                    color: currButton.color
+                    }}
+                    onClick={() => handleButton(button, currButton.value)}
+                  >
+                    {currButton.text ? capitalize(sentenceCase(currButton.text)): null}
+                  </Button>
+                </Col>)
+          } else {
+            elements[currButton.value] = (
+              <Col key={currButton.value}>
+                {/* TODO: add icon to tooltip,test with different images for icon and background image*/}
+              <Tooltip
+              title={capitalize(sentenceCase(currButton.text))}
+              arrowPointAtCenter
+              icon={currButton.image}
               >
-                {currButton.image ?
-                //TODO: fix the sizing of the image on the button
-                  <img alt="buttonImage" src={currButton.image} style={{width: "1rem"}}/>
-                :null}
-                {capitalize(sentenceCase(currButton.text))}
-              </Button>
-          </Col>
+                <Button
+                    shape="round"
+                    type="primary"
+                    id={currButton.value}
+                    className={`${currButton.value}Button`}
+                    style={{ backgroundImage : "url('" + currButton.image.replace(/(\r\n|\n|\r)/gm, "") + "')",
+                            backgroundSize: "cover"}}
+                    size="large"
+                    onClick={() => handleButton(button, currButton.value)}
+                 >
+                  {capitalize(sentenceCase(currButton.text))}</Button>
+              </Tooltip>
+            </Col>)
+          }
+
+        })
+      }
+      if (controlPanel.Sliders) {
+        var sliders = controlPanel.Sliders
+        sliders.forEach((slider) => {
+          let currSlider = slider[Object.keys(slider)[0]]
+          elements[currSlider.id] = (
+            <Col
+            key={currSlider.id}
+            className="space-align-container"
+            flex="1"
+            align="center"
+            >
+            <div
+              className="space-align-block imageControlTextContainer"
+              onMouseDown={() => handleChanging(true)}
+              onMouseUp={() => {
+                handleChanging(false);
+              }}
+            >
+              <Space align="center">
+                <span>{icons[currSlider.id]}</span>
+                <p className="imageControlText">{capitalize(currSlider.title)}</p>
+              </Space>
+              <Slider
+                id={currSlider.id}
+                className="imageControl"
+                defaultValue={currSlider.value}
+                value={currSlider.ref}
+                min={currSlider.min}
+                max={currSlider.max}
+                onChange={(value) => {
+                  handleImage(currSlider.id, value);
+                  this.currValue = value;
+                }}
+              />
+              </div>
+            </Col>
           )
         })
       }
     }
+      // if (controlPanel.Sliders) {
+      //   var sliders = controlPanel.Sliders
+      //   sliders.forEach((slider) => {
+      //     let currSlider = slider[Object.keys(slider)[0]]
+      //     elements[currSlider.title] = (
+      //       <Col
+      //         key={currSlider.title}
+      //         className="space-align-container"
+      //         flex="1"
+      //         align="center"
+      //       >
+      //         {UIlist.includes(currSlider.title) && (
+      //           <div
+      //             className="space-align-block imageControlTextContainer"
+      //             onMouseDown={() => handleChanging(true)}
+      //             onMouseUp={() => {
+      //               handleChanging(false);
+      //             }}
+      //           >
+      //             <Space align="center">
+      //               <span>{icons[currSlider.title]}</span>
+      //               <p className="imageControlText">{capitalize(currSlider.title)}</p>
+      //             </Space>
+      //             <Slider
+      //               id={currSlider.title}
+      //               className="imageControl"
+      //               defaultValue="100"
+      //               // value={control.ref}
+      //               min={currSlider.min}
+      //               max={currSlider.max}
+      //               onChange={(value) => {
+      //                 handleImage(control.name, value);
+      //                 this.currValue = value;
+      //               }}
+      //             />
+      //           </div>
+      //         )}
+      //       </Col>
+      //     );
+      //   });
+      //   }
+
+
     commands.forEach((command) => {
       if (UIlist.includes(command)) {
         elements[command] = (
@@ -222,43 +324,43 @@ class ControlPanel extends React.Component {
       );
       instructionUI.push(elements[`instruction${i}`]);
     });
-    imageControls.forEach((control) => {
-      elements[control.name] = (
-        <Col
-          key={control.name}
-          className="space-align-container"
-          flex="1"
-          align="center"
-        >
-          {UIlist.includes(control.name) && (
-            <div
-              className="space-align-block imageControlTextContainer"
-              onMouseDown={() => handleChanging(true)}
-              onMouseUp={() => {
-                handleChanging(false);
-              }}
-            >
-              <Space align="center">
-                <span>{icons[control.name]}</span>
-                <p className="imageControlText">{capitalize(control.name)}</p>
-              </Space>
-              <Slider
-                id={control.name}
-                className="imageControl"
-                defaultValue={control.default}
-                value={control.ref}
-                min={control.min}
-                max={control.max}
-                onChange={(value) => {
-                  handleImage(control.name, value);
-                  this.currValue = value;
-                }}
-              />
-            </div>
-          )}
-        </Col>
-      );
-    });
+    // imageControls.forEach((control) => {
+    //   elements[control.name] = (
+    //     <Col
+    //       key={control.name}
+    //       className="space-align-container"
+    //       flex="1"
+    //       align="center"
+    //     >
+    //       {UIlist.includes(control.name) && (
+    //         <div
+    //           className="space-align-block imageControlTextContainer"
+    //           onMouseDown={() => handleChanging(true)}
+    //           onMouseUp={() => {
+    //             handleChanging(false);
+    //           }}
+    //         >
+    //           <Space align="center">
+    //             <span>{icons[control.name]}</span>
+    //             <p className="imageControlText">{capitalize(control.name)}</p>
+    //           </Space>
+    //           <Slider
+    //             id={control.name}
+    //             className="imageControl"
+    //             defaultValue={control.default}
+    //             value={control.ref}
+    //             min={control.min}
+    //             max={control.max}
+    //             onChange={(value) => {
+    //               handleImage(control.name, value);
+    //               this.currValue = value;
+    //             }}
+    //           />
+    //         </div>
+    //       )}
+    //     </Col>
+    //   );
+    // });
     imageCommands.forEach((command) => {
       let className = `${command}Button`;
       if (command === "addMinutia" && addingMinutiae) {
@@ -358,12 +460,10 @@ class ControlPanel extends React.Component {
       elements["submitImage"],
       elements["start"],
       elements["pause"],
-      elements["stop"],
+      elements["end"],
       elements["reset"],
     ];
     const customRow = []; // store custom buttons
-
-    const sampleButtons = [elements["first"], elements["second"]]
 
     if (blockButtons) {
       elements["bottomBlocks"] = (
@@ -467,11 +567,16 @@ class ControlPanel extends React.Component {
               ) : null}
               {[elements["bottomBlocks"]]}
               <Row gutter={[4, 8]} justify="space-around">
-                {sampleButtons}
-              </Row>
-              <Row gutter={[4, 8]} justify="space-around">
                 {fpsRow}
               </Row>
+              <>
+                <Row gutter={[4, 8]} justify="space-between">
+                  {sliders1}
+                </Row>
+                <Row gutter={[4, 8]} justify="space-between">
+                  {sliders2}
+                </Row>
+              </>
               <div className="directions">
                 <Row className="direction">{firstRow}</Row>
                 <Row className="direction">{secondRow}</Row>
