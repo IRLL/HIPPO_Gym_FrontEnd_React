@@ -71,7 +71,7 @@ class Game extends React.Component {
     orientation: "horizontal", // default orientation is horizontal
 
     // Fingerprint trial configurations
-    fingerprint: false, // if this is a fingerprint trial
+    fingerprint: true, // if this is a fingerprint trial
     minMinutiae: null, // the minimum number of minutiae required to be marked per step
     resetModalVisible: false, // if the reset image dialog is visible
 
@@ -151,7 +151,7 @@ class Game extends React.Component {
             });
           } else {
             //parse the data from the websocket server
-            let parsedData = JSON.parse(JSON.parse(message.data));
+            let parsedData = JSON.parse(message.data);
 
             if(parsedData.ControlPanel) {
               this.setState({
@@ -601,8 +601,7 @@ class Game extends React.Component {
 			});
 		} else {
 			this.sendMessage({ ButtonEvent: {
-        BUTTONPRESSED: status,
-        value,
+        BUTTONPRESSED: value,
       }});
 		}
   }
@@ -683,6 +682,8 @@ class Game extends React.Component {
   // Apply color filters to the image in the fingerprint window
   // - send applied filter to websocket
   handleImage = (type, value) => {
+    console.log(type, value)
+    console.log(this.state.saturation)
     switch (type) {
       case "brightness":
         this.setState({ brightness: value });

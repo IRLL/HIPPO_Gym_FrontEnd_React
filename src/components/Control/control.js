@@ -242,7 +242,7 @@ class ControlPanel extends React.Component {
                 id={currSlider.id}
                 className="imageControl"
                 defaultValue={currSlider.value}
-                value={currSlider.ref}
+                value={currSlider.value.ref}
                 min={currSlider.min}
                 max={currSlider.max}
                 onChange={(value) => {
@@ -256,48 +256,6 @@ class ControlPanel extends React.Component {
         })
       }
     }
-      // if (controlPanel.Sliders) {
-      //   var sliders = controlPanel.Sliders
-      //   sliders.forEach((slider) => {
-      //     let currSlider = slider[Object.keys(slider)[0]]
-      //     elements[currSlider.title] = (
-      //       <Col
-      //         key={currSlider.title}
-      //         className="space-align-container"
-      //         flex="1"
-      //         align="center"
-      //       >
-      //         {UIlist.includes(currSlider.title) && (
-      //           <div
-      //             className="space-align-block imageControlTextContainer"
-      //             onMouseDown={() => handleChanging(true)}
-      //             onMouseUp={() => {
-      //               handleChanging(false);
-      //             }}
-      //           >
-      //             <Space align="center">
-      //               <span>{icons[currSlider.title]}</span>
-      //               <p className="imageControlText">{capitalize(currSlider.title)}</p>
-      //             </Space>
-      //             <Slider
-      //               id={currSlider.title}
-      //               className="imageControl"
-      //               defaultValue="100"
-      //               // value={control.ref}
-      //               min={currSlider.min}
-      //               max={currSlider.max}
-      //               onChange={(value) => {
-      //                 handleImage(control.name, value);
-      //                 this.currValue = value;
-      //               }}
-      //             />
-      //           </div>
-      //         )}
-      //       </Col>
-      //     );
-      //   });
-      //   }
-
 
     commands.forEach((command) => {
       if (UIlist.includes(command)) {
@@ -324,43 +282,7 @@ class ControlPanel extends React.Component {
       );
       instructionUI.push(elements[`instruction${i}`]);
     });
-    // imageControls.forEach((control) => {
-    //   elements[control.name] = (
-    //     <Col
-    //       key={control.name}
-    //       className="space-align-container"
-    //       flex="1"
-    //       align="center"
-    //     >
-    //       {UIlist.includes(control.name) && (
-    //         <div
-    //           className="space-align-block imageControlTextContainer"
-    //           onMouseDown={() => handleChanging(true)}
-    //           onMouseUp={() => {
-    //             handleChanging(false);
-    //           }}
-    //         >
-    //           <Space align="center">
-    //             <span>{icons[control.name]}</span>
-    //             <p className="imageControlText">{capitalize(control.name)}</p>
-    //           </Space>
-    //           <Slider
-    //             id={control.name}
-    //             className="imageControl"
-    //             defaultValue={control.default}
-    //             value={control.ref}
-    //             min={control.min}
-    //             max={control.max}
-    //             onChange={(value) => {
-    //               handleImage(control.name, value);
-    //               this.currValue = value;
-    //             }}
-    //           />
-    //         </div>
-    //       )}
-    //     </Col>
-    //   );
-    // });
+
     imageCommands.forEach((command) => {
       let className = `${command}Button`;
       if (command === "addMinutia" && addingMinutiae) {
@@ -570,12 +492,12 @@ class ControlPanel extends React.Component {
                 {fpsRow}
               </Row>
               <>
-                <Row gutter={[4, 8]} justify="space-between">
+                {/* <Row gutter={[4, 8]} justify="space-between">
                   {sliders1}
                 </Row>
                 <Row gutter={[4, 8]} justify="space-between">
                   {sliders2}
-                </Row>
+                </Row> */}
               </>
               <div className="directions">
                 <Row className="direction">{firstRow}</Row>
