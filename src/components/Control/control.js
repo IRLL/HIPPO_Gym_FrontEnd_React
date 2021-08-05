@@ -5,6 +5,7 @@ import { Button, Input, Tooltip, Row, Col, Slider, Space, Divider } from "antd";
 import { icons } from "../../utils/icons";
 import capitalize from "../../utils/capitalize";
 import sentenceCase from "../../utils/sentenceCase";
+import { FEEDBACK } from "../../utils/constants";
 
 class ControlPanel extends React.Component {
 	render() {
@@ -31,27 +32,8 @@ class ControlPanel extends React.Component {
 			requestingFeedback,
 		} = this.props;
 
-		const directions = [
-			"left",
-			"leftUp",
-			"up",
-			"rightUp",
-			"down",
-			"leftDown",
-			"rightDown",
-			"fire",
-			"right",
-		];
-		const commands = [
-			"start",
-			"pause",
-			"stop",
-			"reset",
-			"good",
-			"bad",
-			"trainOnline",
-			"trainOffline",
-		];
+		const directions = ["left", "leftUp", "up", "rightUp", "down", "leftDown", "rightDown", "fire", "right"];
+		const commands = ["start", "pause", "stop", "reset", "good", "bad", "trainOnline", "trainOffline"];
 		const fps = ["fpsUp", "fpsDown", "fpsSet"];
 		const imageControls = [
 			{ name: "brightness", min: 0, max: 1000, default: 100, ref: brightness },
@@ -61,51 +43,21 @@ class ControlPanel extends React.Component {
 		];
 
 		const instructionUI = [];
-		const imageCommands = [
-			"undo",
-			"redo",
-			"resetImage",
-			"submitImage",
-			"addMinutia",
-			"resetImage",
-			"submitImage",
-			"getFeedback",
-			"stop",
-		];
+		const imageCommands = ["undo", "redo", "resetImage", "submitImage", "addMinutia", "resetImage", "submitImage", "getFeedback", "stop"];
 		const defaultButtons = [...directions, ...fps];
-		const UIFiltered = UIlist.filter(
-			(ele) =>
-				!defaultButtons.includes(ele) &&
-				!imageControls.map((control) => control.name).includes(ele) &&
-				!imageCommands.includes(ele)
-		);
+		const UIFiltered = UIlist.filter((ele) => !defaultButtons.includes(ele) && !imageControls.map((control) => control.name).includes(ele) && !imageCommands.includes(ele));
 
 		const elements = {
 			fpsSet: (
 				<Col key="fpsSet" span={4}>
-					{UIlist.includes("fpsSet") ? (
-						<Input
-							id="fpsSet"
-							className="fpsInput"
-							defaultValue={30}
-							value={frameRate}
-							suffix="FPS"
-						/>
-					) : null}
+					{UIlist.includes("fpsSet") ? <Input id="fpsSet" className="fpsInput" defaultValue={30} value={frameRate} suffix="FPS" /> : null}
 				</Col>
 			),
 			fpsUp: (
 				<Col key="fpsUp" span={4}>
 					{UIlist.includes("fpsUp") ? (
 						<Tooltip placement="top" title="Increase the FPS by 5" arrowPointAtCenter>
-							<Button
-								shape="round"
-								id="fpsUp"
-								className="fpsUpButton"
-								size="large"
-								icon={icons["fpsUp"]}
-								onClick={() => handleFPS("faster")}
-							>
+							<Button shape="round" id="fpsUp" className="fpsUpButton" size="large" icon={icons["fpsUp"]} onClick={() => handleFPS("faster")}>
 								Increase
 							</Button>
 						</Tooltip>
@@ -116,14 +68,7 @@ class ControlPanel extends React.Component {
 				<Col key="fpsDown" span={4}>
 					{UIlist.includes("fpsDown") ? (
 						<Tooltip placement="bottom" title="Decrease the FPS by 5" arrowPointAtCenter>
-							<Button
-								shape="round"
-								id="fpsDown"
-								className="fpsDownButton"
-								size="large"
-								icon={icons["fpsDown"]}
-								onClick={() => handleFPS("slower")}
-							>
+							<Button shape="round" id="fpsDown" className="fpsDownButton" size="large" icon={icons["fpsDown"]} onClick={() => handleFPS("slower")}>
 								Decrease
 							</Button>
 						</Tooltip>
@@ -135,28 +80,14 @@ class ControlPanel extends React.Component {
 			if (UIlist.includes(dir))
 				elements[dir] = (
 					<Col key={dir} span={2}>
-						<Button
-							id={dir}
-							shape="round"
-							size="large"
-							icon={icons[dir]}
-							onClick={() => sendMessage({ actionType: "mousedown", action: dir })}
-						/>
+						<Button id={dir} shape="round" size="large" icon={icons[dir]} onClick={() => sendMessage({ actionType: "mousedown", action: dir })} />
 					</Col>
 				);
 		});
 		commands.forEach((command) => {
 			elements[command] = (
 				<Col key={command}>
-					<Button
-						shape="round"
-						type="primary"
-						id={command}
-						className={`${command}Button`}
-						icon={icons[command]}
-						size="large"
-						onClick={() => handleCommand(command)}
-					>
+					<Button shape="round" type="primary" id={command} className={`${command}Button`} icon={icons[command]} size="large" onClick={() => handleCommand(command)}>
 						{capitalize(command)}
 					</Button>
 				</Col>
@@ -218,6 +149,8 @@ class ControlPanel extends React.Component {
 					break;
 			}
 
+			if (command === "getFeedback" && !FEEDBACK) return;
+
 			enabled = elements[command] = (
 				<Col key={command}>
 					{UIlist.includes(command) && (
@@ -243,13 +176,7 @@ class ControlPanel extends React.Component {
 			if (!(ele in elements)) {
 				elements[ele] = (
 					<Col key={ele}>
-						<Button
-							id={ele}
-							shape="round"
-							type="primary"
-							size="large"
-							onClick={() => handleCommand(ele)}
-						>
+						<Button id={ele} shape="round" type="primary" size="large" onClick={() => handleCommand(ele)}>
 							{capitalize(ele)}
 						</Button>
 					</Col>
@@ -259,21 +186,10 @@ class ControlPanel extends React.Component {
 
 		const sliders1 = [elements["brightness"], elements["contrast"]];
 		const sliders2 = [elements["saturation"], elements["hue"]];
-		const imgCommands = [
-			elements["undo"],
-			elements["redo"],
-			elements["addMinutia"],
-			elements["getFeedback"],
-			elements["stop"],
-		];
+		const imgCommands = [elements["undo"], elements["redo"], elements["addMinutia"], elements["getFeedback"], elements["stop"]];
 		const firstRow = [elements["leftUp"], elements["up"], elements["rightUp"], elements["fpsUp"]];
 		const secondRow = [elements["left"], elements["fire"], elements["right"], elements["fpsSet"]];
-		const thirdRow = [
-			elements["leftDown"],
-			elements["down"],
-			elements["rightDown"],
-			elements["fpsDown"],
-		];
+		const thirdRow = [elements["leftDown"], elements["down"], elements["rightDown"], elements["fpsDown"]];
 		const lastRow = [elements["resetImage"], elements["submitImage"]];
 
 		UIFiltered.forEach((ele, idx) => {
@@ -315,14 +231,7 @@ class ControlPanel extends React.Component {
 								<Col key="nextStep">
 									{isEnd ? (
 										<Tooltip placement="bottom" title="Move to next step" arrowPointAtCenter>
-											<Button
-												id="nextStep"
-												type="primary"
-												shape="round"
-												size="large"
-												icon={icons["next"]}
-												onClick={this.props.handleOk}
-											>
+											<Button id="nextStep" type="primary" shape="round" size="large" icon={icons["next"]} onClick={this.props.handleOk}>
 												Next
 											</Button>
 										</Tooltip>

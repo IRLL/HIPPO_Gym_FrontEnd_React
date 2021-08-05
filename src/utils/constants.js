@@ -9,6 +9,10 @@ let userId = params.get("userId");
 let redirect = params.get("redirect");
 let debug = params.get("debug");
 
+let score = params.get("score");
+let expert = params.get("expert");
+let feedback = params.get("feedback");
+
 if (host === "localhost" || host === "127.0.0.1") {
 	host = "irll.net";
 } else if (host.includes("testing")) {
@@ -24,6 +28,10 @@ export const CSS_PATH = params.get("css");
 export const USER_ID = SERVER && userId ? userId : uuidv4();
 export const WS_URL = SERVER ? SERVER : `wss://${USER_ID}.${host}:5000`;
 export const DEBUG = debug === "true" ? true : false;
+
+export const SCORE = score === "true" ? true : false;
+export const EXPERT = expert === "true" ? true : false;
+export const FEEDBACK = feedback === "true" ? true : false;
 
 //api endpoint used to send GET and POST requests
 export const RLAPI = `https://api.${host}/next`;

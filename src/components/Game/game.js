@@ -8,6 +8,7 @@ import { browserName, osName, browserVersion, osVersion } from "react-device-det
 // Import utilities
 import getKeyInput from "../../utils/getKeyInput";
 import { WS_URL, USER_ID, PROJECT_ID, SERVER, DEBUG } from "../../utils/constants";
+import { SCORE, EXPERT } from "../../utils/constants"; //temp
 import { icons } from "../../utils/icons";
 
 // Import components
@@ -82,6 +83,10 @@ class Game extends React.Component {
 		imageHeight: null, // default height of the frame image source
 
 		requestingFeedback: false,
+
+		// demo controls
+		scoreOn: SCORE,
+		expertOn: EXPERT,
 	};
 
 	componentDidMount() {
@@ -154,6 +159,16 @@ class Game extends React.Component {
 						if (parsedData.Fingerprint) {
 							this.setState({
 								fingerprint: parsedData.Fingerprint,
+							});
+						}
+						if (parsedData.ScoreOn) {
+							this.setState({
+								scoreOn: parsedData.ScoreOn,
+							});
+						}
+						if (parsedData.ExpertOn) {
+							this.setState({
+								expertOn: parsedData.ExpertOn,
 							});
 						}
 						//Check if Expert Markings in response
@@ -403,8 +418,7 @@ class Game extends React.Component {
 						"Not enough minutiae",
 						<p>
 							You only have <b>{this.state.minutiae.length}</b> minutia
-							{this.state.minutiae.length !== 1 && "e"} and you need at least 4 minutiae to request
-							feedback
+							{this.state.minutiae.length !== 1 && "e"} and you need at least 4 minutiae to request feedback
 						</p>
 					);
 				} else {
@@ -444,10 +458,7 @@ class Game extends React.Component {
 
 	// Change the FPS of the game
 	handleFPS = (speed) => {
-		if (
-			(speed === "faster" && this.state.frameRate + 5 > 90) ||
-			(speed === "slower" && this.state.frameRate - 5 < 1)
-		) {
+		if ((speed === "faster" && this.state.frameRate + 5 > 90) || (speed === "slower" && this.state.frameRate - 5 < 1)) {
 			message.error("Invalid FPS, the FPS can only between 1 - 90!");
 		} else {
 			this.setState((prevState) => ({
@@ -529,8 +540,7 @@ class Game extends React.Component {
 						"Not enough minutiae",
 						<p>
 							You only have <b>{this.state.minutiae.length}</b> minutia
-							{this.state.minutiae.length !== 1 && "e"} out of the minimum of{" "}
-							<b>{this.state.minMinutiae}</b> needed
+							{this.state.minutiae.length !== 1 && "e"} out of the minimum of <b>{this.state.minMinutiae}</b> needed
 						</p>
 					);
 				} else {
@@ -810,6 +820,8 @@ class Game extends React.Component {
 			expertMarker1,
 			expertMarker2,
 			requestingFeedback,
+			scoreOn,
+			expertOn,
 		} = this.state;
 
 		return (
@@ -826,18 +838,9 @@ class Game extends React.Component {
 					<Radio.Button value="horizontal">{icons["horizontalSplit"]}</Radio.Button>
 				</Radio.Group>
 
-				<DisplayBar
-					visible={displayData !== null}
-					isLoading={isLoading}
-					displayData={displayData}
-				/>
+				<DisplayBar visible={displayData !== null} isLoading={isLoading} displayData={displayData} />
 
-				<BudgetBar
-					visible={inputBudget > 0}
-					isLoading={isLoading}
-					usedInputBudget={usedInputBudget}
-					inputBudget={inputBudget}
-				/>
+				<BudgetBar visible={inputBudget > 0} isLoading={isLoading} usedInputBudget={usedInputBudget} inputBudget={inputBudget} />
 
 				<div className={DEBUG ? "" : `${orientation}Grid`}>
 					<Row gutter={4} align="center" style={{ width: "100%" }}>
@@ -864,24 +867,12 @@ class Game extends React.Component {
 									handleChanging={this.handleChanging}
 								/>
 							) : (
-								<GameWindow
-									isLoading={isLoading}
-									frameSrc={frameSrc}
-									imageL={imageL}
-									imageR={imageR}
-									progress={progress}
-									data-testid="game-window"
-								/>
+								<GameWindow isLoading={isLoading} frameSrc={frameSrc} imageL={imageL} imageR={imageR} progress={progress} data-testid="game-window" />
 							)}
 						</Col>
 
 						<Col span={4}>
-							<MessageViewer
-								title="Message Out"
-								id="message-view-1"
-								data={outMessage}
-								visible={DEBUG}
-							/>
+							<MessageViewer title="Message Out" id="message-view-1" data={outMessage} visible={DEBUG} />
 						</Col>
 					</Row>
 
@@ -912,12 +903,7 @@ class Game extends React.Component {
 					/>
 				</div>
 
-				<Modal
-					title="Game end message"
-					visible={gameEndVisible}
-					onOk={this.handleOk}
-					onCancel={this.handleCancel}
-				>
+				<Modal title="Game end message" visible={gameEndVisible} onOk={this.handleOk} onCancel={this.handleCancel}>
 					<p className="modal">The game has ended</p>
 					<p className="modal">
 						Press <b>"Cancel"</b> to stay on this page
@@ -951,15 +937,9 @@ class Game extends React.Component {
 					</p>
 				</Modal>
 
-				<Modal
-					visible={scoreModalVisible}
-					closable={false}
-					footer={null}
-					width="max-content"
-					style={{ top: 20 }}
-				>
+				<Modal visible={scoreModalVisible} closable={false} footer={null} width="max-content" style={{ top: 20 }}>
 					<div className="scoreModal">
-						{score ? (
+						{!scoreOn ? null : score ? (
 							<>
 								<h4>Your score is...</h4>
 								<Progress
@@ -985,20 +965,21 @@ class Game extends React.Component {
 								<Skeleton.Avatar active={!score} size={100} shape="circle" />
 							</>
 						)}
-						<h4>Here is your edition compared to experts:</h4>
-						<Comparison
-							frameSrc={frameSrc}
-							expertMarkers={[expertMarker1, expertMarker2]}
-							userMarkers={this.state.fingerprintCache}
-						/>
+						{expertOn ? (
+							<>
+								<h4>Here is your edition compared to experts:</h4>
+								<Comparison frameSrc={frameSrc} expertMarkers={[expertMarker1, expertMarker2]} userMarkers={this.state.fingerprintCache} />
+							</>
+						) : null}
 
-						<Button
-							disabled={!score}
-							icon={icons["next"]}
-							shape="round"
-							type="primary"
-							onClick={this.resetAll}
-						>
+						{!expertOn && !scoreOn ? (
+							<>
+								<h4>Your image was successfully submitted</h4>
+								<p style={{ alignSelf: "start" }}>Click the button below to get a new image</p>
+							</>
+						) : null}
+
+						<Button disabled={scoreOn && !score} icon={icons["next"]} shape="round" type="primary" onClick={this.resetAll}>
 							Next Image
 						</Button>
 					</div>

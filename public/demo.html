@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Fingerprint Demo</title>
+	</head>
+	<body>
+		<h2>Control groups -- no individual minutiae feedback:</h2>
+		<ul>
+			<li>
+				<a href="http://localhost:5001/?server=ws://localhost:5000&feedback=false&score=false&expert=false">
+					No feedback whatsoever (no score or expert)
+				</a>
+			</li>
+			<li>
+				<a href="http://localhost:5001/?server=ws://localhost:5000&feedback=false&score=false&expert=true">
+					Can only see expert comparison (no score)</a
+				>
+			</li>
+			<li>
+				<a href="http://localhost:5001/?server=ws://localhost:5000&feedback=false&score=true&expert=true"> Can see expert comparison and score </a>
+			</li>
+		</ul>
+
+		<h2>Test groups -- get individual minutiae feedback:</h2>
+		<ul>
+			<li>
+				<a href="http://localhost:5001/?server=ws://localhost:5000&feedback=true&score=false&expert=true"> Get expert comparison but no score </a>
+			</li>
+			<li>
+				<a href="http://localhost:5001/?server=ws://localhost:5000&feedback=true&score=true&expert=true"> Get expert comparison and score </a>
+			</li>
+		</ul>
+	</body>
+</html>
