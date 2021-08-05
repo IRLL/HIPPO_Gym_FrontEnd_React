@@ -71,7 +71,7 @@ class Game extends React.Component {
     orientation: "horizontal", // default orientation is horizontal
 
     // Fingerprint trial configurations
-    fingerprint: true, // if this is a fingerprint trial
+    imageControls: false, // if true, controls like zoom
     minMinutiae: null, // the minimum number of minutiae required to be marked per step
     resetModalVisible: false, // if the reset image dialog is visible
 
@@ -155,7 +155,8 @@ class Game extends React.Component {
 
             if(parsedData.ControlPanel) {
               this.setState({
-                controlPanel:parsedData.ControlPanel
+                controlPanel:parsedData.ControlPanel,
+                keys: parsedData.ControlPanel.Keys
               })
             }
             // refactor - end
@@ -225,9 +226,9 @@ class Game extends React.Component {
               });
             }
             //Check if Fingerprint in response
-            if (parsedData.Fingerprint) {
+            if (parsedData.GameWindow.imageControls) {
               this.setState({
-                fingerprint: parsedData.Fingerprint,
+                imageControls: parsedData.GameWindow.imageControls,
               });
             }
             //Check if Score in response
@@ -307,12 +308,6 @@ class Game extends React.Component {
 						if (parsedData.Instructions) {
 							this.setState({
 								instructions: parsedData.Instructions,
-							});
-						}
-						//Check if Fingerprint in response
-						if (parsedData.Fingerprint) {
-							this.setState({
-								fingerprint: parsedData.Fingerprint,
 							});
 						}
 						//Check if Score in response
@@ -432,14 +427,17 @@ class Game extends React.Component {
 					this.sendMessage(dataToSend);
 				}
 			}
-      if (!event.repeat){
-        this.sendMessage({
-          // TODO: add mod event
-          "KeyboardEvent": {
-            "KEYDOWN": [event.key, event.key.charCodeAt(0)]
-          }
-        })
-      }
+
+        if (!event.repeat){
+          this.sendMessage({
+            // TODO: add mod event
+            "KeyboardEvent": {
+              "KEYDOWN": [event.key, event.key.charCodeAt(0)]
+            }
+          })
+        }
+
+
 		});
 
 		document.addEventListener("keyup", (event) => {
@@ -452,11 +450,14 @@ class Game extends React.Component {
 				}
 				this.sendMessage(dataToSend);
 			}
+      if (this.state.keys) {
         this.sendMessage({
           "KeyboardEvent": {
             "KEYUP": [event.key]
           }
         })
+      }
+
 		});
 
 		// Get the client window width to make the game window responsive
@@ -682,8 +683,6 @@ class Game extends React.Component {
   // Apply color filters to the image in the fingerprint window
   // - send applied filter to websocket
   handleImage = (type, value) => {
-    console.log(type, value)
-    console.log(this.state.saturation)
     switch (type) {
       case "brightness":
         this.setState({ brightness: value });
@@ -707,8 +706,9 @@ class Game extends React.Component {
     }
 
     this.sendMessage({
-      info: type,
-      value,
+      "SliderEvent": {
+        "SLIDERSET": [type, value]
+      }
     });
   };
 
@@ -840,7 +840,7 @@ class Game extends React.Component {
       ],
       addingMinutiae: false,
     });
-    if (this.state.fingerprint) {
+    if (this.state.imageControls) {
       this.sendMessage({
         info: "minutia added",
         minutia: { x, y, orientation, size, color, type },
@@ -1025,7 +1025,7 @@ class Game extends React.Component {
       contrast,
       saturation,
       hue,
-      fingerprint,
+      imageControls,
       minutiae,
       addingMinutiae,
       resetModalVisible,
@@ -1087,7 +1087,7 @@ class Game extends React.Component {
                 />
               </Col>
             ) : null}
-            {fingerprint ? (
+            {imageControls ? (
               <FingerprintWindow
                 isLoading={isLoading}
                 frameSrc={frameSrc}
@@ -1145,7 +1145,7 @@ class Game extends React.Component {
             handleImageCommands={this.handleImageCommands}
             handleChanging={this.handleChanging}
             sendMessage={this.sendMessage}
-            fingerprint={this.state.fingerprint}
+            fingerprint={this.state.imageControls}
             addMinutia={this.addMinutia}
             brightness={brightness}
             contrast={contrast}

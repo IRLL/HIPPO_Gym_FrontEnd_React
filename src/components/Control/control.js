@@ -56,12 +56,6 @@ class ControlPanel extends React.Component {
 
     const fps = ["fpsUp", "fpsDown", "fpsSet"];
 
-    const imageControls = [
-      { name: "brightness", min: 0, max: 1000, default: 100, ref: brightness },
-      { name: "contrast", min: 0, max: 500, default: 100, ref: contrast },
-      { name: "saturation", min: 0, max: 100, default: 100, ref: saturation },
-      { name: "hue", min: 0, max: 360, default: 0, ref: hue },
-    ];
 
     const instructionUI = [];
     const imageCommands = [
@@ -84,8 +78,7 @@ class ControlPanel extends React.Component {
     // filter out UIlist to avoid duplicate buttons
     const UIFiltered = UIlist.filter(
       (ele) =>
-        !defaultButtons.includes(ele) &&
-        !imageControls.map((control) => control.name).includes(ele)
+        !defaultButtons.includes(ele)
     );
 
     const elements = {
@@ -470,35 +463,25 @@ class ControlPanel extends React.Component {
                   <Divider>Controls </Divider>
                 </div>
               ) : null}
-              {this.props.fingerprint ? (
                 <>
-                  <Row
-                    gutter={[4, 8]}
-                    justify="space-around"
-                    className="imageCommands"
-                  >
-                    {imgCommands}
-                  </Row>
-                  <Row gutter={[4, 8]} justify="space-between">
-                    {sliders1}
-                  </Row>
-                  <Row gutter={[4, 8]} justify="space-between">
-                    {sliders2}
-                  </Row>
-                </>
-              ) : null}
-              {[elements["bottomBlocks"]]}
-              <Row gutter={[4, 8]} justify="space-around">
-                {fpsRow}
-              </Row>
-              <>
-                {/* <Row gutter={[4, 8]} justify="space-between">
+                <Row
+                  gutter={[4, 8]}
+                  justify="space-around"
+                  className="imageCommands"
+                >
+                  {imgCommands}
+                </Row>
+                <Row gutter={[4, 8]} justify="space-between">
                   {sliders1}
                 </Row>
                 <Row gutter={[4, 8]} justify="space-between">
                   {sliders2}
-                </Row> */}
+                </Row>
               </>
+              {[elements["bottomBlocks"]]}
+              <Row gutter={[4, 8]} justify="space-around">
+                {fpsRow}
+              </Row>
               <div className="directions">
                 <Row className="direction">{firstRow}</Row>
                 <Row className="direction">{secondRow}</Row>
