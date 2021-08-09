@@ -29,9 +29,9 @@ export const USER_ID = SERVER && userId ? userId : uuidv4();
 export const WS_URL = SERVER ? SERVER : `wss://${USER_ID}.${host}:5000`;
 export const DEBUG = debug === "true" ? true : false;
 
-export const SCORE = score === "true" ? true : false;
-export const EXPERT = expert === "true" ? true : false;
-export const FEEDBACK = feedback === "true" ? true : false;
+export const SCORE = score !== "false" ? true : false;
+export const EXPERT = expert !== "false" ? true : false;
+export const FEEDBACK = feedback !== "false" ? true : false;
 
 //api endpoint used to send GET and POST requests
 export const RLAPI = `https://api.${host}/next`;
