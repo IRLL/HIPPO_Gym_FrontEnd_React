@@ -1073,45 +1073,48 @@ class Game extends React.Component {
               </Col>
             ) : null}
           </div>
-          { textbox ?
-            <TextBox
-              className="textBox"
-              textBox={textbox}
-              onChange={this.textBoxInput}
+          <Col className="rightColumn">
+            { textbox ?
+              <TextBox
+                className="textBox"
+                textBox={textbox}
+                onChange={this.textBoxInput}
+                orientation={orientation}
+              />
+            :null}
+            <ControlPanel
+              className="gameControlPanel"
+              isEnd={isEnd}
+              isLoading={isLoading}
+              frameRate={frameRate}
+              inputFrameRate={this.state.inputFrameRate}
+              UIlist={UIlist}
+              instructions={instructions}
+              DEBUG={DEBUG}
+              handleOk={this.handleOk}
+              handleFPS={this.handleFPS}
+              handleCommand={this.handleCommand}
+              handleButton={this.handleButton}
+              handleImage={this.handleImage}
+              handleImageCommands={this.handleImageCommands}
+              handleChanging={this.handleChanging}
+              sendMessage={this.sendMessage}
+              fingerprint={this.state.imageControls}
+              addMinutia={this.addMinutia}
+              brightness={brightness}
+              contrast={contrast}
+              saturation={saturation}
+              hue={hue}
+              addingMinutiae={addingMinutiae}
+              orientation={orientation}
+              undoEnabled={undoEnabled}
+              redoEnabled={redoEnabled}
+              blockButtons={
+                currentBlock ? [previousBlock, currentBlock, nextBlock] : null
+              }
+              controlPanel={controlPanel}
             />
-          :null}
-          <ControlPanel
-            className="gameControlPanel"
-            isEnd={isEnd}
-            isLoading={isLoading}
-            frameRate={frameRate}
-            inputFrameRate={this.state.inputFrameRate}
-            UIlist={UIlist}
-            instructions={instructions}
-            DEBUG={DEBUG}
-            handleOk={this.handleOk}
-            handleFPS={this.handleFPS}
-            handleCommand={this.handleCommand}
-            handleButton={this.handleButton}
-            handleImage={this.handleImage}
-            handleImageCommands={this.handleImageCommands}
-            handleChanging={this.handleChanging}
-            sendMessage={this.sendMessage}
-            fingerprint={this.state.imageControls}
-            addMinutia={this.addMinutia}
-            brightness={brightness}
-            contrast={contrast}
-            saturation={saturation}
-            hue={hue}
-            addingMinutiae={addingMinutiae}
-            orientation={orientation}
-            undoEnabled={undoEnabled}
-            redoEnabled={redoEnabled}
-            blockButtons={
-              currentBlock ? [previousBlock, currentBlock, nextBlock] : null
-            }
-            controlPanel={controlPanel}
-          />
+          </Col>
         </div>
 
         <Modal

@@ -42,29 +42,31 @@ class TextBox extends React.Component {
 
   render() {
     const {
-          textBox
+          textBox,
+          orientation,
         } = this.props
 
     return (
-      <form className="form">
-        <textarea
-          className="inputArea"
-          id={textBox.idx}
-          name="textBox"
-          placeholder="Input text here ..."
-          // TODO: replace hardorder width and height with textBox.size[0] + "px"
-          style={{width: textBox.size[0] + "px",
-                  height: textBox.size[1] + "px",
-                  backgroundColor: textBox.bgcolor,
-                  color: textBox.color,
-                }}
-          defaultValue={textBox.text}
-          onChange={this.handleChange}
-          readOnly={textBox.editable ? false : true}
-          autoFocus={textBox.editable ? true : false}
-        />
-        <Button className="saveButton">Save</Button>
-      </form>
+      <div className={`${orientation}TextBox`}>
+        <form className="form">
+          <textarea
+            className="inputArea"
+            id={textBox.idx}
+            name="textBox"
+            placeholder="Input text here ..."
+            // TODO: replace hardorder width and height with textBox.size[0] + "px"
+            style={{width: "400px",
+                    height: "300px",
+                    backgroundColor: textBox.bgcolor,
+                    color: textBox.color,
+                  }}
+            defaultValue={textBox.text}
+            onChange={this.handleChange}
+            readOnly={textBox.editable ? false : true}
+            autoFocus={textBox.editable ? true : false}
+          />
+        </form>
+      </div>
     )
   }
 

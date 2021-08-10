@@ -29,6 +29,12 @@
   justify-content: space-evenly;
   align-items: center;
 }
+
+.rightColumn {
+	display: grid;
+	align-items: center;
+}
+
 .verticalOrientationToggle {
   margin-right: auto;
   margin-left: max(10vw, calc((100vw - 705px) / 2));

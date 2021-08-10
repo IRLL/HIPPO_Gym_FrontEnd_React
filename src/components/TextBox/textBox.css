@@ -1,16 +1,13 @@
-.form {
-  /* position: relative; */
-  margin: 0 0 0 2rem;
+.verticalTextBox {
+  margin: 1rem auto;
+}
+
+.horizontalTextBox {
+  margin: 0 2rem;
+  /* margin: 1rem auto; */
+
 }
 
 .inputArea {
-  /* position: absolute; */
   font-family:'Courier New', Courier, monospace;
-}
-
-.saveButton {
-  display: flex;
-  /* position: absolute; */
-  justify-content: center;
-  width: 3rem;
 }
