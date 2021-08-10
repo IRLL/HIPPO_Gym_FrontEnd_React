@@ -227,6 +227,13 @@ class Game extends React.Component {
                 instructions: parsedData.Instructions,
               });
             }
+            //Check if infoPanel is in the recieved data
+            if (parsedData.InfoPanel){
+              this.setState({
+                infoPanel: parsedData.InfoPanel,
+              })
+            }
+
             //Check if Fingerprint in response
             if (parsedData.GameWindow && parsedData.GameWindow.imageControls) {
               this.setState({
@@ -959,6 +966,7 @@ class Game extends React.Component {
       isEnd,
       UIlist,
       instructions,
+      infoPanel,
       progress,
       gameEndVisible,
       inputBudget,
@@ -1090,6 +1098,7 @@ class Game extends React.Component {
               inputFrameRate={this.state.inputFrameRate}
               UIlist={UIlist}
               instructions={instructions}
+              infoPanel={infoPanel}
               DEBUG={DEBUG}
               handleOk={this.handleOk}
               handleFPS={this.handleFPS}

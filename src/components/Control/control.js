@@ -13,6 +13,7 @@ class ControlPanel extends React.Component {
       isLoading,
       UIlist,
       instructions,
+      infoPanel,
       orientation,
       DEBUG,
       handleFPS,
@@ -53,7 +54,7 @@ class ControlPanel extends React.Component {
     const fps = ["fpsUp", "fpsDown", "fpsSet"];
 
 
-    const instructionUI = [];
+    const infoPanelUI = [];
     const imageCommands = [
       "undo",
       "redo",
@@ -269,8 +270,38 @@ class ControlPanel extends React.Component {
       elements[`instruction${i}`] = (
         <li key={`instruction${i}`}>{instruction}</li>
       );
-      instructionUI.push(elements[`instruction${i}`]);
+      infoPanelUI.push(elements[`instruction${i}`]);
     });
+
+    for(let key in infoPanel){
+      if (key==="text") {
+        elements["text"] = (
+          <p>{infoPanel[key]}</p>
+        )
+        infoPanelUI.push(elements["text"]);
+      } else if (key==="items") {
+        infoPanel[key].forEach((item, i) => {
+          elements[`item${i}`] = (
+            <li key={`item${i}`}>{item}</li>
+            )
+        infoPanelUI.push(elements[`item${i}`]);
+        })
+      } else if(key==="kv"){
+        for(let object in infoPanel[key]){
+          for (let k in infoPanel[key][object]){
+            elements[`${k}`] = (
+              <div key={k}><strong>{capitalize(k)}</strong>: {infoPanel[key][object][k]}</div>
+            )
+            infoPanelUI.push(elements[`${k}`]);
+          }
+          console.log(infoPanel[key][object])
+          // elements[`${k}`] = (
+          //  <div key={k}><strong>{capitalize(k)}</strong>: {k}</div>
+          // )
+          // infoPanelUI.push(elements[`${k}`]);
+        }
+      }
+    }
 
     imageCommands.forEach((command) => {
       let className = `${command}Button`;
@@ -451,15 +482,15 @@ class ControlPanel extends React.Component {
             }`}
           >
             <div className="panelContainer">
-              {instructions.length ? (
+              {infoPanel ? (
                 <div>
-                  <Divider>Instructions</Divider>
+                  <Divider>Information</Divider>
                   <Row gutter={[4, 8]} justify="start" className="instructions">
-                    <ul>{instructionUI}</ul>
+                    <ul>{infoPanelUI}</ul>
                   </Row>
                   <Divider>Controls </Divider>
                 </div>
-              ) : null}
+              ) : console.log(infoPanel)}
                 <>
                 <Row
                   gutter={[4, 8]}
