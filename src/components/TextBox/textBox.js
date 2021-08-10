@@ -55,8 +55,8 @@ class TextBox extends React.Component {
             name="textBox"
             placeholder="Input text here ..."
             // TODO: replace hardorder width and height with textBox.size[0] + "px"
-            style={{width: "400px",
-                    height: "300px",
+            style={{width: textBox.size[0] + "px",
+                    height: textBox.size[1] + "px",
                     backgroundColor: textBox.bgcolor,
                     color: textBox.color,
                   }}

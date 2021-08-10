@@ -228,7 +228,7 @@ class Game extends React.Component {
               });
             }
             //Check if infoPanel is in the recieved data
-            if (parsedData.InfoPanel){
+            if ("InfoPanel" in parsedData){
               this.setState({
                 infoPanel: parsedData.InfoPanel,
               })

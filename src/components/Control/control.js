@@ -52,8 +52,10 @@ class ControlPanel extends React.Component {
 
     const fps = ["fpsUp", "fpsDown", "fpsSet"];
 
+    let textUI=[]
+    let itemsUI=[]
+    let kvUI=[]
 
-    const infoPanelUI = [];
     const imageCommands = [
       "undo",
       "redo",
@@ -266,31 +268,30 @@ class ControlPanel extends React.Component {
       }
     });
 
-    let textUI=[]
-    let itemsUI=[]
-    let kvUI=[]
 
-    for(let key in infoPanel){
-      if (key==="text") {
-        elements["text"] = (
-          <div>{infoPanel[key]}</div>
-        )
-        textUI.push(elements["text"]);
-      } else if (key==="items") {
-        infoPanel[key].forEach((item, i) => {
-          elements[`item${i}`] = (
-            <li key={`item${i}`}>{item}</li>
-            )
-        itemsUI.push(elements[`item${i}`]);
-        })
-      } else if(key==="kv"){
-        document.createElement("br")
-        for(let object in infoPanel[key]){
-          for (let k in infoPanel[key][object]){
-            elements[`${k}`] = (
-              <div key={k}><strong>{capitalize(k)}</strong>: {infoPanel[key][object][k]}</div>
-            )
-            kvUI.push(elements[`${k}`]);
+    if (infoPanel) {
+      for(let key in infoPanel){
+        if (key==="text") {
+          elements["text"] = (
+            <div>{infoPanel[key]}</div>
+          )
+          textUI.push(elements["text"]);
+        } else if (key==="items") {
+          infoPanel[key].forEach((item, i) => {
+            elements[`item${i}`] = (
+              <li key={`item${i}`}>{item}</li>
+              )
+          itemsUI.push(elements[`item${i}`]);
+          })
+        } else if(key==="kv"){
+          document.createElement("br")
+          for(let object in infoPanel[key]){
+            for (let k in infoPanel[key][object]){
+              elements[`${k}`] = (
+                <div key={k}><strong>{capitalize(k)}</strong>: {infoPanel[key][object][k]}</div>
+              )
+              kvUI.push(elements[`${k}`]);
+            }
           }
         }
       }
@@ -475,21 +476,21 @@ class ControlPanel extends React.Component {
             }`}
           >
             <div className="panelContainer">
-              {infoPanel ? (
-                <div>
+              {infoPanel ?
+                <div className="infoPanel" >
                   <Divider>Information</Divider>
-                  <Row gutter={[4, 8]} justify="start" className="infoPanel">
+                  <Row gutter={[4, 8]} justify="start" className="infoPanelItem">
                     <ul>{textUI}</ul>
                   </Row>
-                  <Row gutter={[4, 8]} justify="start" className="infoPanel">
+                  <Row gutter={[4, 8]} justify="start" className="infoPanelItem">
                     <ul>{itemsUI}</ul>
                   </Row>
-                  <Row gutter={[4, 8]} justify="start" className="infoPanel">
+                  <Row gutter={[4, 8]} justify="start" className="infoPanelItem">
                     <ul>{kvUI}</ul>
                   </Row>
                   <Divider>Controls </Divider>
                 </div>
-              ) : null}
+                :null}
                 <>
                 <Row
                   gutter={[4, 8]}
