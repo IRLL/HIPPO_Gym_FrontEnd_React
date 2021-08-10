@@ -408,7 +408,6 @@ class Game extends React.Component {
       });
 
 		// Get the client window width to make the game window responsive
-		this.handleResize();
 		window.addEventListener("resize", this.handleResize);
 	}
 
