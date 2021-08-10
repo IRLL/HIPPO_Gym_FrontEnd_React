@@ -1,7 +1,6 @@
 import React from 'react';
 import './textBox.css';
 import 'antd/dist/antd.css';
-import { Button } from 'antd';
 
 class TextBox extends React.Component {
 
@@ -52,7 +51,6 @@ class TextBox extends React.Component {
           <textarea
             className="inputArea"
             id={textBox.idx}
-            name="textBox"
             placeholder="Input text here ..."
             // TODO: replace hardorder width and height with textBox.size[0] + "px"
             style={{width: textBox.size[0] + "px",

@@ -1,7 +1,7 @@
 import React from "react";
 import "antd/dist/antd.css";
 import "./game.css";
-import { message, Modal, Col, Button, Radio, Progress, Skeleton } from "antd";
+import { message, Modal, Col,Row, Button, Radio, Progress, Skeleton } from "antd";
 import { w3cwebsocket } from "websocket";
 import {
   browserName,
@@ -29,6 +29,7 @@ import MessageViewer from "../Message/MessageViewer";
 import GameWindow from "../GameWindow/gameWindow";
 import FingerprintWindow from "../GameWindow/fingerprintWindow";
 import TextBox from "../TextBox/textBox";
+import InfoPanel from "../InfoPanel/infoPanel"
 
 
 const pendingTime = 30;
@@ -1093,39 +1094,48 @@ class Game extends React.Component {
                 orientation={orientation}
               />
             :null}
-            <ControlPanel
-              className="gameControlPanel"
-              isEnd={isEnd}
-              isLoading={isLoading}
-              frameRate={frameRate}
-              inputFrameRate={this.state.inputFrameRate}
-              UIlist={UIlist}
-              instructions={instructions}
-              infoPanel={infoPanel}
-              DEBUG={DEBUG}
-              handleOk={this.handleOk}
-              handleFPS={this.handleFPS}
-              handleCommand={this.handleCommand}
-              handleButton={this.handleButton}
-              handleImage={this.handleImage}
-              handleImageCommands={this.handleImageCommands}
-              handleChanging={this.handleChanging}
-              sendMessage={this.sendMessage}
-              fingerprint={this.state.imageControls}
-              addMinutia={this.addMinutia}
-              brightness={brightness}
-              contrast={contrast}
-              saturation={saturation}
-              hue={hue}
-              addingMinutiae={addingMinutiae}
-              orientation={orientation}
-              undoEnabled={undoEnabled}
-              redoEnabled={redoEnabled}
-              blockButtons={
-                currentBlock ? [previousBlock, currentBlock, nextBlock] : null
-              }
-              controlPanel={controlPanel}
-            />
+            <Row className="panels">
+              {infoPanel ?
+                <InfoPanel
+                  className="infoPanel"
+                  infoPanel={infoPanel}
+                  orientation={orientation}
+                />
+              :null}
+              <ControlPanel
+                className="gameControlPanel"
+                isEnd={isEnd}
+                isLoading={isLoading}
+                frameRate={frameRate}
+                inputFrameRate={this.state.inputFrameRate}
+                UIlist={UIlist}
+                instructions={instructions}
+                infoPanel={infoPanel}
+                DEBUG={DEBUG}
+                handleOk={this.handleOk}
+                handleFPS={this.handleFPS}
+                handleCommand={this.handleCommand}
+                handleButton={this.handleButton}
+                handleImage={this.handleImage}
+                handleImageCommands={this.handleImageCommands}
+                handleChanging={this.handleChanging}
+                sendMessage={this.sendMessage}
+                fingerprint={this.state.imageControls}
+                addMinutia={this.addMinutia}
+                brightness={brightness}
+                contrast={contrast}
+                saturation={saturation}
+                hue={hue}
+                addingMinutiae={addingMinutiae}
+                orientation={orientation}
+                undoEnabled={undoEnabled}
+                redoEnabled={redoEnabled}
+                blockButtons={
+                  currentBlock ? [previousBlock, currentBlock, nextBlock] : null
+                }
+                controlPanel={controlPanel}
+              />
+            </Row>
           </Col>
         </div>
 
