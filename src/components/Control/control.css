@@ -35,7 +35,7 @@
 }
 
 /* set animation for instructions */
-.instructions {
+.infoPanel {
   animation-name: example;
   animation-duration: 5s;
   transition: 3s;
