@@ -176,18 +176,22 @@ class Game extends React.Component {
                 UIlist: parsedData.UI,
               });
             }
-            // Check if window size is in the response
-            if (parsedData.gameWindowWidth) {
-              initialWindowWidth = parsedData.gameWindowWidth;
-              this.setState({
-                windowWidth: parsedData.gameWindowWidth,
-              });
-            }
-            if (parsedData.gameWindowHeight) {
-              initialWindowHeight = parsedData.gameWindowHeight;
-              this.setState({
-                windowHeight: parsedData.gameWindowHeight,
-              });
+            if (parsedData.GameWindow) {
+              if (parsedData.GameWindow.size) {
+                initialWindowWidth = parsedData.GameWindow.size[0];
+                initialWindowHeight = parsedData.GameWindow.size[1];
+                windowSizeRatio =
+                parsedData.GameWindow.size[0] / parsedData.GameWindow.size[1];
+                this.setState({
+                  windowWidth: parsedData.GameWindow.size[0],
+                  windowHeight: parsedData.GameWindow.size[1],
+                })
+              }
+              if (parsedData.GameWindow.mode) {
+                this.setState({
+                  windowSize: parsedData.GameWindow.mode,
+                })
+              }
             }
             if (parsedData.gameWindowSize) {
               windowSizeRatio =
@@ -408,7 +412,7 @@ class Game extends React.Component {
       });
 
 		// Get the client window width to make the game window responsive
-		window.addEventListener("resize", this.handleResize);
+		window.addEventListener("resize", this.handleResize)
 	}
 
 	componentWillUnmount() {
