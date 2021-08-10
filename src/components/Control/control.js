@@ -12,10 +12,6 @@ class ControlPanel extends React.Component {
       isEnd,
       isLoading,
       UIlist,
-      brightness,
-      contrast,
-      saturation,
-      hue,
       instructions,
       orientation,
       DEBUG,
@@ -186,7 +182,7 @@ class ControlPanel extends React.Component {
           } else {
             elements[currButton.value] = (
               <Col key={currButton.value}>
-                {/* TODO: add icon to tooltip,test with different images for icon and background image*/}
+                {/* TODO: add icon to tooltip, test with different images for icon and background image*/}
               <Tooltip
               title={capitalize(sentenceCase(currButton.text))}
               arrowPointAtCenter
@@ -377,6 +373,7 @@ class ControlPanel extends React.Component {
       elements["pause"],
       elements["end"],
       elements["reset"],
+      elements["save"]
     ];
     const customRow = []; // store custom buttons
 

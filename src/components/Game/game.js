@@ -28,6 +28,7 @@ import DisplayBar from "../DisplayBar/displayBar";
 import MessageViewer from "../Message/MessageViewer";
 import GameWindow from "../GameWindow/gameWindow";
 import FingerprintWindow from "../GameWindow/fingerprintWindow";
+import TextBox from "../TextBox/textBox";
 
 
 const pendingTime = 30;
@@ -69,6 +70,7 @@ class Game extends React.Component {
     holdKey: null, // the key that is holding
     instructions: [], // list of instructions for the game
     orientation: "horizontal", // default orientation is horizontal
+    textbox: false, // shows a textbox
 
     // Fingerprint trial configurations
     imageControls: false, // if true, controls like zoom
@@ -159,7 +161,7 @@ class Game extends React.Component {
                 keys: parsedData.ControlPanel.Keys
               })
             }
-            // refactor - end
+
 
             //Check if budget bar should be loaded
             if (parsedData.inputBudget) {
@@ -226,7 +228,7 @@ class Game extends React.Component {
               });
             }
             //Check if Fingerprint in response
-            if (parsedData.GameWindow.imageControls) {
+            if (parsedData.GameWindow && parsedData.GameWindow.imageControls) {
               this.setState({
                 imageControls: parsedData.GameWindow.imageControls,
               });
@@ -291,6 +293,24 @@ class Game extends React.Component {
               };
             }
 
+            //check if textbox is in the server's response
+            if (parsedData.TextBox) {
+              this.setState({
+                textbox: parsedData.TextBox
+              })
+            }
+
+            //check if bakcend is making a request
+            if (parsedData.Request) {
+              if (parsedData.Request[0] === "TEXTBOX"){
+                this.sendMessage({
+                  "TextEvent" : {
+                    "TEXTREQUEST": this.state.textAreaInput
+                  }
+                })
+              }
+            }
+
             //check if imageL is in server's response
             if (parsedData.imageL) {
               this.setState({
@@ -304,86 +324,6 @@ class Game extends React.Component {
                 imageR: parsedData.imageR,
               });
             }
-						//Check if Instructions in response
-						if (parsedData.Instructions) {
-							this.setState({
-								instructions: parsedData.Instructions,
-							});
-						}
-						//Check if Score in response
-						if (parsedData.Score) {
-							this.setState({
-								score: parsedData.Score,
-							});
-						}
-						//Check if Score in response
-						if (parsedData.MaxScore) {
-							this.setState({
-								maxScore: parsedData.MaxScore,
-							});
-						}
-						//Check if Score in response
-						if (parsedData.MinMinutiae) {
-							this.setState({
-								minMinutiae: parsedData.MinMinutiae,
-							});
-						}
-						//Check if frame related information in response
-						if (parsedData.frame && parsedData.frameId) {
-							let frame = parsedData.frame;
-							let frameId = parsedData.frameId;
-
-							if (this.state.score)
-								this.setState((prevState) => ({
-									nextframeSrc: "data:image/jpeg;base64, " + frame,
-									nextframeCount: prevState.frameCount + 1,
-									nextframeId: frameId,
-								}));
-							else {
-								this.setState((prevState) => ({
-									// Set new frame ID
-									frameSrc: "data:image/jpeg;base64, " + frame,
-									frameCount: prevState.frameCount + 1,
-									frameId: frameId,
-
-									// Reset minutiae and image filters
-									minutiae: [],
-									brightness: 100,
-									contrast: 100,
-									saturation: 100,
-									hue: 0,
-
-									// Reset undo/redo stacks and buttons
-									undoList: [],
-									redoList: [],
-									undoEnabled: false,
-									redoEnabled: false,
-								}));
-							}
-							const img = new Image();
-							img.src = "data:image/jpeg;base64, " + frame;
-							img.onload = () => {
-								this.setState({
-									imageWidth: img.width,
-									imageHeight: img.height,
-								});
-							};
-						}
-
-						//check if imageL is in server's response
-						if (parsedData.imageL) {
-							this.setState({
-								imageL: parsedData.imageL,
-							});
-						}
-
-						//check if imageR is in server's response
-						if (parsedData.imageR) {
-							this.setState({
-								imageR: parsedData.imageR,
-							});
-						}
-
 						//check if any information needed to display
 						if (parsedData.display) {
 							this.setState({
@@ -412,53 +352,53 @@ class Game extends React.Component {
 			},
 			SERVER ? 0 : pendingTime * 1000
 		);
+      // Listen to the user's keyboard inputs
+      document.addEventListener("keydown", (event) => {
+        // don't execute the following code if the user is typing in the inputbox
+        if (document.activeElement.tagName !== "TEXTAREA") {
+          //Used to prevent arrow keys and space key from scrolling the page
+          let dataToSend = getKeyInput(event.code);
+          if (dataToSend.actionType !== "null") {
+            event.preventDefault();
+          }
 
-		// Listen to the user's keyboard inputs
-		document.addEventListener("keydown", (event) => {
-			//Used to prevent arrow keys and space key from scrolling the page
-			let dataToSend = getKeyInput(event.code);
-			if (dataToSend.actionType !== "null") {
-				event.preventDefault();
-			}
+          if (this.state.UIlist.includes(dataToSend.action)) {
+            if (this.state.holdKey !== dataToSend.actionType) {
+              this.setState({ holdKey: dataToSend.actionType });
+              this.sendMessage(dataToSend);
+            }
+          }
 
-			if (this.state.UIlist.includes(dataToSend.action)) {
-				if (this.state.holdKey !== dataToSend.actionType) {
-					this.setState({ holdKey: dataToSend.actionType });
-					this.sendMessage(dataToSend);
-				}
-			}
+            if (!event.repeat){
+              this.sendMessage({
+                // TODO: add mod event
+                "KeyboardEvent": {
+                  "KEYDOWN": [event.key, event.key.charCodeAt(0)]
+                }
+              })
+            }
+        }
+      });
 
-        if (!event.repeat){
+      document.addEventListener("keyup", (event) => {
+        //Used to prevent arrow keys and space key from scrolling the page
+        let dataToSend = getKeyInput(event.code);
+        if (this.state.UIlist.includes(dataToSend.action)) {
+          dataToSend.action = "noop";
+          if (this.state.holdKey === dataToSend.actionType) {
+            this.setState({ holdKey: null });
+          }
+          this.sendMessage(dataToSend);
+        }
+        if (this.state.keys) {
           this.sendMessage({
-            // TODO: add mod event
             "KeyboardEvent": {
-              "KEYDOWN": [event.key, event.key.charCodeAt(0)]
+              "KEYUP": [event.key]
             }
           })
         }
 
-
-		});
-
-		document.addEventListener("keyup", (event) => {
-			//Used to prevent arrow keys and space key from scrolling the page
-			let dataToSend = getKeyInput(event.code);
-			if (this.state.UIlist.includes(dataToSend.action)) {
-				dataToSend.action = "noop";
-				if (this.state.holdKey === dataToSend.actionType) {
-					this.setState({ holdKey: null });
-				}
-				this.sendMessage(dataToSend);
-			}
-      if (this.state.keys) {
-        this.sendMessage({
-          "KeyboardEvent": {
-            "KEYUP": [event.key]
-          }
-        })
-      }
-
-		});
+      });
 
 		// Get the client window width to make the game window responsive
 		this.handleResize();
@@ -481,7 +421,6 @@ class Game extends React.Component {
           {
             WINDOWRESIZED: [currWidth, currHeight]
           }});
-        // this.stopResizeCalled();
         clearInterval(resizeCalled);
         isResizeCalled = false;
       } else {
@@ -492,7 +431,6 @@ class Game extends React.Component {
   }
 
 	handleResize = () => {
-    // TODO: add a variable to check if resizeCalled setinterval has been called already
     //TODO: windowIdshould be added here
     if (!isResizeCalled) {
       isResizeCalled = true;
@@ -964,6 +902,12 @@ class Game extends React.Component {
     });
   };
 
+  textBoxInput = (data) => {
+    this.setState({
+      textAreaInput: data
+    })
+  }
+
   // Return a minutiae array such that each minutia's
   // x and y values are accurate pixel coordinates
   normalizeMinutiae = (minutiae) => {
@@ -1041,6 +985,7 @@ class Game extends React.Component {
       currentBlock,
       nextBlock,
       controlPanel,
+      textbox,
     } = this.state;
 
     return (
@@ -1128,6 +1073,13 @@ class Game extends React.Component {
               </Col>
             ) : null}
           </div>
+          { textbox ?
+            <TextBox
+              className="textBox"
+              textBox={textbox}
+              onChange={this.textBoxInput}
+            />
+          :null}
           <ControlPanel
             className="gameControlPanel"
             isEnd={isEnd}

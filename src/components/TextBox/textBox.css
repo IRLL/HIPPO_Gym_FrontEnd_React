@@ -1,0 +1,16 @@
+.form {
+  /* position: relative; */
+  margin: 0 0 0 2rem;
+}
+
+.inputArea {
+  /* position: absolute; */
+  font-family:'Courier New', Courier, monospace;
+}
+
+.saveButton {
+  display: flex;
+  /* position: absolute; */
+  justify-content: center;
+  width: 3rem;
+}

@@ -23,7 +23,7 @@ class GameWindow extends React.Component {
  }
 
   render() {
-      const {isLoading, frameSrc, progress, imageL, imageR, addMinutia, width, height, sendMouseData} = this.props;
+      const {isLoading, frameSrc, progress, imageL, imageR, width, height, sendMouseData} = this.props;
       return (
         <Zoom>
           {(zoom) => (
