@@ -35,9 +35,13 @@
 	justify-items: center;
 }
 
-.horizontalPanels {
-	display: grid;
-	grid-template-columns: 1fr 2fr;
+.horizontalPanels{
+	display: flex;
+}
+
+.verticalInfo {
+	display: flex;
+	justify-content: center;
 }
 
 .verticalOrientationToggle {

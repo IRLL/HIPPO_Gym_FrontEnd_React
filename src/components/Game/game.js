@@ -1094,14 +1094,17 @@ class Game extends React.Component {
                 orientation={orientation}
               />
             :null}
-            <Row className="panels">
+            <div className={textbox ? `${orientation}Panels` : `verticalPanels`}>
               {infoPanel ?
+                <div className={`${orientation}Info`}>
                 <InfoPanel
                   className="infoPanel"
                   infoPanel={infoPanel}
                   orientation={orientation}
                 />
+                </div>
               :null}
+              <div className="control">
               <ControlPanel
                 className="gameControlPanel"
                 isEnd={isEnd}
@@ -1135,7 +1138,8 @@ class Game extends React.Component {
                 }
                 controlPanel={controlPanel}
               />
-            </Row>
+              </div>
+            </div>
           </Col>
         </div>
 
