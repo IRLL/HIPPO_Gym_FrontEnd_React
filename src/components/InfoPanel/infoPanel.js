@@ -46,7 +46,7 @@ class InfoPanel extends React.Component {
   }
 
    return (
-     <div className="infoPanel">
+     <div className={`${orientation}InfoPanel`}>
           <Row gutter={[4, 8]} justify="start" className="infoPanelItem">
             <ul>{textUI}</ul>
           </Row>

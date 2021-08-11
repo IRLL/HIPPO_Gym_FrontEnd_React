@@ -12,7 +12,6 @@ class ControlPanel extends React.Component {
       isEnd,
       isLoading,
       UIlist,
-      infoPanel,
       orientation,
       DEBUG,
       handleFPS,
@@ -72,6 +71,8 @@ class ControlPanel extends React.Component {
       ...imageCommands,
       ...commands,
     ];
+
+    const customRow = []; // store custom buttons
 
     // filter out UIlist to avoid duplicate buttons
     const UIFiltered = UIlist.filter(
@@ -204,7 +205,9 @@ class ControlPanel extends React.Component {
               </Tooltip>
             </Col>)
           }
-
+          if (!defaultButtons.includes(currButton.value)){
+            customRow.push(elements[currButton.value])
+          }
         })
       }
       if (controlPanel.Sliders) {
@@ -267,36 +270,6 @@ class ControlPanel extends React.Component {
         );
       }
     });
-
-
-    // if (infoPanel) {
-    //   for(let key in infoPanel){
-    //     if (key==="text") {
-    //       elements["text"] = (
-    //         <div>{infoPanel[key]}</div>
-    //       )
-    //       textUI.push(elements["text"]);
-    //     } else if (key==="items") {
-    //       if (infoPanel[key]){
-    //         infoPanel[key].forEach((item, i) => {
-    //           elements[`item${i}`] = (
-    //             <li key={`item${i}`}>{item}</li>
-    //             )
-    //         itemsUI.push(elements[`item${i}`]);
-    //         })
-    //       }
-    //     } else if(key==="kv"){
-    //       for(let object in infoPanel[key]){
-    //         for (let k in infoPanel[key][object]){
-    //           elements[`${k}`] = (
-    //             <div key={k}><strong>{capitalize(k)}</strong>: {infoPanel[key][object][k]}</div>
-    //           )
-    //           kvUI.push(elements[`${k}`]);
-    //         }
-    //       }
-    //     }
-    //   }
-    // }
 
     imageCommands.forEach((command) => {
       let className = `${command}Button`;
@@ -399,9 +372,7 @@ class ControlPanel extends React.Component {
       elements["pause"],
       elements["end"],
       elements["reset"],
-      elements["save"]
     ];
-    const customRow = []; // store custom buttons
 
     if (blockButtons) {
       elements["bottomBlocks"] = (
@@ -477,21 +448,6 @@ class ControlPanel extends React.Component {
             }`}
           >
             <div className="panelContainer">
-              {/* {infoPanel ?
-                <div className="infoPanel" >
-                  <Divider>Information</Divider>
-                  <Row gutter={[4, 8]} justify="start" className="infoPanelItem">
-                    <ul>{textUI}</ul>
-                  </Row>
-                  <Row gutter={[4, 8]} justify="start" className="infoPanelItem">
-                    <ul>{itemsUI}</ul>
-                  </Row>
-                  <Row gutter={[4, 8]} justify="start" className="infoPanelItem">
-                    <ul>{kvUI}</ul>
-                  </Row>
-                  <Divider>Controls </Divider>
-                </div>
-                :null} */}
                 <>
                 <Row
                   gutter={[4, 8]}
@@ -516,14 +472,14 @@ class ControlPanel extends React.Component {
                 <Row className="direction">{secondRow}</Row>
                 <Row className="direction">{thirdRow}</Row>
               </div>
-              {customRow.length ? (
-                <Row gutter={[4, 8]} justify="space-around">
-                  {customRow}
-                </Row>
-              ) : null}
               <Row gutter={[4, 8]} justify="space-around">
                 {lastRow}
               </Row>
+              {customRow.length ? (
+                <Row gutter={[4, 8]} justify="space-around" style={{marginTop : "1rem"}}>
+                  {customRow}
+                </Row>
+              ) : null}
               {isEnd ? next : null}
             </div>
           </div>

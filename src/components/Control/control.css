@@ -34,31 +34,6 @@
   border-radius: 20px;
 }
 
-/* set animation for instructions */
-.infoPanelItem {
-  animation-name: example;
-  animation-duration: 5s;
-  transition: 3s;
-}
-
-@keyframes example {
-  0% {
-    color: rgb(164, 165, 152);
-  }
-  20% {
-    color: rgb(146, 25, 55);
-  }
-  40% {
-    color: rgb(180, 55, 86);
-  }
-  60% {
-    color: rgb(146, 25, 55);
-  }
-  80% {
-    color: rgb(180, 55, 86);
-  }
-}
-
 /* Set the width of the sliders to be more responsive */
 .imageControl {
   min-width: 10rem;

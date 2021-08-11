@@ -35,6 +35,11 @@
 	justify-items: center;
 }
 
+.horizontalPanels {
+	display: grid;
+	grid-template-columns: 1fr 2fr;
+}
+
 .verticalOrientationToggle {
   margin-right: auto;
   margin-left: max(10vw, calc((100vw - 705px) / 2));

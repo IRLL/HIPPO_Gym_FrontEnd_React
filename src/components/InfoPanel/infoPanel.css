@@ -23,7 +23,11 @@
   }
 }
 
-.infoPanel {
+.horizontalInfoPanel {
   display: block;
 	margin: 0 2rem 0 0;
+}
+
+.verticalInfoPanel {
+  margin-top: 1rem;
 }
