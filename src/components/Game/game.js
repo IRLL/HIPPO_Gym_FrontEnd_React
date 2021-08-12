@@ -235,7 +235,7 @@ class Game extends React.Component {
               });
             }
             //Check if infoPanel is in the recieved data
-            if (parsedData && "InfoPanel" in parsedData){
+            if (parsedData && 'InfoPanel' in parsedData){
               this.setState({
                 infoPanel: parsedData.InfoPanel,
               })
@@ -554,21 +554,11 @@ class Game extends React.Component {
       })
     }
 
-		if (value === "start") {
-			this.sendMessage({
-				command: value,
-        value,
-				system: osName,
-				systemVersion: osVersion,
-				browser: browserName,
-				browserVersion: browserVersion,
-			});
-		} else if (value === "submitImage") {
-			this.sendMessage({
-				command: value,
-        value,
-				minutiaList: this.normalizeMinutiae(this.state.minutiae),
-			});
+	  if (value === "submitImage") {
+      this.sendMessage({ ButtonEvent: {
+        BUTTONPRESSED: value,
+        minutiaList: this.normalizeMinutiae(this.state.minutiae),
+      }});
 		} else {
 			this.sendMessage({ ButtonEvent: {
         BUTTONPRESSED: value,
