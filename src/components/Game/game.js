@@ -513,6 +513,10 @@ class Game extends React.Component {
           command: status,
           info: "reset grid",
         });
+      } else {
+        this.sendMessage({
+          command: status,
+        })
       }
     } else {
       if (this.state.grid) {
