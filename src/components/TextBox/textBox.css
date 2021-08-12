@@ -3,11 +3,20 @@
 }
 
 .horizontalTextBox {
-  margin: 0 2rem;
-  margin: 1rem ;
+  margin: 0 0 2rem 1rem;
+}
+
+.textBoxArea {
+  display: grid;
+  grid-template-columns: 1fr;
+}
+
+.textArea {
+  font-family:'Courier New', Courier, monospace;
 
 }
 
-.inputArea {
-  font-family:'Courier New', Courier, monospace;
+.textButton {
+  width: 4rem;
+  border-color: gray ;
 }

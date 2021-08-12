@@ -1,7 +1,7 @@
 import React from "react";
 import "antd/dist/antd.css";
 import "./game.css";
-import { message, Modal, Col,Row, Button, Radio, Progress, Skeleton } from "antd";
+import { message, Modal, Col, Button, Radio, Progress, Skeleton } from "antd";
 import { w3cwebsocket } from "websocket";
 import {
   browserName,
@@ -46,6 +46,7 @@ let prevDimensions = {
   width: initialWindowWidth,
   height: initialWindowHeight,
 }
+let prevSendSize = []
 
 class Game extends React.Component {
   state = {
@@ -72,6 +73,7 @@ class Game extends React.Component {
     instructions: [], // list of instructions for the game
     orientation: "horizontal", // default orientation is horizontal
     textbox: false, // shows a textbox
+    buttonModalVisible: false, // confirm modal for buttons
 
     // Fingerprint trial configurations
     imageControls: false, // if true, controls like zoom
@@ -233,7 +235,7 @@ class Game extends React.Component {
               });
             }
             //Check if infoPanel is in the recieved data
-            if ("InfoPanel" in parsedData){
+            if (parsedData && "InfoPanel" in parsedData){
               this.setState({
                 infoPanel: parsedData.InfoPanel,
               })
@@ -420,6 +422,9 @@ class Game extends React.Component {
 		if (this.setInMessage) clearInterval(this.setInMessage);
 	}
 
+  handleCall = () => {
+    console.log("resize was cleared")
+  }
   // check every second if the resize has stopped
   resizeCalled = () => {
     var resizeCalled = setInterval(() => {
@@ -428,12 +433,16 @@ class Game extends React.Component {
       if (currWidth === prevDimensions.width && currHeight === prevDimensions.height){
         // the resize has stopped. Send new dimensions to backend
         // TODO: also clear interval
-        this.sendMessage({ WindowEvent:
+        var currSize = [currWidth, currHeight]
+        if (JSON.stringify(currSize) !== JSON.stringify(prevSendSize)) {
+         this.sendMessage({ WindowEvent:
           {
-            WINDOWRESIZED: [currWidth, currHeight]
+            WINDOWRESIZED: currSize
           }});
-        clearInterval(resizeCalled);
-        isResizeCalled = false;
+          prevSendSize = currSize;
+          isResizeCalled = false;
+          clearInterval(resizeCalled);
+        }
       } else {
         prevDimensions.width = currWidth
         prevDimensions.height = currHeight
@@ -466,7 +475,8 @@ class Game extends React.Component {
 
 	// Change the confirmation modal to be invisible
 	// Navigate to the post-game page
-	handleOk = (e) => {
+	handleOk = (e, value) => {
+
 		if (e.currentTarget.id === "keepMinutiae" || e.currentTarget.id === "resetAll") {
 			this.pushUndo();
 
@@ -500,13 +510,17 @@ class Game extends React.Component {
 
 	// Change the confirmation modal to be invisible
 	// Stay on the game page
-	handleCancel = (e) => {
+	handleCancel = (e, value) => {
 		// this is for the cancel button in the "reset image" modal
 		if (e.currentTarget.id === "resetCancel") {
 			this.setState({
 				resetModalVisible: false,
 			});
-		} else {
+		} else if (value === "buttonCancel") {
+      this.setState({
+        buttonModalVisible: false,
+      })
+    } else {
 			this.setState({
 				gameEndVisible: false,
 			});
@@ -528,24 +542,30 @@ class Game extends React.Component {
 		}
 	};
 
-  handleButton = (status, value) => {
+  handleButton = (button, value) => {
     if (this.state.isLoading) {
 			message.error("Please wait for the connection to be established first!");
 			return;
 		}
 
-		if (status === "start") {
+    if (button.Button.confirm) {
+      this.setState({
+        buttonModalVisible: true
+      })
+    }
+
+		if (value === "start") {
 			this.sendMessage({
-				command: status,
+				command: value,
         value,
 				system: osName,
 				systemVersion: osVersion,
 				browser: browserName,
 				browserVersion: browserVersion,
 			});
-		} else if (status === "submitImage") {
+		} else if (value === "submitImage") {
 			this.sendMessage({
-				command: status,
+				command: value,
         value,
 				minutiaList: this.normalizeMinutiae(this.state.minutiae),
 			});
@@ -990,6 +1010,7 @@ class Game extends React.Component {
       windowHeight,
       score,
       scoreModalVisible,
+      buttonModalVisible,
       maxScore,
       undoEnabled,
       redoEnabled,
@@ -1091,6 +1112,7 @@ class Game extends React.Component {
                 className="textBox"
                 textBox={textbox}
                 onChange={this.textBoxInput}
+                isLoading={isLoading}
                 orientation={orientation}
               />
             :null}
@@ -1197,6 +1219,14 @@ class Game extends React.Component {
           <p className="resetModal">
             Press <b>"Keep minutiae"</b> to avoid clearing minutiae
           </p>
+        </Modal>
+        <Modal visible={buttonModalVisible}
+          onOk={(e) => this.handleOk(e, "buttonOk")}
+          onCancel={(e) => this.handleCancel(e, "buttonCancel")}
+          okText="Confirm"
+          cancelText="Cancel"
+        >
+          <p>Are you sure?</p>
         </Modal>
         <Modal visible={scoreModalVisible} closable={false} footer={null}>
           {!score ? (

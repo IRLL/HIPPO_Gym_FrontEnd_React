@@ -1,7 +1,7 @@
 import React from "react";
 import "antd/dist/antd.css";
 import "./control.css";
-import { Button, Input, Tooltip, Row, Col, Slider, Space, Divider } from "antd";
+import { Button, Input, Tooltip, Row, Col, Slider, Space} from "antd";
 import { icons } from "../../utils/icons";
 import capitalize from "../../utils/capitalize";
 import sentenceCase from "../../utils/sentenceCase";
@@ -50,10 +50,6 @@ class ControlPanel extends React.Component {
     ];
 
     const fps = ["fpsUp", "fpsDown", "fpsSet"];
-
-    let textUI=[]
-    let itemsUI=[]
-    let kvUI=[]
 
     const imageCommands = [
       "undo",

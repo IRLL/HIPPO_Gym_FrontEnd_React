@@ -1,6 +1,9 @@
 import React from 'react';
 import './textBox.css';
 import 'antd/dist/antd.css';
+import { Button } from 'antd';
+import capitalize from '../../utils/capitalize';
+import sentenceCase from '../../utils/sentenceCase';
 
 class TextBox extends React.Component {
 
@@ -24,7 +27,6 @@ class TextBox extends React.Component {
 
         // reposition the cursor
         this.selectionStart = this.selectionEnd = cursorPos;
-        // update()
       }
       // TODO: if Ctrl+S is pressed then submit code
     })
@@ -37,33 +39,56 @@ class TextBox extends React.Component {
       }
     });
   }
-  // TODO: if message from backend includes text, save input, clear textarea and then display new messages
 
+  // TODO: if message from backend includes text, save input, clear textarea and then display new messages
   render() {
+    const buttonRow = []
     const {
           textBox,
           orientation,
+          isLoading,
         } = this.props
+
+
+    if(textBox && textBox.buttons) {
+      textBox.buttons.forEach((button) => {
+      buttonRow.push(
+      <Button
+        className={"textButton"}
+        id={button}
+        size="small"
+      >
+        {capitalize(sentenceCase(button))}
+      </Button>
+      )
+    })
+    }
 
     return (
       <div className={`${orientation}TextBox`}>
-        <form className="form">
-          <textarea
-            className="inputArea"
-            id={textBox.idx}
-            placeholder="Input text here ..."
-            // TODO: replace hardorder width and height with textBox.size[0] + "px"
-            style={{width: textBox.size[0] + "px",
-                    height: textBox.size[1] + "px",
-                    backgroundColor: textBox.bgcolor,
-                    color: textBox.color,
-                  }}
-            defaultValue={textBox.text}
-            onChange={this.handleChange}
-            readOnly={textBox.editable ? false : true}
-            autoFocus={textBox.editable ? true : false}
-          />
-        </form>
+        {!isLoading ?
+          <div className="textBoxArea">
+            <textarea
+              className="textArea"
+              id={textBox.idx}
+              placeholder="Input text here ..."
+              // TODO: replace hardorder width and height with textBox.size[0] + "px"
+              style={{width: textBox.size[0] + "px",
+                      height: textBox.size[1] + "px",
+                      backgroundColor: textBox.bgcolor,
+                      color: textBox.color,
+                    }}
+              defaultValue={textBox.text}
+              onChange={this.handleChange}
+              spellCheck="false"
+              readOnly={textBox.editable ? false : true}
+              autoFocus={textBox.editable ? true : false}
+            />
+            <div className="buttons">
+            {buttonRow}
+            </div>
+          </div>
+        : null }
       </div>
     )
   }
