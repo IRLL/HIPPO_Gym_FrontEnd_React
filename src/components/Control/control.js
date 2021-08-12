@@ -1,7 +1,7 @@
 import React from "react";
 import "antd/dist/antd.css";
 import "./control.css";
-import { Button, Input, Tooltip, Row, Col, Slider, Space, Divider } from "antd";
+import { Button, Input, Tooltip, Row, Col, Slider, Space, Divider, Switch } from "antd";
 import { icons } from "../../utils/icons";
 import capitalize from "../../utils/capitalize";
 import sentenceCase from "../../utils/sentenceCase";
@@ -29,6 +29,10 @@ class ControlPanel extends React.Component {
 			undoEnabled,
 			redoEnabled,
 			requestingFeedback,
+			feedbackEnabled,
+
+			minutiaeShown,
+			feedbackShown,
 		} = this.props;
 
 		const directions = [
@@ -286,6 +290,7 @@ class ControlPanel extends React.Component {
 			}
 		});
 
+		// TODO: make the shown/hidden switches not hardcoded
 		return (
 			<div data-testid="control-panel">
 				{!isLoading && (
@@ -294,6 +299,26 @@ class ControlPanel extends React.Component {
 							{instructions !== [] && <Divider>Instructions </Divider>}
 							<Row gutter={[4, 8]} justify="start" className="instructions">
 								<ul>{instructionUI}</ul>
+							</Row>
+							<Divider>Toggles </Divider>
+							<Row gutter={[4, 8]} justify="space-around">
+								<Switch
+									checkedChildren="Minutiae Shown"
+									unCheckedChildren="Minutiae Hidden"
+									onChange={() => {
+										handleCommand("toggleMinutiae");
+									}}
+									checked={minutiaeShown}
+								/>
+								<Switch
+									checkedChildren="Feedback Shown"
+									unCheckedChildren="Feedback Hidden"
+									onChange={() => {
+										handleCommand("toggleFeedback");
+									}}
+									disabled={!feedbackEnabled}
+									checked={feedbackShown}
+								/>
 							</Row>
 							<Divider>Controls </Divider>
 							<Row gutter={[4, 8]} justify="space-around" className="imageCommands">

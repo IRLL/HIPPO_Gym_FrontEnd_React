@@ -2,6 +2,7 @@ import React from "react";
 import { Progress, Popover, Button, Slider, Tooltip, Radio } from "antd";
 import { icons } from "../../utils/icons";
 import capitalize from "../../utils/capitalize";
+import round from "../../utils/round";
 import "./fingerprintWindow.css";
 
 import { Zoom } from "@vx/zoom";
@@ -33,6 +34,8 @@ class FingerprintWindow extends React.Component {
 			addMinutia,
 			handleMinutia,
 			handleChanging,
+			minutiaeShown,
+			feedbackShown,
 		} = this.props;
 
 		// If the frame has not loaded, show the loading screen
@@ -249,39 +252,64 @@ class FingerprintWindow extends React.Component {
 										key={`minutia${i}`}
 										defaultVisible={true}
 									>
-										<image
-											alt="minutia"
-											x={minutia.x - Math.round(minutia.size / 2)}
-											y={minutia.y - Math.round(minutia.size / 2)}
-											width={minutia.size}
-											className={this.state.moving ? "moveCursor" : ""}
-											height={minutia.size}
-											href={process.env.PUBLIC_URL + `./fingerprint_minutia_${minutia.color}.svg`}
-											onClick={() => this.setState({ currMinutia: i })}
-											style={{
-												transform: `rotate(${minutia.orientation}deg)`,
-												transformOrigin: `${minutia.x}px ${minutia.y}px`,
-											}}
-											onMouseMove={(e) => {
-												if (this.state.moving) {
-													e.preventDefault();
-													const point = zoom.applyInverseToPoint(localPoint(e));
-													handleMinutia("move", i, point);
-												}
-											}}
-											onTouchMove={(e) => {
-												if (this.state.moving) {
-													const point = zoom.applyInverseToPoint(localPoint(e));
-													handleMinutia("move", i, point);
-												}
-											}}
-											onDragStart={(e) => e.preventDefault()}
-											onMouseDown={() => handleChanging(true) || this.setState({ moving: true })}
-											onTouchStart={() => handleChanging(true) || this.setState({ moving: true })}
-											onMouseUp={() => handleChanging(false) || this.setState({ moving: false })}
-											onTouchEnd={() => handleChanging(false) || this.setState({ moving: false })}
-											onMouseLeave={() => handleChanging(false) || this.setState({ moving: false })}
-										/>
+										<Tooltip
+											visible={!!feedbackShown}
+											title={minutia.scoreChange ? round(minutia.scoreChange, 2) : "N/A"}
+											placement="right"
+										>
+											{minutiaeShown && (
+												<image
+													alt="minutia"
+													x={minutia.x - Math.round(minutia.size / 2)}
+													y={minutia.y - Math.round(minutia.size / 2)}
+													width={minutia.size}
+													className={this.state.moving ? "moveCursor" : ""}
+													height={minutia.size}
+													href={
+														process.env.PUBLIC_URL +
+														`./fingerprint_minutia_${
+															feedbackShown && minutia.feedbackColor
+																? minutia.feedbackColor
+																: minutia.color
+														}.svg`
+													}
+													onClick={() => this.setState({ currMinutia: i })}
+													style={{
+														transform: `rotate(${minutia.orientation}deg)`,
+														transformOrigin: `${minutia.x}px ${minutia.y}px`,
+													}}
+													onMouseMove={(e) => {
+														if (this.state.moving) {
+															e.preventDefault();
+															const point = zoom.applyInverseToPoint(localPoint(e));
+															handleMinutia("move", i, point);
+														}
+													}}
+													onTouchMove={(e) => {
+														if (this.state.moving) {
+															const point = zoom.applyInverseToPoint(localPoint(e));
+															handleMinutia("move", i, point);
+														}
+													}}
+													onDragStart={(e) => e.preventDefault()}
+													onMouseDown={() =>
+														handleChanging(true) || this.setState({ moving: true })
+													}
+													onTouchStart={() =>
+														handleChanging(true) || this.setState({ moving: true })
+													}
+													onMouseUp={() =>
+														handleChanging(false) || this.setState({ moving: false })
+													}
+													onTouchEnd={() =>
+														handleChanging(false) || this.setState({ moving: false })
+													}
+													onMouseLeave={() =>
+														handleChanging(false) || this.setState({ moving: false })
+													}
+												/>
+											)}
+										</Tooltip>
 									</Popover>
 								))}
 							</g>
