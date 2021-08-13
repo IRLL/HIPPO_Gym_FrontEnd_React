@@ -9,6 +9,7 @@
   flex: 1;
   width: fit-content;
   margin: 1rem auto;
+  /* margin: 0 auto; */
 }
 
 /* Remove the default border of the container
@@ -223,4 +224,8 @@
   margin: 0;
   text-shadow: 1px 1px 1px black;
   color: rgb(162, 162, 162);
+}
+
+button {
+  margin-top: 0.5rem;
 }

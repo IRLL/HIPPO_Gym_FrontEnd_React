@@ -6,6 +6,11 @@ import capitalize from "../../utils/capitalize";
 
 class InfoPanel extends React.Component {
 
+
+  handleChange = () => {
+    console.log("a change was detected")
+  }
+
  render() {
 
    const {
@@ -34,28 +39,22 @@ class InfoPanel extends React.Component {
         })
       }
     } else if(key==="kv"){
-      for(let object in infoPanel[key]){
-        for (let k in infoPanel[key][object]){
-          elements[`${k}`] = (
-            <div key={k}><strong>{capitalize(k)}</strong>: {infoPanel[key][object][k]}</div>
-          )
-          kvUI.push(elements[`${k}`]);
+        for(let object in infoPanel[key]){
+          for (let k in infoPanel[key][object]){
+            elements[`${k}`] = (
+              <div key={k}><strong>{capitalize(k)}</strong>: {infoPanel[key][object][k]}</div>
+            )
+            kvUI.push(elements[`${k}`]);
+          }
         }
       }
     }
-  }
 
    return (
-     <div className={`${orientation}InfoPanel`}>
-          <Row gutter={[4, 8]} justify="start" className="infoPanelItem">
-            <ul>{textUI}</ul>
-          </Row>
-          <Row gutter={[4, 8]} justify="start" className="infoPanelItem">
-            <ul>{itemsUI}</ul>
-          </Row>
-          <Row gutter={[4, 8]} justify="start" className="infoPanelItem">
-            <ul>{kvUI}</ul>
-          </Row>
+     <div className={`${orientation}InfoPanel`} style={{height: "20em", width: "25em"}}>
+        <samp onChange={this.handleChange}>{textUI}</samp>
+        <samp>{itemsUI}</samp>
+        <samp>{kvUI}</samp>
      </div>
    )
  }

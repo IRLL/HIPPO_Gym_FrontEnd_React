@@ -32,11 +32,11 @@
 
 .rightColumn {
 	display: grid;
-	justify-items: center;
 }
 
 .horizontalPanels{
 	display: flex;
+	justify-content: center;
 }
 
 .verticalInfo {

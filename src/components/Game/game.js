@@ -173,37 +173,39 @@ class Game extends React.Component {
                 usedInputBudget: parsedData.usedInputBudget,
               });
             }
-            //Check if UI in response
-            if (parsedData.UI) {
-              this.setState({
-                UIlist: parsedData.UI,
-              });
-            }
-            if (parsedData.GameWindow) {
-              if (parsedData.GameWindow.size) {
+
+            // check if GameWindow is in parsedData
+            if (typeof parsedData === "object" && "GameWindow" in parsedData) {
+              if (parsedData.GameWindow) {
+                if (parsedData.GameWindow.size) {
                 initialWindowWidth = parsedData.GameWindow.size[0];
                 initialWindowHeight = parsedData.GameWindow.size[1];
-                windowSizeRatio =
-                parsedData.GameWindow.size[0] / parsedData.GameWindow.size[1];
+                windowSizeRatio = parsedData.GameWindow.size[0] / parsedData.GameWindow.size[1];
                 this.setState({
                   windowWidth: parsedData.GameWindow.size[0],
                   windowHeight: parsedData.GameWindow.size[1],
                 })
+                }
+                if (parsedData.GameWindow.mode) {
+                  this.setState({
+                    windowSize: parsedData.GameWindow.mode,
+                  })
+                }
               }
-              if (parsedData.GameWindow.mode) {
+              else {
                 this.setState({
-                  windowSize: parsedData.GameWindow.mode,
+                  gameWindowHide: true,
                 })
               }
             }
-            if (parsedData.gameWindowSize) {
-              windowSizeRatio =
-                this.state.windowWidth / this.state.windowHeight;
+            this.handleResize();                  // once new width.height and ratio has been defined, immediately run resize function
+
+            //Check if Fingerprint in response
+            if (parsedData.GameWindow && parsedData.GameWindow.imageControls) {
               this.setState({
-                windowSize: parsedData.gameWindowSize,
+                imageControls: parsedData.GameWindow.imageControls,
               });
             }
-            this.handleResize();                  // once new width.height and ratio has been defined, immediately run resize function
 
             if (
               parsedData.previousBlock &&
@@ -235,18 +237,13 @@ class Game extends React.Component {
               });
             }
             //Check if infoPanel is in the recieved data
-            if (parsedData && 'InfoPanel' in parsedData){
+            if (typeof parsedData === "object" && 'InfoPanel' in parsedData){
               this.setState({
                 infoPanel: parsedData.InfoPanel,
               })
             }
 
-            //Check if Fingerprint in response
-            if (parsedData.GameWindow && parsedData.GameWindow.imageControls) {
-              this.setState({
-                imageControls: parsedData.GameWindow.imageControls,
-              });
-            }
+
             //Check if Score in response
             if (parsedData.Score) {
               this.setState({
@@ -1009,6 +1006,7 @@ class Game extends React.Component {
       nextBlock,
       controlPanel,
       textbox,
+      gameWindowHide,
     } = this.state;
 
     return (
@@ -1072,7 +1070,7 @@ class Game extends React.Component {
                 handleMinutia={this.handleMinutia}
                 handleChanging={this.handleChanging}
               />
-            ) : (
+            ) : !gameWindowHide ? (
               <GameWindow
                 isLoading={isLoading}
                 frameSrc={frameSrc}
@@ -1085,7 +1083,7 @@ class Game extends React.Component {
                 sendMouseData={this.sendMouseData}
                 data-testid="game-window"
               />
-            )}
+            ): null}
             {DEBUG ? (
               <Col>
                 <MessageViewer
@@ -1106,7 +1104,7 @@ class Game extends React.Component {
                 orientation={orientation}
               />
             :null}
-            <div className={textbox ? `${orientation}Panels` : `verticalPanels`}>
+            <div className={textbox ? `${orientation}Panels` : "verticalPanels"}>
               {infoPanel ?
                 <div className={`${orientation}Info`}>
                 <InfoPanel
