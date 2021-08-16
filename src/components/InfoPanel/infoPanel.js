@@ -1,15 +1,9 @@
 import React from 'react';
 import './infoPanel.css';
 import 'antd/dist/antd.css';
-import { Row } from "antd";
 import capitalize from "../../utils/capitalize";
 
 class InfoPanel extends React.Component {
-
-
-  handleChange = () => {
-    console.log("a change was detected")
-  }
 
  render() {
 
@@ -52,7 +46,7 @@ class InfoPanel extends React.Component {
 
    return (
      <div className={`${orientation}InfoPanel`} style={{height: "20em", width: "25em"}}>
-        <samp onChange={this.handleChange}>{textUI}</samp>
+        <samp>{textUI}</samp>
         <samp>{itemsUI}</samp>
         <samp>{kvUI}</samp>
      </div>
