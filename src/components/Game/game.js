@@ -158,20 +158,26 @@ class Game extends React.Component {
             //parse the data from the websocket server
             let parsedData = JSON.parse(message.data);
 
-            if(parsedData.ControlPanel) {
-              this.setState({
-                controlPanel:parsedData.ControlPanel,
-                keys: parsedData.ControlPanel.Keys
-              })
-            }
-
-
             //Check if budget bar should be loaded
             if (parsedData.inputBudget) {
               this.setState({
                 inputBudget: parsedData.inputBudget,
                 usedInputBudget: parsedData.usedInputBudget,
               });
+            }
+
+            // check if control panel is in parsedData
+            if (typeof parsedData === "object" && "ControlPanel" in parsedData) {
+              if(parsedData.ControlPanel) {
+                this.setState({
+                  controlPanel:parsedData.ControlPanel,
+                  keys: parsedData.ControlPanel.Keys
+                })
+              } else {
+                this.setState({
+                  controlPanelHide: true,
+                })
+              }
             }
 
             // check if GameWindow is in parsedData
@@ -1007,6 +1013,7 @@ class Game extends React.Component {
       controlPanel,
       textbox,
       gameWindowHide,
+      controlPanelHide,
     } = this.state;
 
     return (
@@ -1114,41 +1121,43 @@ class Game extends React.Component {
                 />
                 </div>
               :null}
-              <div className="control">
-              <ControlPanel
-                className="gameControlPanel"
-                isEnd={isEnd}
-                isLoading={isLoading}
-                frameRate={frameRate}
-                inputFrameRate={this.state.inputFrameRate}
-                UIlist={UIlist}
-                instructions={instructions}
-                infoPanel={infoPanel}
-                DEBUG={DEBUG}
-                handleOk={this.handleOk}
-                handleFPS={this.handleFPS}
-                handleCommand={this.handleCommand}
-                handleButton={this.handleButton}
-                handleImage={this.handleImage}
-                handleImageCommands={this.handleImageCommands}
-                handleChanging={this.handleChanging}
-                sendMessage={this.sendMessage}
-                fingerprint={this.state.imageControls}
-                addMinutia={this.addMinutia}
-                brightness={brightness}
-                contrast={contrast}
-                saturation={saturation}
-                hue={hue}
-                addingMinutiae={addingMinutiae}
-                orientation={orientation}
-                undoEnabled={undoEnabled}
-                redoEnabled={redoEnabled}
-                blockButtons={
-                  currentBlock ? [previousBlock, currentBlock, nextBlock] : null
-                }
-                controlPanel={controlPanel}
-              />
-              </div>
+              {/* {!controlPanelHide ? */}
+                <div className="control">
+                  <ControlPanel
+                    className="gameControlPanel"
+                    isEnd={isEnd}
+                    isLoading={isLoading}
+                    frameRate={frameRate}
+                    inputFrameRate={this.state.inputFrameRate}
+                    UIlist={UIlist}
+                    instructions={instructions}
+                    infoPanel={infoPanel}
+                    DEBUG={DEBUG}
+                    handleOk={this.handleOk}
+                    handleFPS={this.handleFPS}
+                    handleCommand={this.handleCommand}
+                    handleButton={this.handleButton}
+                    handleImage={this.handleImage}
+                    handleImageCommands={this.handleImageCommands}
+                    handleChanging={this.handleChanging}
+                    sendMessage={this.sendMessage}
+                    fingerprint={this.state.imageControls}
+                    addMinutia={this.addMinutia}
+                    brightness={brightness}
+                    contrast={contrast}
+                    saturation={saturation}
+                    hue={hue}
+                    addingMinutiae={addingMinutiae}
+                    orientation={orientation}
+                    undoEnabled={undoEnabled}
+                    redoEnabled={redoEnabled}
+                    blockButtons={
+                      currentBlock ? [previousBlock, currentBlock, nextBlock] : null
+                    }
+                    controlPanel={controlPanel}
+                  />
+                </div>
+              {/* :null} */}
             </div>
           </Col>
         </div>
