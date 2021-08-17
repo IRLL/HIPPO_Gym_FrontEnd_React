@@ -15,6 +15,10 @@ if (host === "localhost" || host === "127.0.0.1") {
 	host = host.replace("testing.", "");
 } else if (host.includes("fingerprint")) {
 	host = host.replace("fingerprint.", "");
+} else if (host.includes("beta")) {
+	host = host.replace("beta.", "");
+} else if (host.includes("code")) {
+	host = host.replace("code.", "");
 }
 
 export const SERVER = params.get("server");
