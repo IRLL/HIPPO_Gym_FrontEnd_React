@@ -6,6 +6,8 @@ import 'antd/dist/antd.css';
 import { Zoom } from "@vx/zoom";
 import { localPoint } from "@vx/event";
 
+const defaultBorderColor = "#1890ff";
+
 class GameWindow extends React.Component {
 
   // Reference: https://dev.to/leonardoschmittk/how-to-make-a-mouse-ripple-click-effect-with-css-js-and-html-in-2-steps-2fcf
@@ -23,7 +25,7 @@ class GameWindow extends React.Component {
  }
 
   render() {
-      const {isLoading, frameSrc, progress, imageL, imageR, width, height, sendMouseData} = this.props;
+      const {isLoading, frameSrc, progress, imageL, imageR, width, height, sendMouseData, borderColor} = this.props;
       return (
         <Zoom>
           {(zoom) => (
@@ -35,6 +37,10 @@ class GameWindow extends React.Component {
                 </div>
                 :null }
                 <div className="gameWindow"
+                  style={{
+                    border: borderColor !== "default" ? borderColor === null ? "none" : "solid " + borderColor
+                    : "solid " + defaultBorderColor
+                  }}
                   onMouseDown={(event) => {
                     event.preventDefault()
                     const point = localPoint(event);

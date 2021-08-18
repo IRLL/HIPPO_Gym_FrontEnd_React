@@ -74,6 +74,7 @@ class Game extends React.Component {
     orientation: "horizontal", // default orientation is horizontal
     textbox: false, // shows a textbox
     buttonModalVisible: false, // confirm modal for buttons
+    borderColor: "default", // set the border color for the game window
 
     // Fingerprint trial configurations
     imageControls: false, // if true, controls like zoom
@@ -148,274 +149,283 @@ class Game extends React.Component {
 
         // Listen to the data from the websocket server
         this.websocket.onmessage = (message) => {
-          if (message.data === "done") {
-            //"done" means the game has ended
+
+          //parse the data from the websocket server
+          let parsedData = JSON.parse(message.data);
+
+          if (parsedData.done) {
             this.setState({
               isEnd: true,
               gameEndVisible: true,
+            })
+          }
+
+          //Check if budget bar should be loaded
+          if (parsedData.inputBudget) {
+            this.setState({
+              inputBudget: parsedData.inputBudget,
+              usedInputBudget: parsedData.usedInputBudget,
             });
-          } else {
-            //parse the data from the websocket server
-            let parsedData = JSON.parse(message.data);
-
-            //Check if budget bar should be loaded
-            if (parsedData.inputBudget) {
-              this.setState({
-                inputBudget: parsedData.inputBudget,
-                usedInputBudget: parsedData.usedInputBudget,
-              });
-            }
-
-            // check if control panel is in parsedData
-            if (typeof parsedData === "object" && "ControlPanel" in parsedData) {
-              if(parsedData.ControlPanel) {
-                this.setState({
-                  controlPanel:parsedData.ControlPanel,
-                  keys: parsedData.ControlPanel.Keys
-                })
-              } else {
-                this.setState({
-                  controlPanelHide: true,
-                })
-              }
-            }
-
-            // check if GameWindow is in parsedData
-            if (typeof parsedData === "object" && "GameWindow" in parsedData) {
-              if (parsedData.GameWindow) {
-                if (parsedData.GameWindow.size) {
-                initialWindowWidth = parsedData.GameWindow.size[0];
-                initialWindowHeight = parsedData.GameWindow.size[1];
-                windowSizeRatio = parsedData.GameWindow.size[0] / parsedData.GameWindow.size[1];
-                this.setState({
-                  windowWidth: parsedData.GameWindow.size[0],
-                  windowHeight: parsedData.GameWindow.size[1],
-                })
-                }
-                if (parsedData.GameWindow.mode) {
-                  this.setState({
-                    windowSize: parsedData.GameWindow.mode,
-                  })
-                }
-              }
-              else {
-                this.setState({
-                  gameWindowHide: true,
-                })
-              }
-            }
-            this.handleResize();                  // once new width.height and ratio has been defined, immediately run resize function
-
-            //Check if Fingerprint in response
-            if (parsedData.GameWindow && parsedData.GameWindow.imageControls) {
-              this.setState({
-                imageControls: parsedData.GameWindow.imageControls,
-              });
-            }
-
-            if (
-              parsedData.previousBlock &&
-              parsedData.currentBlock &&
-              parsedData.nextBlock
-            ) {
-              this.setState({
-                previousBlock: {
-                  ...parsedData.previousBlock,
-                  image:
-                    "data:image/jpeg;base64, " + parsedData.previousBlock.image,
-                },
-                nextBlock: {
-                  ...parsedData.nextBlock,
-                  image:
-                    "data:image/jpeg;base64, " + parsedData.nextBlock.image,
-                },
-                currentBlock: {
-                  ...parsedData.currentBlock,
-                  image:
-                    "data:image/jpeg;base64, " + parsedData.currentBlock.image,
-                },
-              });
-            }
-            //Check if Instructions in response
-            if (parsedData.Instructions) {
-              this.setState({
-                instructions: parsedData.Instructions,
-              });
-            }
-            //Check if infoPanel is in the recieved data
-            if (typeof parsedData === "object" && 'InfoPanel' in parsedData){
-              this.setState({
-                infoPanel: parsedData.InfoPanel,
-              })
-            }
-
-
-            //Check if Score in response
-            if (parsedData.Score) {
-              this.setState({
-                score: parsedData.Score,
-              });
-            }
-            //Check if Score in response
-            if (parsedData.MaxScore) {
-              this.setState({
-                maxScore: parsedData.MaxScore,
-              });
-            }
-            //Check if Score in response
-            if (parsedData.MinMinutiae) {
-              this.setState({
-                minMinutiae: parsedData.MinMinutiae,
-              });
-            }
-            //Check if frame related information in response
-            if (parsedData.GameWindow && parsedData.GameWindow.frame && parsedData.GameWindow.frameId) {
-              let frame = parsedData.GameWindow.frame;
-              let frameId = parsedData.GameWindow.frameId;
-
-              if (this.state.score)
-                this.setState((prevState) => ({
-                  nextframeSrc: "data:image/jpeg;base64, " + frame,
-                  nextframeCount: prevState.frameCount + 1,
-                  nextframeId: frameId,
-                }));
-              else {
-                this.setState((prevState) => ({
-                  // Set new frame ID
-                  frameSrc: "data:image/jpeg;base64, " + frame,
-                  frameCount: prevState.frameCount + 1,
-                  frameId: frameId,
-
-                  // Reset minutiae and image filters
-                  minutiae: [],
-                  brightness: 100,
-                  contrast: 100,
-                  saturation: 100,
-                  hue: 0,
-
-                  // Reset undo/redo stacks and buttons
-                  undoList: [],
-                  redoList: [],
-                  undoEnabled: false,
-                  redoEnabled: false,
-                }));
-              }
-              const img = new Image();
-              img.src = "data:image/jpeg;base64, " + frame;
-              img.onload = () => {
-                this.setState({
-                  imageWidth: img.width,
-                  imageHeight: img.height,
-                });
-              };
-            }
-
-            //check if textbox is in the server's response
-            if (parsedData.TextBox) {
-              this.setState({
-                textbox: parsedData.TextBox
-              })
-            }
-
-            //check if bakcend is making a request
-            if (parsedData.Request) {
-              if (parsedData.Request[0] === "TEXTBOX"){
-                this.sendMessage({
-                  "TextEvent" : {
-                    "TEXTREQUEST": this.state.textAreaInput
-                  }
-                })
-              }
-            }
-
-            //check if imageL is in server's response
-            if (parsedData.imageL) {
-              this.setState({
-                imageL: parsedData.imageL,
-              });
-            }
-
-            //check if imageR is in server's response
-            if (parsedData.imageR) {
-              this.setState({
-                imageR: parsedData.imageR,
-              });
-            }
-						//check if any information needed to display
-						if (parsedData.display) {
-							this.setState({
-								displayData: parsedData.display,
-							});
-						}
-						//log every message received from the server
-						if (DEBUG) {
-							delete parsedData.frame;
-							this.setState((prevState) => ({
-								inMessage: [parsedData, ...prevState.inMessage],
-							}));
-						}
-					}
-				};
-
-				//listen to the websocket closing status
-				this.websocket.onclose = () => {
-					console.log("WebSocket Client Closed");
-					this.setState({
-						isConnection: false,
-						isEnd: true,
-						gameEndVisible: true,
-					});
-				};
-			},
-			SERVER ? 0 : pendingTime * 1000
-		);
-      // Listen to the user's keyboard inputs
-      document.addEventListener("keydown", (event) => {
-        // don't execute the following code if the user is typing in the inputbox
-        if (document.activeElement.tagName !== "TEXTAREA") {
-          //Used to prevent arrow keys and space key from scrolling the page
-          let dataToSend = getKeyInput(event.code);
-          if (dataToSend.actionType !== "null") {
-            event.preventDefault();
           }
 
-          if (this.state.UIlist.includes(dataToSend.action)) {
-            if (this.state.holdKey !== dataToSend.actionType) {
-              this.setState({ holdKey: dataToSend.actionType });
-              this.sendMessage(dataToSend);
+          // check if control panel is in parsedData
+          if ("ControlPanel" in parsedData) {
+            this.setState({
+              controlPanel:parsedData.ControlPanel,
+            })
+            if (parsedData.ControlPanel) {
+              this.setState({
+                keys: parsedData.ControlPanel.Keys,
+              })
             }
           }
 
-            if (!event.repeat){
+          // check if GameWindow is in parsedData
+          if ("GameWindow" in parsedData) {
+            if (parsedData.GameWindow) {
+              this.setState({
+                gameWindowShow: true
+              })
+              if (parsedData.GameWindow.size) {
+              initialWindowWidth = parsedData.GameWindow.size[0];
+              initialWindowHeight = parsedData.GameWindow.size[1];
+              windowSizeRatio = parsedData.GameWindow.size[0] / parsedData.GameWindow.size[1];
+              this.setState({
+                windowWidth: parsedData.GameWindow.size[0],
+                windowHeight: parsedData.GameWindow.size[1],
+              })
+              }
+              if (parsedData.GameWindow.mode) {
+                this.setState({
+                  windowSize: parsedData.GameWindow.mode,
+                })
+              }
+            }
+            else {
+              this.setState({
+                gameWindowShow: false,
+              })
+            }
+          }
+          this.handleResize();                  // once new width.height and ratio has been defined, immediately run resize function
+
+          //Check if Fingerprint in response
+          if (parsedData.GameWindow && parsedData.GameWindow.imageControls) {
+            this.setState({
+              imageControls: parsedData.GameWindow.imageControls,
+            });
+          }
+
+          if (
+            parsedData.previousBlock &&
+            parsedData.currentBlock &&
+            parsedData.nextBlock
+          ) {
+            this.setState({
+              previousBlock: {
+                ...parsedData.previousBlock,
+                image:
+                  "data:image/jpeg;base64, " + parsedData.previousBlock.image,
+              },
+              nextBlock: {
+                ...parsedData.nextBlock,
+                image:
+                  "data:image/jpeg;base64, " + parsedData.nextBlock.image,
+              },
+              currentBlock: {
+                ...parsedData.currentBlock,
+                image:
+                  "data:image/jpeg;base64, " + parsedData.currentBlock.image,
+              },
+            });
+          }
+          //Check if Instructions in response
+          if (parsedData.Instructions) {
+            this.setState({
+              instructions: parsedData.Instructions,
+            });
+          }
+          //Check if infoPanel is in the recieved data
+          if (typeof parsedData === "object" && 'InfoPanel' in parsedData){
+            this.setState({
+              infoPanel: parsedData.InfoPanel,
+            })
+          }
+
+
+          //Check if Score in response
+          if (parsedData.Score) {
+            this.setState({
+              score: parsedData.Score,
+            });
+          }
+          //Check if Score in response
+          if (parsedData.MaxScore) {
+            this.setState({
+              maxScore: parsedData.MaxScore,
+            });
+          }
+          //Check if Score in response
+          if (parsedData.MinMinutiae) {
+            this.setState({
+              minMinutiae: parsedData.MinMinutiae,
+            });
+          }
+          //Check if frame related information in response
+          if (parsedData.GameWindow && parsedData.GameWindow.frame && parsedData.GameWindow.frameId) {
+            let frame = parsedData.GameWindow.frame;
+            let frameId = parsedData.GameWindow.frameId;
+            // set new border color
+            if ("borderColor" in parsedData.GameWindow) {
+              this.setState({
+                borderColor: parsedData.GameWindow.borderColor
+              })
+            }
+
+            if (this.state.score)
+              this.setState((prevState) => ({
+                nextframeSrc: "data:image/jpeg;base64, " + frame,
+                nextframeCount: prevState.frameCount + 1,
+                nextframeId: frameId,
+              }));
+            else {
+              this.setState((prevState) => ({
+                // Set new frame ID
+                frameSrc: "data:image/jpeg;base64, " + frame,
+                frameCount: prevState.frameCount + 1,
+                frameId: frameId,
+
+                // Reset minutiae and image filters
+                minutiae: [],
+                brightness: 100,
+                contrast: 100,
+                saturation: 100,
+                hue: 0,
+
+                // Reset undo/redo stacks and buttons
+                undoList: [],
+                redoList: [],
+                undoEnabled: false,
+                redoEnabled: false,
+              }));
+            }
+            const img = new Image();
+            img.src = "data:image/jpeg;base64, " + frame;
+            img.onload = () => {
+              this.setState({
+                imageWidth: img.width,
+                imageHeight: img.height,
+              });
+            };
+          }
+
+          //check if textbox is in the server's response
+          if ("TextBox" in parsedData) {
+            this.setState({
+              textbox: parsedData.TextBox
+            })
+          }
+
+          //check if bakcend is making a request
+          if (parsedData.Request) {
+            if (parsedData.Request[0] === "TEXTBOX"){
               this.sendMessage({
-                // TODO: add mod event
-                "KeyboardEvent": {
-                  "KEYDOWN": [event.key, event.key.charCodeAt(0)]
+                "TextEvent" : {
+                  "TEXTREQUEST": this.state.textAreaInput
                 }
               })
             }
-        }
-      });
+          }
 
-      document.addEventListener("keyup", (event) => {
+          //check if imageL is in server's response
+          if (parsedData.imageL) {
+            this.setState({
+              imageL: parsedData.imageL,
+            });
+          }
+
+          //check if imageR is in server's response
+          if (parsedData.imageR) {
+            this.setState({
+              imageR: parsedData.imageR,
+            });
+          }
+          //check if any information needed to display
+          if (parsedData.display) {
+            this.setState({
+              displayData: parsedData.display,
+            });
+          }
+          //log every message received from the server
+          if (DEBUG) {
+            delete parsedData.frame;
+            this.setState((prevState) => ({
+              inMessage: [parsedData, ...prevState.inMessage],
+            }));
+          }
+
+      };
+
+      //listen to the websocket closing status
+      this.websocket.onclose = () => {
+        console.log("WebSocket Client Closed");
+        this.setState({
+          isConnection: false,
+          isEnd: true,
+          gameEndVisible: true,
+        });
+      };
+    },
+    SERVER ? 0 : pendingTime * 1000
+  );
+    // Listen to the user's keyboard inputs
+    document.addEventListener("keydown", (event) => {
+      // don't execute the following code if the user is typing in the inputbox
+      if (document.activeElement.tagName !== "TEXTAREA") {
         //Used to prevent arrow keys and space key from scrolling the page
         let dataToSend = getKeyInput(event.code);
-        if (this.state.UIlist.includes(dataToSend.action)) {
-          dataToSend.action = "noop";
-          if (this.state.holdKey === dataToSend.actionType) {
-            this.setState({ holdKey: null });
-          }
-          this.sendMessage(dataToSend);
-        }
-        if (this.state.keys) {
-          this.sendMessage({
-            "KeyboardEvent": {
-              "KEYUP": [event.key]
-            }
-          })
+        if (dataToSend.actionType !== "null") {
+          event.preventDefault();
         }
 
-      });
+        if (this.state.UIlist.includes(dataToSend.action)) {
+          if (this.state.holdKey !== dataToSend.actionType) {
+            this.setState({ holdKey: dataToSend.actionType });
+            this.sendMessage(dataToSend);
+          }
+        }
+
+        if (this.state.keys) {
+          if (!event.repeat){
+            this.sendMessage({
+              // TODO: add mod event
+              "KeyboardEvent": {
+                "KEYDOWN": [event.key, event.key.charCodeAt(0)]
+              }
+            })
+          }
+        }
+      }
+    });
+
+    document.addEventListener("keyup", (event) => {
+      //Used to prevent arrow keys and space key from scrolling the page
+      let dataToSend = getKeyInput(event.code);
+      if (this.state.UIlist.includes(dataToSend.action)) {
+        dataToSend.action = "noop";
+        if (this.state.holdKey === dataToSend.actionType) {
+          this.setState({ holdKey: null });
+        }
+        this.sendMessage(dataToSend);
+      }
+      if (this.state.keys) {
+        this.sendMessage({
+          "KeyboardEvent": {
+            "KEYUP": [event.key]
+          }
+        })
+      }
+    });
 
 		// Get the client window width to make the game window responsive
 		window.addEventListener("resize", this.handleResize)
@@ -503,7 +513,13 @@ class Game extends React.Component {
 					info: "reset excluding minutiae",
 				});
 			}
-		} else {
+		} else if (value === "buttonOk") {
+      this.setState({
+        buttonModalVisible: false,
+      });
+      this.handleButton(null, this.state.buttonValue)
+    }
+    if (value === "gameEndOk") {
 			this.setState({
 				gameEndVisible: false,
 			});
@@ -551,10 +567,19 @@ class Game extends React.Component {
 			return;
 		}
 
-    if (button.Button.confirm) {
+    if (button && button.Button.confirm) {
       this.setState({
-        buttonModalVisible: true
+        buttonModalVisible: true,
+        buttonValue: value
       })
+      if (button.Button.confirmMessage){
+        this.setState({
+          confirmMessage: button.Button.confirmMessage
+        })
+      } else {
+        this.setState({confirmMessage: null})
+      }
+      return;
     }
 
 	  if (value === "submitImage") {
@@ -1012,8 +1037,9 @@ class Game extends React.Component {
       nextBlock,
       controlPanel,
       textbox,
-      gameWindowHide,
-      controlPanelHide,
+      gameWindowShow,
+      confirmMessage,
+      borderColor,
     } = this.state;
 
     return (
@@ -1077,7 +1103,7 @@ class Game extends React.Component {
                 handleMinutia={this.handleMinutia}
                 handleChanging={this.handleChanging}
               />
-            ) : !gameWindowHide ? (
+            ) : gameWindowShow ? (
               <GameWindow
                 isLoading={isLoading}
                 frameSrc={frameSrc}
@@ -1089,6 +1115,7 @@ class Game extends React.Component {
                 addMinutia={this.addMinutia}
                 sendMouseData={this.sendMouseData}
                 data-testid="game-window"
+                borderColor={borderColor}
               />
             ): null}
             {DEBUG ? (
@@ -1121,7 +1148,7 @@ class Game extends React.Component {
                 />
                 </div>
               :null}
-              {/* {!controlPanelHide ? */}
+              {controlPanel ?
                 <div className="control">
                   <ControlPanel
                     className="gameControlPanel"
@@ -1157,7 +1184,7 @@ class Game extends React.Component {
                     controlPanel={controlPanel}
                   />
                 </div>
-              {/* :null} */}
+              :null}
             </div>
           </Col>
         </div>
@@ -1165,7 +1192,7 @@ class Game extends React.Component {
         <Modal
           title="Game end message"
           visible={gameEndVisible}
-          onOk={this.handleOk}
+          onOk={(e) => this.handleOk(e, "gameEndOk")}
           onCancel={this.handleCancel}
         >
           <p className="modal">The game has ended</p>
@@ -1223,7 +1250,7 @@ class Game extends React.Component {
           okText="Confirm"
           cancelText="Cancel"
         >
-          <p>Are you sure?</p>
+          <p>{confirmMessage ? confirmMessage : "Are you sure?"}</p>
         </Modal>
         <Modal visible={scoreModalVisible} closable={false} footer={null}>
           {!score ? (

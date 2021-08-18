@@ -164,13 +164,12 @@ class ControlPanel extends React.Component {
             <Col key={currButton.value}>
                 <Button
                     shape="round"
-                    type="primary"
                     id={currButton.value}
                     className={`${currButton.value}Button`}
                     icon={currButton.icon ? icons[currButton.value] : null}
                     size="large"
                     style={{backgroundColor: currButton.bgcolor,
-                    border: "solid 1px " + currButton.border,
+                    border: currButton.border ? "solid 3px " + currButton.border : null,
                     color: currButton.color
                     }}
                     onClick={() => handleButton(button, currButton.value)}

@@ -19,13 +19,7 @@ class Main extends React.Component {
 		isWait: false, //if the websocket server has been resolved
 		is400Error: false, //if there are any error occur
 		ifRedirect: SERVER && REDIRECT ? true : false, //if redirect to another url after game ends
-		loadingMessages: [
-			"Waiting for the crime scene to be swept...",
-			"Bagging evidence...",
-			"Dusting for fingerprints...",
-			"Interviewing witnesses...",
-			"Adjusting microscope...",
-		],
+		loadingMessages: ["Waiting for the robot to wake up..."],
 		loadingMessageIndex: 0,
 	};
 

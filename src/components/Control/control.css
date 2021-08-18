@@ -63,96 +63,79 @@
 .startButton {
   background-color: #1890ff;
   color: white;
-  border-color: #1890ff;
 }
 
 .startButton:hover {
   background-color: #40a9ff;
-  border-color: #40a9ff;
 }
 
 .pauseButton {
   background-color: #fa541c;
   color: white;
-  border-color: #fa541c;
 }
 
 .pauseButton:hover {
   background-color: #ff7a45;
-  border-color: #ff7a45;
 }
 
 .stopButton {
   background-color: #f5222d;
   color: white;
-  border-color: #f5222d;
 }
 
 .stopButton:hover {
   background-color: #ff4d4f;
-  border-color: #ff4d4f;
 }
 
 .resetButton {
   background-color: #52c41a;
   color: white;
-  border-color: #52c41a;
 }
 
 .resetButton:hover {
   background-color: #73d13d;
-  border-color: #73d13d;
 }
 
 .trainOnlineButton {
   background-color: #faad14;
   color: white;
-  border-color: #faad14;
 }
 
 .trainOnlineButton:hover {
   background-color: #ffc53d;
-  border-color: #ffc53d;
 }
 
 .trainOfflineButton {
   background-color: #13c2c2;
   color: white;
-  border-color: #13c2c2;
 }
 
 .trainOfflineButton:hover {
   background-color: #36cfc9;
-  border-color: #36cfc9;
 }
 
 .goodButton {
   background-color: #fadb14;
   color: white;
-  border-color: #fadb14;
 }
 
 .goodButton:hover {
   background-color: #ffec3d;
-  border-color: #ffec3d;
 }
 
 .badButton {
   background-color: #a0d911;
   color: white;
-  border-color: #a0d911;
 }
 
 .badButton:hover {
   background-color: #bae637;
-  border-color: #bae637;
 }
 
 .undoButton,
 .redoButton {
   background-color: white;
   color: black;
-  border-color: black;
 }
 
 .undoButton:hover,
@@ -161,31 +144,26 @@
 .redoButton:focus {
   background-color: #eeeeee;
   color: black;
-  border-color: black;
 }
 
 .resetImageButton {
   background-color: #f5222d;
   color: white;
-  border-color: #f5222d;
 }
 
 .resetImageButton:hover,
 .resetImageButton:focus {
   background-color: #ff4d4f;
-  border-color: #ff4d4f;
 }
 
 .submitImageButton {
   background-color: #52c41a;
   color: white;
-  border-color: #52c41a;
 }
 
 .submitImageButton:hover,
 .submitImageButton:focus {
   background-color: #73d13d;
-  border-color: #73d13d;
 }
 
 .adding,
