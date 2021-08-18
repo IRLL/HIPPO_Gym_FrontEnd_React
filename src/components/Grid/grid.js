@@ -43,10 +43,19 @@ class Grid extends React.Component {
     this.setState({ tiles });
 
     // send info about tile that was selected currently
-    this.props.sendMessage({
-      info: !selected ? "tile selected" : "tile unselected",
-      tileCoordinates: { x: tiles[i].col, y: tiles[i].row },
-    });
+    if (selected) {
+      this.props.sendMessage({
+        "GridEvent": {
+          "TILESELECTED": [ tiles[i].col, tiles[i].row ]
+        }
+      })
+    } else {
+      this.props.sendMessage({
+        "GridEvent": {
+          "TILEUNSELECTED": [ tiles[i].col, tiles[i].row ]
+        }
+      })
+    }
   };
 
   handleReset = () => {

@@ -277,9 +277,10 @@ class Game extends React.Component {
             });
           }
           //Check if Grid in response
-          if (parsedData.Grid) {
+          if ("grid" in parsedData) {
+            console.log(parsedData.grid)
             this.setState({
-              grid: parsedData.Grid,
+              grid: parsedData.grid,
             });
           }
           //Check if frame related information in response
