@@ -30,6 +30,7 @@ import GameWindow from "../GameWindow/gameWindow";
 import FingerprintWindow from "../GameWindow/fingerprintWindow";
 import TextBox from "../TextBox/textBox";
 import InfoPanel from "../InfoPanel/infoPanel"
+import Grid from "../Grid/grid";
 
 
 const pendingTime = 30;
@@ -111,6 +112,9 @@ class Game extends React.Component {
 
     // refactor
     buttons: [],
+
+    //grid variables
+    grid: null,
   };
 
   componentDidMount() {
@@ -270,6 +274,12 @@ class Game extends React.Component {
           if (parsedData.MinMinutiae) {
             this.setState({
               minMinutiae: parsedData.MinMinutiae,
+            });
+          }
+          //Check if Grid in response
+          if (parsedData.Grid) {
+            this.setState({
+              grid: parsedData.Grid,
             });
           }
           //Check if frame related information in response
@@ -588,7 +598,23 @@ class Game extends React.Component {
         BUTTONPRESSED: value,
         minutiaList: this.normalizeMinutiae(this.state.minutiae),
       }});
-		} else {
+		} else if (value === "reset") {
+      if (this.state.grid) {
+        this.resetGrid();
+        this.sendMessage({
+          command: value,
+          info: "reset grid",
+        });
+      } else {
+        this.sendMessage({ ButtonEvent: {
+          BUTTONPRESSED: value,
+        }});
+      }
+    }
+    else {
+      if (this.state.grid) {
+        this.submitGrid();
+      }
 			this.sendMessage({ ButtonEvent: {
         BUTTONPRESSED: value,
       }});
@@ -666,6 +692,16 @@ class Game extends React.Component {
         changeFrameRate: type,
       });
     }
+  };
+
+  resetGrid = () => {};
+  setResetGrid = (handleReset) => {
+    this.resetGrid = handleReset;
+  };
+
+  submitGrid = () => {};
+  setSubmitGrid = (handleSubmit) => {
+    this.submitGrid = handleSubmit;
   };
 
   // Apply color filters to the image in the fingerprint window
@@ -1033,6 +1069,7 @@ class Game extends React.Component {
       maxScore,
       undoEnabled,
       redoEnabled,
+      grid,
       previousBlock,
       currentBlock,
       nextBlock,
@@ -1103,6 +1140,13 @@ class Game extends React.Component {
                 addMinutia={this.addMinutia}
                 handleMinutia={this.handleMinutia}
                 handleChanging={this.handleChanging}
+              />
+            ) : grid ? (
+              <Grid
+                grid={grid}
+                sendMessage={this.sendMessage}
+                setResetGrid={this.setResetGrid}
+                setSubmitGrid={this.setSubmitGrid}
               />
             ) : gameWindowShow ? (
               <GameWindow
