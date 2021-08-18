@@ -75,6 +75,7 @@ class Game extends React.Component {
     textbox: false, // shows a textbox
     buttonModalVisible: false, // confirm modal for buttons
     borderColor: "default", // set the border color for the game window
+    gameWindowShow: true,
 
     // Fingerprint trial configurations
     imageControls: false, // if true, controls like zoom
