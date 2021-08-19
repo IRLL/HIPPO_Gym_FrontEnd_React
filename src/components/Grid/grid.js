@@ -42,11 +42,13 @@ class Grid extends React.Component {
 
     this.setState({ tiles });
 
+    const mySet = new Set()
+
     // send info about tile that was selected currently
-    if (selected) {
+    if (!selected) {
       this.props.sendMessage({
         "GridEvent": {
-          "TILESELECTED": [ tiles[i].col, tiles[i].row ]
+          "TILESELECTED":  [ tiles[i].col, tiles[i].row ]
         }
       })
     } else {

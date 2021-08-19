@@ -251,7 +251,7 @@ class Game extends React.Component {
             });
           }
           //Check if infoPanel is in the recieved data
-          if (typeof parsedData === "object" && 'InfoPanel' in parsedData){
+          if ('InfoPanel' in parsedData){
             this.setState({
               infoPanel: parsedData.InfoPanel,
             })
@@ -278,7 +278,6 @@ class Game extends React.Component {
           }
           //Check if Grid in response
           if ("grid" in parsedData) {
-            console.log(parsedData.grid)
             this.setState({
               grid: parsedData.grid,
             });
