@@ -43,11 +43,11 @@ class Grid extends React.Component {
     this.setState({ tiles });
 
     // send info about tile that was selected currently
-    this.props.sendMessage({
-      "GridEvent": {
-        "TILECLICKED":  [ tiles[i].col, tiles[i].row ]
-      }
-    })
+    // this.props.sendMessage({
+    //   "GridEvent": {
+    //     "TILECLICKED":  [ tiles[i].col, tiles[i].row ]
+    //   }
+    // })
   };
 
   handleReset = () => {
