@@ -310,15 +310,17 @@ class ControlPanel extends React.Component {
 									}}
 									checked={minutiaeShown}
 								/>
-								<Switch
-									checkedChildren="Feedback Shown"
-									unCheckedChildren="Feedback Hidden"
-									onChange={() => {
-										handleCommand("toggleFeedback");
-									}}
-									disabled={!feedbackEnabled}
-									checked={feedbackShown}
-								/>
+								{UIlist.includes("getFeedback") ? (
+									<Switch
+										checkedChildren="Feedback Shown"
+										unCheckedChildren="Feedback Hidden"
+										onChange={() => {
+											handleCommand("toggleFeedback");
+										}}
+										disabled={!feedbackEnabled}
+										checked={feedbackShown}
+									/>
+								) : null}
 							</Row>
 							<Divider>Controls </Divider>
 							<Row gutter={[4, 8]} justify="space-around" className="imageCommands">
