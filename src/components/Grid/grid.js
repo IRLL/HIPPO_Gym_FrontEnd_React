@@ -2,6 +2,8 @@ import React from "react";
 import "./grid.css";
 import { icons } from "../../utils/icons";
 
+let clickedTiles = []
+
 class Grid extends React.Component {
   state = {
     tile_size: 50,
@@ -12,7 +14,7 @@ class Grid extends React.Component {
   componentWillMount() {
     const { grid } = this.props;
     const { rows, columns, tiles: specialTiles } = grid;
-    const tiles = [];
+    const tiles = [];  // flat list of all the tiles
 
     for (let i = 0; i < rows; i++) {
       for (let j = 0; j < columns; j++) {
@@ -33,21 +35,26 @@ class Grid extends React.Component {
     this.props.setSubmitGrid(this.handleSubmit);
   }
 
+  setSelecting = (selecting) => {
+    this.setState({ selecting });
+  };
+
+  getSelecting = () => this.state.selecting;
+
+
   handleClick = (i, method) => {
     const tiles = [...this.state.tiles];
 
-    const selected = tiles[i].selected;
+    // tiles[i] = { ...tiles[i], selected: !tiles[i].selected };
 
-    tiles[i] = { ...tiles[i], selected: !tiles[i].selected };
-
-    this.setState({ tiles });
+    // this.setState({ tiles });
 
     // send info about tile that was selected currently
-    // this.props.sendMessage({
-    //   "GridEvent": {
-    //     "TILECLICKED":  [ tiles[i].col, tiles[i].row ]
-    //   }
-    // })
+    this.props.sendMessage({
+      "GridEvent": {
+        "TILECLICKED":  [ tiles[i].col, tiles[i].row ]
+      }
+    })
   };
 
   handleReset = () => {
@@ -60,17 +67,13 @@ class Grid extends React.Component {
     const selected = tiles.filter((tile) => tile.selected);
 
     // Send that list was submitted and list of selected tiles
-    this.props.sendMessage({
-      info: "submitted",
-      selectedTileList: selected,
-    });
+    // this.props.sendMessage({
+    //   info: "submitted",
+    //   selectedTileList: selected,
+    // });
   };
 
-  setSelecting = (selecting) => {
-    this.setState({ selecting });
-  };
 
-  getSelecting = () => this.state.selecting;
 
   render() {
     const { tiles, rows, columns, tile_size, background_color } = this.state;
@@ -89,9 +92,11 @@ class Grid extends React.Component {
             size={tile_size}
             x={tile.col * tile_size}
             y={tile.row * tile_size}
-            text={tile.text}
-            color={tile.color}
-            icon={tile.icon}
+            text={tile.tile_type ? tile.tile_type.text : null}
+            color={tile.tile_type ? tile.tile_type.color : null}
+            bgcolor={tile.tile_type ? tile.tile_type.bgcolor : null}
+            border={tile.tile_type ? tile.tile_type.border : null}
+            icon={tile.tile_type ? tile.tile_type.icon : null}
             image={tile.image ? "data:image/jpeg;base64, " + tile.image : null}
             selected={tile.selected}
             key={i}
@@ -111,6 +116,8 @@ class Tile extends React.Component {
     const {
       size,
       color,
+      bgcolor,
+      border,
       text,
       x,
       y,
@@ -128,19 +135,26 @@ class Tile extends React.Component {
         style={{
           width: size,
           height: size,
-          backgroundColor: color || "transparent",
+          backgroundColor: bgcolor || "transparent",
+          color,
+          border: "solid "+ border,
           top: y,
           left: x,
+          fontSize: size / 4,
         }}
         onMouseDown={() => {
-          handleClick(index);
+          clickedTiles.push(index)
           setSelecting(true);
         }}
         onMouseUp={() => {
           setSelecting(false);
+          clickedTiles.forEach(element => handleClick(element))
+          clickedTiles.length=0
         }}
         onMouseEnter={() => {
-          if (getSelecting()) handleClick(index);
+          if (getSelecting()) {
+            clickedTiles.push(index)
+          }
         }}
       >
         {text}

@@ -1,5 +1,6 @@
 .grid {
   position: relative;
+  margin: auto;
 }
 
 /* Add a blue border along outside of grid box */
@@ -36,7 +37,7 @@
   border-bottom: solid 1px black;
   display: grid;
   place-items: center;
-  font-size: 1.5rem;
+  /* font-size: 1.5rem; */
   pointer-events: all;
   cursor: pointer;
   z-index: 1;
