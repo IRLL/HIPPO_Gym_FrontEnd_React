@@ -156,7 +156,8 @@
   border-color: #fadb14;
 }
 
-.goodButton:hover {
+.goodButton:hover,
+.goodButton:focus {
   background-color: #ffec3d;
   border-color: #ffec3d;
 }

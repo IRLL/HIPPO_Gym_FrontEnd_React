@@ -25,6 +25,7 @@ import { icons } from "../../utils/icons";
 import ControlPanel from "../Control/control";
 import BudgetBar from "../BudgetBar/budgetBar";
 import DisplayBar from "../DisplayBar/displayBar";
+import GridDisplayBar from "../DisplayBar/gridDisplayBar";
 import MessageViewer from "../Message/MessageViewer";
 import GameWindow from "../GameWindow/gameWindow";
 import FingerprintWindow from "../GameWindow/fingerprintWindow";
@@ -279,10 +280,10 @@ class Game extends React.Component {
               let frameId = parsedData.frameId;
               // set new border color
               if ("borderColor" in parsedData) {
-                console.log("hello")
+                console.log("hello");
                 this.setState({
-                  borderColor: parsedData.borderColor
-                })
+                  borderColor: parsedData.borderColor,
+                });
               }
 
               if (this.state.score)
@@ -340,6 +341,12 @@ class Game extends React.Component {
             if (parsedData.display) {
               this.setState({
                 displayData: parsedData.display,
+              });
+            }
+            //check if any information needed to display for the grid
+            if (parsedData.Display) {
+              this.setState({
+                gridDisplay: parsedData.Display,
               });
             }
             //log every message received from the server
@@ -935,6 +942,7 @@ class Game extends React.Component {
       frameRate,
       borderColor,
       displayData,
+      gridDisplay,
       isEnd,
       UIlist,
       instructions,
@@ -992,6 +1000,11 @@ class Game extends React.Component {
           visible={displayData !== null}
           isLoading={isLoading}
           displayData={displayData}
+        />
+        <GridDisplayBar
+          visible={gridDisplay !== null}
+          isLoading={isLoading}
+          displayData={gridDisplay}
         />
 
         <BudgetBar
