@@ -368,44 +368,50 @@ class Game extends React.Component {
     // Listen to the user's keyboard inputs
     document.addEventListener("keydown", (event) => {
       //Used to prevent arrow keys and space key from scrolling the page
-      let dataToSend = getKeyInput(event.code);
-      if (dataToSend.actionType !== "null") {
-        event.preventDefault();
-      }
+      if (document.activeElement.tagName !== "TEXTAREA") {
+        console.log(document.activeElement.tagName)
+        let dataToSend = getKeyInput(event.code);
+        if (dataToSend.actionType !== "null") {
+          event.preventDefault();
+        }
 
-      if (this.state.UIlist.includes(dataToSend.action)) {
-        if (this.state.holdKey !== dataToSend.actionType) {
-          this.setState({ holdKey: dataToSend.actionType });
-          this.sendMessage(dataToSend);
+        if (this.state.UIlist.includes(dataToSend.action)) {
+          if (this.state.holdKey !== dataToSend.actionType) {
+            this.setState({ holdKey: dataToSend.actionType });
+            this.sendMessage(dataToSend);
+          }
+        }
+
+        if (!event.repeat){
+          this.sendMessage({
+            // TODO: add mod event
+            "KeyboardEvent": {
+              "KEYDOWN": [event.key, event.key.charCodeAt(0)]
+            }
+          })
         }
       }
 
-      if (!event.repeat){
-        this.sendMessage({
-          // TODO: add mod event
-          "KeyboardEvent": {
-            "KEYDOWN": [event.key, event.key.charCodeAt(0)]
-          }
-        })
-      }
     });
 
     document.addEventListener("keyup", (event) => {
       //Used to prevent arrow keys and space key from scrolling the page
-      let dataToSend = getKeyInput(event.code);
-      if (this.state.UIlist.includes(dataToSend.action)) {
-        dataToSend.action = "noop";
-        if (this.state.holdKey === dataToSend.actionType) {
-          this.setState({ holdKey: null });
+      if (document.activeElement.tagName !== "TEXTAREA") {
+        let dataToSend = getKeyInput(event.code);
+        if (this.state.UIlist.includes(dataToSend.action)) {
+          dataToSend.action = "noop";
+          if (this.state.holdKey === dataToSend.actionType) {
+            this.setState({ holdKey: null });
+          }
+          this.sendMessage(dataToSend);
         }
-        this.sendMessage(dataToSend);
-      }
 
-      this.sendMessage({
-        "KeyboardEvent": {
-          "KEYUP": [event.key]
-        }
-      })
+        this.sendMessage({
+          "KeyboardEvent": {
+            "KEYUP": [event.key]
+          }
+        })
+      }
     });
 
     // Get the client window width to make the game window responsive
