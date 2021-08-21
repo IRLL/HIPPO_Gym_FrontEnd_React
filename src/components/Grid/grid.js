@@ -3,6 +3,7 @@ import "./grid.css";
 import { icons } from "../../utils/icons";
 
 let clickedTiles = []
+let updatedState = []
 
 class Grid extends React.Component {
   state = {
@@ -32,7 +33,7 @@ class Grid extends React.Component {
 
   componentDidMount() {
     this.props.setResetGrid(this.handleReset);
-    this.props.setSubmitGrid(this.handleSubmit);
+    // this.props.setSubmitGrid(this.handleSubmit);
   }
 
   setSelecting = (selecting) => {
@@ -41,18 +42,28 @@ class Grid extends React.Component {
 
   getSelecting = () => this.state.selecting;
 
+  removeHighlight = (i) => {
+    updatedState[i] = { ...updatedState[i], highlighted: false}
 
-  handleClick = (i, method) => {
+    this.setState( {tiles: updatedState})
+  }
+
+  handleHighlight = (i) => {
     const tiles = [...this.state.tiles];
 
-    // tiles[i] = { ...tiles[i], selected: !tiles[i].selected };
+    tiles[i] = { ...tiles[i], highlighted: !tiles[i].highlighted}
 
-    // this.setState({ tiles });
+    this.setState({ tiles });
+    updatedState = [...this.state.tiles]
+  }
+
+  handleClick = (i) => {
+    // const tiles = [...this.state.tiles];
 
     // send info about tile that was selected currently
     this.props.sendMessage({
       "GridEvent": {
-        "TILECLICKED":  [ tiles[i].col, tiles[i].row ]
+        "TILECLICKED":  [ this.state.tiles[i].col, this.state.tiles[i].row ]
       }
     })
   };
@@ -60,20 +71,6 @@ class Grid extends React.Component {
   handleReset = () => {
     this.componentWillMount();
   };
-
-  handleSubmit = () => {
-    // Get a list of all the selected tiles
-    const { tiles } = this.state;
-    const selected = tiles.filter((tile) => tile.selected);
-
-    // Send that list was submitted and list of selected tiles
-    // this.props.sendMessage({
-    //   info: "submitted",
-    //   selectedTileList: selected,
-    // });
-  };
-
-
 
   render() {
     const { tiles, rows, columns, tile_size, background_color } = this.state;
@@ -85,6 +82,12 @@ class Grid extends React.Component {
           width: columns * tile_size,
           height: rows * tile_size,
           backgroundColor: background_color,
+        }}
+        onMouseLeave={() => {
+          this.setSelecting(false);
+          clickedTiles.forEach(element => this.handleClick(element))
+          clickedTiles.forEach(element => this.removeHighlight(element))
+          clickedTiles.length=0
         }}
       >
         {tiles.map((tile, i) => (
@@ -99,9 +102,12 @@ class Grid extends React.Component {
             icon={tile.tile_type ? tile.tile_type.icon : null}
             image={tile.image ? "data:image/jpeg;base64, " + tile.image : null}
             selected={tile.selected}
+            highlighted={tile.highlighted}
             key={i}
             index={i}
             handleClick={this.handleClick}
+            handleHighlight={this.handleHighlight}
+            removeHighlight={this.removeHighlight}
             getSelecting={this.getSelecting}
             setSelecting={this.setSelecting}
           />
@@ -122,8 +128,11 @@ class Tile extends React.Component {
       x,
       y,
       selected,
+      highlighted,
       index,
       handleClick,
+      handleHighlight,
+      removeHighlight,
       getSelecting,
       setSelecting,
       icon,
@@ -131,7 +140,7 @@ class Tile extends React.Component {
     } = this.props;
     return (
       <div
-        className={`tile noselect ${selected ? "selectedTile" : ""}`}
+        className={`tile noselect ${highlighted ? "highlightedTile" : ""}`}
         style={{
           width: size,
           height: size,
@@ -144,16 +153,19 @@ class Tile extends React.Component {
         }}
         onMouseDown={() => {
           clickedTiles.push(index)
+          handleHighlight(index)
           setSelecting(true);
         }}
         onMouseUp={() => {
           setSelecting(false);
           clickedTiles.forEach(element => handleClick(element))
+          clickedTiles.forEach(element => removeHighlight(element))
           clickedTiles.length=0
         }}
         onMouseEnter={() => {
           if (getSelecting()) {
             clickedTiles.push(index)
+            handleHighlight(index)
           }
         }}
       >
