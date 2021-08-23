@@ -90,7 +90,8 @@
   border-color: #1890ff;
 }
 
-.startButton:hover {
+.startButton:hover,
+.startButton:focus {
   background-color: #40a9ff;
   border-color: #40a9ff;
 }
@@ -101,7 +102,8 @@
   border-color: #fa541c;
 }
 
-.pauseButton:hover {
+.pauseButton:hover,
+.pauseButton:focus {
   background-color: #ff7a45;
   border-color: #ff7a45;
 }
@@ -112,7 +114,8 @@
   border-color: #f5222d;
 }
 
-.stopButton:hover {
+.stopButton:hover,
+.stopButton:focus {
   background-color: #ff4d4f;
   border-color: #ff4d4f;
 }
@@ -123,7 +126,8 @@
   border-color: #52c41a;
 }
 
-.resetButton:hover {
+.resetButton:hover,
+.resetButton:focus {
   background-color: #73d13d;
   border-color: #73d13d;
 }
@@ -134,7 +138,8 @@
   border-color: #faad14;
 }
 
-.trainOnlineButton:hover {
+.trainOnlineButton:hover,
+.trainOnlineButton:focus {
   background-color: #ffc53d;
   border-color: #ffc53d;
 }
@@ -145,7 +150,8 @@
   border-color: #13c2c2;
 }
 
-.trainOfflineButton:hover {
+.trainOfflineButton:hover,
+.trainOfflineButton:focus {
   background-color: #36cfc9;
   border-color: #36cfc9;
 }
@@ -156,7 +162,8 @@
   border-color: #fadb14;
 }
 
-.goodButton:hover {
+.goodButton:hover,
+.goodButton:focus {
   background-color: #ffec3d;
   border-color: #ffec3d;
 }
@@ -167,7 +174,8 @@
   border-color: #a0d911;
 }
 
-.badButton:hover {
+.badButton:hover,
+.badButton:focus {
   background-color: #e8f1cc;
   border-color: #bae637;
 }
