@@ -25,6 +25,7 @@ import { icons } from "../../utils/icons";
 import ControlPanel from "../Control/control";
 import BudgetBar from "../BudgetBar/budgetBar";
 import DisplayBar from "../DisplayBar/displayBar";
+import GridDisplayBar from "../DisplayBar/gridDisplayBar";
 import MessageViewer from "../Message/MessageViewer";
 import GameWindow from "../GameWindow/gameWindow";
 import FingerprintWindow from "../GameWindow/fingerprintWindow";
@@ -279,10 +280,10 @@ class Game extends React.Component {
               let frameId = parsedData.frameId;
               // set new border color
               if ("borderColor" in parsedData) {
-                console.log("hello")
+                console.log("hello");
                 this.setState({
-                  borderColor: parsedData.borderColor
-                })
+                  borderColor: parsedData.borderColor,
+                });
               }
 
               if (this.state.score)
@@ -342,6 +343,12 @@ class Game extends React.Component {
                 displayData: parsedData.display,
               });
             }
+            //check if any information needed to display for the grid
+            if (parsedData.Display) {
+              this.setState({
+                gridDisplay: parsedData.Display,
+              });
+            }
             //log every message received from the server
             if (DEBUG) {
               delete parsedData.frame;
@@ -368,44 +375,50 @@ class Game extends React.Component {
     // Listen to the user's keyboard inputs
     document.addEventListener("keydown", (event) => {
       //Used to prevent arrow keys and space key from scrolling the page
-      let dataToSend = getKeyInput(event.code);
-      if (dataToSend.actionType !== "null") {
-        event.preventDefault();
-      }
+      if (document.activeElement.tagName !== "TEXTAREA") {
+        console.log(document.activeElement.tagName)
+        let dataToSend = getKeyInput(event.code);
+        if (dataToSend.actionType !== "null") {
+          event.preventDefault();
+        }
 
-      if (this.state.UIlist.includes(dataToSend.action)) {
-        if (this.state.holdKey !== dataToSend.actionType) {
-          this.setState({ holdKey: dataToSend.actionType });
-          this.sendMessage(dataToSend);
+        if (this.state.UIlist.includes(dataToSend.action)) {
+          if (this.state.holdKey !== dataToSend.actionType) {
+            this.setState({ holdKey: dataToSend.actionType });
+            this.sendMessage(dataToSend);
+          }
+        }
+
+        if (!event.repeat){
+          this.sendMessage({
+            // TODO: add mod event
+            "KeyboardEvent": {
+              "KEYDOWN": [event.key, event.key.charCodeAt(0)]
+            }
+          })
         }
       }
 
-      if (!event.repeat){
-        this.sendMessage({
-          // TODO: add mod event
-          "KeyboardEvent": {
-            "KEYDOWN": [event.key, event.key.charCodeAt(0)]
-          }
-        })
-      }
     });
 
     document.addEventListener("keyup", (event) => {
       //Used to prevent arrow keys and space key from scrolling the page
-      let dataToSend = getKeyInput(event.code);
-      if (this.state.UIlist.includes(dataToSend.action)) {
-        dataToSend.action = "noop";
-        if (this.state.holdKey === dataToSend.actionType) {
-          this.setState({ holdKey: null });
+      if (document.activeElement.tagName !== "TEXTAREA") {
+        let dataToSend = getKeyInput(event.code);
+        if (this.state.UIlist.includes(dataToSend.action)) {
+          dataToSend.action = "noop";
+          if (this.state.holdKey === dataToSend.actionType) {
+            this.setState({ holdKey: null });
+          }
+          this.sendMessage(dataToSend);
         }
-        this.sendMessage(dataToSend);
-      }
 
-      this.sendMessage({
-        "KeyboardEvent": {
-          "KEYUP": [event.key]
-        }
-      })
+        this.sendMessage({
+          "KeyboardEvent": {
+            "KEYUP": [event.key]
+          }
+        })
+      }
     });
 
     // Get the client window width to make the game window responsive
@@ -954,6 +967,7 @@ class Game extends React.Component {
       frameRate,
       borderColor,
       displayData,
+      gridDisplay,
       isEnd,
       UIlist,
       instructions,
@@ -1011,6 +1025,11 @@ class Game extends React.Component {
           visible={displayData !== null}
           isLoading={isLoading}
           displayData={displayData}
+        />
+        <GridDisplayBar
+          visible={gridDisplay !== null}
+          isLoading={isLoading}
+          displayData={gridDisplay}
         />
 
         <BudgetBar
