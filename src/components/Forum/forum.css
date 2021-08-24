@@ -10,12 +10,20 @@ Set the width of submit button */
 	margin: 1rem 10vw;
 }
 
-.copyToClipboard {
-	display: inline-flex;
+.copyBox {
+	display: block;
 	align-items: center;
-	padding: 0 0 0 0.5rem;
-	width: fit-content;
+	text-align: center;
+	padding: 1rem;
+	margin: 1rem;
 	font-size: smaller;
 	background-color: rgb(223, 221, 221);
+	border: solid 1px rgb(160, 160, 160);
 	border-radius: 3px;
+}
+
+.copyText {
+	text-align: center;
+	/* display: inline-block;
+	margin-left: auto; */
 }
