@@ -2,6 +2,7 @@ import React from "react";
 import { Button, Tooltip } from "antd";
 import "antd/dist/antd.css";
 import "./forum.css";
+import transform from "./transform"
 import ReactHtmlParser from "react-html-parser";
 
 class Forum extends React.Component {
@@ -28,8 +29,9 @@ class Forum extends React.Component {
 				className="formContainer"
 			>
 				<div>
-					{ReactHtmlParser(content)}
-					<br />
+          <br/>
+					{ReactHtmlParser(content, new transform())}
+          <br />
 					{!is400Error && this.state.submitable ? (
 						<Tooltip
 							placement="top"

@@ -117,6 +117,7 @@ class Main extends React.Component {
 
   //submit the form content and fetch the next page
   handleSubmit = (event) => {
+    console.log(event)
     this.setState({
       isLoading: true,
     });

@@ -40,6 +40,7 @@ import {
   ArrowLeftOutlined,
   ArrowRightOutlined,
   StarFilled,
+  CopyOutlined,
 } from "@ant-design/icons";
 
 export const icons = {
@@ -84,4 +85,5 @@ export const icons = {
   upArrow: <ArrowUpOutlined />,
   downArrow: <ArrowDownOutlined />,
   star: <StarFilled />,
+  copy: <CopyOutlined />,
 };
