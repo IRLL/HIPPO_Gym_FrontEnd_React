@@ -15,7 +15,6 @@ class Transform extends React.Component {
   }
 
   transform = (node, index) => {
-    console.log(node)
     if (node.type === "tag" && node.name === "span" && node.attribs && node.attribs.classname === "MTURK_CODE") {
       let copyText = USER_ID;
       return (
