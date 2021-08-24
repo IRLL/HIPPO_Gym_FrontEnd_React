@@ -280,7 +280,6 @@ class Game extends React.Component {
               let frameId = parsedData.frameId;
               // set new border color
               if ("borderColor" in parsedData) {
-                console.log("hello");
                 this.setState({
                   borderColor: parsedData.borderColor,
                 });
@@ -376,7 +375,6 @@ class Game extends React.Component {
     document.addEventListener("keydown", (event) => {
       //Used to prevent arrow keys and space key from scrolling the page
       if (document.activeElement.tagName !== "TEXTAREA") {
-        console.log(document.activeElement.tagName)
         let dataToSend = getKeyInput(event.code);
         if (dataToSend.actionType !== "null") {
           event.preventDefault();
