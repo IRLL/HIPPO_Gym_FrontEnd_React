@@ -280,7 +280,6 @@ class Game extends React.Component {
               let frameId = parsedData.frameId;
               // set new border color
               if ("borderColor" in parsedData) {
-                console.log("hello");
                 this.setState({
                   borderColor: parsedData.borderColor,
                 });
@@ -367,59 +366,15 @@ class Game extends React.Component {
             isEnd: true,
             gameEndVisible: true,
           });
+
         };
       },
       SERVER ? 0 : pendingTime * 1000
     );
 
     // Listen to the user's keyboard inputs
-    document.addEventListener("keydown", (event) => {
-      //Used to prevent arrow keys and space key from scrolling the page
-      if (document.activeElement.tagName !== "TEXTAREA") {
-        console.log(document.activeElement.tagName)
-        let dataToSend = getKeyInput(event.code);
-        if (dataToSend.actionType !== "null") {
-          event.preventDefault();
-        }
-
-        if (this.state.UIlist.includes(dataToSend.action)) {
-          if (this.state.holdKey !== dataToSend.actionType) {
-            this.setState({ holdKey: dataToSend.actionType });
-            this.sendMessage(dataToSend);
-          }
-        }
-
-        if (!event.repeat){
-          this.sendMessage({
-            // TODO: add mod event
-            "KeyboardEvent": {
-              "KEYDOWN": [event.key, event.key.charCodeAt(0)]
-            }
-          })
-        }
-      }
-
-    });
-
-    document.addEventListener("keyup", (event) => {
-      //Used to prevent arrow keys and space key from scrolling the page
-      if (document.activeElement.tagName !== "TEXTAREA") {
-        let dataToSend = getKeyInput(event.code);
-        if (this.state.UIlist.includes(dataToSend.action)) {
-          dataToSend.action = "noop";
-          if (this.state.holdKey === dataToSend.actionType) {
-            this.setState({ holdKey: null });
-          }
-          this.sendMessage(dataToSend);
-        }
-
-        this.sendMessage({
-          "KeyboardEvent": {
-            "KEYUP": [event.key]
-          }
-        })
-      }
-    });
+    document.addEventListener("keydown", this.handleKeyDown)
+    document.addEventListener("keyup", this.handleKeyUp)
 
     // Get the client window width to make the game window responsive
     window.addEventListener("resize", this.handleResize);
@@ -427,6 +382,53 @@ class Game extends React.Component {
 
   componentWillUnmount() {
     if (this.setInMessage) clearInterval(this.setInMessage);
+    document.removeEventListener("keydown", this.handleKeyDown);
+    document.removeEventListener("keyup", this.handleKeyUp);
+    window.removeEventListener("resize", this.handleResize)
+  }
+
+  handleKeyDown = (event) => {
+    if (document.activeElement.tagName !== "TEXTAREA") {
+      let dataToSend = getKeyInput(event.code);
+      if (dataToSend.actionType !== "null") {
+        event.preventDefault();
+      }
+
+      if (this.state.UIlist.includes(dataToSend.action)) {
+        if (this.state.holdKey !== dataToSend.actionType) {
+          this.setState({ holdKey: dataToSend.actionType });
+          this.sendMessage(dataToSend);
+        }
+      }
+
+      if (!event.repeat){
+        this.sendMessage({
+          // TODO: add mod event
+          "KeyboardEvent": {
+            "KEYDOWN": [event.key, event.key.charCodeAt(0)]
+          }
+        })
+      }
+    }
+  }
+
+  handleKeyUp = (event) => {
+    if (document.activeElement.tagName !== "TEXTAREA") {
+      let dataToSend = getKeyInput(event.code);
+      if (this.state.UIlist.includes(dataToSend.action)) {
+        dataToSend.action = "noop";
+        if (this.state.holdKey === dataToSend.actionType) {
+          this.setState({ holdKey: null });
+        }
+        this.sendMessage(dataToSend);
+      }
+
+      this.sendMessage({
+        "KeyboardEvent": {
+          "KEYUP": [event.key]
+        }
+      })
+    }
   }
 
   handleResize = () => {
