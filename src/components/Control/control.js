@@ -42,9 +42,9 @@ class ControlPanel extends React.Component {
       "start",
       "pause",
       "stop",
-      "reset",
       "good",
       "bad",
+      "reset",
       "trainOnline",
       "trainOffline",
     ];
@@ -158,6 +158,7 @@ class ControlPanel extends React.Component {
       if (controlPanel.Buttons) {
         var buttons = controlPanel.Buttons
         buttons.forEach((button) => {
+          console.log(button)
           let currButton = button[Object.keys(button)[0]]
           if (!currButton.image) {
           elements[currButton.value] = (
@@ -360,6 +361,7 @@ class ControlPanel extends React.Component {
       elements["down"],
       elements["rightDown"],
     ];
+    const feedbackRow = [elements["good"],elements["bad"]]
     const fpsRow = [elements["fpsUp"], elements["fpsSet"], elements["fpsDown"]];
     const lastRow = [
       elements["submitImage"],
@@ -444,11 +446,14 @@ class ControlPanel extends React.Component {
               >
                 {imgCommands}
               </Row>
-                <Row gutter={[4, 8]} justify="space-between">
+              <Row gutter={[4, 8]} justify="space-between">
                 {sliders1}
               </Row>
-                <Row gutter={[4, 8]} justify="space-between">
+              <Row gutter={[4, 8]} justify="space-between">
                 {sliders2}
+              </Row>
+              <Row gutter={[4, 8]} justify="space-around">
+                {feedbackRow}
               </Row>
               {[elements["bottomBlocks"]]}
                 <Row gutter={[4, 8]} justify="space-around">
@@ -463,7 +468,7 @@ class ControlPanel extends React.Component {
                 {lastRow}
               </Row>
               {customRow.length ? (
-                <Row gutter={[4, 8]} justify="space-around" style={{marginTop : "1rem"}}>
+                <Row gutter={[4, 8]} justify={customRow.length === 1 ? "space-between" : "space-around"} style={{marginTop : "1rem"}}>
                   {customRow}
                 </Row>
               ) : null}
