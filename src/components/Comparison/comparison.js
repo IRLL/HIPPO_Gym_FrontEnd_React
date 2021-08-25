@@ -132,6 +132,11 @@ class Comparison extends React.Component {
 					</Col>
 				</Row>
 
+				{/* Expert Score */}
+				<Row justify="end">
+					<span className="blueFont">Expert Score: {expertMarkers[idx]["score"]}</span>
+				</Row>
+
 				{/* Images */}
 				{sideBySide ? (
 					<Row justify="space-between" gutter={16}>
@@ -154,7 +159,7 @@ class Comparison extends React.Component {
 							<LabelledImage
 								scale={scale}
 								frameSrc={frameSrc}
-								markers={expertMarkers[idx]}
+								markers={expertMarkers[idx]["minutiae"]}
 								minutiaeColor={expertColor}
 								minutiaSize={minutiaSize}
 								width={width}
@@ -170,7 +175,7 @@ class Comparison extends React.Component {
 							scale={scale}
 							frameSrc={frameSrc}
 							markers={userMarkers}
-							markersOther={expertMarkers[idx]}
+							markersOther={expertMarkers[idx]["minutiae"]}
 							minutiaeColor={userColor}
 							minutiaeColorOther={expertColor}
 							minutiaSize={minutiaSize}
