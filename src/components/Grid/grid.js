@@ -3,7 +3,9 @@ import "./grid.css";
 import { icons } from "../../utils/icons";
 
 let clickedTiles = []
-let updatedState = []
+let updatedTiles = []
+let currentTiles = []
+
 
 class Grid extends React.Component {
   state = {
@@ -29,6 +31,26 @@ class Grid extends React.Component {
     }
 
     this.setState({ tiles, rows, columns });
+
+    // calculate max dimensions for grid window
+    let maxSize = {
+      maxWidth: document.documentElement.clientWidth/2,
+      maxHeight: document.documentElement.clientHeight/2,
+    }
+    console.log(maxSize)
+    // calculate size of each tile
+    // width: columns * tile_size,
+    // height: rows * tile_size,
+    if ( columns * this.state.tile_size > maxSize.maxWidth) {
+      this.setState({
+        tile_size: maxSize.maxWidth/columns
+      })
+      // if (rows * (maxSize.maxWidth/columns) > maxSize.maxHeight) {
+      //   this.setState({
+      //     tile_size: maxSize.maxHeight/rows
+      //   })
+      // }
+    }
   }
 
   componentDidMount() {
@@ -42,25 +64,22 @@ class Grid extends React.Component {
 
   getSelecting = () => this.state.selecting;
 
-  removeHighlight = (i) => {
-    updatedState[i] = { ...updatedState[i], highlighted: false}
+  handleHighlight = (i) => {
+    // highlight currently clicked tiles
+    currentTiles[i] = { ...currentTiles[i], highlighted: true}
 
-    this.setState( {tiles: updatedState})
+    this.setState({ tiles: currentTiles });
   }
 
-  handleHighlight = (i) => {
-    const tiles = [...this.state.tiles];
+  removeHighlight = (i) => {
+    // remove highlight when selection is done
+    updatedTiles[i] = { ...updatedTiles[i], highlighted: false}
 
-    tiles[i] = { ...tiles[i], highlighted: !tiles[i].highlighted}
-
-    this.setState({ tiles });
-    updatedState = [...this.state.tiles]
+    this.setState({ tiles: updatedTiles })
   }
 
   handleClick = (i) => {
-    // const tiles = [...this.state.tiles];
-
-    // send info about tile that was selected currently
+    // send info about the curretnly selected tile
     this.props.sendMessage({
       "GridEvent": {
         "TILECLICKED":  [ this.state.tiles[i].col, this.state.tiles[i].row ]
@@ -84,6 +103,7 @@ class Grid extends React.Component {
           backgroundColor: background_color,
         }}
         onMouseLeave={() => {
+          console.log("mouse has left")
           this.setSelecting(false);
           clickedTiles.forEach(element => this.handleClick(element))
           clickedTiles.forEach(element => this.removeHighlight(element))
@@ -104,12 +124,14 @@ class Grid extends React.Component {
             selected={tile.selected}
             highlighted={tile.highlighted}
             key={i}
+            id={"tile" + i}
             index={i}
             handleClick={this.handleClick}
             handleHighlight={this.handleHighlight}
             removeHighlight={this.removeHighlight}
             getSelecting={this.getSelecting}
             setSelecting={this.setSelecting}
+            tiles={tiles}
           />
         ))}
       </div>
@@ -118,6 +140,10 @@ class Grid extends React.Component {
 }
 
 class Tile extends React.Component {
+  state = {
+    tileColor: "transparent",
+  }
+
   render() {
     const {
       size,
@@ -127,8 +153,8 @@ class Tile extends React.Component {
       text,
       x,
       y,
-      selected,
       highlighted,
+      id,
       index,
       handleClick,
       handleHighlight,
@@ -137,13 +163,16 @@ class Tile extends React.Component {
       setSelecting,
       icon,
       image,
+      tiles,
     } = this.props;
     return (
       <div
         className={`tile noselect ${highlighted ? "highlightedTile" : ""}`}
+        id={id}
         style={{
           width: size,
           height: size,
+          // backgroundColor: this.state.tileColor,
           backgroundColor: bgcolor || "transparent",
           color,
           border: "solid "+ border,
@@ -152,13 +181,19 @@ class Tile extends React.Component {
           fontSize: size / 4,
         }}
         onMouseDown={() => {
+          currentTiles = [...tiles]
           clickedTiles.push(index)
           handleHighlight(index)
+          // this.setState({
+          //   tileColor: "green"
+          // })
           setSelecting(true);
         }}
         onMouseUp={() => {
           setSelecting(false);
           clickedTiles.forEach(element => handleClick(element))
+          updatedTiles = [...currentTiles]
+          // clickedTiles.forEach(element => this.setState({tileColor: "transparent"}))
           clickedTiles.forEach(element => removeHighlight(element))
           clickedTiles.length=0
         }}
@@ -166,6 +201,9 @@ class Tile extends React.Component {
           if (getSelecting()) {
             clickedTiles.push(index)
             handleHighlight(index)
+            // this.setState({
+            //   tileColor: "green"
+            // })
           }
         }}
       >

@@ -118,6 +118,7 @@ class Game extends React.Component {
   };
 
   componentDidMount() {
+    console.log(document.documentElement.clientWidth, document.documentElement.clientHeight)
     // To update the progress of loading game content
     // Since we always need to wait 30 seconds before the game
     // content get loaded, we update the progress (100/30) per second
