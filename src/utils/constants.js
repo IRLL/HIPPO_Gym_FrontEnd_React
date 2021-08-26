@@ -5,6 +5,7 @@ let search = window.location.search;
 let host = window.location.hostname;
 let default_redirect = window.location.href;
 let params = new URLSearchParams(search);
+console.log("params: ", params.get("server"))
 let userId = params.get("userId");
 let redirect = params.get("redirect");
 let debug = params.get("debug");
