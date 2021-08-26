@@ -9,3 +9,21 @@ Set the width of submit button */
 .formContainer {
 	margin: 1rem 10vw;
 }
+
+.copyBox {
+	display: block;
+	align-items: center;
+	text-align: center;
+	padding: 1rem;
+	margin: 1rem;
+	font-size: smaller;
+	background-color: rgb(223, 221, 221);
+	border: solid 1px rgb(160, 160, 160);
+	border-radius: 3px;
+}
+
+.copyText {
+	text-align: center;
+	/* display: inline-block;
+	margin-left: auto; */
+}
