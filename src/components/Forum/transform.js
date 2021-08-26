@@ -19,7 +19,7 @@ class Transform extends React.Component {
       let copyText = USER_ID;
       return (
         <div className="copyBox">
-          <h3>Mechanical Turks User ID: </h3>
+          <h3>Mechanical Turk Code: </h3>
           <div className="copyText">
             <span> {copyText} </span>
               <CopyToClipboard text={copyText}>
