@@ -10,6 +10,7 @@ import {
   ImArrowDownLeft2,
   ImContrast,
 } from "react-icons/im";
+import { FcKey } from "react-icons/fc";
 import { BsFillBrightnessHighFill, BsDropletHalf } from "react-icons/bs";
 import { GrVulnerability } from "react-icons/gr";
 import { IoIosColorFilter, IoIosResize } from "react-icons/io";
@@ -86,4 +87,5 @@ export const icons = {
   downArrow: <ArrowDownOutlined />,
   star: <StarFilled />,
   copy: <CopyOutlined />,
+  key: <FcKey />,
 };
