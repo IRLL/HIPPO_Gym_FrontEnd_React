@@ -598,23 +598,8 @@ class Game extends React.Component {
         BUTTONPRESSED: value,
         minutiaList: this.normalizeMinutiae(this.state.minutiae),
       }});
-		} else if (value === "reset") {
-      if (this.state.grid) {
-        this.resetGrid();
-        this.sendMessage({
-          command: value,
-          info: "reset grid",
-        });
-      } else {
-        this.sendMessage({ ButtonEvent: {
-          BUTTONPRESSED: value,
-        }});
-      }
-    }
+		}
     else {
-      if (this.state.grid) {
-        this.submitGrid();
-      }
 			this.sendMessage({ ButtonEvent: {
         BUTTONPRESSED: value,
       }});

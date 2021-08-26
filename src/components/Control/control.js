@@ -70,90 +70,8 @@ class ControlPanel extends React.Component {
 
     const customRow = []; // store custom buttons
 
-    // filter out UIlist to avoid duplicate buttons
-    const UIFiltered = UIlist.filter(
-      (ele) =>
-        !defaultButtons.includes(ele)
-    );
+    const elements = {};
 
-    const elements = {
-      fpsSet: UIlist.includes("fpsSet") ? (
-        <Col key="fpsSet">
-          <Tooltip
-            placement="left"
-            title="Press Enter to change fps"
-            arrowPointAtCenter
-          >
-            <Input
-              id="fpsSet"
-              className="fpsInput"
-              defaultValue={30}
-              value={this.props.inputFrameRate}
-              type="number"
-              suffix="FPS"
-              onChange={(e) => handleFPS("input", e.target.value)}
-              onPressEnter={(e) => handleFPS("enter", e.target.value)}
-            />
-          </Tooltip>
-        </Col>
-      ) : null,
-      fpsUp: UIlist.includes("fpsUp") ? (
-        <Col key="fpsUp">
-          <Tooltip
-            placement="top"
-            title="Increase the FPS by 5"
-            arrowPointAtCenter
-          >
-            <Button
-              shape="round"
-              id="fpsUp"
-              className="fpsUpButton"
-              size="large"
-              icon={icons["fpsUp"]}
-              onClick={() => handleFPS("faster", null)}
-            >
-              Increase
-            </Button>
-          </Tooltip>
-        </Col>
-      ) : null,
-      fpsDown: UIlist.includes("fpsDown") ? (
-        <Col key="fpsDown">
-          <Tooltip
-            placement="bottom"
-            title="Decrease the FPS by 5"
-            arrowPointAtCenter
-          >
-            <Button
-              shape="round"
-              id="fpsDown"
-              className="fpsDownButton"
-              size="large"
-              icon={icons["fpsDown"]}
-              onClick={() => handleFPS("slower", null)}
-            >
-              Decrease
-            </Button>
-          </Tooltip>
-        </Col>
-      ) : null,
-    };
-    directions.forEach((dir) => {
-      if (UIlist.includes(dir))
-        elements[dir] = (
-          <Col key={dir} span={2}>
-            <Button
-              id={dir}
-              shape="round"
-              size="large"
-              icon={icons[dir]}
-              onClick={() =>
-                sendMessage({ actionType: "mousedown", action: dir })
-              }
-            />
-          </Col>
-        );
-    });
     if (controlPanel){
       if (controlPanel.Buttons) {
         var buttons = controlPanel.Buttons
@@ -246,26 +164,6 @@ class ControlPanel extends React.Component {
       }
     }
 
-    commands.forEach((command) => {
-      if (UIlist.includes(command)) {
-        elements[command] = (
-          <Col key={command}>
-            <Button
-              shape="round"
-              type="primary"
-              id={command}
-              className={`${command}Button`}
-              icon={icons[command]}
-              size="large"
-              onClick={() => handleCommand(command)}
-            >
-              {capitalize(command)}
-            </Button>
-          </Col>
-        );
-      }
-    });
-
     imageCommands.forEach((command) => {
       let className = `${command}Button`;
       if (command === "addMinutia" && addingMinutiae) {
@@ -300,23 +198,6 @@ class ControlPanel extends React.Component {
               disabled={!enabled}
             >
               {capitalize(sentenceCase(command))}
-            </Button>
-          </Col>
-        );
-      }
-    });
-    UIFiltered.forEach((ele) => {
-      if (!(ele in elements)) {
-        elements[ele] = (
-          <Col key={ele}>
-            <Button
-              id={ele}
-              shape="round"
-              type="primary"
-              size="large"
-              onClick={() => handleCommand(ele)}
-            >
-              {capitalize(sentenceCase(ele))}
             </Button>
           </Col>
         );
