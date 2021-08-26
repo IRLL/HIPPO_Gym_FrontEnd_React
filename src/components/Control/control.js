@@ -158,7 +158,6 @@ class ControlPanel extends React.Component {
       if (controlPanel.Buttons) {
         var buttons = controlPanel.Buttons
         buttons.forEach((button) => {
-          console.log(button)
           let currButton = button[Object.keys(button)[0]]
           if (!currButton.image) {
           elements[currButton.value] = (

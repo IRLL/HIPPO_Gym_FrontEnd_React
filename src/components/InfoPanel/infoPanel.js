@@ -20,14 +20,14 @@ class InfoPanel extends React.Component {
    for(let key in infoPanel){
     if (key==="text") {
       elements["text"] = (
-        <div>{infoPanel[key]}</div>
+        <div>{infoPanel[key].toString()}</div>
       )
       textUI.push(elements["text"]);
     } else if (key==="items") {
       if (infoPanel[key]){
         infoPanel[key].forEach((item, i) => {
           elements[`item${i}`] = (
-            <li key={`item${i}`}>{item}</li>
+            <p key={`item${i}`}>{item.toString()}</p>
             )
         itemsUI.push(elements[`item${i}`]);
         })
@@ -36,7 +36,7 @@ class InfoPanel extends React.Component {
         for(let object in infoPanel[key]){
           for (let k in infoPanel[key][object]){
             elements[`${k}`] = (
-              <div key={k}><strong>{capitalize(k)}</strong>: {infoPanel[key][object][k]}</div>
+              <div key={k}><strong>{capitalize(k.toString())}</strong>: {infoPanel[key][object][k].toString()}</div>
             )
             kvUI.push(elements[`${k}`]);
           }
