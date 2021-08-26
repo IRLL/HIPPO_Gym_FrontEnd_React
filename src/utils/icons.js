@@ -35,6 +35,7 @@ import {
 	DragOutlined,
 	BgColorsOutlined,
 	GoldOutlined,
+  CopyOutlined,
 } from "@ant-design/icons";
 
 export const icons = {
@@ -76,4 +77,5 @@ export const icons = {
 	horizontalSplit: <VscSplitHorizontal />,
   first: <CheckCircleOutlined />,
   second: <MdRotate90DegreesCcw />,
+  copy: <CopyOutlined />,
 };
