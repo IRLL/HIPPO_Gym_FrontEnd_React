@@ -57,7 +57,6 @@ class GameWindow extends React.Component {
                     event.preventDefault()
                     if (!wait){
                       wait = true
-                      console.log("sending mouse data: ", new Date())
                       const point = localPoint(event);
                       sendMouseData(
                       "MOUSEMOTION",
@@ -66,7 +65,6 @@ class GameWindow extends React.Component {
                       event.buttons,
                       )
                       setTimeout(() => {
-                        console.log("timeout")
                         wait = false
                       }, 500)
                     }
