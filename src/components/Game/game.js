@@ -595,12 +595,7 @@ class Game extends React.Component {
         BUTTONPRESSED: value,
         minutiaList: this.normalizeMinutiae(this.state.minutiae),
       }});
-<<<<<<< HEAD
-		}
-    else {
-=======
 		} else {
->>>>>>> beta
 			this.sendMessage({ ButtonEvent: {
         BUTTONPRESSED: value,
       }});
