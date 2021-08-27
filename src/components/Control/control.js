@@ -16,7 +16,7 @@ class ControlPanel extends React.Component {
       DEBUG,
       handleFPS,
       sendMessage,
-      handleCommand,
+      imageControls,
       handleImage,
       handleImageCommands,
       handleChanging,
@@ -319,19 +319,25 @@ class ControlPanel extends React.Component {
             }`}
           >
             <div className="panelContainer">
-              <Row
-                gutter={[4, 8]}
-                justify="space-around"
-                className="imageCommands"
-              >
-                {imgCommands}
-              </Row>
-              <Row gutter={[4, 8]} justify="space-between">
-                {sliders1}
-              </Row>
-              <Row gutter={[4, 8]} justify="space-between">
-                {sliders2}
-              </Row>
+
+              {imageControls ?
+                <>
+                  <Row
+                    gutter={[4, 8]}
+                    justify="space-around"
+                    className="imageCommands"
+                  >
+                    {imgCommands}
+                  </Row>
+                  <Row gutter={[4, 8]} justify="space-between">
+                    {sliders1}
+                  </Row>
+                  <Row gutter={[4, 8]} justify="space-between">
+                    {sliders2}
+                  </Row>
+                </>
+              : null}
+
               <Row gutter={[4, 8]} justify="space-around">
                 {feedbackRow}
               </Row>

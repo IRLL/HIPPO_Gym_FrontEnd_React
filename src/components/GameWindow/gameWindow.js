@@ -7,6 +7,7 @@ import { Zoom } from "@vx/zoom";
 import { localPoint } from "@vx/event";
 
 const defaultBorderColor = "#1890ff";
+var wait = false;
 
 class GameWindow extends React.Component {
 
@@ -42,7 +43,7 @@ class GameWindow extends React.Component {
                     : "solid " + defaultBorderColor
                   }}
                   onMouseDown={(event) => {
-                    event.preventDefault()
+                    event.preventDefault();
                     const point = localPoint(event);
                     sendMouseData(
                       "MOUSEBUTTONDOWN",
@@ -52,17 +53,26 @@ class GameWindow extends React.Component {
                     )
                   }}
                   onMouseMove={(event) => {
+                    // TODO: add an interval for sending mouse motion data
                     event.preventDefault()
-                    const point = localPoint(event);
-                    sendMouseData(
+                    if (!wait){
+                      wait = true
+                      console.log("sending mouse data: ", new Date())
+                      const point = localPoint(event);
+                      sendMouseData(
                       "MOUSEMOTION",
                       point.x,
                       point.y - 0.65625,
                       event.buttons,
-                    )
+                      )
+                      setTimeout(() => {
+                        console.log("timeout")
+                        wait = false
+                      }, 500)
+                    }
                   }}
                   onMouseUp={(event) => {
-                    event.preventDefault()
+                    event.preventDefault();
                     const point = localPoint(event);
                     sendMouseData(
                       "MOUSEBUTTONUP",
