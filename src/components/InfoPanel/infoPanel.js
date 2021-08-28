@@ -36,7 +36,6 @@ class InfoPanel extends React.Component {
       }
     } else if(key==="kv"){
         for (let k in infoPanel[key]){
-          console.log(k)
           elements[`${k}`] = (
             <div key={k}><strong>{k !== null ? capitalize(k.toString()) : capitalize(k)}</strong>: {infoPanel[key][k] !== null ? infoPanel[key][k].toString(): infoPanel[key][k]}</div>
           )

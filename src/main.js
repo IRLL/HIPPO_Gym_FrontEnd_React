@@ -118,9 +118,13 @@ class Main extends React.Component {
 			if (element.tagName === "BUTTON") {
 				continue;
 			}
+      if (element.type === "radio") {
+        const radios = form.elements[element.name];
+        data[element.name] = radios.value;
+        continue;
+      }
 			data[element.name] = element.value;
 		}
-
 		//submit the user's input by sending the POST requests
 		axios
 			.post(RLAPI, data, {
