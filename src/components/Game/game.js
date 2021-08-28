@@ -446,9 +446,6 @@ class Game extends React.Component {
 		if (this.setInMessage) clearInterval(this.setInMessage);
 	}
 
-  handleCall = () => {
-    console.log("resize was cleared")
-  }
   // check every second if the resize has stopped
   resizeCalled = () => {
     var resizeCalled = setInterval(() => {
@@ -885,23 +882,19 @@ class Game extends React.Component {
   // also send message every time mouse up or down occurs
   sendMouseData = (eventType, x, y, button) => {
     [x, y] = [parseInt(x), parseInt(y)]
-
-    if (this.state.frameCount !== prevMouseData.frameCount || eventType !== "MOUSEMOTION" ){
       var buttonTuple = this.getButtonTuple(button)
       var [xMovement, yMovement] = this.getMouseData(x, y)
 
-      //TODO: windowId should be added here
-      if (eventType === "MOUSEMOTION") {
-        this.sendMessage({ MouseEvent:{
-          MOUSEMOTION : [{x, y}, {xMovement, yMovement}, buttonTuple, button]  // button represents an integer value for which button has been pressed
-        }})
-      }
-      else {
-        this.sendMessage({ MouseEvent: {
-          [eventType]: [{x, y}, buttonTuple, button]
-        }})
-      }
-      prevMouseData.frameCount = this.state.frameCount; // set prevFrameCount to the current frame count
+    //TODO: windowId should be added here
+    if (eventType === "MOUSEMOTION") {
+      this.sendMessage({ MouseEvent:{
+        MOUSEMOTION : [{x, y}, {xMovement, yMovement}, buttonTuple, button]  // button represents an integer value for which button has been pressed
+      }})
+    }
+    else {
+      this.sendMessage({ MouseEvent: {
+        [eventType]: [{x, y}, buttonTuple, button]
+      }})
     }
   };
 
@@ -1207,6 +1200,7 @@ class Game extends React.Component {
                     orientation={orientation}
                     undoEnabled={undoEnabled}
                     redoEnabled={redoEnabled}
+                    imageControls={imageControls}
                     blockButtons={
                       currentBlock ? [previousBlock, currentBlock, nextBlock] : null
                     }

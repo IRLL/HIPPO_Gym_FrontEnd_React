@@ -2,6 +2,9 @@ import { v4 as uuidv4 } from "uuid";
 
 //parse the projectId from the original query string
 let search = window.location.search;
+let origin = window.location.origin;
+let wsPrefix = "ws"
+let port = "5001"
 let host = window.location.hostname;
 let default_redirect = window.location.href;
 let params = new URLSearchParams(search);
@@ -21,12 +24,17 @@ if (host === "localhost" || host === "127.0.0.1") {
 	host = host.replace("code.", "");
 }
 
+if (origin.indexOf("https://") === 0) {
+  wsPrefix = "wss"
+  port = "5000"
+}
+
 export const SERVER = params.get("server");
 export const REDIRECT = SERVER && redirect ? redirect : default_redirect;
 export const PROJECT_ID = SERVER ? "" : params.get("projectId");
 export const CSS_PATH = params.get("css");
 export const USER_ID = SERVER && userId ? userId : uuidv4();
-export const WS_URL = SERVER ? SERVER : `wss://${USER_ID}.${host}:5000`;
+export const WS_URL = SERVER ? SERVER : `${wsPrefix}://${USER_ID}.${host}:${port}`;
 export const DEBUG = debug === "true" ? true : false;
 
 //api endpoint used to send GET and POST requests
