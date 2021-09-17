@@ -8,7 +8,6 @@ import "./fingerprintWindow.css";
 import { Zoom } from "@vx/zoom";
 import { localPoint } from "@vx/event";
 import { RectClipPath } from "@vx/clip-path";
-import { Text } from "@vx/text";
 
 // Reference: https://vx-demo.vercel.app/zoom-iu
 class FingerprintWindow extends React.Component {
@@ -110,21 +109,21 @@ class FingerprintWindow extends React.Component {
 		);
 
 		// Menu when minutia type is selected from popup menu
-		const types = ["Bifurcation", "Ending", "Unknown"];
-		const minutiaType = (
-			<Radio.Group
-				defaultValue={minutiae[currMinutia] ? minutiae[currMinutia].type : "Unknown"}
-				onChange={(e) => {
-					handleMinutia("changeType", currMinutia, e.target.value);
-				}}
-			>
-				{types.map((type) => (
-					<Radio key={type} value={type}>
-						{type}
-					</Radio>
-				))}
-			</Radio.Group>
-		);
+		// const types = ["Bifurcation", "Ending", "Unknown"];
+		// const minutiaType = (
+		// 	<Radio.Group
+		// 		defaultValue={minutiae[currMinutia] ? minutiae[currMinutia].type : "Unknown"}
+		// 		onChange={(e) => {
+		// 			handleMinutia("changeType", currMinutia, e.target.value);
+		// 		}}
+		// 	>
+		// 		{types.map((type) => (
+		// 			<Radio key={type} value={type}>
+		// 				{type}
+		// 			</Radio>
+		// 		))}
+		// 	</Radio.Group>
+		// );
 
 		// Popup menu when a minutia is clicked on
 		const popupMenu = (

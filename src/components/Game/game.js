@@ -322,6 +322,10 @@ class Game extends React.Component {
 
 	componentWillUnmount() {
 		if (this.setInMessage) clearInterval(this.setInMessage);
+
+		document.removeEventListener("keydown");
+		document.removeEventListener("keyup");
+		window.removeEventListener("resize");
 	}
 
 	// Change the confirmation modal to be invisible
