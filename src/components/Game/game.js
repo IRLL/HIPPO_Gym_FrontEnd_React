@@ -420,10 +420,14 @@ class Game extends React.Component {
 						</p>
 					);
 				} else {
-					this.setState({ requestingFeedback: true });
+					// add to fingerprint cache
+					const fingerprintCache = [...this.state.fingerprintCache];
+					const minutiaList = this.normalizeMinutiae(this.state.minutiae);
+					fingerprintCache.push(minutiaList);
+					this.setState({ requestingFeedback: true, fingerprintCache });
 					this.sendMessage({
 						command: status,
-						minutiaList: this.normalizeMinutiae(this.state.minutiae),
+						minutiaList,
 					});
 				}
 				break;
@@ -437,9 +441,19 @@ class Game extends React.Component {
 				this.setState((prevState) => ({ feedbackShown: !prevState.feedbackShown }));
 				break;
 			case "submitImage":
+				const fingerprintCache = [...this.state.fingerprintCache];
+				const minutiaList = this.normalizeMinutiae(this.state.minutiae);
+				fingerprintCache.push(minutiaList);
+				this.setState({ fingerprintCache });
+				// if (
+				// 	fingerprintCache &&
+				// 	!this.equals(minutiaList, fingerprintCache[fingerprintCache.length - 1])
+				// ) {
+				// 	console.log("cache");
+				// }
 				this.sendMessage({
 					command: status,
-					minutiaList: this.normalizeMinutiae(this.state.minutiae),
+					minutiaList,
 				});
 				break;
 			default:
@@ -748,6 +762,8 @@ class Game extends React.Component {
 		});
 	};
 
+	equals = (a, b) => a.length === b.length && a.every((v, i) => v === b[i]);
+
 	resetAll = () => {
 		this.scrollToTop();
 
@@ -771,6 +787,7 @@ class Game extends React.Component {
 			hue: 0,
 
 			// Reset undo and redo stacks and buttons
+			fingerprintCache: [],
 			undoList: [],
 			redoList: [],
 			undoEnabled: false,
@@ -1001,7 +1018,7 @@ class Game extends React.Component {
 						<Comparison
 							frameSrc={frameSrc}
 							expertMarkers={[expertMarker1, expertMarker2]}
-							userMarkers={this.normalizeMinutiae(minutiae)}
+							userMarkers={this.state.fingerprintCache}
 						/>
 
 						<Button

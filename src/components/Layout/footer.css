@@ -19,7 +19,8 @@
 }
 
 /* Add space on the left and right of the logo */
-.AmiiLogo {
+.AmiiLogo,
+.EPSLogo {
 	margin-left: 2rem;
 }
 

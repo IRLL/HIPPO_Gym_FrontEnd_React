@@ -7,9 +7,19 @@ class Header extends React.PureComponent {
 	render() {
 		return (
 			<header className="header">
-				<a className="irllLogo" href="https://irll.ca/" target="_blank" rel="noopener noreferrer">
-					<img src={process.env.PUBLIC_URL + "/irll-logo.png"} alt="irll-logo" height="100" />
-				</a>
+				<div className="header-images">
+					<a className="irllLogo" href="https://irll.ca/" target="_blank" rel="noopener noreferrer">
+						<img src={process.env.PUBLIC_URL + "/irll-logo.png"} alt="irll-logo" height="100" />
+					</a>
+					<a
+						className="irllLogo"
+						href="https://tec.mx/es"
+						target="_blank"
+						rel="noopener noreferrer"
+					>
+						<img src={process.env.PUBLIC_URL + "/itesm-logo.png"} alt="itesm-logo" height="100" />
+					</a>
+				</div>
 				<Divider />
 			</header>
 		);
