@@ -19,6 +19,7 @@ import GameWindow from "../GameWindow/gameWindow";
 import FingerprintWindow from "../GameWindow/fingerprintWindow";
 import Comparison from "../Comparison/comparison";
 
+// const pendingTime = 5;
 const pendingTime = 30;
 
 class Game extends React.Component {
@@ -125,6 +126,7 @@ class Game extends React.Component {
 				this.websocket.onmessage = (message) => {
 					if (message.data === "done") {
 						//"done" means the game has ended
+						console.log("game is done");
 						this.setState({
 							isEnd: true,
 							gameEndVisible: true,
@@ -272,6 +274,7 @@ class Game extends React.Component {
 						isConnection: false,
 						isEnd: true,
 						gameEndVisible: true,
+						scoreModalVisible: false,
 					});
 				};
 			},
@@ -279,7 +282,7 @@ class Game extends React.Component {
 		);
 
 		// Listen to the user's keyboard inputs
-		document.addEventListener("keydown", (event) => {
+		this.keydown = (event) => {
 			//Used to prevent arrow keys and space key from scrolling the page
 			let dataToSend = getKeyInput(event.code);
 			if (dataToSend.actionType !== null) {
@@ -292,9 +295,11 @@ class Game extends React.Component {
 					this.sendMessage(dataToSend);
 				}
 			}
-		});
+		};
 
-		document.addEventListener("keyup", (event) => {
+		document.addEventListener("keydown", this.keydown);
+
+		this.keyup = (event) => {
 			//Used to prevent arrow keys and space key from scrolling the page
 			let dataToSend = getKeyInput(event.code);
 			if (this.state.UIlist.includes(dataToSend.action)) {
@@ -304,10 +309,12 @@ class Game extends React.Component {
 				}
 				this.sendMessage(dataToSend);
 			}
-		});
+		};
+
+		document.addEventListener("keyup", this.keyup);
 
 		// Get the client window width to make the game window responsive
-		window.addEventListener("resize", () => {
+		this.resize = () => {
 			const value =
 				this.state.orientation === "vertical"
 					? document.documentElement.clientWidth > 700
@@ -317,15 +324,17 @@ class Game extends React.Component {
 					? 700
 					: 0.4 * document.documentElement.clientWidth;
 			this.setState({ windowWidth: value });
-		});
+		};
+
+		window.addEventListener("resize", this.resize);
 	}
 
 	componentWillUnmount() {
 		if (this.setInMessage) clearInterval(this.setInMessage);
 
-		document.removeEventListener("keydown");
-		document.removeEventListener("keyup");
-		window.removeEventListener("resize");
+		document.removeEventListener("keydown", this.keydown);
+		document.removeEventListener("keyup", this.keyup);
+		window.removeEventListener("resize", this.resize);
 	}
 
 	// Change the confirmation modal to be invisible
@@ -445,12 +454,6 @@ class Game extends React.Component {
 				const minutiaList = this.normalizeMinutiae(this.state.minutiae);
 				fingerprintCache.push(minutiaList);
 				this.setState({ fingerprintCache });
-				// if (
-				// 	fingerprintCache &&
-				// 	!this.equals(minutiaList, fingerprintCache[fingerprintCache.length - 1])
-				// ) {
-				// 	console.log("cache");
-				// }
 				this.sendMessage({
 					command: status,
 					minutiaList,
@@ -772,9 +775,9 @@ class Game extends React.Component {
 			score: null,
 
 			// Reset the frame source
-			frameSrc: prevState.nextframeSrc,
-			frameCount: prevState.nextframeCount,
-			frameId: prevState.nextframeId,
+			frameSrc: prevState.nextframeSrc || prevState.frameSrc,
+			frameCount: prevState.nextframeCount || prevState.frameCount,
+			frameId: prevState.nextframeId || prevState.frameId,
 			nextframeCount: null,
 			nextframeSrc: null,
 			nextframeId: null,
@@ -982,7 +985,8 @@ class Game extends React.Component {
 
 				<Modal
 					visible={scoreModalVisible}
-					closable={false}
+					// closable={false}
+					destroyOnClose={true}
 					footer={null}
 					width="max-content"
 					style={{ top: 20 }}
@@ -1022,13 +1026,13 @@ class Game extends React.Component {
 						/>
 
 						<Button
-							disabled={!score}
+							// disabled={!score}
 							icon={icons["next"]}
 							shape="round"
 							type="primary"
 							onClick={this.resetAll}
 						>
-							Next Image
+							Next
 						</Button>
 					</div>
 				</Modal>
