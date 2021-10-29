@@ -126,10 +126,10 @@ class Game extends React.Component {
 				this.websocket.onmessage = (message) => {
 					if (message.data === "done") {
 						//"done" means the game has ended
-						console.log("game is done");
 						this.setState({
 							isEnd: true,
-							gameEndVisible: true,
+							scoreModalVisible: true,
+							// gameEndVisible: true,
 						});
 					} else {
 						//parse the data from the websocket server
@@ -273,8 +273,8 @@ class Game extends React.Component {
 					this.setState({
 						isConnection: false,
 						isEnd: true,
-						gameEndVisible: true,
-						scoreModalVisible: false,
+						// gameEndVisible: true,
+						scoreModalVisible: true,
 					});
 				};
 			},
@@ -768,6 +768,16 @@ class Game extends React.Component {
 	equals = (a, b) => a.length === b.length && a.every((v, i) => v === b[i]);
 
 	resetAll = () => {
+		// if it's the end of the game
+		if (this.state.isEnd) {
+			this.setState({
+				scoreModalVisible: false,
+			});
+			this.props.action();
+			return;
+		}
+
+		// otherwise
 		this.scrollToTop();
 
 		this.setState((prevState) => ({
@@ -985,7 +995,7 @@ class Game extends React.Component {
 
 				<Modal
 					visible={scoreModalVisible}
-					// closable={false}
+					closable={false}
 					destroyOnClose={true}
 					footer={null}
 					width="max-content"
