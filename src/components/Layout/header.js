@@ -17,7 +17,11 @@ class Header extends React.PureComponent {
 						target="_blank"
 						rel="noopener noreferrer"
 					>
-						<img src={process.env.PUBLIC_URL + "/itesm-logo.png"} alt="itesm-logo" height="100" />
+						<img
+							src={process.env.PUBLIC_URL + "/nuevo-logo-tec-de-monterrey.jpg"}
+							alt="itesm-logo"
+							height="100"
+						/>
 					</a>
 				</div>
 				<Divider />

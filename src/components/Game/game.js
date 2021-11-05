@@ -1028,12 +1028,17 @@ class Game extends React.Component {
 								<Skeleton.Avatar active={!score} size={100} shape="circle" />
 							</>
 						)}
-						<h4>Here is your edition compared to experts:</h4>
-						<Comparison
-							frameSrc={frameSrc}
-							expertMarkers={[expertMarker1, expertMarker2]}
-							userMarkers={this.state.fingerprintCache}
-						/>
+						{expertMarker1 && expertMarker2 && (
+							<>
+								<h4>Here is your edition compared to experts:</h4>
+
+								<Comparison
+									frameSrc={frameSrc}
+									expertMarkers={[expertMarker1, expertMarker2]}
+									userMarkers={this.state.fingerprintCache}
+								/>
+							</>
+						)}
 
 						<Button
 							// disabled={!score}
