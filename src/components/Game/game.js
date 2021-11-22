@@ -19,6 +19,7 @@ import GameWindow from "../GameWindow/gameWindow";
 import FingerprintWindow from "../GameWindow/fingerprintWindow";
 import Comparison from "../Comparison/comparison";
 
+// const pendingTime = 5;
 const pendingTime = 30;
 
 class Game extends React.Component {
@@ -82,6 +83,8 @@ class Game extends React.Component {
 		imageHeight: null, // default height of the frame image source
 
 		requestingFeedback: false,
+		minutiaeShown: true,
+		feedbackShown: false,
 	};
 
 	componentDidMount() {
@@ -125,7 +128,8 @@ class Game extends React.Component {
 						//"done" means the game has ended
 						this.setState({
 							isEnd: true,
-							gameEndVisible: true,
+							scoreModalVisible: true,
+							// gameEndVisible: true,
 						});
 					} else {
 						//parse the data from the websocket server
@@ -182,7 +186,13 @@ class Game extends React.Component {
 							});
 						}
 						if (parsedData.ScoreChange) {
-							this.setState({ requestingFeedback: false });
+							this.setState({
+								requestingFeedback: false,
+								feedbackShown: true,
+								feedbackEnabled: true,
+								minutiaeShown: true,
+								haveFeedback: true,
+							});
 							this.handleFeedback(parsedData.ScoreChange);
 						}
 						//Check if frame related information in response
@@ -263,7 +273,8 @@ class Game extends React.Component {
 					this.setState({
 						isConnection: false,
 						isEnd: true,
-						gameEndVisible: true,
+						// gameEndVisible: true,
+						scoreModalVisible: true,
 					});
 				};
 			},
@@ -271,7 +282,7 @@ class Game extends React.Component {
 		);
 
 		// Listen to the user's keyboard inputs
-		document.addEventListener("keydown", (event) => {
+		this.keydown = (event) => {
 			//Used to prevent arrow keys and space key from scrolling the page
 			let dataToSend = getKeyInput(event.code);
 			if (dataToSend.actionType !== null) {
@@ -284,9 +295,11 @@ class Game extends React.Component {
 					this.sendMessage(dataToSend);
 				}
 			}
-		});
+		};
 
-		document.addEventListener("keyup", (event) => {
+		document.addEventListener("keydown", this.keydown);
+
+		this.keyup = (event) => {
 			//Used to prevent arrow keys and space key from scrolling the page
 			let dataToSend = getKeyInput(event.code);
 			if (this.state.UIlist.includes(dataToSend.action)) {
@@ -296,10 +309,12 @@ class Game extends React.Component {
 				}
 				this.sendMessage(dataToSend);
 			}
-		});
+		};
+
+		document.addEventListener("keyup", this.keyup);
 
 		// Get the client window width to make the game window responsive
-		window.addEventListener("resize", () => {
+		this.resize = () => {
 			const value =
 				this.state.orientation === "vertical"
 					? document.documentElement.clientWidth > 700
@@ -309,11 +324,17 @@ class Game extends React.Component {
 					? 700
 					: 0.4 * document.documentElement.clientWidth;
 			this.setState({ windowWidth: value });
-		});
+		};
+
+		window.addEventListener("resize", this.resize);
 	}
 
 	componentWillUnmount() {
 		if (this.setInMessage) clearInterval(this.setInMessage);
+
+		document.removeEventListener("keydown", this.keydown);
+		document.removeEventListener("keyup", this.keyup);
+		window.removeEventListener("resize", this.resize);
 	}
 
 	// Change the confirmation modal to be invisible
@@ -403,21 +424,39 @@ class Game extends React.Component {
 						"Not enough minutiae",
 						<p>
 							You only have <b>{this.state.minutiae.length}</b> minutia
-							{this.state.minutiae.length !== 1 && "e"} and you need at least 4 minutiae to request feedback
+							{this.state.minutiae.length !== 1 && "e"} and you need at least 4 minutiae to request
+							feedback
 						</p>
 					);
 				} else {
-					this.setState({ requestingFeedback: true });
+					// add to fingerprint cache
+					const fingerprintCache = [...this.state.fingerprintCache];
+					const minutiaList = this.normalizeMinutiae(this.state.minutiae);
+					fingerprintCache.push(minutiaList);
+					this.setState({ requestingFeedback: true, fingerprintCache });
 					this.sendMessage({
 						command: status,
-						minutiaList: this.normalizeMinutiae(this.state.minutiae),
+						minutiaList,
 					});
 				}
 				break;
+			case "toggleMinutiae":
+				if (this.state.minutiaeShown)
+					this.setState({ feedbackShown: false, feedbackEnabled: false });
+				else if (this.state.haveFeedback) this.setState({ feedbackEnabled: true });
+				this.setState((prevState) => ({ minutiaeShown: !prevState.minutiaeShown }));
+				break;
+			case "toggleFeedback":
+				this.setState((prevState) => ({ feedbackShown: !prevState.feedbackShown }));
+				break;
 			case "submitImage":
+				const fingerprintCache = [...this.state.fingerprintCache];
+				const minutiaList = this.normalizeMinutiae(this.state.minutiae);
+				fingerprintCache.push(minutiaList);
+				this.setState({ fingerprintCache });
 				this.sendMessage({
 					command: status,
-					minutiaList: this.normalizeMinutiae(this.state.minutiae),
+					minutiaList,
 				});
 				break;
 			default:
@@ -429,7 +468,10 @@ class Game extends React.Component {
 
 	// Change the FPS of the game
 	handleFPS = (speed) => {
-		if ((speed === "faster" && this.state.frameRate + 5 > 90) || (speed === "slower" && this.state.frameRate - 5 < 1)) {
+		if (
+			(speed === "faster" && this.state.frameRate + 5 > 90) ||
+			(speed === "slower" && this.state.frameRate - 5 < 1)
+		) {
 			message.error("Invalid FPS, the FPS can only between 1 - 90!");
 		} else {
 			this.setState((prevState) => ({
@@ -511,7 +553,8 @@ class Game extends React.Component {
 						"Not enough minutiae",
 						<p>
 							You only have <b>{this.state.minutiae.length}</b> minutia
-							{this.state.minutiae.length !== 1 && "e"} out of the minimum of <b>{this.state.minMinutiae}</b> needed
+							{this.state.minutiae.length !== 1 && "e"} out of the minimum of{" "}
+							<b>{this.state.minMinutiae}</b> needed
 						</p>
 					);
 				} else {
@@ -533,7 +576,7 @@ class Game extends React.Component {
 			let color = minutia.color;
 			if (feedback[i][1] < 0) color = "green";
 			else if (feedback[i][1] > 0) color = "red";
-			return { ...minutia, color };
+			return { ...minutia, scoreChange: feedback[i][1], feedbackColor: color };
 		});
 
 		this.setState({ minutiae });
@@ -722,7 +765,19 @@ class Game extends React.Component {
 		});
 	};
 
+	equals = (a, b) => a.length === b.length && a.every((v, i) => v === b[i]);
+
 	resetAll = () => {
+		// if it's the end of the game
+		if (this.state.isEnd) {
+			this.setState({
+				scoreModalVisible: false,
+			});
+			this.props.action();
+			return;
+		}
+
+		// otherwise
 		this.scrollToTop();
 
 		this.setState((prevState) => ({
@@ -730,9 +785,9 @@ class Game extends React.Component {
 			score: null,
 
 			// Reset the frame source
-			frameSrc: prevState.nextframeSrc,
-			frameCount: prevState.nextframeCount,
-			frameId: prevState.nextframeId,
+			frameSrc: prevState.nextframeSrc || prevState.frameSrc,
+			frameCount: prevState.nextframeCount || prevState.frameCount,
+			frameId: prevState.nextframeId || prevState.frameId,
 			nextframeCount: null,
 			nextframeSrc: null,
 			nextframeId: null,
@@ -745,6 +800,7 @@ class Game extends React.Component {
 			hue: 0,
 
 			// Reset undo and redo stacks and buttons
+			fingerprintCache: [],
 			undoList: [],
 			redoList: [],
 			undoEnabled: false,
@@ -788,6 +844,9 @@ class Game extends React.Component {
 			expertMarker1,
 			expertMarker2,
 			requestingFeedback,
+			feedbackEnabled,
+			minutiaeShown,
+			feedbackShown,
 		} = this.state;
 
 		return (
@@ -804,9 +863,18 @@ class Game extends React.Component {
 					<Radio.Button value="horizontal">{icons["horizontalSplit"]}</Radio.Button>
 				</Radio.Group>
 
-				<DisplayBar visible={displayData !== null} isLoading={isLoading} displayData={displayData} />
+				<DisplayBar
+					visible={displayData !== null}
+					isLoading={isLoading}
+					displayData={displayData}
+				/>
 
-				<BudgetBar visible={inputBudget > 0} isLoading={isLoading} usedInputBudget={usedInputBudget} inputBudget={inputBudget} />
+				<BudgetBar
+					visible={inputBudget > 0}
+					isLoading={isLoading}
+					usedInputBudget={usedInputBudget}
+					inputBudget={inputBudget}
+				/>
 
 				<div className={DEBUG ? "" : `${orientation}Grid`}>
 					<Row gutter={4} align="center" style={{ width: "100%" }}>
@@ -831,14 +899,28 @@ class Game extends React.Component {
 									addMinutia={this.addMinutia}
 									handleMinutia={this.handleMinutia}
 									handleChanging={this.handleChanging}
+									minutiaeShown={minutiaeShown}
+									feedbackShown={feedbackShown}
 								/>
 							) : (
-								<GameWindow isLoading={isLoading} frameSrc={frameSrc} imageL={imageL} imageR={imageR} progress={progress} data-testid="game-window" />
+								<GameWindow
+									isLoading={isLoading}
+									frameSrc={frameSrc}
+									imageL={imageL}
+									imageR={imageR}
+									progress={progress}
+									data-testid="game-window"
+								/>
 							)}
 						</Col>
 
 						<Col span={4}>
-							<MessageViewer title="Message Out" id="message-view-1" data={outMessage} visible={DEBUG} />
+							<MessageViewer
+								title="Message Out"
+								id="message-view-1"
+								data={outMessage}
+								visible={DEBUG}
+							/>
 						</Col>
 					</Row>
 
@@ -866,10 +948,18 @@ class Game extends React.Component {
 						undoEnabled={undoEnabled}
 						redoEnabled={redoEnabled}
 						requestingFeedback={requestingFeedback}
+						feedbackEnabled={feedbackEnabled}
+						minutiaeShown={minutiaeShown}
+						feedbackShown={feedbackShown}
 					/>
 				</div>
 
-				<Modal title="Game end message" visible={gameEndVisible} onOk={this.handleOk} onCancel={this.handleCancel}>
+				<Modal
+					title="Game end message"
+					visible={gameEndVisible}
+					onOk={this.handleOk}
+					onCancel={this.handleCancel}
+				>
 					<p className="modal">The game has ended</p>
 					<p className="modal">
 						Press <b>"Cancel"</b> to stay on this page
@@ -903,7 +993,14 @@ class Game extends React.Component {
 					</p>
 				</Modal>
 
-				<Modal visible={scoreModalVisible} closable={false} footer={null} width="max-content" style={{ top: 20 }}>
+				<Modal
+					visible={scoreModalVisible}
+					closable={false}
+					destroyOnClose={true}
+					footer={null}
+					width="max-content"
+					style={{ top: 20 }}
+				>
 					<div className="scoreModal">
 						{score ? (
 							<>
@@ -932,10 +1029,20 @@ class Game extends React.Component {
 							</>
 						)}
 						<h4>Here is your edition compared to experts:</h4>
-						<Comparison frameSrc={frameSrc} expertMarkers={[expertMarker1, expertMarker2]} userMarkers={this.normalizeMinutiae(minutiae)} />
+						<Comparison
+							frameSrc={frameSrc}
+							expertMarkers={[expertMarker1, expertMarker2]}
+							userMarkers={this.state.fingerprintCache}
+						/>
 
-						<Button disabled={!score} icon={icons["next"]} shape="round" type="primary" onClick={this.resetAll}>
-							Next Image
+						<Button
+							// disabled={!score}
+							icon={icons["next"]}
+							shape="round"
+							type="primary"
+							onClick={this.resetAll}
+						>
+							Next
 						</Button>
 					</div>
 				</Modal>

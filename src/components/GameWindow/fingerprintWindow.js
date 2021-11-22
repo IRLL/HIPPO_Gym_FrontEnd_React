@@ -2,6 +2,7 @@ import React from "react";
 import { Progress, Popover, Button, Slider, Tooltip, Radio } from "antd";
 import { icons } from "../../utils/icons";
 import capitalize from "../../utils/capitalize";
+import round from "../../utils/round";
 import "./fingerprintWindow.css";
 
 import { Zoom } from "@vx/zoom";
@@ -33,6 +34,8 @@ class FingerprintWindow extends React.Component {
 			addMinutia,
 			handleMinutia,
 			handleChanging,
+			minutiaeShown,
+			feedbackShown,
 		} = this.props;
 
 		// If the frame has not loaded, show the loading screen
@@ -41,7 +44,7 @@ class FingerprintWindow extends React.Component {
 				<div className="gameWindow">
 					<div className="progressBar">
 						<Progress width={80} type="circle" percent={Math.round(progress)} />
-						<p className="promptText">The robot is about to start the game, please wait ...</p>
+						<p className="promptText">Hold on while we fingerprint our suspects...</p>
 					</div>
 				</div>
 			);
@@ -106,21 +109,21 @@ class FingerprintWindow extends React.Component {
 		);
 
 		// Menu when minutia type is selected from popup menu
-		const types = ["Bifurcation", "Ending", "Unknown"];
-		const minutiaType = (
-			<Radio.Group
-				defaultValue={minutiae[currMinutia] ? minutiae[currMinutia].type : "Unknown"}
-				onChange={(e) => {
-					handleMinutia("changeType", currMinutia, e.target.value);
-				}}
-			>
-				{types.map((type) => (
-					<Radio key={type} value={type}>
-						{type}
-					</Radio>
-				))}
-			</Radio.Group>
-		);
+		// const types = ["Bifurcation", "Ending", "Unknown"];
+		// const minutiaType = (
+		// 	<Radio.Group
+		// 		defaultValue={minutiae[currMinutia] ? minutiae[currMinutia].type : "Unknown"}
+		// 		onChange={(e) => {
+		// 			handleMinutia("changeType", currMinutia, e.target.value);
+		// 		}}
+		// 	>
+		// 		{types.map((type) => (
+		// 			<Radio key={type} value={type}>
+		// 				{type}
+		// 			</Radio>
+		// 		))}
+		// 	</Radio.Group>
+		// );
 
 		// Popup menu when a minutia is clicked on
 		const popupMenu = (
@@ -140,11 +143,11 @@ class FingerprintWindow extends React.Component {
 						<Button type="default" icon={icons["recolorMinutia"]} />
 					</Popover>
 				</Tooltip>
-				<Tooltip placement="bottom" title="Categorize Minutia">
+				{/* <Tooltip placement="bottom" title="Categorize Minutia">
 					<Popover trigger="click" content={minutiaType} title="Categorize Minutia">
 						<Button type="default" icon={icons["minutiaType"]} />
 					</Popover>
-				</Tooltip>
+				</Tooltip> */}
 				<Tooltip placement="bottom" title="Delete Minutia">
 					<Button
 						type="default"
@@ -249,42 +252,81 @@ class FingerprintWindow extends React.Component {
 										key={`minutia${i}`}
 										defaultVisible={true}
 									>
-										<image
-											alt="minutia"
-											x={minutia.x - Math.round(minutia.size / 2)}
-											y={minutia.y - Math.round(minutia.size / 2)}
-											width={minutia.size}
-											className={this.state.moving ? "moveCursor" : ""}
-											height={minutia.size}
-											href={process.env.PUBLIC_URL + `./fingerprint_minutia_${minutia.color}.svg`}
-											onClick={() => this.setState({ currMinutia: i })}
-											style={{
-												transform: `rotate(${minutia.orientation}deg)`,
-												transformOrigin: `${minutia.x}px ${minutia.y}px`,
-											}}
-											onMouseMove={(e) => {
-												if (this.state.moving) {
-													e.preventDefault();
-													const point = zoom.applyInverseToPoint(localPoint(e));
-													handleMinutia("move", i, point);
+										{minutiaeShown && (
+											<image
+												alt="minutia"
+												x={minutia.x - Math.round(minutia.size / 2)}
+												y={minutia.y - Math.round(minutia.size / 2)}
+												width={minutia.size}
+												className={`feedback ${this.state.moving ? "moveCursor" : ""}`}
+												feedback={minutia.scoreChange ? round(minutia.scoreChange, 2) : "N/A"}
+												height={minutia.size}
+												href={
+													process.env.PUBLIC_URL +
+													`./fingerprint_minutia_${
+														feedbackShown && minutia.feedbackColor
+															? minutia.feedbackColor
+															: minutia.color
+													}.svg`
 												}
-											}}
-											onTouchMove={(e) => {
-												if (this.state.moving) {
-													const point = zoom.applyInverseToPoint(localPoint(e));
-													handleMinutia("move", i, point);
+												onClick={() => this.setState({ currMinutia: i })}
+												style={{
+													transform: `rotate(${minutia.orientation}deg)`,
+													transformOrigin: `${minutia.x}px ${minutia.y}px`,
+												}}
+												onMouseMove={(e) => {
+													if (this.state.moving) {
+														e.preventDefault();
+														const point = zoom.applyInverseToPoint(localPoint(e));
+														handleMinutia("move", i, point);
+													}
+												}}
+												onTouchMove={(e) => {
+													if (this.state.moving) {
+														const point = zoom.applyInverseToPoint(localPoint(e));
+														handleMinutia("move", i, point);
+													}
+												}}
+												onDragStart={(e) => e.preventDefault()}
+												onMouseDown={() => handleChanging(true) || this.setState({ moving: true })}
+												onTouchStart={() => handleChanging(true) || this.setState({ moving: true })}
+												onMouseUp={() => handleChanging(false) || this.setState({ moving: false })}
+												onTouchEnd={() => handleChanging(false) || this.setState({ moving: false })}
+												onMouseLeave={() =>
+													handleChanging(false) || this.setState({ moving: false })
 												}
-											}}
-											onDragStart={(e) => e.preventDefault()}
-											onMouseDown={() => handleChanging(true) || this.setState({ moving: true })}
-											onTouchStart={() => handleChanging(true) || this.setState({ moving: true })}
-											onMouseUp={() => handleChanging(false) || this.setState({ moving: false })}
-											onTouchEnd={() => handleChanging(false) || this.setState({ moving: false })}
-											onMouseLeave={() => handleChanging(false) || this.setState({ moving: false })}
-										/>
+											/>
+										)}
 									</Popover>
 								))}
 							</g>
+
+							{/* Minutiae overlay */}
+							{!!feedbackShown
+								? minutiae.map((minutia, i) => (
+										<g transform={zoom.toString()}>
+											<svg
+												width="62"
+												height="25"
+												x={minutia.x + Math.round(minutia.size / 2)}
+												y={minutia.y - Math.round(minutia.size / 2)}
+												fill="none"
+												xmlns="http://www.w3.org/2000/svg"
+											>
+												<path
+													d="M9.95198 4.64661C9.95198 2.43747 11.7428 0.646606 13.952 0.646606H57.6125C59.8217 0.646606 61.6125 2.43747 61.6125 4.64661V20C61.6125 22.2091 59.8217 24 57.6125 24H13.952C11.7428 24 9.95198 22.2091 9.95198 20V19.7366C9.95198 18.308 9.19 16.9878 7.95294 16.2731L0.852417 12.171L7.80344 8.54137C9.12403 7.85179 9.95198 6.48544 9.95198 4.99565V4.64661Z"
+													fill="black"
+													stroke="white"
+													strokeOpacity="0.27"
+													fill-opacity="0.27"
+												/>
+												<text className="svgText" x="22" y="17" fillOpacity="0.75">
+													{minutia.scoreChange ? round(minutia.scoreChange, 2) : "N/A"}
+												</text>
+											</svg>
+										</g>
+								  ))
+								: null}
 
 							{/* Minimap */}
 							{/* Clip the minimap to be just the field of view */}

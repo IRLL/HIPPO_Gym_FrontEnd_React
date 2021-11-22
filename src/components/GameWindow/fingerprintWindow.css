@@ -144,3 +144,7 @@ Center align the game window both horizontally and vertically */
 	align-items: center;
 	margin: auto;
 }
+
+.svgText {
+	fill: white;
+}

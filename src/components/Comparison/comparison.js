@@ -1,9 +1,10 @@
 import React from "react";
 import "antd/dist/antd.css";
 import "./comparison.css";
-import { Radio, Row, Col, Button, Popover, Tooltip, Slider } from "antd";
+import { Radio, Row, Col, Button, Popover, Tooltip, Slider, Menu, Dropdown } from "antd";
 import LabelledImage from "./labelledImage";
 import { icons } from "../../utils/icons";
+import { DownOutlined } from "@ant-design/icons";
 
 class Comparison extends React.Component {
 	state = {
@@ -34,12 +35,17 @@ class Comparison extends React.Component {
 		}
 	};
 
+	componentDidMount() {
+		const { userMarkers } = this.props;
+		this.setState({ userMarkers: userMarkers[userMarkers.length - 1] });
+	}
+
 	render() {
-		const { frameSrc, expertMarkers, userMarkers } = this.props;
-		const { idx, sideBySide, brightness, contrast, saturation, hue } = this.state;
+		const { frameSrc, expertMarkers } = this.props;
+		const { idx, sideBySide, brightness, contrast, saturation, hue, userMarkers } = this.state;
 
 		const minutiaSize = 20,
-			scale = 0.9,
+			scale = 0.85,
 			width = 400,
 			height = 400;
 		const userColor = "blue",
@@ -77,6 +83,21 @@ class Comparison extends React.Component {
 			</div>
 		);
 
+		const dropdownMenu = (
+			<Menu>
+				{this.props.userMarkers.map((marker, i) => (
+					<Menu.Item
+						key={i}
+						onClick={() => {
+							this.setState({ userMarkers: this.props.userMarkers[i] });
+						}}
+					>
+						Edition {i + 1}
+					</Menu.Item>
+				))}
+			</Menu>
+		);
+
 		return (
 			<div className="comparisonContainer">
 				{/* Controls */}
@@ -107,6 +128,15 @@ class Comparison extends React.Component {
 							<Radio.Button value={1}>Expert 2</Radio.Button>
 						</Radio.Group>
 					</Col>
+
+					{/* User Markers */}
+					<Col>
+						<Dropdown overlay={dropdownMenu}>
+							<Button>
+								Your Markers <DownOutlined />
+							</Button>
+						</Dropdown>
+					</Col>
 				</Row>
 
 				{/* Legend */}
@@ -132,6 +162,11 @@ class Comparison extends React.Component {
 					</Col>
 				</Row>
 
+				{/* Expert Score */}
+				<Row justify="end">
+					<span className="blueFont">Expert Score: {expertMarkers[idx]["score"]}</span>
+				</Row>
+
 				{/* Images */}
 				{sideBySide ? (
 					<Row justify="space-between" gutter={16}>
@@ -154,7 +189,7 @@ class Comparison extends React.Component {
 							<LabelledImage
 								scale={scale}
 								frameSrc={frameSrc}
-								markers={expertMarkers[idx]}
+								markers={expertMarkers[idx]["minutiae"]}
 								minutiaeColor={expertColor}
 								minutiaSize={minutiaSize}
 								width={width}
@@ -170,7 +205,7 @@ class Comparison extends React.Component {
 							scale={scale}
 							frameSrc={frameSrc}
 							markers={userMarkers}
-							markersOther={expertMarkers[idx]}
+							markersOther={expertMarkers[idx]["minutiae"]}
 							minutiaeColor={userColor}
 							minutiaeColorOther={expertColor}
 							minutiaSize={minutiaSize}
