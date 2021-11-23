@@ -124,7 +124,10 @@ class Main extends React.Component {
 			if (element.tagName === "BUTTON") {
 				continue;
 			}
-			data[element.name] = element.value;
+
+			if (element.type === "radio") {
+				if (element.checked) data[element.name] = element.value;
+			}
 		}
 
 		//submit the user's input by sending the POST requests

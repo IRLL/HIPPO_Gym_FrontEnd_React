@@ -10,7 +10,7 @@ class Forum extends React.Component {
 	};
 
 	componentDidMount() {
-		if (this.props.content.includes("You may exit now")) {
+		if (this.props.content.includes("Thanks for participating into our research")) {
 			this.setState({ submittable: false });
 		}
 
@@ -26,24 +26,6 @@ class Forum extends React.Component {
 				yearpicker.appendChild(year);
 			}
 		}
-
-		// // Make textareas updatable with react
-		// const textareas = document.querySelectorAll("textarea");
-		// if (textareas) {
-		// 	const textArray = [];
-		// 	for (let i = 0; i < textareas.length; i++) {
-		// 		textArray.push("");
-		// 	}
-		// 	this.setState({ textareas: textArray });
-		// 	textareas.forEach((textarea, i) => {
-		// 		textarea.value = this.state.textareas[i];
-		// 		textarea.addEventListener("change", (e) => {
-		// 			const areas = [...this.state.textareas];
-		// 			areas[i] = e.target.value;
-		// 			this.setState({ textareas: areas });
-		// 		});
-		// 	});
-		// }
 	}
 
 	render() {
