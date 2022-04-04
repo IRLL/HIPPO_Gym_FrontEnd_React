@@ -9,6 +9,8 @@ import {
   browserVersion,
   osVersion,
 } from "react-device-detect";
+import CodeMirror from "@uiw/react-codemirror";
+import { javascript } from "@codemirror/lang-javascript";
 
 // Import utilities
 import getKeyInput from "../../utils/getKeyInput";
@@ -29,9 +31,8 @@ import MessageViewer from "../Message/MessageViewer";
 import GameWindow from "../GameWindow/gameWindow";
 import FingerprintWindow from "../GameWindow/fingerprintWindow";
 import TextBox from "../TextBox/textBox";
-import InfoPanel from "../InfoPanel/infoPanel"
+import InfoPanel from "../InfoPanel/infoPanel";
 import Grid from "../Grid/grid";
-
 
 const pendingTime = 30;
 let isResizeCalled = false;
@@ -42,12 +43,12 @@ let prevMouseData = {
   frameCount: 0,
   x: 0,
   y: 0,
-}
+};
 let prevDimensions = {
   width: initialWindowWidth,
   height: initialWindowHeight,
-}
-let prevSendSize = []
+};
+let prevSendSize = [];
 
 class Game extends React.Component {
   state = {
@@ -74,6 +75,7 @@ class Game extends React.Component {
     instructions: [], // list of instructions for the game
     orientation: "horizontal", // default orientation is horizontal
     textbox: false, // shows a textbox
+    code_editor: false, // shows a code editor
     buttonModalVisible: false, // confirm modal for buttons
     borderColor: "default", // set the border color for the game window
     gameWindowShow: true,
@@ -154,7 +156,6 @@ class Game extends React.Component {
 
         // Listen to the data from the websocket server
         this.websocket.onmessage = (message) => {
-
           //parse the data from the websocket server
           let parsedData = JSON.parse(message.data);
 
@@ -162,7 +163,7 @@ class Game extends React.Component {
             this.setState({
               isEnd: true,
               gameEndVisible: true,
-            })
+            });
           }
 
           //Check if budget bar should be loaded
@@ -176,12 +177,12 @@ class Game extends React.Component {
           // check if control panel is in parsedData
           if ("ControlPanel" in parsedData) {
             this.setState({
-              controlPanel:parsedData.ControlPanel,
-            })
+              controlPanel: parsedData.ControlPanel,
+            });
             if (parsedData.ControlPanel) {
               this.setState({
                 keys: parsedData.ControlPanel.Keys,
-              })
+              });
             }
           }
 
@@ -189,30 +190,30 @@ class Game extends React.Component {
           if ("GameWindow" in parsedData) {
             if (parsedData.GameWindow) {
               this.setState({
-                gameWindowShow: true
-              })
+                gameWindowShow: true,
+              });
               if (parsedData.GameWindow.size) {
-              initialWindowWidth = parsedData.GameWindow.size[0];
-              initialWindowHeight = parsedData.GameWindow.size[1];
-              windowSizeRatio = parsedData.GameWindow.size[0] / parsedData.GameWindow.size[1];
-              this.setState({
-                windowWidth: parsedData.GameWindow.size[0],
-                windowHeight: parsedData.GameWindow.size[1],
-              })
+                initialWindowWidth = parsedData.GameWindow.size[0];
+                initialWindowHeight = parsedData.GameWindow.size[1];
+                windowSizeRatio =
+                  parsedData.GameWindow.size[0] / parsedData.GameWindow.size[1];
+                this.setState({
+                  windowWidth: parsedData.GameWindow.size[0],
+                  windowHeight: parsedData.GameWindow.size[1],
+                });
               }
               if (parsedData.GameWindow.mode) {
                 this.setState({
                   windowSize: parsedData.GameWindow.mode,
-                })
+                });
               }
-            }
-            else {
+            } else {
               this.setState({
                 gameWindowShow: false,
-              })
+              });
             }
           }
-          this.handleResize();                  // once new width.height and ratio has been defined, immediately run resize function
+          this.handleResize(); // once new width.height and ratio has been defined, immediately run resize function
 
           //Check if Fingerprint in response
           if (parsedData.GameWindow && parsedData.GameWindow.imageControls) {
@@ -234,8 +235,7 @@ class Game extends React.Component {
               },
               nextBlock: {
                 ...parsedData.nextBlock,
-                image:
-                  "data:image/jpeg;base64, " + parsedData.nextBlock.image,
+                image: "data:image/jpeg;base64, " + parsedData.nextBlock.image,
               },
               currentBlock: {
                 ...parsedData.currentBlock,
@@ -251,12 +251,11 @@ class Game extends React.Component {
             });
           }
           //Check if infoPanel is in the recieved data
-          if ('InfoPanel' in parsedData){
+          if ("InfoPanel" in parsedData) {
             this.setState({
               infoPanel: parsedData.InfoPanel,
-            })
+            });
           }
-
 
           //Check if Score in response
           if (parsedData.Score) {
@@ -283,14 +282,18 @@ class Game extends React.Component {
             });
           }
           //Check if frame related information in response
-          if (parsedData.GameWindow && parsedData.GameWindow.frame && parsedData.GameWindow.frameId) {
+          if (
+            parsedData.GameWindow &&
+            parsedData.GameWindow.frame &&
+            parsedData.GameWindow.frameId
+          ) {
             let frame = parsedData.GameWindow.frame;
             let frameId = parsedData.GameWindow.frameId;
             // set new border color
             if ("borderColor" in parsedData.GameWindow) {
               this.setState({
-                borderColor: parsedData.GameWindow.borderColor
-              })
+                borderColor: parsedData.GameWindow.borderColor,
+              });
             }
 
             if (this.state.score)
@@ -333,19 +336,32 @@ class Game extends React.Component {
           //check if textbox is in the server's response
           if ("TextBox" in parsedData) {
             this.setState({
-              textbox: parsedData.TextBox
-            })
+              textbox: parsedData.TextBox,
+            });
           }
 
-          //check if bakcend is making a request
+          //check if backend is making a request
           if (parsedData.Request) {
-            if (parsedData.Request[0] === "TEXTBOX"){
+            if (parsedData.Request[0] === "TEXTBOX") {
               this.sendMessage({
-                "TextEvent" : {
-                  "TEXTREQUEST": this.state.textAreaInput
-                }
-              })
+                TextEvent: {
+                  TEXTREQUEST: this.state.textAreaInput,
+                },
+              });
+            } else if (parsedData.Request[0] === "CODEEDITOR") {
+              this.sendMessage({
+                CodeEvent: {
+                  CODEREQUEST: this.state.codeEditorInput,
+                },
+              });
             }
+          }
+
+          //check if CodeEditor is in the server's response
+          if ("CodeEditor" in parsedData) {
+            this.setState({
+              code_editor: parsedData.CodeEditor,
+            });
           }
 
           //check if imageL is in server's response
@@ -374,21 +390,20 @@ class Game extends React.Component {
               inMessage: [parsedData, ...prevState.inMessage],
             }));
           }
+        };
 
-      };
-
-      //listen to the websocket closing status
-      this.websocket.onclose = () => {
-        console.log("WebSocket Client Closed");
-        this.setState({
-          isConnection: false,
-          isEnd: true,
-          gameEndVisible: true,
-        });
-      };
-    },
-    SERVER ? 0 : pendingTime * 1000
-  );
+        //listen to the websocket closing status
+        this.websocket.onclose = () => {
+          console.log("WebSocket Client Closed");
+          this.setState({
+            isConnection: false,
+            isEnd: true,
+            gameEndVisible: true,
+          });
+        };
+      },
+      SERVER ? 0 : pendingTime * 1000
+    );
     // Listen to the user's keyboard inputs
     document.addEventListener("keydown", (event) => {
       // don't execute the following code if the user is typing in the inputbox
@@ -407,13 +422,13 @@ class Game extends React.Component {
         }
 
         if (this.state.keys) {
-          if (!event.repeat){
+          if (!event.repeat) {
             this.sendMessage({
               // TODO: add mod event
-              "KeyboardEvent": {
-                "KEYDOWN": [event.key, event.key.charCodeAt(0)]
-              }
-            })
+              KeyboardEvent: {
+                KEYDOWN: [event.key, event.key.charCodeAt(0)],
+              },
+            });
           }
         }
       }
@@ -431,206 +446,218 @@ class Game extends React.Component {
       }
       if (this.state.keys) {
         this.sendMessage({
-          "KeyboardEvent": {
-            "KEYUP": [event.key]
-          }
-        })
+          KeyboardEvent: {
+            KEYUP: [event.key],
+          },
+        });
       }
     });
 
-		// Get the client window width to make the game window responsive
-		window.addEventListener("resize", this.handleResize)
-	}
+    // Get the client window width to make the game window responsive
+    window.addEventListener("resize", this.handleResize);
+  }
 
-	componentWillUnmount() {
-		if (this.setInMessage) clearInterval(this.setInMessage);
-	}
+  componentWillUnmount() {
+    if (this.setInMessage) clearInterval(this.setInMessage);
+  }
 
   // check every second if the resize has stopped
   resizeCalled = () => {
     var resizeCalled = setInterval(() => {
-      var currWidth = this.state.windowWidth
-      var currHeight = this.state.windowHeight
-      if (currWidth === prevDimensions.width && currHeight === prevDimensions.height){
+      var currWidth = this.state.windowWidth;
+      var currHeight = this.state.windowHeight;
+      if (
+        currWidth === prevDimensions.width &&
+        currHeight === prevDimensions.height
+      ) {
         // the resize has stopped. Send new dimensions to backend
         // TODO: also clear interval
-        var currSize = [currWidth, currHeight]
+        var currSize = [currWidth, currHeight];
         if (JSON.stringify(currSize) !== JSON.stringify(prevSendSize)) {
-         this.sendMessage({ WindowEvent:
-          {
-            WINDOWRESIZED: currSize
-          }});
+          this.sendMessage({
+            WindowEvent: {
+              WINDOWRESIZED: currSize,
+            },
+          });
           prevSendSize = currSize;
           isResizeCalled = false;
           clearInterval(resizeCalled);
         }
       } else {
-        prevDimensions.width = currWidth
-        prevDimensions.height = currHeight
+        prevDimensions.width = currWidth;
+        prevDimensions.height = currHeight;
       }
-    }, 1000)
-  }
+    }, 1000);
+  };
 
-	handleResize = () => {
+  handleResize = () => {
     //TODO: windowIdshould be added here
     if (!isResizeCalled) {
       isResizeCalled = true;
-      this.resizeCalled()
+      this.resizeCalled();
     }
-		if (this.state.windowSize !== "strict") {
-			const value =
-				this.state.orientation === "vertical"
-				? document.documentElement.clientWidth > initialWindowWidth
-					? initialWindowWidth
-					: 0.8 * document.documentElement.clientWidth
-				: 0.4 * document.documentElement.clientWidth > initialWindowWidth
-				? initialWindowWidth
-				: 0.5 * document.documentElement.clientWidth;
-			let newHeight  = value / windowSizeRatio;
-			this.setState({
-				windowWidth: value,
-				windowHeight: newHeight,
-			});
-		}
-	}
+    if (this.state.windowSize !== "strict") {
+      const value =
+        this.state.orientation === "vertical"
+          ? document.documentElement.clientWidth > initialWindowWidth
+            ? initialWindowWidth
+            : 0.8 * document.documentElement.clientWidth
+          : 0.4 * document.documentElement.clientWidth > initialWindowWidth
+          ? initialWindowWidth
+          : 0.5 * document.documentElement.clientWidth;
+      let newHeight = value / windowSizeRatio;
+      this.setState({
+        windowWidth: value,
+        windowHeight: newHeight,
+      });
+    }
+  };
 
-	// Change the confirmation modal to be invisible
-	// Navigate to the post-game page
-	handleOk = (e, value) => {
+  // Change the confirmation modal to be invisible
+  // Navigate to the post-game page
+  handleOk = (e, value) => {
+    if (
+      e.currentTarget.id === "keepMinutiae" ||
+      e.currentTarget.id === "resetAll"
+    ) {
+      this.pushUndo();
 
-		if (e.currentTarget.id === "keepMinutiae" || e.currentTarget.id === "resetAll") {
-			this.pushUndo();
-
-			this.setState({
-				// Reset image filters
-				brightness: 100,
-				contrast: 100,
-				saturation: 100,
-				hue: 0,
-				resetModalVisible: false,
-			});
-			if (e.currentTarget.id === "resetAll") {
-				this.setState({
-					minutiae: [],
-				});
-				this.sendMessage({
-					info: "reset all",
-				});
-			} else {
-				this.sendMessage({
-					info: "reset excluding minutiae",
-				});
-			}
-		} else if (value === "buttonOk") {
+      this.setState({
+        // Reset image filters
+        brightness: 100,
+        contrast: 100,
+        saturation: 100,
+        hue: 0,
+        resetModalVisible: false,
+      });
+      if (e.currentTarget.id === "resetAll") {
+        this.setState({
+          minutiae: [],
+        });
+        this.sendMessage({
+          info: "reset all",
+        });
+      } else {
+        this.sendMessage({
+          info: "reset excluding minutiae",
+        });
+      }
+    } else if (value === "buttonOk") {
       this.setState({
         buttonModalVisible: false,
       });
-      this.handleButton(null, this.state.buttonValue)
+      this.handleButton(null, this.state.buttonValue);
     }
     if (value === "gameEndOk") {
-			this.setState({
-				gameEndVisible: false,
-			});
-			this.props.action();
-		}
-	};
+      this.setState({
+        gameEndVisible: false,
+      });
+      this.props.action();
+    }
+  };
 
-	// Change the confirmation modal to be invisible
-	// Stay on the game page
-	handleCancel = (e, value) => {
-		// this is for the cancel button in the "reset image" modal
-		if (e.currentTarget.id === "resetCancel") {
-			this.setState({
-				resetModalVisible: false,
-			});
-		} else if (value === "buttonCancel") {
+  // Change the confirmation modal to be invisible
+  // Stay on the game page
+  handleCancel = (e, value) => {
+    // this is for the cancel button in the "reset image" modal
+    if (e.currentTarget.id === "resetCancel") {
+      this.setState({
+        resetModalVisible: false,
+      });
+    } else if (value === "buttonCancel") {
       this.setState({
         buttonModalVisible: false,
-      })
+      });
     } else {
-			this.setState({
-				gameEndVisible: false,
-			});
-		}
-	};
+      this.setState({
+        gameEndVisible: false,
+      });
+    }
+  };
 
-	// Send data to websocket server in JSON format
-	sendMessage = (data) => {
-		if (this.state.isConnection) {
-			const allData = {
-				...data,
-				frameCount: this.state.frameCount,
-				frameId: this.state.frameId,
-			};
-			this.setState((prevState) => ({
-				outMessage: [allData, ...prevState.outMessage],
-			}));
-			this.websocket.send(JSON.stringify(allData));
-		}
-	};
+  // Send data to websocket server in JSON format
+  sendMessage = (data) => {
+    if (this.state.isConnection) {
+      const allData = {
+        ...data,
+        frameCount: this.state.frameCount,
+        frameId: this.state.frameId,
+      };
+      this.setState((prevState) => ({
+        outMessage: [allData, ...prevState.outMessage],
+      }));
+      this.websocket.send(JSON.stringify(allData));
+    }
+  };
 
   handleButton = (button, value) => {
     if (this.state.isLoading) {
-			message.error("Please wait for the connection to be established first!");
-			return;
-		}
+      message.error("Please wait for the connection to be established first!");
+      return;
+    }
 
     if (button && button.Button.confirm) {
       this.setState({
         buttonModalVisible: true,
-        buttonValue: value
-      })
-      if (button.Button.confirmMessage){
+        buttonValue: value,
+      });
+      if (button.Button.confirmMessage) {
         this.setState({
-          confirmMessage: button.Button.confirmMessage
-        })
+          confirmMessage: button.Button.confirmMessage,
+        });
       } else {
-        this.setState({confirmMessage: null})
+        this.setState({ confirmMessage: null });
       }
       return;
     }
 
-	  if (value === "submitImage") {
-      this.sendMessage({ ButtonEvent: {
-        BUTTONPRESSED: value,
+    if (value === "submitImage") {
+      this.sendMessage({
+        ButtonEvent: {
+          BUTTONPRESSED: value,
+          minutiaList: this.normalizeMinutiae(this.state.minutiae),
+        },
+      });
+    } else {
+      this.sendMessage({
+        ButtonEvent: {
+          BUTTONPRESSED: value,
+        },
+      });
+    }
+  };
+
+  // Send game control commands to the websocket server
+  handleCommand = (status) => {
+    if (this.state.isLoading) {
+      message.error("Please wait for the connection to be established first!");
+      return;
+    }
+
+    if (status === "start") {
+      this.sendMessage({
+        command: status,
+        system: osName,
+        systemVersion: osVersion,
+        browser: browserName,
+        browserVersion: browserVersion,
+      });
+    } else if (status === "submitImage") {
+      this.sendMessage({
+        command: status,
         minutiaList: this.normalizeMinutiae(this.state.minutiae),
-      }});
-		} else {
-			this.sendMessage({ ButtonEvent: {
-        BUTTONPRESSED: value,
-      }});
-		}
-  }
+      });
+    } else {
+      this.sendMessage({
+        ButtonEvent: {
+          BUTTONPRESSED: status,
+        },
+      });
+    }
+  };
 
-	// Send game control commands to the websocket server
-	handleCommand = (status) => {
-		if (this.state.isLoading) {
-			message.error("Please wait for the connection to be established first!");
-			return;
-		}
-
-		if (status === "start") {
-			this.sendMessage({
-				command: status,
-				system: osName,
-				systemVersion: osVersion,
-				browser: browserName,
-				browserVersion: browserVersion,
-			});
-		} else if (status === "submitImage") {
-			this.sendMessage({
-				command: status,
-				minutiaList: this.normalizeMinutiae(this.state.minutiae),
-			});
-		} else {
-			this.sendMessage({ ButtonEvent: {
-        BUTTONPRESSED: status,
-      }});
-		}
-	};
-
-	// Change the FPS of the game
-	handleFPS = (type, value) => {
+  // Change the FPS of the game
+  handleFPS = (type, value) => {
     // set frame rate based on user input in the input box
     var reg = new RegExp("^[0-9]+$"); // value should only contain numbers
     if (type === "input") {
@@ -711,9 +738,9 @@ class Game extends React.Component {
     }
 
     this.sendMessage({
-      "SliderEvent": {
-        "SLIDERSET": [type, value]
-      }
+      SliderEvent: {
+        SLIDERSET: [type, value],
+      },
     });
   };
 
@@ -872,29 +899,37 @@ class Game extends React.Component {
 
   // calculate the difference in current vs previous mouse positions
   getMouseData = (currX, currY) => {
-    let pxsMovement = [currX - prevMouseData.x, currY - prevMouseData.y]
-    prevMouseData.x = currX
-    prevMouseData.y = currY
-    return ([pxsMovement[0], pxsMovement[1]])
-  }
+    let pxsMovement = [currX - prevMouseData.x, currY - prevMouseData.y];
+    prevMouseData.x = currX;
+    prevMouseData.y = currY;
+    return [pxsMovement[0], pxsMovement[1]];
+  };
 
   // every time a new frame is recieved, send information about the mouse motion
   // also send message every time mouse up or down occurs
   sendMouseData = (eventType, x, y, button) => {
-    [x, y] = [parseInt(x), parseInt(y)]
-      var buttonTuple = this.getButtonTuple(button)
-      var [xMovement, yMovement] = this.getMouseData(x, y)
+    [x, y] = [parseInt(x), parseInt(y)];
+    var buttonTuple = this.getButtonTuple(button);
+    var [xMovement, yMovement] = this.getMouseData(x, y);
 
     //TODO: windowId should be added here
     if (eventType === "MOUSEMOTION") {
-      this.sendMessage({ MouseEvent:{
-        MOUSEMOTION : [{x, y}, {xMovement, yMovement}, buttonTuple, button]  // button represents an integer value for which button has been pressed
-      }})
-    }
-    else {
-      this.sendMessage({ MouseEvent: {
-        [eventType]: [{x, y}, buttonTuple, button]
-      }})
+      this.sendMessage({
+        MouseEvent: {
+          MOUSEMOTION: [
+            { x, y },
+            { xMovement, yMovement },
+            buttonTuple,
+            button,
+          ], // button represents an integer value for which button has been pressed
+        },
+      });
+    } else {
+      this.sendMessage({
+        MouseEvent: {
+          [eventType]: [{ x, y }, buttonTuple, button],
+        },
+      });
     }
   };
 
@@ -967,9 +1002,15 @@ class Game extends React.Component {
 
   textBoxInput = (data) => {
     this.setState({
-      textAreaInput: data
-    })
-  }
+      textAreaInput: data,
+    });
+  };
+
+  codeEditorInput = (data) => {
+    this.setState({
+      codeEditorInput: data,
+    });
+  };
 
   // Return a minutiae array such that each minutia's
   // x and y values are accurate pixel coordinates
@@ -1052,6 +1093,7 @@ class Game extends React.Component {
       nextBlock,
       controlPanel,
       textbox,
+      code_editor,
       gameWindowShow,
       confirmMessage,
       borderColor,
@@ -1139,7 +1181,7 @@ class Game extends React.Component {
                 data-testid="game-window"
                 borderColor={borderColor}
               />
-            ): null}
+            ) : null}
             {DEBUG ? (
               <Col>
                 <MessageViewer
@@ -1151,7 +1193,7 @@ class Game extends React.Component {
             ) : null}
           </div>
           <Col className="rightColumn">
-            { textbox ?
+            {textbox ? (
               <TextBox
                 className="textBox"
                 textBox={textbox}
@@ -1159,18 +1201,34 @@ class Game extends React.Component {
                 isLoading={isLoading}
                 orientation={orientation}
               />
-            :null}
-            <div className={textbox ? `${orientation}Panels` : "verticalPanels"}>
-              {infoPanel ?
+            ) : null}
+            {code_editor ? (
+              <CodeMirror
+                value={codeEditorInput}
+                height="200px"
+                extensions={[javascript({ jsx: true })]}
+                onChange={(value) => {
+                  codeEditorInput(value);
+                }}
+              />
+            ) : null}
+            <div
+              className={
+                textbox || code_editor
+                  ? `${orientation}Panels`
+                  : "verticalPanels"
+              }
+            >
+              {infoPanel ? (
                 <div className={`${orientation}Info`}>
-                <InfoPanel
-                  className="infoPanel"
-                  infoPanel={infoPanel}
-                  orientation={orientation}
-                />
+                  <InfoPanel
+                    className="infoPanel"
+                    infoPanel={infoPanel}
+                    orientation={orientation}
+                  />
                 </div>
-              :null}
-              {controlPanel ?
+              ) : null}
+              {controlPanel ? (
                 <div className="control">
                   <ControlPanel
                     className="gameControlPanel"
@@ -1202,12 +1260,14 @@ class Game extends React.Component {
                     redoEnabled={redoEnabled}
                     imageControls={imageControls}
                     blockButtons={
-                      currentBlock ? [previousBlock, currentBlock, nextBlock] : null
+                      currentBlock
+                        ? [previousBlock, currentBlock, nextBlock]
+                        : null
                     }
                     controlPanel={controlPanel}
                   />
                 </div>
-              :null}
+              ) : null}
             </div>
           </Col>
         </div>
@@ -1267,7 +1327,8 @@ class Game extends React.Component {
             Press <b>"Keep minutiae"</b> to avoid clearing minutiae
           </p>
         </Modal>
-        <Modal visible={buttonModalVisible}
+        <Modal
+          visible={buttonModalVisible}
           onOk={(e) => this.handleOk(e, "buttonOk")}
           onCancel={(e) => this.handleCancel(e, "buttonCancel")}
           okText="Confirm"
