@@ -407,7 +407,7 @@ class Game extends React.Component {
     // Listen to the user's keyboard inputs
     document.addEventListener("keydown", (event) => {
       // don't execute the following code if the user is typing in the inputbox
-      if (document.activeElement.tagName !== "TEXTAREA") {
+      if (document.activeElement.tagName !== "TEXTAREA" && document.activeElement.className !== "cm-content") {
         //Used to prevent arrow keys and space key from scrolling the page
         let dataToSend = getKeyInput(event.code);
         if (dataToSend.actionType !== "null") {
@@ -1204,11 +1204,11 @@ class Game extends React.Component {
             ) : null}
             {code_editor ? (
               <CodeMirror
-                value={codeEditorInput}
+                value={this.state.codeEditorInput}
                 height="200px"
                 extensions={[javascript({ jsx: true })]}
                 onChange={(value) => {
-                  codeEditorInput(value);
+                  this.codeEditorInput(value);
                 }}
               />
             ) : null}
