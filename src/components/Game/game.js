@@ -10,7 +10,7 @@ import {
   osVersion,
 } from "react-device-detect";
 import CodeMirror from "@uiw/react-codemirror";
-import { javascript } from "@codemirror/lang-javascript";
+// import { javascript } from "@codemirror/lang-javascript";
 
 // Import utilities
 import getKeyInput from "../../utils/getKeyInput";
@@ -351,7 +351,7 @@ class Game extends React.Component {
             } else if (parsedData.Request[0] === "CODEEDITOR") {
               this.sendMessage({
                 CodeEvent: {
-                  CODEREQUEST: this.state.codeEditorInput,
+                  CODEREQUEST: this.state.code_editor,
                 },
               });
             }
@@ -407,7 +407,10 @@ class Game extends React.Component {
     // Listen to the user's keyboard inputs
     document.addEventListener("keydown", (event) => {
       // don't execute the following code if the user is typing in the inputbox
-      if (document.activeElement.tagName !== "TEXTAREA" && document.activeElement.className !== "cm-content") {
+      if (
+        document.activeElement.tagName !== "TEXTAREA" &&
+        document.activeElement.className !== "cm-content"
+      ) {
         //Used to prevent arrow keys and space key from scrolling the page
         let dataToSend = getKeyInput(event.code);
         if (dataToSend.actionType !== "null") {
@@ -1006,9 +1009,11 @@ class Game extends React.Component {
     });
   };
 
-  codeEditorInput = (data) => {
+  codeEditorInput = (text) => {
+    const new_code_editor = this.state.code_editor;
+    new_code_editor.text = text;
     this.setState({
-      codeEditorInput: data,
+      code_editor: new_code_editor,
     });
   };
 
@@ -1204,9 +1209,9 @@ class Game extends React.Component {
             ) : null}
             {code_editor ? (
               <CodeMirror
-                value={this.state.codeEditorInput}
+                value={code_editor.text}
                 height="200px"
-                extensions={[javascript({ jsx: true })]}
+                extensions={[]}
                 onChange={(value) => {
                   this.codeEditorInput(value);
                 }}
