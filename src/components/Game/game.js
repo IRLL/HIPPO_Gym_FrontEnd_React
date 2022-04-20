@@ -334,7 +334,7 @@ class Game extends React.Component {
           }
 
           //check if textbox is in the server's response
-          if ("TextBox" in parsedData) {
+          if (parsedData.TextBox) {
             this.setState({
               textbox: parsedData.TextBox,
             });
@@ -358,9 +358,11 @@ class Game extends React.Component {
           }
 
           //check if CodeEditor is in the server's response
-          if ("CodeEditor" in parsedData) {
+          if (parsedData.CodeEditor) {
             this.setState({
-              code_editor: parsedData.CodeEditor,
+              // TODO: fix bug where the whole codeeditor object is sent in text
+              // code_editor: parsedData.CodeEditor,
+              code_editor: parsedData.CodeEditor.text,
             });
           }
 
@@ -1210,19 +1212,16 @@ class Game extends React.Component {
             {code_editor ? (
               <CodeMirror
                 value={code_editor.text}
-                height="200px"
                 extensions={[]}
                 onChange={(value) => {
                   this.codeEditorInput(value);
                 }}
+                width={code_editor.size[0]}
+                height={code_editor.size[1]}
               />
             ) : null}
             <div
-              className={
-                textbox || code_editor
-                  ? `${orientation}Panels`
-                  : "verticalPanels"
-              }
+              className={textbox ? `${orientation}Panels` : "verticalPanels"}
             >
               {infoPanel ? (
                 <div className={`${orientation}Info`}>
