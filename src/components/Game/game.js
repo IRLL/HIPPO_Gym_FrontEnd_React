@@ -360,9 +360,7 @@ class Game extends React.Component {
           //check if CodeEditor is in the server's response
           if (parsedData.CodeEditor) {
             this.setState({
-              // TODO: fix bug where the whole codeeditor object is sent in text
-              // code_editor: parsedData.CodeEditor,
-              code_editor: parsedData.CodeEditor.text,
+              code_editor: parsedData.CodeEditor,
             });
           }
 
