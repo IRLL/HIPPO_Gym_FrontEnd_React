@@ -15,7 +15,7 @@ class InfoPanel extends React.Component {
     for (let key in infoPanel) {
       if (key === "text") {
         elements["text"] = (
-          <div key={infoPanel[key].toString()}>
+          <div>
             {infoPanel[key] !== null
               ? infoPanel[key].toString()
               : infoPanel[key]}
