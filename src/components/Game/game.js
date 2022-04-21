@@ -351,7 +351,7 @@ class Game extends React.Component {
             } else if (parsedData.Request[0] === "CODEEDITOR") {
               this.sendMessage({
                 CodeEvent: {
-                  CODEREQUEST: this.state.code_editor,
+                  CODEREQUEST: this.state.code_editor.text,
                 },
               });
             }
@@ -1209,13 +1209,13 @@ class Game extends React.Component {
             ) : null}
             {code_editor ? (
               <CodeMirror
-                value={code_editor.text}
+                value={code_editor.text || ""}
                 extensions={[]}
                 onChange={(value) => {
                   this.codeEditorInput(value);
                 }}
-                width={code_editor.size[0]}
-                height={code_editor.size[1]}
+                width={code_editor.size[0] || 700}
+                height={code_editor.size[1] || 600}
               />
             ) : null}
             <div
