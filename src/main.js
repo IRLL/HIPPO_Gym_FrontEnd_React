@@ -128,6 +128,11 @@ class Main extends React.Component {
       if (element.tagName === "BUTTON") {
         continue;
       }
+      if (element.type === "radio") {
+        const radios = form.elements[element.name];
+        data[element.name] = radios.value;
+        continue;
+      }
       data[element.name] = element.value;
     }
 
