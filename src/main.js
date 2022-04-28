@@ -2,14 +2,15 @@ import React from "react";
 import "antd/dist/antd.css";
 import "./main.css";
 import axios from "axios";
-import { Spin, BackTop } from "antd";
+import {Spin, BackTop, Layout, Divider} from "antd";
 import { Helmet } from "react-helmet";
-import Header from "./components/Layout/header";
-import Footer from "./components/Layout/footer";
+import CustomHeader from "./components/Layout/customHeader";
+import CustomFooter from "./components/Layout/customFooter";
 import Forum from "./components/Forum/forum";
 import Game from "./components/Game/game";
 import Error400 from "./components/Error/error";
 import { RLAPI, SERVER, PROJECT_ID, USER_ID, REDIRECT, CSS_PATH } from "./utils/constants";
+const { Content } = Layout;
 
 class Main extends React.Component {
 	state = {
@@ -191,11 +192,13 @@ class Main extends React.Component {
 			preGame = (
 				<div className="forumContainer">
 					{isLoading ? (
-						<Spin
-							className="Loader"
-							size="large"
-							tip={isWait ? loadingMessages[i] : "Loading next step, please wait ..."}
-						/>
+					  <div className="spinnerContainer">
+              <Spin
+                className="Loader"
+                size="large"
+                tip={isWait ? loadingMessages[i] : "Loading next step, please wait ..."}
+              />
+            </div>
 					) : (
 						<Forum content={formContent} action={this.handleSubmit} is400Error={is400Error} />
 					)}
@@ -211,11 +214,12 @@ class Main extends React.Component {
 						<link rel="stylesheet" href={CSS_PATH} />
 					</Helmet>
 				) : null}
-				<div className="main">
-					<Header />
-					{!isGame ? preGame : <Game action={this.gameEndHandler} />}
-					<Footer />
-				</div>
+				<Layout>
+					<CustomHeader />
+          <Divider />
+          <Content>{!isGame ? preGame : <Game action={this.gameEndHandler} />}</Content>
+					<CustomFooter />
+				</Layout>
 			</div>
 		);
 	}

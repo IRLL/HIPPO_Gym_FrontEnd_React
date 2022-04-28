@@ -1,8 +1,14 @@
-/* Add space on the top and side of the header*/
 .header {
-	margin: 0.5rem 10vw 0 10vw;
+	padding-right: 10vw;
+  padding-left: 10vw;
+	height: 140px;
+  background: none;
 }
 
-.irllLogo:hover {
-	cursor: url('/ms-icon-144x144.svg') 10 12, pointer;
+.logo {
+  margin: 20px 0;
+}
+
+.logo img {
+  height: 100px;
 }
