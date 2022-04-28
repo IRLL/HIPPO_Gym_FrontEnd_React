@@ -1,5 +1,5 @@
 import React from "react";
-import { Button, Tooltip } from "antd";
+import {Button, Tooltip} from "antd";
 import "antd/dist/antd.css";
 import "./forum.css";
 import transform from "./transform"
@@ -30,27 +30,28 @@ class Forum extends React.Component {
 			>
 				<div>
 					{ReactHtmlParser(content, new transform())}
-					<br />
-					{!is400Error && this.state.submitable ? (
-						<Tooltip
-							placement="top"
-							title="Submit the form and navigate to next step"
-							arrowPointAtCenter
-						>
-							<Button
-								className="submitButton"
-								shape="round"
-								size="large"
-								type="primary"
-								htmlType="submit"
-							>
-								Submit
-							</Button>
-						</Tooltip>
-					) : null}
-				</div>
-			</form>
-		);
+        </div>
+        {!is400Error && this.state.submitable ? (
+          <div className="submitButtonContainer">
+            <Tooltip
+              placement="top"
+              title="Submit the form and navigate to next step"
+              arrowPointAtCenter
+            >
+              <Button
+                className="submitButton"
+                shape="round"
+                size="large"
+                type="primary"
+                htmlType="submit"
+              >
+                Submit
+              </Button>
+            </Tooltip>
+          </div>
+        ) : null}
+      </form>
+    );
 	}
 }
 

@@ -52,7 +52,6 @@ class InfoPanel extends React.Component {
     return (
       <div
         className={`${orientation}InfoPanel`}
-        style={{ height: "20em", width: "25em" }}
       >
         <samp key="textUI">{textUI}</samp>
         <samp key="itemsUI">{itemsUI}</samp>

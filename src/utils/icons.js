@@ -36,6 +36,8 @@ import {
 	BgColorsOutlined,
 	GoldOutlined,
   CopyOutlined,
+  CoffeeOutlined,
+  QuestionCircleOutlined,
 } from "@ant-design/icons";
 
 export const icons = {
@@ -78,4 +80,7 @@ export const icons = {
   first: <CheckCircleOutlined />,
   second: <MdRotate90DegreesCcw />,
   copy: <CopyOutlined />,
+  code: <CoffeeOutlined />,
+  help: <QuestionCircleOutlined />,
+	continue: <CaretRightOutlined />,
 };
