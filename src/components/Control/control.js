@@ -1,7 +1,7 @@
 import React from "react";
 import "antd/dist/antd.css";
 import "./control.css";
-import { Button, Input, Tooltip, Row, Col, Slider, Space} from "antd";
+import { Button, Tooltip, Row, Col, Slider, Space} from "antd";
 import { icons } from "../../utils/icons";
 import capitalize from "../../utils/capitalize";
 import sentenceCase from "../../utils/sentenceCase";
@@ -72,6 +72,7 @@ class ControlPanel extends React.Component {
     const customRow = []; // store custom buttons
 
     const elements = {};
+    const buttonsInOrder = [];
 
     if (controlPanel){
       if (controlPanel.Buttons) {
@@ -123,8 +124,9 @@ class ControlPanel extends React.Component {
             </Col>)
           }
           if (!defaultButtons.includes(currButton.value)){
-            customRow.push(elements[currButton.value])
+            customRow.push(elements[currButton.value]);
           }
+          buttonsInOrder.push(elements[currButton.value]);
         })
       }
       if (controlPanel.Sliders) {
@@ -338,13 +340,7 @@ class ControlPanel extends React.Component {
 
               {[elements["bottomBlocks"]]}
               <Row gutter={[8, 8]} justify="space-around">
-                {firstRow}
-                {secondRow}
-                {thirdRow}
-                {feedbackRow}
-                {fpsRow}
-                {lastRow}
-                {customRow}
+                {buttonsInOrder}
                 {isEnd ? next : null}
               </Row>
             </div>
