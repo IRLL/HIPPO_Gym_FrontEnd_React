@@ -1,7 +1,7 @@
 import React from "react";
 import "antd/dist/antd.css";
 import "./game.css";
-import {message, Modal, Col, Button, Radio, Progress, Skeleton, Row, Divider, Typography} from "antd";
+import {message, Modal, Col, Button, Progress, Skeleton, Row} from "antd";
 import { w3cwebsocket } from "websocket";
 import {
   browserName,
@@ -9,8 +9,6 @@ import {
   browserVersion,
   osVersion,
 } from "react-device-detect";
-import CodeMirror from "@uiw/react-codemirror";
-import { python } from '@codemirror/lang-python';
 
 // Import utilities
 import getKeyInput from "../../utils/getKeyInput";
@@ -34,7 +32,6 @@ import TextBox from "../TextBox/textBox";
 import InfoPanel from "../InfoPanel/infoPanel";
 import Grid from "../Grid/grid";
 
-const { Title } = Typography;
 const pendingTime = 30;
 let isResizeCalled = false;
 let initialWindowWidth = 700;
@@ -76,7 +73,6 @@ class Game extends React.Component {
     instructions: [], // list of instructions for the game
     orientation: "horizontal", // default orientation is horizontal
     textbox: false, // shows a textbox
-    code_editor: false, // shows a code editor
     buttonModalVisible: false, // confirm modal for buttons
     borderColor: null, // set the border color for the game window
     gameWindowShow: true,
@@ -352,7 +348,7 @@ class Game extends React.Component {
             } else if (parsedData.Request[0] === "CODEEDITOR") {
               this.sendMessage({
                 CodeEvent: {
-                  CODEREQUEST: this.state.code_editor.text,
+                  CODEREQUEST: this.props.getCodeEditor().text,
                 },
               });
             }
@@ -360,9 +356,7 @@ class Game extends React.Component {
 
           //check if CodeEditor is in the server's response
           if (parsedData.CodeEditor) {
-            this.setState({
-              code_editor: parsedData.CodeEditor,
-            });
+            this.props.updateCodeEditor(parsedData.CodeEditor);
           }
 
           //check if imageL is in server's response
@@ -1011,14 +1005,6 @@ class Game extends React.Component {
     });
   };
 
-  codeEditorInput = (text) => {
-    const new_code_editor = this.state.code_editor;
-    new_code_editor.text = text;
-    this.setState({
-      code_editor: new_code_editor,
-    });
-  };
-
   // Return a minutiae array such that each minutia's
   // x and y values are accurate pixel coordinates
   normalizeMinutiae = (minutiae) => {
@@ -1100,7 +1086,6 @@ class Game extends React.Component {
       nextBlock,
       controlPanel,
       textbox,
-      code_editor,
       gameWindowShow,
       confirmMessage,
       borderColor,
@@ -1114,7 +1099,6 @@ class Game extends React.Component {
         data-testid="game"
         id="game"
       >
-        <Title level={2}>{code_editor ? ('Step 2/2: Coding Your Strategy') : ('Step 1/2: Playing Game')}</Title>
         <DisplayBar
           visible={displayData !== null}
           isLoading={isLoading}
@@ -1128,23 +1112,6 @@ class Game extends React.Component {
           inputBudget={inputBudget}
         />
 
-        {code_editor ? (
-          <>
-            <Row>
-              <Col span={24}>
-                <CodeMirror
-                  value={code_editor.text || ""}
-                  extensions={[python()]}
-                  onChange={(value) => {
-                    this.codeEditorInput(value);
-                  }}
-                  height={`${code_editor.size[0] || 600}px`}
-                />
-              </Col>
-            </Row>
-            <Divider/>
-          </>
-        ) : null}
         <Row gutter={32} wrap={false}>
           <Col className={DEBUG ? "debugGrid" : ""} flex={showRightPanel ? "none" : null} span={!showRightPanel ? 24 : null}>
             {DEBUG ? (

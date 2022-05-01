@@ -7,9 +7,9 @@ import { Helmet } from "react-helmet";
 import CustomHeader from "./components/Layout/customHeader";
 import CustomFooter from "./components/Layout/customFooter";
 import Forum from "./components/Forum/forum";
-import Game from "./components/Game/game";
 import Error400 from "./components/Error/error";
 import { RLAPI, SERVER, PROJECT_ID, USER_ID, REDIRECT, CSS_PATH } from "./utils/constants";
+import GameContainer from "./components/GameContainer/gameContainer";
 const { Content } = Layout;
 
 class Main extends React.Component {
@@ -217,7 +217,7 @@ class Main extends React.Component {
 				<Layout>
 					<CustomHeader />
           <Divider />
-          <Content>{!isGame ? preGame : <Game action={this.gameEndHandler} />}</Content>
+          <Content>{!isGame ? preGame : <GameContainer action={this.gameEndHandler} />}</Content>
 					<CustomFooter />
 				</Layout>
 			</div>
