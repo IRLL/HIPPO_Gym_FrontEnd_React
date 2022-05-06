@@ -27,8 +27,6 @@ class GameContainer extends React.Component {
       code_editor,
     } = this.state;
 
-    console.log('rrrrxxxx');
-
     return (
       <div>
         <Title level={2}>{code_editor ? ('Step 2/2: Coding Your Strategy') : ('Step 1/2: Playing Game')}</Title>

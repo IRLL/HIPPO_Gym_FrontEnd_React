@@ -32,16 +32,16 @@ class InfoPanel extends React.Component {
           });
         }
       } else if (key === "kv") {
-        for (let k in infoPanel[key]) {
+        for (let [k, v] of infoPanel[key]) {
           elements[`${k}`] = (
             <div key={k}>
               <strong>
                 {k !== null ? capitalize(k.toString()) : capitalize(k)}
               </strong>
               :{" "}
-              {infoPanel[key][k] !== null
-                ? infoPanel[key][k].toString()
-                : infoPanel[key][k]}
+              {v !== null
+                ? v.toString()
+                : v}
             </div>
           );
           kvUI.push(elements[`${k}`]);

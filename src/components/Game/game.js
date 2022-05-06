@@ -514,7 +514,6 @@ class Game extends React.Component {
   // Change the confirmation modal to be invisible
   // Navigate to the post-game page
   handleOk = (e, value) => {
-    console.log(e, value);
     if (
       e.currentTarget.id === "keepMinutiae" ||
       e.currentTarget.id === "resetAll"

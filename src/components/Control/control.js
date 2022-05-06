@@ -316,10 +316,9 @@ class ControlPanel extends React.Component {
     return (
       <div data-testid="control-panel">
         {elements["topBlock"]}
-        {!isLoading && (
+        {!isLoading && (imageControls || blockButtons || buttonsInOrder.length > 0 || isEnd) && (
           <div className="controlPanel">
             <div className="panelContainer">
-
               {imageControls ?
                 <>
                   <Row

@@ -83,4 +83,5 @@ export const icons = {
   code: <CoffeeOutlined />,
   help: <QuestionCircleOutlined />,
 	continue: <CaretRightOutlined />,
+  finish: <CheckOutlined />,
 };
