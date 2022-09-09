@@ -1,10 +1,11 @@
 import React from "react";
 import "antd/dist/antd.css";
 import "./control.css";
-import { Button, Input, Tooltip, Row, Col, Slider, Space} from "antd";
+import { Button, Tooltip, Row, Col, Slider, Space} from "antd";
 import { icons } from "../../utils/icons";
 import capitalize from "../../utils/capitalize";
 import sentenceCase from "../../utils/sentenceCase";
+import titleCase from "../../utils/titleCase";
 
 class ControlPanel extends React.Component {
   render() {
@@ -71,6 +72,7 @@ class ControlPanel extends React.Component {
     const customRow = []; // store custom buttons
 
     const elements = {};
+    const buttonsInOrder = [];
 
     if (controlPanel){
       if (controlPanel.Buttons) {
@@ -84,15 +86,18 @@ class ControlPanel extends React.Component {
                     shape="round"
                     id={currButton.value}
                     className={`${currButton.value}Button`}
-                    icon={currButton.icon ? icons[currButton.value] : null}
+                    icon={currButton.icon ? icons[currButton.value] || icons[currButton.icon] : null}
                     size="large"
                     style={{backgroundColor: currButton.bgcolor,
                     border: currButton.border ? "solid 3px " + currButton.border : null,
                     color: currButton.color
                     }}
+                    type={currButton.type || "default"}
+                    href={currButton.href || null}
+                    target={currButton.href ? "_blank" : null}
                     onClick={() => handleButton(button, currButton.value)}
                   >
-                    {currButton.text ? capitalize(sentenceCase(currButton.text)): null}
+                    {currButton.text ? titleCase(sentenceCase(currButton.text)): null}
                   </Button>
                 </Col>)
           } else {
@@ -119,8 +124,9 @@ class ControlPanel extends React.Component {
             </Col>)
           }
           if (!defaultButtons.includes(currButton.value)){
-            customRow.push(elements[currButton.value])
+            customRow.push(elements[currButton.value]);
           }
+          buttonsInOrder.push(elements[currButton.value]);
         })
       }
       if (controlPanel.Sliders) {
@@ -204,26 +210,24 @@ class ControlPanel extends React.Component {
       }
     });
     const next = (
-      <Row gutter={[4, 8]} justify="space-around">
-        <Col key="nextStep">
-          <Tooltip
-            placement="bottom"
-            title="Move to next step"
-            arrowPointAtCenter
+      <Col key="nextStep">
+        <Tooltip
+          placement="bottom"
+          title="Move to next step"
+          arrowPointAtCenter
+        >
+          <Button
+            id="nextStep"
+            type="primary"
+            shape="round"
+            size="large"
+            icon={icons["next"]}
+            onClick={(e) => this.props.handleOk(e, "gameEndOk")}
           >
-            <Button
-              id="nextStep"
-              type="primary"
-              shape="round"
-              size="large"
-              icon={icons["next"]}
-              onClick={this.props.handleOk}
-            >
-              Next
-            </Button>
-          </Tooltip>
-        </Col>
-      </Row>
+            Next
+          </Button>
+        </Tooltip>
+      </Col>
     );
 
     const sliders1 = [elements["brightness"], elements["contrast"]];
@@ -312,14 +316,9 @@ class ControlPanel extends React.Component {
     return (
       <div data-testid="control-panel">
         {elements["topBlock"]}
-        {!isLoading && (
-          <div
-            className={`controlPanel ${
-              orientation === "horizontal" && !DEBUG ? "addMargin" : ""
-            }`}
-          >
+        {!isLoading && (imageControls || blockButtons || buttonsInOrder.length > 0 || isEnd) && (
+          <div className="controlPanel">
             <div className="panelContainer">
-
               {imageControls ?
                 <>
                   <Row
@@ -338,27 +337,11 @@ class ControlPanel extends React.Component {
                 </>
               : null}
 
-              <Row gutter={[4, 8]} justify="space-around">
-                {feedbackRow}
-              </Row>
               {[elements["bottomBlocks"]]}
-                <Row gutter={[4, 8]} justify="space-around">
-                  {fpsRow}
-                </Row>
-              <div className="directions">
-                <Row className="direction">{firstRow}</Row>
-                <Row className="direction">{secondRow}</Row>
-                <Row className="direction">{thirdRow}</Row>
-              </div>
-              <Row gutter={[4, 8]} justify="space-around">
-                {lastRow}
+              <Row gutter={[8, 8]} justify="space-around">
+                {buttonsInOrder}
+                {isEnd ? next : null}
               </Row>
-              {customRow.length ? (
-                <Row gutter={[4, 8]} justify={customRow.length === 1 ? "space-between" : "space-around"} style={{marginTop : "1rem"}}>
-                  {customRow}
-                </Row>
-              ) : null}
-              {isEnd ? next : null}
             </div>
           </div>
         )}

@@ -1,13 +1,15 @@
 import React from "react";
 import "antd/dist/antd.css";
 import "./footer.css";
-import { Divider, Row, Col } from "antd";
+import {Row, Col} from "antd";
+import {Layout} from "antd";
 
-class Footer extends React.PureComponent {
+const {Footer} = Layout;
+
+class CustomFooter extends React.PureComponent {
 	render() {
 		return (
-			<footer className="pageFooter">
-				<Divider style={{ marginBottom: "0.75rem" }} />
+			<Footer className="footer">
 				<Row align="bottom">
 					<Col flex={1}>
 						<div className="footerContent">
@@ -67,9 +69,9 @@ class Footer extends React.PureComponent {
 						</div>
 					</Col>
 				</Row>
-			</footer>
+			</Footer>
 		);
 	}
 }
 
-export default Footer;
+export default CustomFooter;

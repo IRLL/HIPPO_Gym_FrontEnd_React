@@ -1,7 +1,7 @@
 import React from "react";
 import "antd/dist/antd.css";
 import "./game.css";
-import { message, Modal, Col, Button, Radio, Progress, Skeleton } from "antd";
+import {message, Modal, Col, Button, Progress, Skeleton, Row} from "antd";
 import { w3cwebsocket } from "websocket";
 import {
   browserName,
@@ -9,8 +9,6 @@ import {
   browserVersion,
   osVersion,
 } from "react-device-detect";
-import CodeMirror from "@uiw/react-codemirror";
-// import { javascript } from "@codemirror/lang-javascript";
 
 // Import utilities
 import getKeyInput from "../../utils/getKeyInput";
@@ -75,9 +73,8 @@ class Game extends React.Component {
     instructions: [], // list of instructions for the game
     orientation: "horizontal", // default orientation is horizontal
     textbox: false, // shows a textbox
-    code_editor: false, // shows a code editor
     buttonModalVisible: false, // confirm modal for buttons
-    borderColor: "default", // set the border color for the game window
+    borderColor: null, // set the border color for the game window
     gameWindowShow: true,
 
     // Fingerprint trial configurations
@@ -351,7 +348,7 @@ class Game extends React.Component {
             } else if (parsedData.Request[0] === "CODEEDITOR") {
               this.sendMessage({
                 CodeEvent: {
-                  CODEREQUEST: this.state.code_editor.text,
+                  CODEREQUEST: this.props.getCodeEditor().text,
                 },
               });
             }
@@ -359,9 +356,7 @@ class Game extends React.Component {
 
           //check if CodeEditor is in the server's response
           if (parsedData.CodeEditor) {
-            this.setState({
-              code_editor: parsedData.CodeEditor,
-            });
+            this.props.updateCodeEditor(parsedData.CodeEditor);
           }
 
           //check if imageL is in server's response
@@ -1009,14 +1004,6 @@ class Game extends React.Component {
     });
   };
 
-  codeEditorInput = (text) => {
-    const new_code_editor = this.state.code_editor;
-    new_code_editor.text = text;
-    this.setState({
-      code_editor: new_code_editor,
-    });
-  };
-
   // Return a minutiae array such that each minutia's
   // x and y values are accurate pixel coordinates
   normalizeMinutiae = (minutiae) => {
@@ -1098,11 +1085,12 @@ class Game extends React.Component {
       nextBlock,
       controlPanel,
       textbox,
-      code_editor,
       gameWindowShow,
       confirmMessage,
       borderColor,
     } = this.state;
+
+    let showRightPanel = (!isLoading && frameSrc);
 
     return (
       <div
@@ -1110,21 +1098,6 @@ class Game extends React.Component {
         data-testid="game"
         id="game"
       >
-        <Radio.Group
-          defaultValue="horizontal"
-          onChange={(e) => {
-            this.setState({ orientation: e.target.value });
-          }}
-          buttonStyle="solid"
-          className={`${orientation}OrientationToggle`}
-          disabled={DEBUG ? true : false}
-        >
-          <Radio.Button value="vertical">{icons["verticalSplit"]}</Radio.Button>
-          <Radio.Button value="horizontal">
-            {icons["horizontalSplit"]}
-          </Radio.Button>
-        </Radio.Group>
-
         <DisplayBar
           visible={displayData !== null}
           isLoading={isLoading}
@@ -1137,8 +1110,9 @@ class Game extends React.Component {
           usedInputBudget={usedInputBudget}
           inputBudget={inputBudget}
         />
-        <div className={DEBUG ? "" : `${orientation}Grid`}>
-          <div className={DEBUG ? "debugGrid" : ""}>
+
+        <Row gutter={32} wrap={false}>
+          <Col className={DEBUG ? "debugGrid" : ""} flex={showRightPanel ? "none" : null} span={!showRightPanel ? 24 : null}>
             {DEBUG ? (
               <Col>
                 <MessageViewer
@@ -1196,83 +1170,74 @@ class Game extends React.Component {
                 />
               </Col>
             ) : null}
-          </div>
-          <Col className="rightColumn">
-            {textbox ? (
-              <TextBox
-                className="textBox"
-                textBox={textbox}
-                onChange={this.textBoxInput}
-                isLoading={isLoading}
-                orientation={orientation}
-              />
-            ) : null}
-            {code_editor ? (
-              <CodeMirror
-                value={code_editor.text || ""}
-                extensions={[]}
-                onChange={(value) => {
-                  this.codeEditorInput(value);
-                }}
-                width={code_editor.size[0] || 700}
-                height={code_editor.size[1] || 600}
-              />
-            ) : null}
-            <div
-              className={textbox ? `${orientation}Panels` : "verticalPanels"}
-            >
-              {infoPanel ? (
-                <div className={`${orientation}Info`}>
-                  <InfoPanel
-                    className="infoPanel"
-                    infoPanel={infoPanel}
-                    orientation={orientation}
-                  />
-                </div>
-              ) : null}
-              {controlPanel ? (
-                <div className="control">
-                  <ControlPanel
-                    className="gameControlPanel"
-                    isEnd={isEnd}
-                    isLoading={isLoading}
-                    frameRate={frameRate}
-                    inputFrameRate={this.state.inputFrameRate}
-                    UIlist={UIlist}
-                    instructions={instructions}
-                    infoPanel={infoPanel}
-                    DEBUG={DEBUG}
-                    handleOk={this.handleOk}
-                    handleFPS={this.handleFPS}
-                    handleCommand={this.handleCommand}
-                    handleButton={this.handleButton}
-                    handleImage={this.handleImage}
-                    handleImageCommands={this.handleImageCommands}
-                    handleChanging={this.handleChanging}
-                    sendMessage={this.sendMessage}
-                    fingerprint={this.state.imageControls}
-                    addMinutia={this.addMinutia}
-                    brightness={brightness}
-                    contrast={contrast}
-                    saturation={saturation}
-                    hue={hue}
-                    addingMinutiae={addingMinutiae}
-                    orientation={orientation}
-                    undoEnabled={undoEnabled}
-                    redoEnabled={redoEnabled}
-                    imageControls={imageControls}
-                    blockButtons={
-                      currentBlock
-                        ? [previousBlock, currentBlock, nextBlock]
-                        : null
-                    }
-                    controlPanel={controlPanel}
-                  />
-                </div>
-              ) : null}
-            </div>
           </Col>
-        </div>
+          {showRightPanel ? (
+            <Col flex="auto">
+              {textbox ? (
+                <TextBox
+                  className="textBox"
+                  textBox={textbox}
+                  onChange={this.textBoxInput}
+                  isLoading={isLoading}
+                  orientation={orientation}
+                />
+              ) : null}
+              <Row>
+                <Col>
+                  {controlPanel ? (
+                    <ControlPanel
+                      className="gameControlPanel"
+                      isEnd={isEnd}
+                      isLoading={isLoading}
+                      frameRate={frameRate}
+                      inputFrameRate={this.state.inputFrameRate}
+                      UIlist={UIlist}
+                      instructions={instructions}
+                      infoPanel={infoPanel}
+                      DEBUG={DEBUG}
+                      handleOk={this.handleOk}
+                      handleFPS={this.handleFPS}
+                      handleCommand={this.handleCommand}
+                      handleButton={this.handleButton}
+                      handleImage={this.handleImage}
+                      handleImageCommands={this.handleImageCommands}
+                      handleChanging={this.handleChanging}
+                      sendMessage={this.sendMessage}
+                      fingerprint={this.state.imageControls}
+                      addMinutia={this.addMinutia}
+                      brightness={brightness}
+                      contrast={contrast}
+                      saturation={saturation}
+                      hue={hue}
+                      addingMinutiae={addingMinutiae}
+                      orientation={orientation}
+                      undoEnabled={undoEnabled}
+                      redoEnabled={redoEnabled}
+                      imageControls={imageControls}
+                      blockButtons={
+                        currentBlock
+                          ? [previousBlock, currentBlock, nextBlock]
+                          : null
+                      }
+                      controlPanel={controlPanel}
+                    />
+                  ) : null}
+                </Col>
+              </Row>
+              <Row>
+                <Col>
+                  {infoPanel ? (
+                    <InfoPanel
+                      className="infoPanel"
+                      infoPanel={infoPanel}
+                      orientation={orientation}
+                    />
+                  ) : null}
+                </Col>
+              </Row>
+            </Col>
+          ) : null}
+        </Row>
 
         <Modal
           title="Game end message"
@@ -1337,6 +1302,7 @@ class Game extends React.Component {
           cancelText="Cancel"
         >
           <p>{confirmMessage ? confirmMessage : "Are you sure?"}</p>
+          <p>After submitting your code, please wait momentarily to allow the system to calculate your final score.</p>
         </Modal>
         <Modal visible={scoreModalVisible} closable={false} footer={null}>
           {!score ? (

@@ -1,24 +1,26 @@
-.main {
-	display: flex;
-	flex-direction: column;
-	justify-content: space-between;
-	min-height: 100vh;
+.ant-layout {
+  background: none;
 }
+
+.ant-layout-content {
+	margin: 0 10vw;
+	min-height: 100vh;
+  padding: 0 2rem;
+}
+
 /* Keep the footer stick at the bottom */
 .errorPage {
 	flex: 1 0 auto;
 }
 
-/* Center align the form both horizontally and vertically with extra margin*/
-.forumContainer {
+.spinnerContainer {
 	display: flex;
 	flex: 1 0 auto;
 	justify-content: center;
 	align-items: center;
-	margin-left: 5%;
-	margin-right: 5%;
 	min-height: 650px;
 }
+
 /* Set the font size of loader to 18px */
 .Loader {
 	font-size: 18px;

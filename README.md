@@ -207,10 +207,10 @@ Error component, this component is only visible to the user if there are errors 
 [MessageViewer.js](./src/components/Message/MessageViewer.js)
 Message viewer is used when debug mode is set to true in the query parameters. By enabling the debug mode, all incoming and outgoing messages will be showed on the page.
  
-[header.js](./src/components/Layout/header.js)
+[header.js](./src/components/Layout/customHeader.js)
 Header component that will be rendered on every pages of our framework. We only have a irll logo and a step bar to indicate the current step for now.
 
-[footer.js](./src/components/Layout/footer.js)
+[footer.js](./src/components/Layout/customFooter.js)
 Footer component that will be rendered on every pages of our framework. We have logos for ualberta and amii.
 
 #### Setup

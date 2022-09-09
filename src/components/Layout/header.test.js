@@ -1,8 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import Header from './header';
+import CustomHeader from './customHeader';
 
 it("renders without crashing", () => {
     const div = document.createElement('div');
-    ReactDOM.render(<Header ></Header>, div);
+    ReactDOM.render(<CustomHeader ></CustomHeader>, div);
 })
