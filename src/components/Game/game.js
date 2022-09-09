@@ -1,7 +1,8 @@
 import React from "react";
 import "antd/dist/antd.css";
 import "./game.css";
-import { message, Modal, Row, Col, Button, Radio, Progress, Skeleton } from "antd";
+// import { message, Modal, Row, Col, Button, Radio, Progress, Skeleton } from "antd";
+import { message, Modal, Row, Col, Button, Radio } from "antd";
 import { w3cwebsocket } from "websocket";
 import { browserName, osName, browserVersion, osVersion } from "react-device-detect";
 
@@ -58,7 +59,7 @@ class Game extends React.Component {
 		hue: 0, // default image hue rotation (out of 360)
 		addingMinutiae: false, // if currently adding minutiae
 		minutiae: [], // list of all available minutiae within the image
-		fingerprintCache: [],
+		// fingerprintCache: [],
 
 		// For expert markings
 		expertMarker1: null,
@@ -77,7 +78,7 @@ class Game extends React.Component {
 		changing: false, // a flag to set if the sliders are still changing
 
 		// Widths and heights for responsiveness
-		windowWidth: 700, // width of the game window
+		windowWidth: 600, // width of the game window
 		windowHeight: 600, // height of the game window
 		imageWidth: null, // default width of the frame image source
 		imageHeight: null, // default height of the frame image source
@@ -317,15 +318,16 @@ class Game extends React.Component {
 		this.resize = () => {
 			const value =
 				this.state.orientation === "vertical"
-					? document.documentElement.clientWidth > 700
-						? 700
+					? document.documentElement.clientWidth > 600
+						? 600
 						: 0.8 * document.documentElement.clientWidth
-					: 0.4 * document.documentElement.clientWidth > 700
-					? 700
+					: 0.4 * document.documentElement.clientWidth > 600
+					? 600
 					: 0.4 * document.documentElement.clientWidth;
 			this.setState({ windowWidth: value });
 		};
 
+		this.resize();
 		window.addEventListener("resize", this.resize);
 	}
 
@@ -430,10 +432,12 @@ class Game extends React.Component {
 					);
 				} else {
 					// add to fingerprint cache
-					const fingerprintCache = [...this.state.fingerprintCache];
+					// const fingerprintCache = [...this.state.fingerprintCache];
+					// fingerprintCache.push(minutiaList);
+					// this.setState({ requestingFeedback: true, fingerprintCache });
+
 					const minutiaList = this.normalizeMinutiae(this.state.minutiae);
-					fingerprintCache.push(minutiaList);
-					this.setState({ requestingFeedback: true, fingerprintCache });
+					this.setState({ requestingFeedback: true });
 					this.sendMessage({
 						command: status,
 						minutiaList,
@@ -450,10 +454,10 @@ class Game extends React.Component {
 				this.setState((prevState) => ({ feedbackShown: !prevState.feedbackShown }));
 				break;
 			case "submitImage":
-				const fingerprintCache = [...this.state.fingerprintCache];
+				// const fingerprintCache = [...this.state.fingerprintCache];
+				// fingerprintCache.push(minutiaList);
+				// this.setState({ fingerprintCache });
 				const minutiaList = this.normalizeMinutiae(this.state.minutiae);
-				fingerprintCache.push(minutiaList);
-				this.setState({ fingerprintCache });
 				this.sendMessage({
 					command: status,
 					minutiaList,
@@ -800,7 +804,7 @@ class Game extends React.Component {
 			hue: 0,
 
 			// Reset undo and redo stacks and buttons
-			fingerprintCache: [],
+			// fingerprintCache: [],
 			undoList: [],
 			redoList: [],
 			undoEnabled: false,
@@ -836,9 +840,9 @@ class Game extends React.Component {
 			orientation,
 			windowWidth,
 			windowHeight,
-			score,
+			// score,
 			scoreModalVisible,
-			maxScore,
+			// maxScore,
 			undoEnabled,
 			redoEnabled,
 			expertMarker1,
@@ -888,7 +892,7 @@ class Game extends React.Component {
 									isLoading={isLoading}
 									frameSrc={frameSrc}
 									progress={progress}
-									width={windowWidth || 700}
+									width={windowWidth || 600}
 									height={windowHeight || 600}
 									brightness={brightness}
 									contrast={contrast}
@@ -1002,7 +1006,7 @@ class Game extends React.Component {
 					style={{ top: 20 }}
 				>
 					<div className="scoreModal">
-						{score ? (
+						{/* {score ? (
 							<>
 								<h4>Your score is...</h4>
 								<Progress
@@ -1027,7 +1031,8 @@ class Game extends React.Component {
 								<h4>Calculating your score, please wait...</h4>
 								<Skeleton.Avatar active={!score} size={100} shape="circle" />
 							</>
-						)}
+						)} */}
+
 						{expertMarker1 && expertMarker2 && (
 							<>
 								<h4>Here is your edition compared to experts:</h4>
@@ -1035,7 +1040,7 @@ class Game extends React.Component {
 								<Comparison
 									frameSrc={frameSrc}
 									expertMarkers={[expertMarker1, expertMarker2]}
-									userMarkers={this.state.fingerprintCache}
+									userMarkers={this.normalizeMinutiae(this.state.minutiae)}
 								/>
 							</>
 						)}
