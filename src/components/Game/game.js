@@ -1,7 +1,7 @@
 import React from "react";
 import { fabric } from "fabric";
 import './game.css'
-import MessageBoard from "../MessageBoard/MessageBoard";
+import NewMessageBoard from "../MessageBoard/NewMessageBoard";
 import ConfidenceTest from "../MessageBoard/ConfidenceTest";
 import aeroplane from '../images/aeroplane.png';
 import myData from "../data/increasing_prs.json";
@@ -224,10 +224,13 @@ class Game extends React.Component{
     this.removeHighlight = this.removeHighlight.bind(this);
     this.changeMessageBoardDisplayed = this.changeMessageBoardDisplayed.bind(this);
     this.changeCTDisplayed = this.changeCTDisplayed.bind(this);
+    this.handleClick = this.handleClick.bind(this);
+    this.inHighlight = this.inHighlight.bind(this);
+    this.checkClickedObject = this.checkClickedObject.bind(this);
+    // this.checkForSubOptimal = this.checkForSubOptimal.bind(this);
+    this.rerenderCanvas = this.rerenderCanvas.bind(this);
     this.count = 0;
-    this.score = 50;
-    this.totNumRound = 0;
-    this.numRound = 0;
+    this.score = 0;
   }
 
   initialize(){
@@ -238,23 +241,24 @@ class Game extends React.Component{
     this.nodesList = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
     this.graphInfo = null;
     this.graphValues = null;
-    this.prevHighlightList = [];
-    this.highlightList = [];
+    // this.prevHighlightList = [];
+    // this.highlightList = [];
 
-    this.canMove = false;
+    // this.canMove = false;
     this.moved = false;
     this.avatar = null;
     this.avatarX = this.cWidth;
     this.avatarY = this.cHeight;
     this.avatarNode = null;
-    this.changeAvatarPos = 0;
+    // this.changeAvatarPos = 0;
 
     this.message = "";
+    this.longMessage = "";
     this.messageBoardDisplayed = false;
     this.inspectorMessage = "";
 
     this.avatarWidth = null;
-    this.opt_act = null;
+    // this.opt_act = null;
 
     this.timeoutOn = false;
 
@@ -270,14 +274,25 @@ class Game extends React.Component{
                       [2, [3], "None", [4]], 
                       [6, "None", [7], "None", [8]]]
 
-    this.highestVal = null;
-    this.qVals = null;
+    // this.highestVal = null;
+    // this.qVals = null;
 
     this.ctest = false;
     this.ctestNum = 0;
     this.ctestMistakeNum = 0;
     this.ctestChosenDecision = false;
     this.ctestDisplayed = false;
+
+    this.prevHighlight = [];
+    this.highlight = [];
+    this.highlightCopy = [];
+    this.paths = {};
+    this.largestLeaf = null;
+
+    this.done = false;
+
+    this.gameOver = false;
+    this.enoughInfo = false;
   }
   
   componentDidMount(){
@@ -374,7 +389,6 @@ class Game extends React.Component{
             let parsedData = JSON.parse(message.data);
             if (parsedData.UI){
               this.count++;
-              this.numRound++;
               console.log("recieved ui");
               if(this.canvas){
                 this.canvas.clear();
@@ -402,27 +416,10 @@ class Game extends React.Component{
                 this.opt_act = parsedData.OPT_ACT;
                 this.populateGraphValues();
               }
-              if(this.count == 3 | this.count == 24){
-                this.score = 50;
-              }
-          
-              if(this.count == 1){
-                this.numRound = 1;
-                this.totNumRound = 2;
-                this.setState({});
-              }else if(this.count == 3){
-                this.numRound = 1;
-                this.totNumRound = 20;
-                this.setState({});
-              }else if(this.count == 23){
-                this.numRound = 1;
-                this.totNumRound = 11;
-                this.setState({});
-              }
             }else if(parsedData.VALUES){
               console.log("recieved values")
               this.qVals = parsedData.VALUES;
-              this.handleGameState();
+              // this.handleGameState();
             }
           }
       }
@@ -544,13 +541,13 @@ class Game extends React.Component{
     }
 
     if(this.avatarNode === null){
-        avatar.scaleToWidth(this.avatarWidth+20);
+        avatar.scaleToWidth(this.avatarWidth);
         avatar.left = cWidth/2;
         avatar.top = orPos;
         this.avatarX = cWidth;
         this.avatarY = cHeight;
     }else{
-        avatar.scaleToWidth(this.avatarWidth+20);
+        avatar.scaleToWidth(this.avatarWidth);
         avatar.left = this.avatarNode.getx();
         avatar.top = this.avatarNode.gety();
         this.avatarX = this.avatarNode.getx();
@@ -559,7 +556,7 @@ class Game extends React.Component{
     this.canvas.add(avatar);
 
     this.canvas.setWidth(this.cWidth);
-    // this.canvas.setHeight(this.cHeight);
+    this.canvas.setHeight(this.cHeight);
     this.canvas.renderAll();
   }
 
@@ -590,14 +587,16 @@ class Game extends React.Component{
       if(this.feedback){
         if(this.canMove === false){
             this.message = "You should have inspected one of the highlighted nodes."
+            this.longMessage = ""
             this.setState({message: this.message});
             if(!this.moved && this.feedback){
-              this.addHighlight("moved");
+              // this.addHighlight("moved");
             }
         }else{
             if(!this.moved && this.feedback){
                 if(this.opt_act !== dir){
                     this.message = "wrong way";
+                    this.longMessage = ""
                     this.setState({message: this.message});
                 } 
             }
@@ -618,6 +617,53 @@ class Game extends React.Component{
         }
         this.setState({});
       } 
+      if(!this.moved && this.feedback){
+        var found = false;
+        for(var i=0; i<this.adjList.length; i++){
+          for(var j=1; j<this.adjList[i].length; j++){
+            if(this.adjList[i][j] && this.adjList[i][j].getSelected()){
+              found = true;
+              break;
+            }
+          }
+          if(found){
+            break;
+          }
+        }
+        if(!found){
+          // message 2
+          this.message = "should explored before moving...";
+          this.longMessage = "To find a good path to take, you need to know the immediate and long-term rewards/costs of your decision.";
+          this.setState({});
+        }else if(!this.enoughInfo){
+          // check if they are moving towards a non 48 path
+          var leaves = 0;
+          var node = this.avatarNode;
+          var done = false;
+          while(!done){
+            node = node.getNext();
+            if(Array.isArray(node)){
+              leaves = node;
+              done = true;
+            }else if(node == null){
+              done = true;
+            }
+          }
+          var fourtyEightPath = false;
+          for(var l in leaves){
+            if(leaves[l].getValue() === 48){
+              fourtyEightPath = true;
+            }
+          }
+          if(!this.enoughInfo && !fourtyEightPath){
+            // message 5
+            this.message = "You don't have enough info to move...";
+            this.longMessage = "You cannot make a good decision with the amount of information you currently have. You should have continued exploring the nodes.";
+            this.setState({});
+          }
+          
+        }
+      }
       this.moved = true; 
     }
   }
@@ -726,12 +772,11 @@ class Game extends React.Component{
       }
     }
     if(changed){
-      this.avatarNode.drawText(this.canvas);
-      this.avatarNode.selected = true;
       this.pts += this.avatarNode.getValue();
       this.score += this.avatarNode.getValue();
       this.setState({gameOver: false});
       if(this.avatarNode.getNext() === null){
+        this.checkSelectedPath();
         this.setState({gameOver: true});
       }
 
@@ -743,9 +788,10 @@ class Game extends React.Component{
           var img1 = img.set({ 
               left: avatarNode.x, 
               top: avatarNode.y,
-              originX: 'center'
+              originX: 'center',
+              originY: 'center'
           })
-          img1.scaleToWidth(avatarWidth+20);
+          img1.scaleToWidth(avatarWidth);
           img1.selectable = false;
           img1.hoverCursor = "default";
           canvas.add(img1); 
@@ -753,6 +799,92 @@ class Game extends React.Component{
       this.avatarX = avatarNode.x;
       this.avatarY = avatarNode.y;
       this.avatarNode.visited = true;
+    }
+  }
+
+  checkSelectedPath(){
+    const checkPath = (n) => {
+      var pathSum = n.getValue();
+      var node = n;
+      var done = false;
+      while(!done){
+        var prev = node.getPrev();
+        if(prev !== null && prev.getSelected()){
+          pathSum += prev;
+        }else if(prev === null){
+          done = true;
+        }else if(!prev.getSelected()){
+          pathSum = null;
+          done = true;
+        }
+      }
+      return pathSum;
+    }
+    if(this.enoughInfo && this.avatarNode.getID() === this.largestLeaf.getID()){
+      // message 1
+      this.message = "Good Job!";
+      this.longMessage = ""
+      this.setState({});
+    }else if(this.avatarNode.getValue() === 48){
+      // does this path have the minimum values for the other nodes
+      var psum = checkPath(this.avatarNode);
+      if(psum === null){
+        // correctly selected path
+        // message 3
+        this.message = "Good Job!";
+        this.longMessage = "This was a good enough decision, but it doesn’t guarantee you achieved the optimal path or max score.";
+        this.setState({});
+      }else if(psum === 36){
+        // check if there were any other 48 leaves selected
+        var shouldSelectDiffPath = false;
+        Object.keys(this.paths).forEach(key =>{
+          var newkey = key.split(",").map(Number);
+          var n = this.adjList[newkey[0]][newkey[1]];
+          if(n.getSelected() === true && n.getValue() === 48){
+            var newpsum = checkPath(n);
+            if(newpsum === null || newpsum > psum){
+              shouldSelectDiffPath = true;
+            }
+          }
+        })
+        if(shouldSelectDiffPath){
+          // message 4
+          this.message = "should have selected a different path...";
+          this.longMessage = "Given that some other path(s) are likely to have higher scores than this path, this wasn’t the best decision you could have made.";
+        }else{
+          // message 3
+          this.message = "Good Job!";
+          this.longMessage = "This was a good enough decision, but it doesn’t guarantee you achieved the optimal path or max score.";
+          this.setState({});
+        }
+      }
+      
+    }else if(this.enoughInfo && this.avatarNode.getID() !== this.largestLeaf.getID()){
+      // message 6
+      this.message = "wrong path selected";
+      this.longMessage = "Given that some other path(s)  do have higher scores than this path, this wasn’t the best decision you could have made.";
+      this.setState({});
+    }else if(!this.enoughInfo && this.avatarNode.getValue() !== 48){
+      var leaves = 0;
+      var node = this.avatarNode;
+      while(node !== null){
+        node = node.getNext();
+        if(node !== null){
+          leaves = node;
+        }
+      }
+      var fourtyEightPath = false;
+      for(var l in leaves){
+        if(leaves[l].getValue() === 48){
+          fourtyEightPath = true;
+        }
+      }
+      if(fourtyEightPath){
+        // message 6
+        this.message = "wrong path selected";
+        this.longMessage = "Given that some other path(s) do have higher scores than this path, this wasn’t the best decision you could have made.";
+        this.setState({});
+      }
     }
   }
 
@@ -827,7 +959,7 @@ class Game extends React.Component{
               for(var j=1; j<this.adjList[i].length; j++){
                 var object = this.adjList[i][j];
                 if(object!==null && object.selected === false){
-                  if(object.checkClicked(false,x,y)){
+                  if(object.checkClicked(false, x,y)){
                     object.drawText(this.canvas);
                     object.selected = true;
                     found = true;
@@ -864,7 +996,7 @@ class Game extends React.Component{
               for(var j=1; j<this.adjList[i].length; j++){
                 var object = this.adjList[i][j];
                 if(object!==null && object.selected === false){
-                  if(object.checkClicked(true,x,y)){
+                  if(object.checkClicked(true, x,y)){
                     object.drawText(this.canvas);
                     object.selected = true;
                     found = true;
@@ -970,13 +1102,23 @@ class Game extends React.Component{
             }
             
             process(adjValues[i][j], i, j);
+            var isALeafNode = true;
             for(var k=1; k<adjValues.length; k++){
                 if(adjValues[k][0] !== "None" && adjValues[i][j] !== "None"){
                     if(adjValues[k][0] === adjValues[i][j][0]){ 
-                        createAdj(k, i, j);
+                      isALeafNode = false;
+                      createAdj(k, i, j);
                     }
                 }
             }
+            if(isALeafNode){
+              var node = adjList[i][j];
+              if(node !== null){
+                  this.paths[node.pos[0] + "," + node.pos[1]] = [48+8+4, -48-8-4];
+                  this.highlight.push(adjList[i][j]);
+                  this.highlightCopy.push(adjList[i][j]);
+              }
+          }
         }
     };
 
@@ -1079,7 +1221,7 @@ class Game extends React.Component{
 
     this.avatarWidth = radius*2;
     this.createAgent(orPos);
-    this.setGameState();
+    // this.setGameState();
   }
 
   drawArrowsFromOrigin(radius, orPos){
@@ -1183,9 +1325,10 @@ class Game extends React.Component{
           var img1 = img.set({ 
               left: x/2, 
               top: orPos,
-              originX: 'center'
+              originX: 'center',
+              originY: 'center',
           })
-          img1.scaleToWidth(avatarWidth+20);
+          img1.scaleToWidth(avatarWidth);
           img1.selectable = false;
           img1.hoverCursor = "default";
           canvas.add(img1); 
@@ -1205,138 +1348,513 @@ class Game extends React.Component{
       // this.canvas.add(img);
   }
 
-  setGameState(){
-    if(this.highlightList.length > 0){
-        for(var i in this.highlightList){
-            this.prevHighlightList.push(this.highlightList[i]);
-        }
+  handleClick(node){   
+    if(this.enoughInfo){
+      // message 10
+      this.message = "You don’t need to explore further.";
+      this.longMessage = "You have enough information to move towards the best path.";
+      this.setState({});
+    } 
+    if(node.explored() === false){
+        this.numNodes -= 1;
     }
-    console.log(this.gameState.toString().replaceAll(",", " "));
-    this.sendMessage({
-      command: "get next",
-      info: this.gameState.toString().replaceAll(",", " ")
+    node.selected = true;
+    this.removeHighlight();
+    if (node.explored() === true){
+        // check highlight
+        this.inHighlight(node);
+        // message 9
+        if(this.feedback){
+          this.message = "You should have explored…";
+          this.longMessage = "Given that some other path(s) do have higher scores than this path, you should have explored the highlighted node(s)."
+          this.setState({});
+        }
+    }else if(node.getNext() === null){
+        // is a leaf node
+        this.inHighlight(node);
+        var maxNode = node;
+        // update its value
+        this.paths[node.pos[0] + ',' + node.pos[1]][0] = this.paths[node.pos[0] + ',' + node.pos[1]][0] = this.paths[node.pos[0] + ',' + node.pos[1]][0] = this.paths[node.pos[0] + ',' + node.pos[1]][0] - 48 + node.getValue();
+        this.paths[node.pos[0] + ',' + node.pos[1]][1] = this.paths[node.pos[0] + ',' + node.pos[1]][1] = this.paths[node.pos[0] + ',' + node.pos[1]][1] = this.paths[node.pos[0] + ',' + node.pos[1]][1] + 48 + node.getValue();
+        // stores max value, thus other leaves in the same path don't need to be explored
+        if(node.getValue() === 48){
+            var prev = node.getPrev();
+            var listOfLeaves = prev.getNext();
+            for(var l in listOfLeaves){
+                var leaf = listOfLeaves[l];
+                if(leaf!==node){
+                    leaf.doNotExplore();
+                    if(leaf.selected === false){
+                        this.numNodes-=1;
+                    }
+                    this.highlight.forEach((item, index)=>{
+                        if(item === leaf){
+                            this.highlight.splice(index, 1);
+                        }
+                    })
+                }
+            }
+        }else{
+            // compare with its selected siblings
+            var siblings = node.getPrev().getNext();
+            for(var s in siblings){
+                var sibling = siblings[s];
+                if(sibling !== node && sibling.selected === true){
+                    if(sibling.getValue() > maxNode.getValue()){
+                        maxNode.doNotExplore();
+                        maxNode = sibling;
+                    }else if(sibling.getValue() < maxNode.getValue()){
+                        sibling.doNotExplore();
+                    }
+                }
+            }
+        }
+
+        var wc = this.paths[node.pos[0] + ',' + node.pos[1]][1];
+        var bc = this.paths[node.pos[0] + ',' + node.pos[1]][0];
+        if(maxNode === node){
+            // set this to be the largest leaf
+            if(this.largestLeaf == null){
+                this.largestLeaf = node;
+                this.paths[node.pos[0] + "," + node.pos[1]][0] = bc;
+                this.paths[node.pos[0] + "," + node.pos[1]][1] = wc;
+
+                var wc = this.paths[this.largestLeaf.pos[0] + "," + this.largestLeaf.pos[1]][1];
+                Object.keys(this.paths).forEach(key => {
+                    var newkey = key.split(",").map(Number);
+                    var n = this.adjList[newkey[0]][newkey[1]];
+                    if(n !== this.largestLeaf && n.explored() === false && this.paths[key][0] <= wc){
+                        n.doNotExplore();
+                        if(n.selected === false){
+                            this.numNodes-=1;
+                        }
+                        var nextLeaves = n.getPrev().getNext();
+                        var endPath = true;
+                        for(var l in nextLeaves){
+                            if(nextLeaves[l].explored() === false){
+                                endPath = false;
+                            }
+                        }
+                        if(endPath === true){
+                            var prev = n.getPrev();
+                            while( prev!==null){
+                                prev.doNotExplore();
+                                if(prev.selected === false){
+                                    this.numNodes-=1;
+                                }
+                                prev = prev.getPrev();                                            
+                            }
+                        }
+                    }
+                });    
+            }else{
+                // is it larger than largest leaf wc?
+                if(wc > this.paths[this.largestLeaf.pos[0] + "," + this.largestLeaf.pos[1]][1]){
+                    this.replaceLargestLeaf(node, wc);
+                }else{
+                    // this is not the new largest leaf
+                    this.paths[node.pos[0] + "," + node.pos[1]][0] = bc;
+                    this.paths[node.pos[0] + "," + node.pos[1]][1] = wc;
+                    //wc < this.paths[this.largestLeaf.pos[0] + "," + this.largestLeaf.pos[1]]
+                    if(bc <= this.paths[this.largestLeaf.pos[0] + "," + this.largestLeaf.pos[1]][1]){
+                        node.doNotExplore();
+                        prev = node.getPrev();
+                        listOfLeaves = prev.getNext();
+                        var endPath = true;
+                        for(var item in listOfLeaves){
+                            if(listOfLeaves[item].explored() === false){
+                                endPath = false;
+                            }
+                        }
+                        if(endPath === true){
+                            var prev = node.getPrev();
+                            while( prev!==null){
+                                prev.doNotExplore();
+                                if(prev.selected === false){
+                                    this.numNodes-=1;
+                                }
+                                prev = prev.getPrev();                                            
+                            }
+                        }
+                    } 
+                }
+            } 
+        }else{
+            // confirm if the path has now been eliminated
+            prev = node.getPrev();
+            listOfLeaves = prev.getNext();
+            var endPath = true;
+            for(var item in listOfLeaves){
+                if(listOfLeaves[item].explored() === false){
+                    endPath = false;
+                }
+            }
+            if(endPath === true){
+                var prev = node.getPrev();
+                while( prev!==null){
+                    prev.doNotExplore();
+                    if(prev.selected === false){
+                        this.numNodes-=1;
+                    }
+                    prev = prev.getPrev();                                            
+                }
+            } 
+        }
+
+        
+    }else{
+        // check highlight
+        this.inHighlight(node);
+
+        // not a leaf node
+        // figure out which leafs' path it's a part of
+        var done = false;
+        var numLeaves = 0;
+        var nextNode = [node];
+        while(done === false){
+            for(var i in nextNode){
+                var next = nextNode[i].getNext();
+                if(next !== null){
+                    nextNode.splice(i, 1);
+                    for(var n in next){
+                        nextNode.push(next[n]);
+                    }
+                }else{
+                    done = true;
+                }
+            }
+        }
+        // while(done === false){
+        //     if(nextNode.length === numLeaves){
+        //         done = true;
+        //         break;
+        //     }
+        //     for(var i in nextNode){
+        //         var next = nextNode[i].getNext();
+        //         if(next !== null){
+        //             nextNode.splice(i, 1);
+        //             for(var n in next){
+        //                 nextNode.push(next[n]);
+        //             }
+        //         }else{
+        //             numLeaves++;
+        //         }
+        //     }
+        // }
+
+        var isPartOf = false;
+        for(var l in nextNode){
+            if(this.largestLeaf !== null && nextNode[l].getID() === this.largestLeaf.getID()){
+                console.log("herreeee");
+                isPartOf = true;
+            }
+        }
+        for(var i in nextNode){
+            if(nextNode[i].explored() === false){
+                if(node.getPrev() === null){
+                    this.paths[nextNode[i].pos[0] + "," + nextNode[i].pos[1]][0] = this.paths[nextNode[i].pos[0] + "," + nextNode[i].pos[1]][0] - 4 + node.getValue();
+                    this.paths[nextNode[i].pos[0] + "," + nextNode[i].pos[1]][1] = this.paths[nextNode[i].pos[0] + "," + nextNode[i].pos[1]][1] + 4 + node.getValue();
+                }else{
+                    this.paths[nextNode[i].pos[0] + "," + nextNode[i].pos[1]][0] = this.paths[nextNode[i].pos[0] + "," + nextNode[i].pos[1]][0] - 8 + node.getValue();   
+                    this.paths[nextNode[i].pos[0] + "," + nextNode[i].pos[1]][1] = this.paths[nextNode[i].pos[0] + "," + nextNode[i].pos[1]][1] + 8 + node.getValue();   
+                }
+            }   
+        } 
+        if(isPartOf){
+            console.log("a part of")
+            // part of the largest leaf path
+            // most likely its wc will increase
+            // thus, check if every other leaf's bc < new wc
+            // update wc and bc
+            var wc = this.paths[this.largestLeaf.pos[0] + "," + this.largestLeaf.pos[1]][1];
+            Object.keys(this.paths).forEach(key => {
+                var newkey = key.split(",").map(Number);
+                var n = this.adjList[newkey[0]][newkey[1]];
+                if(n !== this.largestLeaf && n.explored() === false && this.paths[key][0] <= wc){
+                    n.doNotExplore();
+                    if(n.selected === false){
+                        this.numNodes-=1;
+                    }
+                    var nextLeaves = n.getPrev().getNext();
+                    var endPath = true;
+                    for(var l in nextLeaves){
+                        if(nextLeaves[l].explored() === false){
+                            endPath = false;
+                        }
+                    }
+                    if(endPath === true){
+                        var prev = n.getPrev();
+                        while( prev!==null){
+                            prev.doNotExplore();
+                            if(prev.selected === false){
+                                this.numNodes-=1;
+                            }
+                            prev = prev.getPrev();                                            
+                        }
+                    }
+                }
+            });    
+        }else{
+            console.log("not a part")
+            // first check if any of its leaves have surpassed largest leaf's wc 
+            if(this.largestLeaf !== null){
+                Object.entries(this.paths).forEach(([key, value])=>{
+                    key = key.split(",").map(Number);
+                    var node = this.adjList[key[0]][key[1]];
+                    wc = this.paths[node.pos[0] + ',' + node.pos[1]][1];
+                    bc = this.paths[node.pos[0] + ',' + node.pos[1]][0];
+                    if(wc !== bc){
+                        if(value[1] > this.paths[this.largestLeaf.pos[0] + ',' + this.largestLeaf.pos[1]][1]){
+                            this.replaceLargestLeaf(node, value[1]);
+                        }
+                    } 
+                    
+                });  
+            }
+            
+
+            // part of another leaf's path
+            // most likely its bc will decrease (for all its siblings)
+            // thus, check this leaf's and its siblings' bc against largest leaf's wc
+            if(this.largestLeaf !== null){
+                wc = this.paths[this.largestLeaf.pos[0] + ',' + this.largestLeaf.pos[1]][1];
+                for(var i in nextNode){
+                    var leaf = nextNode[i];
+                    if(leaf.explored() === false){
+                        if(leaf.getID() === 8){
+                            console.log(this.paths[leaf.pos[0] + "," + leaf.pos[1]][0]);
+                            console.log(wc);
+                        }
+                        if(this.paths[leaf.pos[0] + "," + leaf.pos[1]][0] <= wc){
+                            leaf.doNotExplore();
+                            if(leaf.selected === false){
+                                this.numNodes-=1;
+                            }
+                            var nextLeaves = leaf.getPrev().getNext();
+                            var endPath = true;
+                            for(var l in nextLeaves){
+                                if(nextLeaves[l].explored() === false){
+                                    endPath = false;
+                                }
+                            }
+                            if(endPath === true){
+                                var prev = leaf.getPrev();
+                                while( prev!==null){
+                                    prev.doNotExplore();
+                                    if(prev.selected === false){
+                                        this.numNodes-=1;
+                                    }
+                                    prev = prev.getPrev();                                            
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    } 
+    
+    // check if they have enough info for a solution at this point
+    // if there is at least one unselected leaf that is !shouldnotbeexplored, then we aren't done yet
+    var numPotentialLeaves = 0;
+    var done = true;
+    Object.keys(this.paths).forEach(key=>{
+        key = key.split(",").map(Number);
+        var node = this.adjList[key[0]][key[1]];
+        // node not selected and should be explored
+        if(node.selected === false && node.explored() === false){
+            done = false;
+        }else if(node.selected === true && node.explored() === false){
+            numPotentialLeaves++;
+        }
     });
-  }
 
-  handleGameState(){
-    this.highestVal = null;
-    var moveVal = null;
-    for(var i in this.qVals){
-        if(i == 13){
-            moveVal = this.qVals[i];
-            break;
-        }
-        if(this.highestVal === null){
-          this.highestVal = this.qVals[i];
-            this.highlightList.push(this.nodesList[i]);
-        }else if(this.qVals[i] > this.highestVal){
-          this.highestVal = this.qVals[i];
-            this.highlightList = [];
-            this.highlightList.push(this.nodesList[i]);
-        }else if(this.qVals[i] == this.highestVal){
-            this.highlightList.push(this.nodesList[i]);
-        }
-    }
-
-    if(this.highestVal - moveVal < .01){
-        this.highlightList = [];
-        console.log("can move at this point");
-        this.canMove = true;
+    if(done === true && numPotentialLeaves <= 1){
+        this.enoughInfo = true;
+        console.log("enough info to end at this point");
     }
   }
 
-  handleClick(node){
-    // if(this.timeOut){
-    //   console.log("in hereeeeeeeeeeeee")
-    //   clearTimeout(this.timeOut)
-    //   this.removeHighlight()
-    // }
-    this.gameState[node.getID()] = node.getValue();  
+  replaceLargestLeaf(node, wc){
+    console.log("replace largest leaf");
+    // this is the new largest leaf
+    this.paths[node.pos[0] + "," + node.pos[1]][1] = wc;
+
+    var bc = this.largestLeaf.getValue();
+    var wc = this.largestLeaf.getValue();
+    var prev = this.largestLeaf;
+    while( prev!==null){
+        prev = prev.getPrev();
+        if(prev !== null){
+            // which level is it at
+            if(prev.selected === false){
+                if(prev.getNext() !== null && prev.getPrev() !== null){
+                    wc -= 8;
+                    bc += 8;
+                }else if(prev.getNext() !== null && prev.getPrev() === null){
+                    wc -= 4;
+                    bc += 4;
+                }  
+            }else{
+                wc += prev.getValue();
+                bc += prev.getValue();
+            }   
+                
+        }
+    }
+    this.paths[this.largestLeaf.pos[0] + "," + this.largestLeaf.pos[1]][0] = bc;
+    this.paths[this.largestLeaf.pos[0] + "," + this.largestLeaf.pos[1]][1] = wc;
+
+    this.largestLeaf = node;
+
+    // compare every single leaf to this new largest leaf's wc
+    Object.keys(this.paths).forEach(key => {
+        key = key.split(",").map(Number);
+        var leaf = this.adjList[key[0]][key[1]];
+        if(leaf.explored() === false && leaf !== this.largestLeaf && leaf.selected == true){
+            bc = this.paths[key][0];
+            if(bc <= wc){
+                leaf.doNotExplore();
+                if(leaf.selected === false){
+                    this.numNodes-=1;
+                }
+                prev = leaf.getPrev();
+                var listOfLeaves = prev.getNext();
+                var endPath = true;
+                for(var i in listOfLeaves){
+                    if(listOfLeaves[i].explored() === false){
+                        endPath = false;
+                    }
+                }
+                if(endPath === true){
+                    var prev = leaf.getPrev();
+                    while( prev!==null){
+                        prev.doNotExplore();
+                        if(prev.selected === false){
+                            this.numNodes-=1;
+                        }
+                        prev = prev.getPrev();                                            
+                    }
+                }
+            }
+        }
+    });  
+  }
+
+  inHighlight(selectedNode){
+    // is this node in highlight?
+
+    // clear out anything that shouldn't be explored from highlight
+    for(var i in this.highlight){
+        if(this.highlight[i].explored() === true){
+            this.highlight.splice(i, 1);
+        }
+    }
+    if(this.highlight.length === 0){
+        this.populateHighlight();
+        while(this.highlight.length === 0){
+            this.populateHighlight();
+        }
+    }
+
     var inHighlight = false;
-    for(var i in this.highlightList){
-        if(this.highlightList[i].getID() == node.getID()){
-            inHighlight = true
+    for(var item in this.highlight){
+        if(this.highlight[item] === selectedNode){
+            inHighlight = true;
+            // message 1
+            if(this.feedback){
+              this.message = "Good Job!";
+              this.longMessage = "";
+              this.setState({});
+            } 
+        }
+    }    
+    if(selectedNode.explored() === true){
+        for(var i in this.highlight){
+            if(this.highlight[i].explored() === false && this.highlight[i].selected === false){
+              if(this.feedback){
+                this.highlight[i].highlightNode(this.canvas);
+              }     
+              this.prevHighlight.push(this.highlight[i]);
+            }
         }
     }
-
-    if(!this.feedback && !inHighlight && this.ctest && this.ctestChosenDecision && this.ctestNum < 3){
-      // made a mistake
-      this.ctestMistakeNum++;
-      this.ctestNum++;
-      console.log("CTEST: wrong move");
-      this.ctestDisplayed = true;
-      this.setState({});
-    }else if(!this.feedback && this.ctest && this.ctestChosenDecision && this.ctestNum < 3){
-      // correct move 
-      this.ctestNum++;
-      console.log("CTEST: correct move ");
-      this.ctestDisplayed = true;
-      this.setState({});
-    }
-
-    if(this.feedback){
-      if(this.canMove && !this.moved){
-        this.message = "You shouldn't have inspected any more nodes.";
-        this.setState({message: this.message});
-      }else if(this.canMove && this.moved){
-          this.message = "Good Job!";
-          this.setState({message: this.message});
-      }else{
-          // should have clicked a node
-          if(!inHighlight){
-              this.message = "You should have inspected one of the highlighted nodes."
-              this.setState({message: this.message});
-              this.addHighlight(node);
-          }else{
-              this.message = "Good Job!";
-              this.setState({message: this.message});
+    if(inHighlight){
+        this.highlight.forEach((item, index)=>{
+            if(item === selectedNode){
+                this.highlight.splice(index, 1);
+            }
+        })
+    }else{
+      if(!selectedNode.explored()){
+        if(this.feedback){
+          // message 7
+          this.message = "You should have explored...";
+          this.longMessage = "You should have explored one of the highlighted nodes instead";
+          this.setState({});
+        }
+      }
+      for(var i in this.highlight){
+          if(this.highlight[i].explored() === false && this.highlight[i].selected === false){
+            if(this.feedback){
+             this.highlight[i].highlightNode(this.canvas); 
+            }
+            this.prevHighlight.push(this.highlight[i]);
           }
       }
     }
-
-    this.canMove = false;
-    this.setGameState();
+    for(var i in this.highlight){
+        if(this.highlight[i].selected === true || this.highlight[i].explored() === true){
+            this.highlight.splice(i, 1);
+        }
+    }
     
+  }
+
+  populateHighlight(){
+    this.prevHighlight = [];
+    var otherList = [];
+    while(this.highlightCopy.length !== 0){
+        var node = this.highlightCopy.pop();
+        if(node!== null){
+            var prev = node.getPrev();
+            var done = false;
+            var numLeaves = 0;
+            var leaves = [node];
+            while(done === false){
+                if(leaves.length === numLeaves){
+                    done = true;
+                    break;
+                }
+                for(var i in leaves){
+                    var next = leaves[i].getNext();
+                    if(next !== null){
+                        leaves.splice(i, 1);
+                        for(var n in next){
+                            leaves.push(next[n]);
+                        }
+                    }else{
+                        numLeaves++;
+                    }
+                }
+            }
+            for(var l in leaves){
+                otherList.push(prev);
+                if((leaves[l].getValue() === this.largestLeaf.getValue() || leaves[l].getValue() === 48) && leaves[l].explored() === false && prev !== null && prev.explored() === false){
+                    this.highlight.push(prev);
+                }
+            }
+        }
+    }
+    for(var i in otherList){
+        this.highlightCopy.push(otherList[i]);
+    }
   }
 
   removeHighlight(){
-    this.timeoutOn = false;
-    clearTimeout(this.timeOut)
-    this.inspectorMessage = ""
-    this.setState({inspectorMessage: this.inspectorMessage});
-    if(this.prevHighlightList.length === 0){
-      for(var i in this.highlightList){
-        this.highlightList[i].redraw(this.canvas);
-      }
-    }else{
-      for(var i in this.prevHighlightList){
-        this.prevHighlightList[i].redraw(this.canvas);
-      }
+    for(var i in this.prevHighlight){
+      this.prevHighlight[i].redraw(this.canvas);
     }
-    
-  }
-
-  addHighlight(node){
-    for(var i in this.highlightList){
-        if(this.highlightList[i].selected === false && i !== 13){
-          this.highlightList[i].highlightNode(this.canvas);
-        }
-    }
-
-    var loss;
-    var delay;
-    var strictness = 10;
-    if(node == "moved"){
-      loss = this.highestVal - this.qVals[13];
-    }else{
-      loss = this.highestVal - this.qVals[node.getID()];
-    }
-    delay =  (2 + Math.round(strictness * loss));
-
-    console.log(delay)
-    // this.timeOut = setTimeout(this.removeHighlight, delay*1000);
-    this.timeOut = setTimeout(this.removeHighlight, 0);
-    this.timeoutOn = true;
   }
 
   changeMessageBoardDisplayed(){
@@ -1360,9 +1878,9 @@ class Game extends React.Component{
     return(
       <div id="wrapper">
         <div id="info">
-          <h1 id="round">{this.numRound}/{this.totNumRound}</h1>
+          <h1 id="round">{this.count}/33</h1>
           <h1 id="score">{this.score} pts</h1>
-          <MessageBoard message={this.message} setBoardDisplayed={this.changeMessageBoardDisplayed}/>  
+          <NewMessageBoard message={this.message} longMessage={this.longMessage} setBoardDisplayed={this.changeMessageBoardDisplayed}/>  
           <ConfidenceTest ctest = {this.ctestDisplayed} setCTDisplay = {this.changeCTDisplayed}></ConfidenceTest>
         </div>
         <canvas id="canvas"/>  
@@ -1379,3 +1897,4 @@ export default Game;
         
         
         
+
