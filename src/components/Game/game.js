@@ -1,1064 +1,1381 @@
 import React from "react";
-import "antd/dist/antd.css";
-import "./game.css";
-// import { message, Modal, Row, Col, Button, Radio, Progress, Skeleton } from "antd";
-import { message, Modal, Row, Col, Button, Radio } from "antd";
+import { fabric } from "fabric";
+import './game.css'
+import MessageBoard from "../MessageBoard/MessageBoard";
+import ConfidenceTest from "../MessageBoard/ConfidenceTest";
+import aeroplane from '../images/aeroplane.png';
+import myData from "../data/increasing_prs.json";
 import { w3cwebsocket } from "websocket";
-import { browserName, osName, browserVersion, osVersion } from "react-device-detect";
-
-// Import utilities
-import getKeyInput from "../../utils/getKeyInput";
-import { WS_URL, USER_ID, PROJECT_ID, SERVER, DEBUG } from "../../utils/constants";
-import { icons } from "../../utils/icons";
-
-// Import components
-import ControlPanel from "../Control/control";
-import BudgetBar from "../BudgetBar/budgetBar";
-import DisplayBar from "../DisplayBar/displayBar";
-import MessageViewer from "../Message/MessageViewer";
-import GameWindow from "../GameWindow/gameWindow";
-import FingerprintWindow from "../GameWindow/fingerprintWindow";
-import Comparison from "../Comparison/comparison";
-
-// const pendingTime = 5;
-const pendingTime = 30;
-
-class Game extends React.Component {
-	state = {
-		frameCount: 0, // count how many frames has received from the server
-		frameId: 0, // the id of current frame
-		frameRate: 30, // default FPS is 30
-		frameSrc: "", // the image source of frame
-		imageL: null, // the image source of left image component
-		imageR: null, // the image source of right image component
-		isLoading: !SERVER ? true : false, // if the server is ready to send out the data
-		isEnd: false, // if the game is finished
-		isConnection: false, // if the connection to the server is established
-		gameEndVisible: false, // if the game end dialog is visible
-		UIlist: [], // a list of UI components
-		progress: 0, // the status of the server
-		inputBudget: 0, // the total budget available for the feedback buttons
-		usedInputBudget: 0, // the consumed budget for the feedback buttons
-		receiveData: null, // the received data from the server
-		displayData: null, // the data that will be displayed on the page
-		inMessage: [], // a list of incoming messages
-		outMessage: [], // a list of outgoing messages
-		holdKey: null, // the key that is holding
-		instructions: [], // list of instructions for the game
-		orientation: "horizontal", // default orientation is horizontal
-
-		// Fingerprint trial configurations
-		fingerprint: true, // if this is a fingerprint trial
-		minMinutiae: null, // the minimum number of minutiae required to be marked per step
-		resetModalVisible: false, // if the reset image dialog is visible
-
-		// For image marking functionality
-		brightness: 100, // default image brightness (out of 100)
-		contrast: 100, // default image contrast (out of 100)
-		saturation: 100, // default image saturation (out of 100)
-		hue: 0, // default image hue rotation (out of 360)
-		addingMinutiae: false, // if currently adding minutiae
-		minutiae: [], // list of all available minutiae within the image
-		// fingerprintCache: [],
-
-		// For expert markings
-		expertMarker1: null,
-		expertMarker2: null,
-
-		// For the score modal
-		scoreModalVisible: false, // if the score modal is visible
-		score: null, // the user's score
-		maxScore: 100, // the maximum score a user can get
-
-		// For undo and redo functionality
-		undoList: [], // list of states before
-		undoEnabled: false, // if
-		redoList: [], // list of states after
-		redoEnabled: false,
-		changing: false, // a flag to set if the sliders are still changing
-
-		// Widths and heights for responsiveness
-		windowWidth: 600, // width of the game window
-		windowHeight: 600, // height of the game window
-		imageWidth: null, // default width of the frame image source
-		imageHeight: null, // default height of the frame image source
-
-		requestingFeedback: false,
-		minutiaeShown: true,
-		feedbackShown: false,
-	};
-
-	componentDidMount() {
-		// To update the progress of loading game content
-		// Since we always need to wait 30 seconds before the game
-		// content get loaded, we update the progress (100/30) per second
-		this.updateProgress = setInterval(
-			() =>
-				this.setState((prevState) => ({
-					progress: prevState.progress + 100 / pendingTime,
-				})),
-			1000
-		);
-
-		// To ensure the websocket server is ready to connect
-		// we try to connect the websocket server periodically
-		// for every 30 seconds until the connection has been established
-		this.timer = setTimeout(
-			() => {
-				//connect the websocket server
-				this.websocket = new w3cwebsocket(WS_URL);
-				this.websocket.onopen = () => {
-					// Once the websocket connection has been established
-					// we remove all the unnecessary timer
-					clearTimeout(this.timer);
-					clearInterval(this.updateProgress);
-					console.log("WebSocket Client Connected");
-					this.setState({
-						isLoading: false,
-						isConnection: true,
-					});
-					this.sendMessage({
-						userId: USER_ID,
-						projectId: PROJECT_ID,
-					});
-				};
-
-				// Listen to the data from the websocket server
-				this.websocket.onmessage = (message) => {
-					if (message.data === "done") {
-						//"done" means the game has ended
-						this.setState({
-							isEnd: true,
-							scoreModalVisible: true,
-							// gameEndVisible: true,
-						});
-					} else {
-						//parse the data from the websocket server
-						let parsedData = JSON.parse(message.data);
-
-						//Check if budget bar should be loaded
-						if (parsedData.inputBudget) {
-							this.setState({
-								inputBudget: parsedData.inputBudget,
-								usedInputBudget: parsedData.usedInputBudget,
-							});
-						}
-						//Check if UI in response
-						if (parsedData.UI) {
-							this.setState({
-								UIlist: parsedData.UI,
-							});
-						}
-						//Check if Instructions in response
-						if (parsedData.Instructions) {
-							this.setState({
-								instructions: parsedData.Instructions,
-							});
-						}
-						//Check if Fingerprint in response
-						if (parsedData.Fingerprint) {
-							this.setState({
-								fingerprint: parsedData.Fingerprint,
-							});
-						}
-						//Check if Expert Markings in response
-						if (parsedData.ExpertMarks1 || parsedData.ExpertMarks2) {
-							this.setState({
-								expertMarker1: parsedData.ExpertMarks1,
-								expertMarker2: parsedData.ExpertMarks2,
-							});
-						}
-						//Check if Score in response
-						if (parsedData.Score) {
-							this.setState({
-								score: parsedData.Score,
-							});
-						}
-						//Check if Score in response
-						if (parsedData.MaxScore) {
-							this.setState({
-								maxScore: parsedData.MaxScore,
-							});
-						}
-						//Check if Score in response
-						if (parsedData.MinMinutiae) {
-							this.setState({
-								minMinutiae: parsedData.MinMinutiae,
-							});
-						}
-						if (parsedData.ScoreChange) {
-							this.setState({
-								requestingFeedback: false,
-								feedbackShown: true,
-								feedbackEnabled: true,
-								minutiaeShown: true,
-								haveFeedback: true,
-							});
-							this.handleFeedback(parsedData.ScoreChange);
-						}
-						//Check if frame related information in response
-						if (parsedData.frame && parsedData.frameId) {
-							let frame = parsedData.frame;
-							let frameId = parsedData.frameId;
-
-							if (this.state.score)
-								this.setState((prevState) => ({
-									nextframeSrc: "data:image/jpeg;base64, " + frame,
-									nextframeCount: prevState.frameCount + 1,
-									nextframeId: frameId,
-								}));
-							else {
-								this.setState((prevState) => ({
-									// Set new frame ID
-									frameSrc: "data:image/jpeg;base64, " + frame,
-									frameCount: prevState.frameCount + 1,
-									frameId: frameId,
-
-									// Reset minutiae and image filters
-									minutiae: [],
-									brightness: 100,
-									contrast: 100,
-									saturation: 100,
-									hue: 0,
-
-									// Reset undo/redo stacks and buttons
-									undoList: [],
-									redoList: [],
-									undoEnabled: false,
-									redoEnabled: false,
-								}));
-							}
-							const img = new Image();
-							img.src = "data:image/jpeg;base64, " + frame;
-							img.onload = () => {
-								this.setState({
-									imageWidth: img.width,
-									imageHeight: img.height,
-								});
-							};
-						}
-
-						//check if imageL is in server's response
-						if (parsedData.imageL) {
-							this.setState({
-								imageL: parsedData.imageL,
-							});
-						}
-
-						//check if imageR is in server's response
-						if (parsedData.imageR) {
-							this.setState({
-								imageR: parsedData.imageR,
-							});
-						}
-
-						//check if any information needed to display
-						if (parsedData.display) {
-							this.setState({
-								displayData: parsedData.display,
-							});
-						}
-						//log every message received from the server
-						if (DEBUG) {
-							delete parsedData.frame;
-							this.setState((prevState) => ({
-								inMessage: [parsedData, ...prevState.inMessage],
-							}));
-						}
-					}
-				};
-
-				//listen to the websocket closing status
-				this.websocket.onclose = () => {
-					console.log("WebSocket Client Closed");
-					this.setState({
-						isConnection: false,
-						isEnd: true,
-						// gameEndVisible: true,
-						scoreModalVisible: true,
-					});
-				};
-			},
-			SERVER ? 0 : pendingTime * 1000
-		);
-
-		// Listen to the user's keyboard inputs
-		this.keydown = (event) => {
-			//Used to prevent arrow keys and space key from scrolling the page
-			let dataToSend = getKeyInput(event.code);
-			if (dataToSend.actionType !== null) {
-				event.preventDefault();
-			}
-
-			if (this.state.UIlist.includes(dataToSend.action)) {
-				if (this.state.holdKey !== dataToSend.actionType) {
-					this.setState({ holdKey: dataToSend.actionType });
-					this.sendMessage(dataToSend);
-				}
-			}
-		};
-
-		document.addEventListener("keydown", this.keydown);
-
-		this.keyup = (event) => {
-			//Used to prevent arrow keys and space key from scrolling the page
-			let dataToSend = getKeyInput(event.code);
-			if (this.state.UIlist.includes(dataToSend.action)) {
-				dataToSend.action = "noop";
-				if (this.state.holdKey === dataToSend.actionType) {
-					this.setState({ holdKey: null });
-				}
-				this.sendMessage(dataToSend);
-			}
-		};
-
-		document.addEventListener("keyup", this.keyup);
-
-		// Get the client window width to make the game window responsive
-		this.resize = () => {
-			const value =
-				this.state.orientation === "vertical"
-					? document.documentElement.clientWidth > 600
-						? 600
-						: 0.8 * document.documentElement.clientWidth
-					: 0.4 * document.documentElement.clientWidth > 600
-					? 600
-					: 0.4 * document.documentElement.clientWidth;
-			this.setState({ windowWidth: value });
-		};
-
-		this.resize();
-		window.addEventListener("resize", this.resize);
-	}
-
-	componentWillUnmount() {
-		if (this.setInMessage) clearInterval(this.setInMessage);
-
-		document.removeEventListener("keydown", this.keydown);
-		document.removeEventListener("keyup", this.keyup);
-		window.removeEventListener("resize", this.resize);
-	}
-
-	// Change the confirmation modal to be invisible
-	// Navigate to the post-game page
-	handleOk = (e) => {
-		if (e.currentTarget.id === "keepMinutiae" || e.currentTarget.id === "resetAll") {
-			this.pushUndo();
-
-			this.setState({
-				// Reset image filters
-				brightness: 100,
-				contrast: 100,
-				saturation: 100,
-				hue: 0,
-				resetModalVisible: false,
-			});
-			if (e.currentTarget.id === "resetAll") {
-				this.setState({
-					minutiae: [],
-				});
-				this.sendMessage({
-					info: "reset all",
-				});
-			} else {
-				this.sendMessage({
-					info: "reset excluding minutiae",
-				});
-			}
-		} else {
-			this.setState({
-				gameEndVisible: false,
-			});
-			this.props.action();
-		}
-	};
-
-	// Change the confirmation modal to be invisible
-	// Stay on the game page
-	handleCancel = (e) => {
-		// this is for the cancel button in the "reset image" modal
-		if (e.currentTarget.id === "resetCancel") {
-			this.setState({
-				resetModalVisible: false,
-			});
-		} else {
-			this.setState({
-				gameEndVisible: false,
-			});
-		}
-	};
-
-	// Send data to websocket server in JSON format
-	sendMessage = (data) => {
-		if (this.state.isConnection) {
-			const allData = {
-				...data,
-				frameCount: this.state.frameCount,
-				frameId: this.state.frameId,
-			};
-			this.setState((prevState) => ({
-				outMessage: [allData, ...prevState.outMessage],
-			}));
-			this.websocket.send(JSON.stringify(allData));
-		}
-	};
-
-	// Send game control commands to the websocket server
-	handleCommand = (status) => {
-		if (this.state.isLoading) {
-			message.error("Please wait for the connection to be established first!");
-			return;
-		}
-
-		switch (status) {
-			case "start":
-				this.sendMessage({
-					command: status,
-					system: osName,
-					systemVersion: osVersion,
-					browser: browserName,
-					browserVersion: browserVersion,
-				});
-				break;
-			case "getFeedback":
-				if (this.state.minMinutiae && this.state.minutiae.length < 4) {
-					this.showError(
-						"Not enough minutiae",
-						<p>
-							You only have <b>{this.state.minutiae.length}</b> minutia
-							{this.state.minutiae.length !== 1 && "e"} and you need at least 4 minutiae to request
-							feedback
-						</p>
-					);
-				} else {
-					// add to fingerprint cache
-					// const fingerprintCache = [...this.state.fingerprintCache];
-					// fingerprintCache.push(minutiaList);
-					// this.setState({ requestingFeedback: true, fingerprintCache });
-
-					const minutiaList = this.normalizeMinutiae(this.state.minutiae);
-					this.setState({ requestingFeedback: true });
-					this.sendMessage({
-						command: status,
-						minutiaList,
-					});
-				}
-				break;
-			case "toggleMinutiae":
-				if (this.state.minutiaeShown)
-					this.setState({ feedbackShown: false, feedbackEnabled: false });
-				else if (this.state.haveFeedback) this.setState({ feedbackEnabled: true });
-				this.setState((prevState) => ({ minutiaeShown: !prevState.minutiaeShown }));
-				break;
-			case "toggleFeedback":
-				this.setState((prevState) => ({ feedbackShown: !prevState.feedbackShown }));
-				break;
-			case "submitImage":
-				// const fingerprintCache = [...this.state.fingerprintCache];
-				// fingerprintCache.push(minutiaList);
-				// this.setState({ fingerprintCache });
-				const minutiaList = this.normalizeMinutiae(this.state.minutiae);
-				this.sendMessage({
-					command: status,
-					minutiaList,
-				});
-				break;
-			default:
-				this.sendMessage({
-					command: status,
-				});
-		}
-	};
-
-	// Change the FPS of the game
-	handleFPS = (speed) => {
-		if (
-			(speed === "faster" && this.state.frameRate + 5 > 90) ||
-			(speed === "slower" && this.state.frameRate - 5 < 1)
-		) {
-			message.error("Invalid FPS, the FPS can only between 1 - 90!");
-		} else {
-			this.setState((prevState) => ({
-				frameRate: speed === "faster" ? prevState.frameRate + 5 : prevState.frameRate - 5,
-			}));
-			this.sendMessage({
-				changeFrameRate: speed,
-			});
-		}
-	};
-
-	// Apply color filters to the image in the fingerprint window
-	// - send applied filter to websocket
-	handleImage = (type, value) => {
-		switch (type) {
-			case "brightness":
-				this.setState({ brightness: value });
-				break;
-			case "contrast":
-				this.setState({ contrast: value });
-				break;
-			case "saturation":
-				this.setState({ saturation: value });
-				break;
-			case "hue":
-				this.setState({ hue: value });
-				break;
-			default:
-				return;
-		}
-
-		if (!this.state.changing) {
-			this.pushUndo();
-			this.setState({ redoEnabled: false, redoList: [] });
-		}
-
-		this.sendMessage({
-			info: type,
-			value,
-		});
-	};
-
-	// Perform commands like add minutia, redo, undo, reset
-	// Send performed command to websocket
-	handleImageCommands = (command) => {
-		if (this.state.isLoading) {
-			message.error("Please wait for the connection to be established first!");
-			return;
-		}
-
-		switch (command) {
-			case "resetImage":
-				this.setState({
-					resetModalVisible: true,
-				});
-				break;
-			case "undo":
-				this.setState({
-					undoEnabled: this.state.undoList.length > 1,
-					redoEnabled: this.state.redoList.length > 0,
-				});
-
-				if (this.popUndo()) this.pushRedo();
-				break;
-			case "redo":
-				this.setState({
-					undoEnabled: this.state.undoList.length > 0,
-					redoEnabled: this.state.redoList.length > 1,
-				});
-
-				if (this.popRedo()) this.pushUndo();
-				break;
-			case "addMinutia":
-				this.setState({ addingMinutiae: !this.state.addingMinutiae });
-				break;
-			case "submitImage":
-				if (this.state.minMinutiae && this.state.minutiae.length < this.state.minMinutiae) {
-					this.showError(
-						"Not enough minutiae",
-						<p>
-							You only have <b>{this.state.minutiae.length}</b> minutia
-							{this.state.minutiae.length !== 1 && "e"} out of the minimum of{" "}
-							<b>{this.state.minMinutiae}</b> needed
-						</p>
-					);
-				} else {
-					this.setState({ scoreModalVisible: true }, () => {
-						this.handleCommand(command);
-					});
-				}
-				break;
-			default:
-				this.handleCommand(command);
-				return;
-		}
-	};
-
-	// Change all the colors in the current minutiae
-	// based on the feedback
-	handleFeedback = (feedback) => {
-		const minutiae = this.state.minutiae.map((minutia, i) => {
-			let color = minutia.color;
-			if (feedback[i][1] < 0) color = "green";
-			else if (feedback[i][1] > 0) color = "red";
-			return { ...minutia, scoreChange: feedback[i][1], feedbackColor: color };
-		});
-
-		this.setState({ minutiae });
-	};
-
-	// Pushes the current state of image filters and
-	// minutia list onto undo stack
-	pushUndo = () => {
-		let undoList = this.state.undoList;
-
-		const currState = {
-			minutiae: this.state.minutiae,
-			brightness: this.state.brightness,
-			contrast: this.state.contrast,
-			saturation: this.state.saturation,
-			hue: this.state.hue,
-		};
-
-		undoList.push(currState);
-		this.setState({ undoList, undoEnabled: true });
-	};
-
-	// Returns true if undoList has elements to pop
-	// False otherwise
-	popUndo = () => {
-		let undoList = this.state.undoList;
-
-		if (undoList.length < 1) return false;
-
-		const state = undoList.pop();
-
-		this.setState({ ...state, undoList });
-		return true;
-	};
-
-	// Pushes the current state of image filters and
-	// minutia list onto redo stack
-	pushRedo = () => {
-		let redoList = this.state.redoList;
-
-		const currState = {
-			minutiae: this.state.minutiae,
-			brightness: this.state.brightness,
-			contrast: this.state.contrast,
-			saturation: this.state.saturation,
-			hue: this.state.hue,
-		};
-
-		redoList.push(currState);
-		this.setState({ redoList, redoEnabled: true });
-	};
-
-	// Returns true if redoList has elements to pop
-	// False otherwise
-	popRedo = () => {
-		let redoList = this.state.redoList;
-
-		if (redoList.length < 1) return false;
-		const state = redoList.pop();
-
-		this.setState({ ...state, redoList });
-		return true;
-	};
-
-	// Adds a minutia to the minutiae array
-	// - x and y are the coordinates on the image
-	// - orientation goes from 0 (up) to 359 degrees clockwise
-	// - resets adding minutia and send added minutia to websocket
-	addMinutia = (x, y, orientation, size, color, type) => {
-		this.pushUndo();
-
-		this.setState({
-			minutiae: [...this.state.minutiae, { x, y, orientation, size, color, type }],
-			addingMinutiae: false,
-		});
-		this.sendMessage({
-			info: "minutia added",
-			minutia: { x, y, orientation, size, color, type },
-		});
-	};
-
-	// Edit the minutia at position index in the minutiae array
-	// corresponding to the type of command and value
-	// - send applied command to websocket
-	handleMinutia = (type, index, value) => {
-		let prevMinutiae = [...this.state.minutiae];
-		switch (type) {
-			case "rotate":
-				prevMinutiae[index] = { ...prevMinutiae[index], orientation: value };
-				break;
-			case "resize":
-				prevMinutiae[index] = { ...prevMinutiae[index], size: value };
-				break;
-			case "recolor":
-				prevMinutiae[index] = { ...prevMinutiae[index], color: value };
-				break;
-			case "move":
-				prevMinutiae[index] = {
-					...prevMinutiae[index],
-					x: value.x || prevMinutiae[index].x,
-					y: value.y || prevMinutiae[index].y,
-				};
-				break;
-			case "changeType":
-				prevMinutiae[index] = { ...prevMinutiae[index], type: value };
-				break;
-			case "delete":
-				prevMinutiae.splice(index, 1);
-				break;
-			default:
-				return;
-		}
-
-		this.setState({ minutiae: prevMinutiae });
-
-		// if it's a slider command, then check if the user is still changing it
-		if (!["rotate", "move", "resize"].includes(type) || !this.state.changing) {
-			this.pushUndo();
-			this.setState({ redoEnabled: false, redoList: [] });
-			this.sendMessage({
-				info: "minutia " + index + " edited: " + type,
-				value,
-			});
-		}
-	};
-
-	// If the sliders are still changing
-	handleChanging = (changing) => {
-		if (changing) this.pushUndo();
-		this.setState({ changing });
-	};
-
-	// Pops up an error modal with the message
-	showError = (title, message) => {
-		Modal.error({
-			title,
-			content: message,
-		});
-	};
-
-	// Scrolls to the top of the window
-	scrollToTop = () => {
-		window.scrollTo({
-			top: 0,
-			behavior: "smooth",
-		});
-	};
-
-	// Return a minutiae array such that each minutia's
-	// x and y values are accurate pixel coordinates
-	normalizeMinutiae = (minutiae) => {
-		return minutiae.map((minutia) => {
-			const { windowWidth, windowHeight, imageWidth, imageHeight } = this.state;
-
-			const defaultAspect = windowWidth / windowHeight;
-			const imageAspect = imageWidth / imageHeight;
-
-			if (imageAspect > defaultAspect) {
-				// current width = window width and the height is scaled to that
-				const scale = imageWidth / windowWidth;
-				const scaledHeight = imageHeight / scale;
-				const offset = (windowHeight - scaledHeight) / 2; // the y-offset from the window border
-				const newMinutia = {
-					x: Math.round(minutia.x * scale),
-					y: Math.round((minutia.y - offset) * scale),
-					orientation: minutia.orientation,
-					type: minutia.type,
-				};
-
-				return newMinutia;
-			} else {
-				// current height = window height and the width is scaled to that
-				const scale = imageHeight / windowHeight;
-				const scaledWidth = imageWidth / scale;
-				const offset = (windowWidth - scaledWidth) / 2; // the x-offset from the window border
-
-				const newMinutia = {
-					x: Math.round((minutia.x - offset) * scale),
-					y: Math.round(minutia.y * scale),
-					orientation: minutia.orientation,
-					type: minutia.type,
-				};
-
-				return newMinutia;
-			}
-		});
-	};
-
-	equals = (a, b) => a.length === b.length && a.every((v, i) => v === b[i]);
-
-	resetAll = () => {
-		// if it's the end of the game
-		if (this.state.isEnd) {
-			this.setState({
-				scoreModalVisible: false,
-			});
-			this.props.action();
-			return;
-		}
-
-		// otherwise
-		this.scrollToTop();
-
-		this.setState((prevState) => ({
-			scoreModalVisible: false,
-			score: null,
-
-			// Reset the frame source
-			frameSrc: prevState.nextframeSrc || prevState.frameSrc,
-			frameCount: prevState.nextframeCount || prevState.frameCount,
-			frameId: prevState.nextframeId || prevState.frameId,
-			nextframeCount: null,
-			nextframeSrc: null,
-			nextframeId: null,
-
-			// Reset minutiae list and image filters
-			minutiae: [],
-			brightness: 100,
-			contrast: 100,
-			saturation: 100,
-			hue: 0,
-
-			// Reset undo and redo stacks and buttons
-			// fingerprintCache: [],
-			undoList: [],
-			redoList: [],
-			undoEnabled: false,
-			redoEnabled: false,
-		}));
-	};
-
-	render() {
-		const {
-			inMessage,
-			outMessage,
-			isLoading,
-			frameSrc,
-			frameRate,
-			displayData,
-			isEnd,
-			UIlist,
-			instructions,
-			progress,
-			gameEndVisible,
-			inputBudget,
-			usedInputBudget,
-			imageL,
-			imageR,
-			brightness,
-			contrast,
-			saturation,
-			hue,
-			fingerprint,
-			minutiae,
-			addingMinutiae,
-			resetModalVisible,
-			orientation,
-			windowWidth,
-			windowHeight,
-			// score,
-			scoreModalVisible,
-			// maxScore,
-			undoEnabled,
-			redoEnabled,
-			expertMarker1,
-			expertMarker2,
-			requestingFeedback,
-			feedbackEnabled,
-			minutiaeShown,
-			feedbackShown,
-		} = this.state;
-
-		return (
-			<div className={`game ${addingMinutiae ? "custom-cursor" : ""}`} data-testid="game" id="game">
-				<Radio.Group
-					defaultValue="horizontal"
-					onChange={(e) => {
-						this.setState({ orientation: e.target.value });
-					}}
-					buttonStyle="solid"
-					className={`${orientation}OrientationToggle`}
-				>
-					<Radio.Button value="vertical">{icons["verticalSplit"]}</Radio.Button>
-					<Radio.Button value="horizontal">{icons["horizontalSplit"]}</Radio.Button>
-				</Radio.Group>
-
-				<DisplayBar
-					visible={displayData !== null}
-					isLoading={isLoading}
-					displayData={displayData}
-				/>
-
-				<BudgetBar
-					visible={inputBudget > 0}
-					isLoading={isLoading}
-					usedInputBudget={usedInputBudget}
-					inputBudget={inputBudget}
-				/>
-
-				<div className={DEBUG ? "" : `${orientation}Grid`}>
-					<Row gutter={4} align="center" style={{ width: "100%" }}>
-						<Col span={4}>
-							<MessageViewer title="Message In" data={inMessage} visible={DEBUG} />
-						</Col>
-
-						<Col span={DEBUG ? 16 : 24}>
-							{fingerprint ? (
-								<FingerprintWindow
-									isLoading={isLoading}
-									frameSrc={frameSrc}
-									progress={progress}
-									width={windowWidth || 600}
-									height={windowHeight || 600}
-									brightness={brightness}
-									contrast={contrast}
-									saturation={saturation}
-									hue={hue}
-									minutiae={minutiae}
-									addingMinutiae={addingMinutiae}
-									addMinutia={this.addMinutia}
-									handleMinutia={this.handleMinutia}
-									handleChanging={this.handleChanging}
-									minutiaeShown={minutiaeShown}
-									feedbackShown={feedbackShown}
-								/>
-							) : (
-								<GameWindow
-									isLoading={isLoading}
-									frameSrc={frameSrc}
-									imageL={imageL}
-									imageR={imageR}
-									progress={progress}
-									data-testid="game-window"
-								/>
-							)}
-						</Col>
-
-						<Col span={4}>
-							<MessageViewer
-								title="Message Out"
-								id="message-view-1"
-								data={outMessage}
-								visible={DEBUG}
-							/>
-						</Col>
-					</Row>
-
-					<ControlPanel
-						className={`gameControlPanel ${DEBUG && "verticalGrid"}`}
-						isEnd={isEnd}
-						isLoading={isLoading}
-						frameRate={frameRate}
-						UIlist={UIlist}
-						instructions={instructions}
-						handleOk={this.handleOk}
-						handleFPS={this.handleFPS}
-						handleCommand={this.handleCommand}
-						handleImage={this.handleImage}
-						handleImageCommands={this.handleImageCommands}
-						handleChanging={this.handleChanging}
-						sendMessage={this.sendMessage}
-						addMinutia={this.addMinutia}
-						brightness={brightness}
-						contrast={contrast}
-						saturation={saturation}
-						hue={hue}
-						addingMinutiae={addingMinutiae}
-						orientation={orientation}
-						undoEnabled={undoEnabled}
-						redoEnabled={redoEnabled}
-						requestingFeedback={requestingFeedback}
-						feedbackEnabled={feedbackEnabled}
-						minutiaeShown={minutiaeShown}
-						feedbackShown={feedbackShown}
-					/>
-				</div>
-
-				<Modal
-					title="Game end message"
-					visible={gameEndVisible}
-					onOk={this.handleOk}
-					onCancel={this.handleCancel}
-				>
-					<p className="modal">The game has ended</p>
-					<p className="modal">
-						Press <b>"Cancel"</b> to stay on this page
-					</p>
-					<p className="modal">
-						Press <b>"OK"</b> to move to next step
-					</p>
-				</Modal>
-
-				<Modal
-					title="Reset Image"
-					visible={resetModalVisible}
-					footer={[
-						<Button key="cancel" id="resetCancel" type="default" onClick={this.handleCancel}>
-							Cancel
-						</Button>,
-						<Button key="keepMinutiae" id="keepMinutiae" type="default" onClick={this.handleOk}>
-							Keep Minutiae
-						</Button>,
-						<Button key="ok" id="resetAll" type="primary" onClick={this.handleOk}>
-							Reset All
-						</Button>,
-					]}
-				>
-					<p className="resetModal">Would you like to reset the minutiae as well?</p>
-					<p className="resetModal">
-						Press <b>"Reset All"</b> to clear everything
-					</p>
-					<p className="resetModal">
-						Press <b>"Keep minutiae"</b> to avoid clearing minutiae
-					</p>
-				</Modal>
-
-				<Modal
-					visible={scoreModalVisible}
-					closable={false}
-					destroyOnClose={true}
-					footer={null}
-					width="max-content"
-					style={{ top: 20 }}
-				>
-					<div className="scoreModal">
-						{/* {score ? (
-							<>
-								<h4>Your score is...</h4>
-								<Progress
-									width={100}
-									type="circle"
-									percent={(1 - score / maxScore) * 100}
-									strokeColor={{
-										"0%": "#108ee9",
-										"100%": "#87d068",
-									}}
-									format={() => (
-										<div className="scoreModalProgress">
-											<p>{score}</p>
-											<div />
-											<p>{maxScore}</p>
-										</div>
-									)}
-								/>
-							</>
-						) : (
-							<>
-								<h4>Calculating your score, please wait...</h4>
-								<Skeleton.Avatar active={!score} size={100} shape="circle" />
-							</>
-						)} */}
-
-						{expertMarker1 && expertMarker2 && (
-							<>
-								<h4>Here is your edition compared to experts:</h4>
-
-								<Comparison
-									frameSrc={frameSrc}
-									expertMarkers={[expertMarker1, expertMarker2]}
-									userMarkers={this.normalizeMinutiae(this.state.minutiae)}
-								/>
-							</>
-						)}
-
-						<Button
-							// disabled={!score}
-							icon={icons["next"]}
-							shape="round"
-							type="primary"
-							onClick={this.resetAll}
-						>
-							Next
-						</Button>
-					</div>
-				</Modal>
-			</div>
-		);
-	}
+import {
+  WS_URL,
+  USER_ID,
+  PROJECT_ID,
+  SERVER,
+  DEBUG,
+} from "../../utils/constants";
+class circleObject {
+  constructor(x, y, id, value, pos, r){
+      this.maxVal = null;
+      this.minVal = null;
+      this.x = x;
+      this.y = y;
+      this.r = r;
+      this.id = id;
+      this.value = value;
+      this.next = null;
+      this.prev = null;
+      this.shouldNotBeSelected = false;
+      this.selected = false;
+      this.pos = pos;
+      this.visited = false;
+
+      this.canvas = 0;
+      this.o = new fabric.Circle({
+          radius: this.r,
+          fill: 'white',
+          stroke: 'black',
+          left: this.x,
+          top: this.y,
+          originX: 'center',
+          originY: 'center'
+      })
+  }
+
+  highlightNode(canvas){
+      canvas.remove(this.o);
+      this.o = new fabric.Circle({
+          radius: this.r,
+          fill: 'blue',
+          left: this.x,
+          top: this.y,
+          originX: 'center',
+          originY: 'center'
+      })
+      this.o.selectable = false
+      this.o.hoverCursor = "pointer";
+      canvas.add(this.o);
+  }
+
+  redraw(canvas){
+      if(this.selected === false){
+        canvas.remove(this.o);
+         this.o = new fabric.Circle({
+              radius: this.r,
+              fill: 'white',
+              stroke: 'black',
+              left: this.x,
+              top: this.y,
+              originX: 'center',
+              originY: 'center'
+          })
+          this.o.left = this.x;
+          this.o.top = this.y;
+          this.o.selectable = false;
+          this.o.hoverCursor = "pointer";
+          canvas.add(this.o); 
+          canvas.sendBackwards(this.o);
+      }else{
+          this.drawText(canvas);
+      } 
+  }
+
+  getSelected(){
+      return this.selected;
+  }
+
+  doNotExplore(){
+      this.shouldNotBeSelected = true;
+  }
+
+  explored(){
+      return this.shouldNotBeSelected;
+  }
+
+  setNext(node){
+      if(this.next === null){
+          this.next = [];
+          this.next.push(node);
+      }else{
+          this.next.push(node);
+      }
+      
+  }
+
+  setPrev(node){
+      this.prev = node;
+  }
+
+  getNext(){
+      return this.next;
+  }
+
+  getPrev(){
+      return this.prev;
+  }
+
+  drawCircle(canvas){
+      this.o.selectable = false;
+      this.o.hoverCursor = "pointer";
+      canvas.add(this.o);
+      canvas.renderAll();
+  }
+
+  resizeNode(canvas, radius){
+      if(!this.selected){
+          this.r = radius;
+          this.o.setRadius(radius);
+          this.o.left = this.x;
+          this.o.top = this.y;
+          this.o.selectable = false;
+          this.o.hoverCursor = "pointer";
+          canvas.add(this.o);
+      }else{
+          this.o._objects[1].fontSize = radius/2;
+          this.r = radius;
+          this.o._objects[0].setRadius(radius);
+          this.o = new fabric.Group([this.o._objects[0], this.o._objects[1]],{
+              left: this.x,
+              top: this.y,
+              selectable: false,
+              originX: 'center',
+              originY: 'center',
+          });
+          this.o.hoverCursor = "pointer";
+          canvas.add(this.o);
+      }
+  }
+
+  drawText(canvas){
+      canvas.remove(this.o);
+      var circle = new fabric.Circle({
+          radius: this.r,
+          fill: 'white',
+          stroke: 'black',
+          originX: 'center',
+          originY: 'center'
+      })
+      var text = new fabric.Text(this.value.toString(), {
+          originX: 'center',
+          originY: 'center',
+          fontSize: this.r/2,
+          fontFamily: 'Arial',
+          fill: 'black'
+      });
+      this.o = new fabric.Group([circle, text],{
+          left: this.x,
+          top: this.y,
+          selectable: false,
+          originX: 'center',
+          originY: 'center'
+      });
+      this.o.hoverCursor = "cursor";
+      canvas.add(this.o);
+      canvas.sendBackwards(this.o);
+  }
+
+  getx(){
+      return this.x;
+  }
+
+  gety(){
+      return this.y;
+  }
+
+  getID(){
+      return this.id;
+  }
+
+  getValue(){
+      return this.value;
+  }
+
+  checkClicked(g, xpos,ypos){
+    if(g){
+      if(xpos<=this.x+20 && xpos>=this.x-20 && ypos<=this.y+20 && ypos>=this.y-20){
+          return true;
+      }
+    }else{
+      if(xpos<=this.x+50 && xpos>=this.x-50 && ypos<=this.y+50 && ypos>=this.y-50){
+        return true;
+      }
+    } 
+    return false;
+  }
 }
 
+const pendingTime = 30;
+class Game extends React.Component{
+  state = {
+    message: "",
+    inspectorMessage: ""
+  }
+  // Send data to websocket server in JSON format
+  sendMessage = (data) => {
+    if (this.state.isConnection) {
+      this.websocket.send(JSON.stringify(data));
+    }
+  };
+
+  constructor(props){
+    super(props);
+    this.checkClickedObject = this.checkClickedObject.bind(this);
+    this.displayGraph = this.displayGraph.bind(this);
+    this.createAgent = this.createAgent.bind(this);
+    this.removeHighlight = this.removeHighlight.bind(this);
+    this.changeMessageBoardDisplayed = this.changeMessageBoardDisplayed.bind(this);
+    this.changeCTDisplayed = this.changeCTDisplayed.bind(this);
+    this.count = 0;
+    this.score = 50;
+    this.totNumRound = 0;
+    this.numRound = 0;
+  }
+
+  initialize(){
+    this.cWidth = document.body.clientWidth;
+    this.cHeight = document.body.clientHeight;  
+    this.adjList = [];
+    this.gameState = [0, "_", "_", "_", "_", "_", "_", "_", "_", "_", "_", "_", "_"];
+    this.nodesList = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+    this.graphInfo = null;
+    this.graphValues = null;
+    this.prevHighlightList = [];
+    this.highlightList = [];
+
+    this.canMove = false;
+    this.moved = false;
+    this.avatar = null;
+    this.avatarX = this.cWidth;
+    this.avatarY = this.cHeight;
+    this.avatarNode = null;
+    this.changeAvatarPos = 0;
+
+    this.message = "";
+    this.messageBoardDisplayed = false;
+    this.inspectorMessage = "";
+
+    this.avatarWidth = null;
+    this.opt_act = null;
+
+    this.timeoutOn = false;
+
+    this.feedback = true;
+    this.isLargeGraph = false;
+    this.pts = 0;
+
+    this.structure = [[0, [5], [1], [9]], 
+                      [5, [6]], 
+                      [1, "None", [2]], 
+                      [9, "None", "None", [10]], 
+                      [10, "None", [11], "None", [12]], 
+                      [2, [3], "None", [4]], 
+                      [6, "None", [7], "None", [8]]]
+
+    this.highestVal = null;
+    this.qVals = null;
+
+    this.ctest = false;
+    this.ctestNum = 0;
+    this.ctestMistakeNum = 0;
+    this.ctestChosenDecision = false;
+    this.ctestDisplayed = false;
+  }
+  
+  componentDidMount(){
+    window.addEventListener('keydown', (event)=>{
+      if(this.inspectorMessage !== ""){
+        this.inspectorMessage = ""
+        this.setState({inspectorMessage: this.inspectorMessage});
+      }
+      if(!this.timeoutOn && !this.messageBoardDisplayed){
+        if(event.code === 'Space'){
+          if(this.state.gameOver){
+            this.setState({
+              message: "",
+              gameOver: false,
+              isConnection: true
+            }, ()=>{
+              this.sendMessage({
+                command: "NEW GAME"
+              });
+            });
+          }
+        }else{
+          if(!this.state.gameOver && !this.ctestDisplayed){
+            if(this.avatarNode !== null){
+                if(this.avatarNode.getNext() !== null){
+                    this.movingAvatar(event);
+                }
+            }else{
+                this.movingAvatar(event);
+            }
+          }else if(this.ctestDisplayed){
+            this.setState({ctestMessage: "Please answer to continue..."})
+          } 
+        }
+      }else if(this.feedback){
+        if(this.messageBoardDisplayed){
+          this.inspectorMessage = "cannot move while viewing explanation"
+          this.setState({inspectorMessage: this.inspectorMessage});
+        }else if(this.timeoutOn){
+          this.inspectorMessage = "please wait"
+          this.setState({inspectorMessage: this.inspectorMessage});
+        }
+      }
+    });
+
+    window.addEventListener('resize', (event)=>{
+      this.rerenderCanvas();
+    })
+
+
+    // To update the progress of loading game content
+    // Since we always need to wait 30 seconds before the game
+    // content get loaded, we update the progress (100/30) per second
+    // this.updateProgress = setInterval(
+    //   () =>
+    //     this.setState((prevState) => ({
+    //       progress: prevState.progress + 100 / pendingTime,
+    //     })),
+    //   1000
+    // );
+
+    // To ensure the websocket server is ready to connect
+    // we try to connect the websocket server periodically
+    // for every 30 seconds until the connection has been established
+    this.timer = setTimeout(
+      () => {
+      //connect the websocket server
+      this.websocket = new w3cwebsocket(WS_URL);
+      this.websocket.onopen = () => {
+      // Once the websocket connection has been established
+      // we remove all the unnecessary timer
+      clearTimeout(this.timer);
+      clearInterval(this.updateProgress);
+      console.log("WebSocket Client Connected");
+      this.setState({
+        isLoading: false,
+        isConnection: true,
+      });
+
+      this.sendMessage({
+        userId: USER_ID,
+        projectId: PROJECT_ID,
+      });
+
+      this.websocket.onmessage = (message) => {
+          if (message.data === "done") {
+            //"done" means the game has ended
+            // this.setState({
+            //   isEnd: true,
+            //   gameEndVisible: true,
+            // });
+          }else{
+            // parse the data from the websocket server
+            let parsedData = JSON.parse(message.data);
+            if (parsedData.UI){
+              this.count++;
+              this.numRound++;
+              console.log("recieved ui");
+              if(this.canvas){
+                this.canvas.clear();
+              }
+          
+              this.initialize();
+              if(parsedData.CTEST){
+                this.ctest = true;
+              }
+              if(this.count === 1 || this.count === 33){
+                this.feedback = false;
+                this.isLargeGraph = true;
+                this.setState((prevState) => ({
+                  adjValues: parsedData.UI,
+                }), () => { 
+                    this.displayGraph();
+                });
+              }else{
+                if(!parsedData.FEEDBACK){
+                  this.feedback = false;
+                }else{
+                  this.feedback = true;
+                }
+                this.graphValues = parsedData.UI;
+                this.opt_act = parsedData.OPT_ACT;
+                this.populateGraphValues();
+              }
+              if(this.count == 3 | this.count == 24){
+                this.score = 50;
+              }
+          
+              if(this.count == 1){
+                this.numRound = 1;
+                this.totNumRound = 2;
+                this.setState({});
+              }else if(this.count == 3){
+                this.numRound = 1;
+                this.totNumRound = 20;
+                this.setState({});
+              }else if(this.count == 23){
+                this.numRound = 1;
+                this.totNumRound = 11;
+                this.setState({});
+              }
+            }else if(parsedData.VALUES){
+              console.log("recieved values")
+              this.qVals = parsedData.VALUES;
+              this.handleGameState();
+            }
+          }
+      }
+    }
+    });
+  }
+
+  rerenderCanvas(){
+    var cWidth = document.body.clientWidth;
+    var cHeight = document.body.clientHeight;
+    var avatar = null;
+    this.canvas._objects.forEach(object => {
+        if(object._element !== undefined){
+            avatar = object;
+        }
+    });
+
+    this.canvas.clear();
+    var xpos = cWidth/2;
+    if(this.isLargeGraph){
+      var height = cHeight;
+      var orPos = cHeight/1.7;
+      var ypos = cHeight/1.7;
+    }else{
+      if(cHeight <= 477){
+        var height = cHeight;
+        var orPos = cHeight/2;
+        var ypos = cHeight/2;
+      }else{
+        var height = cHeight/1.8
+        var orPos = cHeight/1.5/2;
+        var ypos = cHeight/1.5/2;
+      }
+    }
+    
+    if(this.isLargeGraph){
+      var radius = this.cWidth < this.cHeight ? this.cWidth/45 : this.cHeight/45;
+      var dia = radius * 3;
+    }else{
+      var radius = cWidth < cHeight ? cWidth/28 : cHeight/28;
+      var dia = radius * 3;
+    }
+    
+    this.avatarWidth = radius*2;
+    var origin = new fabric.Circle({
+        radius: radius,
+        fill: 'white',
+        stroke: 'black',
+        left: xpos,
+        top: orPos,
+        originX: 'center',
+        originY: 'center'
+    })
+    origin.selectable = false;
+    origin.hoverCursor = "default";
+    this.canvas.add(origin);
+
+    const createAdjPos = (i, valueRow, valueCol)=> {
+        for(var j=1; j<this.adjList[i].length; j++){
+            var node = this.adjList[i][j];
+            if(node!==null){
+                if(i === 0){
+                    if(j===1){
+                        node.x = xpos+(dia+20);
+                        node.y = ypos;
+                    }else if(j===2){
+                        node.x = xpos;
+                        node.y = ypos-(dia+20);
+                    }else if(j===3){
+                        node.x = xpos-(dia+20);
+                        node.y = ypos;
+                    }else if(j===4){
+                        node.x = xpos;
+                        node.y = ypos+(dia+20);
+                    }
+                }else{
+                    var newx = this.adjList[valueRow][valueCol].x;
+                    var newy = this.adjList[valueRow][valueCol].y;
+                    if(j===1){
+                        node.x = newx+(dia+20);
+                        node.y = newy;
+                    }else if(j===2){
+                        node.x = newx;
+                        node.y = newy-(dia+20);
+                    }
+                    else if(j===3){
+                        node.x = newx-(dia+20);
+                        node.y = newy;
+                    }else if(j===4){
+                        node.x = newx;
+                        node.y = newy+(dia+20);
+                    }
+                }
+                for(var k=1; k<this.adjList.length; k++){
+                    if(this.adjList[k][0] === this.adjList[i][j].getID()){ 
+                        createAdjPos(k, i, j);
+                    }
+                }
+            }
+            
+        }
+    }
+
+    createAdjPos(0,0,0);
+    for(var i=0; i<this.adjList.length; i++){
+        for(var j=1; j<this.adjList[i].length; j++){
+            var node = this.adjList[i][j];
+            if(node !== null){
+                node.resizeNode(this.canvas, radius);
+            }
+        }
+    }
+
+    this.cWidth = cWidth;
+    this.cHeight = cHeight;
+    this.drawArrowsFromOrigin(radius, orPos);
+    for(var s=1; s<this.adjList[0].length; s++){
+        this.createArrows(0, s, radius);
+    }
+
+    if(this.avatarNode === null){
+        avatar.scaleToWidth(this.avatarWidth+20);
+        avatar.left = cWidth/2;
+        avatar.top = orPos;
+        this.avatarX = cWidth;
+        this.avatarY = cHeight;
+    }else{
+        avatar.scaleToWidth(this.avatarWidth+20);
+        avatar.left = this.avatarNode.getx();
+        avatar.top = this.avatarNode.gety();
+        this.avatarX = this.avatarNode.getx();
+        this.avatarY = this.avatarNode.gety();
+    }
+    this.canvas.add(avatar);
+
+    this.canvas.setWidth(this.cWidth);
+    // this.canvas.setHeight(this.cHeight);
+    this.canvas.renderAll();
+  }
+
+  movingAvatar(event){
+    var avatar = null;
+    this.canvas.getObjects().forEach((obj)=>{
+        if(obj._element){
+            avatar = obj
+        }
+    })
+    
+    var dir = null;
+    if(event.key === 'ArrowUp'){
+        dir = "up";
+        this.checkPos(dir, avatar);     
+    }else if(event.key === 'ArrowRight'){
+        dir = "right";
+        this.checkPos(dir, avatar);
+    }else if(event.key === 'ArrowLeft'){
+        dir = "left";
+        this.checkPos(dir, avatar);
+    }else if(event.key === 'ArrowDown'){
+        dir = "down";
+        this.checkPos(dir, avatar);
+    }
+
+    if(dir !== null){
+      if(this.feedback){
+        if(this.canMove === false){
+            this.message = "You should have inspected one of the highlighted nodes."
+            this.setState({message: this.message});
+            if(!this.moved && this.feedback){
+              this.addHighlight("moved");
+            }
+        }else{
+            if(!this.moved && this.feedback){
+                if(this.opt_act !== dir){
+                    this.message = "wrong way";
+                    this.setState({message: this.message});
+                } 
+            }
+        }
+      }else if(!this.feedback && this.ctest && this.ctestNum < 3 && !this.moved){
+        this.ctestChosenDecision = true;
+        this.ctestDisplayed = true;
+        this.ctestNum++;
+        if(this.isLargeGraph){
+          console.log("CTEST: ");
+        }else if(this.canMove){
+          // correct move
+          console.log("CTEST: correct move ")
+        }else if(!this.canMove){
+          // made a mistake 
+          this.ctestMistakeNum++;
+          console.log("CTEST: wrong move ")
+        }
+        this.setState({});
+      } 
+      this.moved = true; 
+    }
+  }
+
+  checkPos(dir, avatar){
+    var changed = false
+    if(this.avatarNode === null){
+        if(dir === 'up'){
+            if(this.adjList[0][2]){
+                this.avatarNode = this.adjList[0][2];
+                changed = true;
+            }
+           
+        }else if(dir === 'left'){
+            if(this.adjList[0][3]){
+                this.avatarNode = this.adjList[0][3];
+                changed = true; 
+            }
+            
+        }else if(dir === 'right'){
+            if(this.adjList[0][1]){
+                this.avatarNode = this.adjList[0][1];
+                changed = true;  
+            }
+            
+        }else if(dir === 'down'){
+            if(this.adjList[0][4]){
+                this.avatarNode = this.adjList[0][4];
+                changed = true; 
+            }
+            
+        }
+    }else{
+      if(dir === 'up'){
+          var found = false;
+          var row = null;
+          for(var i=0; i<this.adjList.length; i++){
+              if(found){
+                  break;
+              }
+              if(this.adjList[i][0] == this.avatarNode.getID()){
+                  row = i;
+                  found = true;
+              }
+          }
+          if(found){
+              if(this.adjList[row][2]){
+                  this.avatarNode = this.adjList[row][2];
+                  changed = true;
+              }
+          }
+      }else if(dir === 'left'){
+          var found = false;
+          var row = null;
+          for(var i=0; i<this.adjList.length; i++){
+              if(found){
+                  break;
+              }
+              if(this.adjList[i][0] == this.avatarNode.getID()){
+                  row = i;
+                  found = true;
+              }
+          }
+          if(found){
+              if(this.adjList[row][3]){
+                  this.avatarNode = this.adjList[row][3];
+                  changed = true;
+              }
+          }
+      }else if(dir === 'right'){
+          var found = false;
+          var row = null;
+          for(var i=0; i<this.adjList.length; i++){
+              if(found){
+                  break;
+              }
+              if(this.adjList[i][0] == this.avatarNode.getID()){
+                  row = i;
+                  found = true;
+              }
+          }
+          if(found){
+              if(this.adjList[row][1]){
+                  this.avatarNode = this.adjList[row][1];
+                  changed = true;
+              }
+          }
+      }else if(dir === 'down'){
+          var found = false;
+          var row = null;
+          for(var i=0; i<this.adjList.length; i++){
+              if(found){
+                  break;
+              }
+              if(this.adjList[i][0] == this.avatarNode.getID()){
+                  row = i;
+                  found = true
+              }
+          }
+          if(found){
+              if(this.adjList[row][4]){
+                  this.avatarNode = this.adjList[row][4];
+                  changed = true;
+              }
+          }
+      }
+    }
+    if(changed){
+      this.avatarNode.drawText(this.canvas);
+      this.avatarNode.selected = true;
+      this.pts += this.avatarNode.getValue();
+      this.score += this.avatarNode.getValue();
+      this.setState({gameOver: false});
+      if(this.avatarNode.getNext() === null){
+        this.setState({gameOver: true});
+      }
+
+      this.canvas.remove(avatar);
+      var canvas = this.canvas; 
+      var avatarWidth = this.avatarWidth;
+      var avatarNode = this.avatarNode;
+      fabric.Image.fromURL(aeroplane, function(img){
+          var img1 = img.set({ 
+              left: avatarNode.x, 
+              top: avatarNode.y,
+              originX: 'center'
+          })
+          img1.scaleToWidth(avatarWidth+20);
+          img1.selectable = false;
+          img1.hoverCursor = "default";
+          canvas.add(img1); 
+      }) 
+      this.avatarX = avatarNode.x;
+      this.avatarY = avatarNode.y;
+      this.avatarNode.visited = true;
+    }
+  }
+
+  populateGraphValues(){
+      // myData.map(graph =>{
+      //     if(graph.trial_id === 7708577571422581000){
+      //         this.graphInfo = graph;
+      //     }
+      // });
+      
+      // var graphValues = this.graphInfo.stateRewards;
+
+      // make a copy of structure
+      // var newStructure = JSON.parse(JSON.stringify(structure));
+
+      for(var j=1; j<this.structure[0].length; j++){
+          if(j==1){
+            this.structure[0][j].push(this.graphValues[5]);
+          }else if(j==2){
+            this.structure[0][j].push(this.graphValues[1]);
+          }else if(j==3){
+            this.structure[0][j].push(this.graphValues[9]);
+          }
+      }
+
+      const recurse = (start, graphPos) =>{
+          for(var n=1; n<this.structure.length; n++){
+              if(this.structure[n][0] == start[0]){
+                  for(var j=1; j<this.structure[n].length; j++){
+                      if(this.structure[n][j] !== "None"){
+                          graphPos += 1;
+                          this.structure[n][j].push(this.graphValues[graphPos]);
+                          recurse(this.structure[n][j], graphPos);
+                      }
+                  }
+              }
+          }
+      }
+      for(var i=1; i<this.structure[0].length; i++){
+          var start = this.structure[0][i];
+          var graphPos = null;
+          if(i==1){
+              graphPos = 5;
+          }else if(i==2){
+              graphPos = 1;
+          }else if(i==3){
+              graphPos = 9;
+          }
+          recurse(start, graphPos);
+      }
+      this.setState((prevState) => ({
+          adjValues: this.structure
+      }), () => { 
+          this.displayGraph();
+      });
+  }
+
+  checkClickedObject(){
+    this.canvas.on('mouse:down', (e) => {
+      if(!this.ctestDisplayed){
+        this.ctestChosenDecision = Math.random() > 0.5 ? true : false;
+      }
+      
+      if(e.target && !this.isLargeGraph && !this.ctestDisplayed){
+        if(e.target.hoverCursor === "pointer" && !this.state.gameOver && !this.moved && !this.timeoutOn && !this.messageBoardDisplayed){
+          var x = e.target.aCoords.tl.x;
+          var y = e.target.aCoords.tl.y;
+          if(this.adjList!==[] && this.moved === false){
+            var found = false;
+            var i = 0;
+            while(!found && i<this.adjList.length){
+              for(var j=1; j<this.adjList[i].length; j++){
+                var object = this.adjList[i][j];
+                if(object!==null && object.selected === false){
+                  if(object.checkClicked(false,x,y)){
+                    object.drawText(this.canvas);
+                    object.selected = true;
+                    found = true;
+                    this.handleClick(object);    
+                    break;
+                  }
+                }
+              }
+              i++;
+            }
+          }  
+        }else if(this.moved && !this.state.gameOver){
+            this.inspectorMessage = "cannot use the node inspector after moving"
+            this.setState({inspectorMessage: this.inspectorMessage});
+        }else if(this.messageBoardDisplayed){
+          this.inspectorMessage = "cannot use node inspector while viewing explanation"
+          this.setState({inspectorMessage: this.inspectorMessage});
+        }else if(e.target.hoverCursor === "pointer" && this.timeoutOn){
+          this.inspectorMessage = "please wait.."
+          this.setState({inspectorMessage: this.inspectorMessage});
+        }
+      }else if(this.ctestDisplayed){
+        this.setState({ctestMessage: "Please answer to continue..."});
+      }
+
+      if(e.target && this.isLargeGraph && !this.ctestDisplayed){
+        if(e.target.hoverCursor === "pointer" && !this.state.gameOver && !this.moved){
+          var x = e.target.aCoords.tl.x;
+          var y = e.target.aCoords.tl.y;
+          if(this.adjList!==[]){
+            var found = false;
+            var i = 0;
+            while(!found && i<this.adjList.length){
+              for(var j=1; j<this.adjList[i].length; j++){
+                var object = this.adjList[i][j];
+                if(object!==null && object.selected === false){
+                  if(object.checkClicked(true,x,y)){
+                    object.drawText(this.canvas);
+                    object.selected = true;
+                    found = true;
+                    // this.handleClick(object);    
+                    break;
+                  }
+                }
+              }
+              i++;
+            }
+          } 
+          if(this.ctestChosenDecision && this.ctestNum < 3){
+            this.ctestNum++;
+            console.log("CTEST: ");
+            this.ctestDisplayed = true;
+            this.setState({});
+          }
+        }else if(this.moved && !this.state.gameOver){
+          this.inspectorMessage = "cannot use the node inspector after moving"
+          this.setState({inspectorMessage: this.inspectorMessage});
+        }
+      }else if(e.target && this.isLargeGraph && this.ctestDisplayed){
+        this.setState({ctestMessage: "Please answer to continue..."});
+      }
+    })
+  }
+
+  displayGraph(){
+    if(this.count === 1){
+      var canvas = new fabric.Canvas('canvas');
+      this.canvas = canvas;
+      this.canvas.selection = false;
+      this.checkClickedObject();
+    }
+
+    this.canvas.setWidth(this.cWidth);
+    
+    if(this.isLargeGraph){
+      var height = this.cHeight;
+      var orPos = this.cHeight/1.7;
+      var ypos = this.cHeight/1.7;
+      this.canvas.setHeight(height);
+    }else{
+      if(this.cHeight <= 477){
+        var height = this.cHeight;
+        var orPos = this.cHeight/2;
+        var ypos = this.cHeight/2;
+        this.canvas.setHeight(height);
+      }else{
+        var height = this.cHeight/1.8
+        var orPos = this.cHeight/1.5/2;
+        var ypos = this.cHeight/1.5/2;
+        this.canvas.setHeight(height);
+      }
+    }
+    
+  
+    var adjValues = this.state.adjValues;
+    var adjList = this.adjList;
+    var xpos = this.cWidth/2;
+    if(this.isLargeGraph){
+      var radius = this.cWidth < this.cHeight ? this.cWidth/45 : this.cHeight/45;
+      var dia = radius * 3;
+    }else{
+      var radius = this.cWidth < this.cHeight ? this.cWidth/28 : this.cHeight/28;
+      var dia = radius * 3;
+    }
+    
+
+    const process = (item,row,j) =>{
+        if(item !== "None"){
+            this.numNodes+=1;
+            var newx = xpos;
+            var newy = ypos;
+            if(j===1){
+                newx = xpos+(dia+20);
+                adjList[row].push(new circleObject(newx,ypos,item[0], item[1], [row, j], radius));
+            }else if(j===2){
+                newy = ypos-(dia+20);
+                adjList[row].push(new circleObject(xpos,newy,item[0], item[1], [row, j], radius));
+            }else if(j===3){
+                newx = xpos-(dia+20);
+                adjList[row].push(new circleObject(newx,ypos,item[0], item[1], [row, j], radius));
+            }else if(j===4){
+                newy = ypos+(dia+20);
+                adjList[row].push(new circleObject(xpos,newy,item[0], item[1], [row, j], radius));
+            }
+        }else if(item === "None"){
+            adjList[row].push(null);
+        }
+    }
+
+    const createAdj = (i, valueRow, valueCol) =>{
+        adjList[i] = [];
+        adjList[i].push(adjValues[i][0])
+        for(var j = 1; j<adjValues[i].length; j++){
+            if(valueRow === 0 && valueCol ===0){ 
+                xpos = this.cWidth/2;
+                ypos = orPos; 
+            }else{
+                xpos = adjList[valueRow][valueCol].getx();
+                ypos = adjList[valueRow][valueCol].gety();
+            }
+            
+            process(adjValues[i][j], i, j);
+            for(var k=1; k<adjValues.length; k++){
+                if(adjValues[k][0] !== "None" && adjValues[i][j] !== "None"){
+                    if(adjValues[k][0] === adjValues[i][j][0]){ 
+                        createAdj(k, i, j);
+                    }
+                }
+            }
+        }
+    };
+
+    // context.beginPath();
+    // context.arc(xpos, ypos, 25, 0, 2 * Math.PI);
+    // context.stroke();
+    createAdj(0, 0, 0); 
+
+    this.adjList = adjList;
+
+    // create connections
+    for(var row=0; row<this.adjList.length; row++){
+        for(var col=1; col<this.adjList[row].length; col++){
+            var nodeToConsider = this.adjList[row][col];
+            if(nodeToConsider!==null){
+                // locate its path
+                if(row===0){
+                    // doesn't have a previous, connected to origin
+                    // find it's next connected node(s)
+                    for(var r=0; r<this.adjList.length; r++){
+                        if(nodeToConsider.getID() == this.adjList[r][0]){
+                            for(var item=1; item < this.adjList[r].length; item++){
+                                if(this.adjList[r][item]!==null){
+                                    nodeToConsider.setNext(this.adjList[r][item]);
+                                }
+                                
+                            }
+                            break;
+                        }
+                    }
+                }else{
+                    // it has previous connections (possibly forward connections as well)
+
+                    // find prev connection (will only ever be one)
+                    var IdToFind = this.adjList[row][0];
+                    for(var r=0; r<this.adjList.length; r++){
+                        for(var c=1; c<this.adjList[r].length; c++){
+                            if(this.adjList[r][c]!==null){
+                                if(IdToFind == this.adjList[r][c].getID()){
+                                    nodeToConsider.setPrev(this.adjList[r][c]);
+                                    break;
+                                }  
+                            }
+                        }
+                    }
+
+                    // find forward connection(s)
+                    IdToFind = this.adjList[row][col].getID();
+                    for(var r=0; r<this.adjList.length; r++){
+                        if(this.adjList[r][0] == IdToFind){
+                            for(var item=1; item < this.adjList[r].length; item++){
+                                if(this.adjList[r][item]!==null){
+                                    nodeToConsider.setNext(this.adjList[r][item]);
+                                }
+                            }
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    var origin = new fabric.Circle({
+        radius: radius,
+        fill: 'white',
+        stroke: 'black',
+        left: this.cWidth/2,
+        top: orPos,
+        originX: 'center',
+        originY: 'center',
+    })
+
+    origin.selectable = false;
+    origin.hoverCursor = "default";
+    this.canvas.add(origin);
+    this.canvas.renderAll();
+    for(var i=0; i<adjList.length; i++){
+        for(var j=1; j<adjList[i].length; j++){
+            if(adjList[i][j] !== null){
+               adjList[i][j].drawCircle(this.canvas);
+            }
+        }
+    }  
+
+    this.drawArrowsFromOrigin(radius, orPos);
+
+    for(var s=1; s<adjList[0].length; s++){
+        this.createArrows(0,s, radius);
+    }
+
+    // populates nodesList
+    for(var i in adjList){
+        for(var j=1; j<adjList[i].length; j++){
+            if(adjList[i][j] !== null){
+                this.nodesList[adjList[i][j].getID()] = adjList[i][j];
+            }
+        }
+    }
+
+    this.avatarWidth = radius*2;
+    this.createAgent(orPos);
+    this.setGameState();
+  }
+
+  drawArrowsFromOrigin(radius, orPos){
+    for(var neighbor=1; neighbor<this.adjList[0].length; neighbor++){
+        var child = this.adjList[0][neighbor];
+        if(child!==null){
+            if(neighbor===1){
+                this.drawArrow(this.cWidth/2 + radius + 5, orPos, child.getx() - radius - 5, child.gety(), 'black');
+            }else if(neighbor===2){
+                this.drawArrow(this.cWidth/2, orPos -radius- 5, child.getx(), child.gety()+radius+5, 'black');
+            }else if(neighbor===3){
+                this.drawArrow(this.cWidth/2-radius -5, orPos, child.getx()+radius+5, child.gety(), 'black');
+            }else if(neighbor===4){
+                this.drawArrow(this.cWidth/2, orPos +radius+5, child.getx(), child.gety()- radius-5, 'black');
+            }
+        }
+    }
+  }
+
+  createArrows(i,j, radius){
+    var parent = this.adjList[i][j];
+    if(parent !== null){
+        for(var k=1; k<this.adjList.length; k++){
+            if(this.adjList[k][0] == parent.getID()){
+                for(var c = 1; c<this.adjList[k].length; c++){
+                    var child = this.adjList[k][c];
+                    if(child !== null){
+                        if(c===1){
+                            this.drawArrow(parent.getx()+radius + 5, parent.gety(), child.getx()-radius-5, child.gety(), 'black');
+                        }else if(c===2){
+                            this.drawArrow(parent.getx(), parent.gety()-radius-5, child.getx(), child.gety()+radius + 5, 'black');
+                        }else if(c===3){
+                            this.drawArrow(parent.getx()-radius-5, parent.gety(), child.getx()+radius + 5, child.gety(), 'black');
+                        }else if(c===4){
+                            this.drawArrow(parent.getx(), parent.gety()+radius + 5, child.getx(), child.gety()-radius-5, 'black');
+                        }
+                        this.createArrows(k,c, radius);
+                    }
+                }
+            }
+        }
+    }
+
+  }
+
+  drawArrow(fromx, fromy, tox, toy, color){  
+    var angle = Math.atan2(toy - fromy, tox - fromx);
+    var headlen = 5;
+    tox = tox - (headlen) * Math.cos(angle);
+    toy = toy - (headlen) * Math.sin(angle);
+    var points = [{
+        x: fromx,  // start point
+        y: fromy
+        }, {
+        x: fromx - (headlen / 4) * Math.cos(angle - Math.PI / 2), 
+        y: fromy - (headlen / 4) * Math.sin(angle - Math.PI / 2)
+        },{
+        x: tox - (headlen / 4) * Math.cos(angle - Math.PI / 2), 
+        y: toy - (headlen / 4) * Math.sin(angle - Math.PI / 2)
+        }, {
+        x: tox - (headlen) * Math.cos(angle - Math.PI / 2),
+        y: toy - (headlen) * Math.sin(angle - Math.PI / 2)
+        },{
+        x: tox + (headlen) * Math.cos(angle),  // tip
+        y: toy + (headlen) * Math.sin(angle)
+        }, {
+        x: tox - (headlen) * Math.cos(angle + Math.PI / 2),
+        y: toy - (headlen) * Math.sin(angle + Math.PI / 2)
+        }, {
+        x: tox - (headlen / 4) * Math.cos(angle + Math.PI / 2),
+        y: toy - (headlen / 4) * Math.sin(angle + Math.PI / 2)
+        }, {
+        x: fromx - (headlen / 4) * Math.cos(angle + Math.PI / 2),
+        y: fromy - (headlen / 4) * Math.sin(angle + Math.PI / 2)
+        },{
+        x: fromx,
+        y: fromy
+        }]
+
+        var arrow = new fabric.Polyline(points,{
+            fill: color,
+            opacity: 1,
+            strokeWidth: 1,
+            originX: 'left',
+            originY: 'top',
+            selectable: true
+        });
+
+        arrow.selectable = false;
+        arrow.hoverCursor = "default";
+        this.canvas.add(arrow);
+        this.canvas.renderAll();
+
+  }
+
+  createAgent(orPos){
+      var canvas = this.canvas;  
+      var x = this.cWidth;
+      var avatarWidth = this.avatarWidth;
+      fabric.Image.fromURL(aeroplane, function(img){
+          var img1 = img.set({ 
+              left: x/2, 
+              top: orPos,
+              originX: 'center'
+          })
+          img1.scaleToWidth(avatarWidth+20);
+          img1.selectable = false;
+          img1.hoverCursor = "default";
+          canvas.add(img1); 
+      })
+
+      var avatar = null;
+      this.canvas._objects.forEach(object => {
+          if(object._element !== undefined){
+              avatar = object;
+          }
+      }, this.avatar = avatar);
+      // var imgelement = document.getElementById("my-image");
+      // var img = new fabric.Image(imgelement, {
+      //     left: this.cWidth/2,
+      //     top: this.cHeight/2
+      // });
+      // this.canvas.add(img);
+  }
+
+  setGameState(){
+    if(this.highlightList.length > 0){
+        for(var i in this.highlightList){
+            this.prevHighlightList.push(this.highlightList[i]);
+        }
+    }
+    console.log(this.gameState.toString().replaceAll(",", " "));
+    this.sendMessage({
+      command: "get next",
+      info: this.gameState.toString().replaceAll(",", " ")
+    });
+  }
+
+  handleGameState(){
+    this.highestVal = null;
+    var moveVal = null;
+    for(var i in this.qVals){
+        if(i == 13){
+            moveVal = this.qVals[i];
+            break;
+        }
+        if(this.highestVal === null){
+          this.highestVal = this.qVals[i];
+            this.highlightList.push(this.nodesList[i]);
+        }else if(this.qVals[i] > this.highestVal){
+          this.highestVal = this.qVals[i];
+            this.highlightList = [];
+            this.highlightList.push(this.nodesList[i]);
+        }else if(this.qVals[i] == this.highestVal){
+            this.highlightList.push(this.nodesList[i]);
+        }
+    }
+
+    if(this.highestVal - moveVal < .01){
+        this.highlightList = [];
+        console.log("can move at this point");
+        this.canMove = true;
+    }
+  }
+
+  handleClick(node){
+    // if(this.timeOut){
+    //   console.log("in hereeeeeeeeeeeee")
+    //   clearTimeout(this.timeOut)
+    //   this.removeHighlight()
+    // }
+    this.gameState[node.getID()] = node.getValue();  
+    var inHighlight = false;
+    for(var i in this.highlightList){
+        if(this.highlightList[i].getID() == node.getID()){
+            inHighlight = true
+        }
+    }
+
+    if(!this.feedback && !inHighlight && this.ctest && this.ctestChosenDecision && this.ctestNum < 3){
+      // made a mistake
+      this.ctestMistakeNum++;
+      this.ctestNum++;
+      console.log("CTEST: wrong move");
+      this.ctestDisplayed = true;
+      this.setState({});
+    }else if(!this.feedback && this.ctest && this.ctestChosenDecision && this.ctestNum < 3){
+      // correct move 
+      this.ctestNum++;
+      console.log("CTEST: correct move ");
+      this.ctestDisplayed = true;
+      this.setState({});
+    }
+
+    if(this.feedback){
+      if(this.canMove && !this.moved){
+        this.message = "You shouldn't have inspected any more nodes.";
+        this.setState({message: this.message});
+      }else if(this.canMove && this.moved){
+          this.message = "Good Job!";
+          this.setState({message: this.message});
+      }else{
+          // should have clicked a node
+          if(!inHighlight){
+              this.message = "You should have inspected one of the highlighted nodes."
+              this.setState({message: this.message});
+              this.addHighlight(node);
+          }else{
+              this.message = "Good Job!";
+              this.setState({message: this.message});
+          }
+      }
+    }
+
+    this.canMove = false;
+    this.setGameState();
+    
+  }
+
+  removeHighlight(){
+    this.timeoutOn = false;
+    clearTimeout(this.timeOut)
+    this.inspectorMessage = ""
+    this.setState({inspectorMessage: this.inspectorMessage});
+    if(this.prevHighlightList.length === 0){
+      for(var i in this.highlightList){
+        this.highlightList[i].redraw(this.canvas);
+      }
+    }else{
+      for(var i in this.prevHighlightList){
+        this.prevHighlightList[i].redraw(this.canvas);
+      }
+    }
+    
+  }
+
+  addHighlight(node){
+    for(var i in this.highlightList){
+        if(this.highlightList[i].selected === false && i !== 13){
+          this.highlightList[i].highlightNode(this.canvas);
+        }
+    }
+
+    var loss;
+    var delay;
+    var strictness = 10;
+    if(node == "moved"){
+      loss = this.highestVal - this.qVals[13];
+    }else{
+      loss = this.highestVal - this.qVals[node.getID()];
+    }
+    delay =  (2 + Math.round(strictness * loss));
+
+    console.log(delay)
+    // this.timeOut = setTimeout(this.removeHighlight, delay*1000);
+    this.timeOut = setTimeout(this.removeHighlight, 0);
+    this.timeoutOn = true;
+  }
+
+  changeMessageBoardDisplayed(){
+    this.messageBoardDisplayed === false ? this.messageBoardDisplayed = true : this.messageBoardDisplayed = false;
+    this.inspectorMessage = ""
+    this.setState({inspectorMessage: this.inspectorMessage});
+  }
+
+  changeCTDisplayed(){
+    this.ctestDisplayed = false;
+    this.setState({ctestMessage: ""});
+  }
+
+  render(){
+    let gameOver;
+    let scoreMessage;
+    if(this.state.gameOver){
+      scoreMessage = <h2>You made {this.pts} points this round!</h2>
+      gameOver = <h3 id="next">press space to continue</h3>
+    }
+    return(
+      <div id="wrapper">
+        <div id="info">
+          <h1 id="round">{this.numRound}/{this.totNumRound}</h1>
+          <h1 id="score">{this.score} pts</h1>
+          <MessageBoard message={this.message} setBoardDisplayed={this.changeMessageBoardDisplayed}/>  
+          <ConfidenceTest ctest = {this.ctestDisplayed} setCTDisplay = {this.changeCTDisplayed}></ConfidenceTest>
+        </div>
+        <canvas id="canvas"/>  
+        {scoreMessage}
+        {gameOver}
+        <h3>{this.inspectorMessage}</h3>  
+        <h3>{this.state.ctestMessage}</h3>   
+      </div>   
+    );
+  }
+}
+        
 export default Game;
+        
+        
+        

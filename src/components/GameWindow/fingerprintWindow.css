@@ -48,7 +48,7 @@
 
 /* Allow user to zoom and pan even if cursor is on minimap */
 .fingerprintMinimap {
-	/* pointer-events: none; */
+	pointer-events: none;
 }
 
 /* Change button colors for recolor popup menu radiio buttons */
@@ -117,34 +117,15 @@
 	cursor: pointer;
 }
 
-.notAllowedCursor {
-	cursor: not-allowed;
-}
-
-.grabCursor {
-	cursor: grab;
-}
-
-.grabCursor:active {
-	cursor: grabbing;
-	cursor: -moz-grabbing;
-	cursor: -webkit-grabbing;
-}
-
 /* Set the height and width of the game window
 Set the border color and style of the game window
 Center align the game window both horizontally and vertically */
-.gameWindow {
-	height: 605px;
-	width: 705px;
-	border: solid #1890ff;
+/* .gameWindow {
+	height: auto;
+	width: auto;
 	border-radius: 10px;
 	display: flex;
 	justify-content: center;
 	align-items: center;
 	margin: auto;
-}
-
-.svgText {
-	fill: white;
-}
+} */

@@ -2,29 +2,17 @@ import React from "react";
 import { Button, Tooltip } from "antd";
 import "antd/dist/antd.css";
 import "./forum.css";
+import transform from "./transform"
 import ReactHtmlParser from "react-html-parser";
 
 class Forum extends React.Component {
 	state = {
-		submittable: true,
+		submitable: true,
 	};
 
 	componentDidMount() {
-		if (this.props.content.includes("Thanks for participating into our research")) {
-			this.setState({ submittable: false });
-		}
-
-		// Add year-picker functionality
-		const yearpicker = document.querySelector("#yearpicker");
-		if (yearpicker) {
-			const start = 1900;
-			const end = new Date().getFullYear() - 16;
-			for (let i = end; i > start; i--) {
-				let year = document.createElement("option");
-				year.innerText = i;
-				year.setAttribute("value", i);
-				yearpicker.appendChild(year);
-			}
+		if (this.props.content.includes("You may exit now")) {
+			this.setState({ submitable: false });
 		}
 	}
 
@@ -41,9 +29,10 @@ class Forum extends React.Component {
 				className="formContainer"
 			>
 				<div>
-					{ReactHtmlParser(content)}
-					<br />
-					{!is400Error && this.state.submittable ? (
+          <br/>
+					{ReactHtmlParser(content, new transform())}
+          <br />
+					{!is400Error && this.state.submitable ? (
 						<Tooltip
 							placement="top"
 							title="Submit the form and navigate to next step"

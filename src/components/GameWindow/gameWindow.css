@@ -2,9 +2,8 @@
 Set the border color and style of the game window
 Center align the game window both horizontally and vertically */
 .gameWindow {
-    height: 605px;
-    width : 705px;
-    border : solid #1890ff;
+    height: auto;
+    width : auto;
     border-radius: 10px;
     display: flex;
     justify-content: center;
@@ -12,10 +11,29 @@ Center align the game window both horizontally and vertically */
     margin: auto;
 }
 
+/* Reference: https://dev.to/leonardoschmittk/how-to-make-a-mouse-ripple-click-effect-with-css-js-and-html-in-2-steps-2fcf */
+.ripple {
+    width: 3px;
+    height: 3px;
+    pointer-events: none;
+    cursor: pointer;
+    background-color: transparent;
+    position: fixed;
+    border-radius: 50%;
+    border: 1px solid #ffffff59;
+ }
+
+ @keyframes ripple-effect {
+    to {
+       transform:scale(15);
+       opacity: 0.01;
+    }
+ }
+
 /* Center align the progress bar both horizontally and vertically */
 .progressBar {
     display: flex;
-    flex-direction: column; 
+    flex-direction: column;
     justify-content: center;
     align-items: center;
     margin: auto;
@@ -31,6 +49,10 @@ Center align the game window both horizontally and vertically */
 /* Add rounded corners to the border */
 .gameContent {
     border-radius: 10px;
+}
+
+.gameContent:hover {
+    cursor: pointer;
 }
 
 /* Add border to each image component */

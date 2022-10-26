@@ -12,7 +12,7 @@ class Footer extends React.PureComponent {
 					<Col flex={1}>
 						<div className="footerContent">
 							<div>
-								© 2021 The Intelligent Robot Learning Lab.
+								© 2020 The Intelligent Robot Learning Lab.
 								<br />
 								We are proudly affiliated with the{" "}
 								<a
@@ -61,14 +61,6 @@ class Footer extends React.PureComponent {
 									className="AmiiLogo"
 									src={process.env.PUBLIC_URL + "/amii.png"}
 									alt="amii-logo"
-									height="60"
-								/>
-							</a>
-							<a href="https://www.edmontonpolice.ca/" target="_blank" rel="noopener noreferrer">
-								<img
-									className="EPSLogo"
-									src={process.env.PUBLIC_URL + "/eps-logo.png"}
-									alt="eps-logo"
 									height="60"
 								/>
 							</a>
