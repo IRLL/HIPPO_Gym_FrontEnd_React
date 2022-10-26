@@ -230,7 +230,9 @@ class Game extends React.Component{
     // this.checkForSubOptimal = this.checkForSubOptimal.bind(this);
     this.rerenderCanvas = this.rerenderCanvas.bind(this);
     this.count = 0;
-    this.score = 0;
+    this.score = 50;
+    this.totNumRound = 0;
+    this.numRound = 0;
   }
 
   initialize(){
@@ -389,6 +391,7 @@ class Game extends React.Component{
             let parsedData = JSON.parse(message.data);
             if (parsedData.UI){
               this.count++;
+              this.numRound++;
               console.log("recieved ui");
               if(this.canvas){
                 this.canvas.clear();
@@ -415,6 +418,22 @@ class Game extends React.Component{
                 this.graphValues = parsedData.UI;
                 this.opt_act = parsedData.OPT_ACT;
                 this.populateGraphValues();
+              }
+              if(this.count == 3 | this.count == 24){
+                this.score = 50;
+              }
+              if(this.count == 1){
+                this.numRound = 1;
+                this.totNumRound = 2;
+                this.setState({});
+              }else if(this.count == 3){
+                this.numRound = 1;
+                this.totNumRound = 20;
+                this.setState({});
+              }else if(this.count == 23){
+                this.numRound = 1;
+                this.totNumRound = 11;
+                this.setState({});
               }
             }else if(parsedData.VALUES){
               console.log("recieved values")
@@ -1878,7 +1897,7 @@ class Game extends React.Component{
     return(
       <div id="wrapper">
         <div id="info">
-          <h1 id="round">{this.count}/33</h1>
+          <h1 id="round">{this.numRound}/{this.totNumRound}</h1>
           <h1 id="score">{this.score} pts</h1>
           <NewMessageBoard message={this.message} longMessage={this.longMessage} setBoardDisplayed={this.changeMessageBoardDisplayed}/>  
           <ConfidenceTest ctest = {this.ctestDisplayed} setCTDisplay = {this.changeCTDisplayed}></ConfidenceTest>
