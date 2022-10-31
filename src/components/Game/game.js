@@ -41,6 +41,10 @@ class circleObject {
       })
   }
 
+  getRadius(){
+    return this.r;
+  }
+
   highlightNode(canvas){
       canvas.remove(this.o);
       this.o = new fabric.Circle({
@@ -227,6 +231,7 @@ class Game extends React.Component{
     this.handleClick = this.handleClick.bind(this);
     this.inHighlight = this.inHighlight.bind(this);
     this.checkClickedObject = this.checkClickedObject.bind(this);
+    this.highlightOptimalPath = this.highlightOptimalPath.bind(this);
     // this.checkForSubOptimal = this.checkForSubOptimal.bind(this);
     this.rerenderCanvas = this.rerenderCanvas.bind(this);
     this.count = 0;
@@ -260,7 +265,7 @@ class Game extends React.Component{
     this.inspectorMessage = "";
 
     this.avatarWidth = null;
-    // this.opt_act = null;
+    this.opt_act = null;
 
     this.timeoutOn = false;
 
@@ -285,11 +290,13 @@ class Game extends React.Component{
     this.ctestChosenDecision = false;
     this.ctestDisplayed = false;
 
+    this.numNodes = 0;
     this.prevHighlight = [];
     this.highlight = [];
     this.highlightCopy = [];
     this.paths = {};
     this.largestLeaf = null;
+    this.adjList = [];
 
     this.done = false;
 
@@ -853,7 +860,7 @@ class Game extends React.Component{
         this.message = "Good Job!";
         this.longMessage = "This was a good enough decision, but it doesn’t guarantee you achieved the optimal path or max score.";
         this.setState({});
-      }else if(psum === 36){
+      }else if(psum === 36){ // 48 - 8 - 4 = 36
         // check if there were any other 48 leaves selected
         var shouldSelectDiffPath = false;
         Object.keys(this.paths).forEach(key =>{
@@ -878,11 +885,12 @@ class Game extends React.Component{
         }
       }
       
-    }else if(this.enoughInfo && this.avatarNode.getID() !== this.largestLeaf.getID()){
+    }else if(this.enoughInfo && this.avatarNode.getValue() !== this.largestLeaf.getValue()){
       // message 6
       this.message = "wrong path selected";
       this.longMessage = "Given that some other path(s)  do have higher scores than this path, this wasn’t the best decision you could have made.";
       this.setState({});
+      this.highlightOptimalPath();
     }else if(!this.enoughInfo && this.avatarNode.getValue() !== 48){
       var leaves = 0;
       var node = this.avatarNode;
@@ -905,6 +913,60 @@ class Game extends React.Component{
         this.setState({});
       }
     }
+  }
+
+  highlightOptimalPath(){
+    // you know the optimal direction of movement, so just find the largest value in that direction
+    // if that node is selected, then highlight the path
+    var optimalNodePath = [];
+    var child = this.largestLeaf;
+    var parent = child.getPrev();
+    // highlight path
+    var done = false;
+    while(!done){
+        if(parent === null){
+            done = true;
+            break;
+        }
+        var pos = child.pos;
+        if(pos[1] === 1){
+            this.drawArrow(parent.getx()+ parent.getRadius() + 5, parent.gety(), child.getx()-child.getRadius()-5, child.gety(), 'red');
+        }else if(pos[1] === 2){
+            this.drawArrow(parent.getx(), parent.gety()-parent.getRadius()-5, child.getx(), child.gety()+child.getRadius() + 5, 'red');
+        }else if(pos[1] === 3){
+            this.drawArrow(parent.getx()-parent.getRadius()-5, parent.gety(), child.getx()+child.getRadius() + 5, child.gety(), 'red');
+        }else if(pos[1] === 4){
+            this.drawArrow(parent.getx(), parent.gety()+parent.getRadius() + 5, child.getx(), child.gety()-child.getRadius()-5, 'red');
+        }
+        parent = parent.getPrev();
+        child = child.getPrev();
+    }
+    // connect to origin
+    if(this.cHeight <= 477){
+        var orPos = this.cHeight/2;
+    }else{
+        var orPos = this.cHeight/1.5/2;
+    }
+    var n;
+    if(this.opt_act === "up"){
+        n = 2;
+    }else if(this.opt_act === "down"){
+        n = 4;
+    }else if(this.opt_act === "right"){
+        n = 1;
+    }else if(this.opt_act === "left"){
+        n = 3;
+    }
+    if(n===1){
+        this.drawArrow(this.cWidth/2 + child.getRadius() + 5, orPos, child.getx() - child.getRadius() - 5, child.gety(), 'red');
+    }else if(n===2){
+        this.drawArrow(this.cWidth/2, orPos -child.getRadius()- 5, child.getx(), child.gety()+child.getRadius()+5, 'red');
+    }else if(n===3){
+        this.drawArrow(this.cWidth/2-child.getRadius()-5, orPos, child.getx()+child.getRadius()+5, child.gety(), 'red');
+    }else if(n===4){
+        this.drawArrow(this.cWidth/2, orPos +child.getRadius()+5, child.getx(), child.gety()- child.getRadius()-5, 'red');
+    }
+
   }
 
   populateGraphValues(){
@@ -954,6 +1016,7 @@ class Game extends React.Component{
           }
           recurse(start, graphPos);
       }
+
       this.setState((prevState) => ({
           adjValues: this.structure
       }), () => { 
@@ -967,6 +1030,13 @@ class Game extends React.Component{
         this.ctestChosenDecision = Math.random() > 0.5 ? true : false;
       }
       
+      if(this.feedback && this.enoughInfo){
+        // message 10
+        this.message = "You don’t need to explore further.";
+        this.longMessage = "You have enough information to move towards the best path. If you explore more nodes, you reduce your reward without gaining useful information.";
+        this.setState({});
+      }
+
       if(e.target && !this.isLargeGraph && !this.ctestDisplayed){
         if(e.target.hoverCursor === "pointer" && !this.state.gameOver && !this.moved && !this.timeoutOn && !this.messageBoardDisplayed){
           var x = e.target.aCoords.tl.x;
@@ -982,7 +1052,9 @@ class Game extends React.Component{
                     object.drawText(this.canvas);
                     object.selected = true;
                     found = true;
-                    this.handleClick(object);    
+                    if(!this.enoughInfo){
+                      this.handleClick(object);    
+                    } 
                     break;
                   }
                 }
@@ -1366,28 +1438,17 @@ class Game extends React.Component{
       // });
       // this.canvas.add(img);
   }
-
-  handleClick(node){   
-    if(this.enoughInfo){
-      // message 10
-      this.message = "You don’t need to explore further.";
-      this.longMessage = "You have enough information to move towards the best path.";
-      this.setState({});
-    } 
+  
+  handleClick(node){    
     if(node.explored() === false){
         this.numNodes -= 1;
     }
     node.selected = true;
     this.removeHighlight();
     if (node.explored() === true){
+        console.log("do not click");
         // check highlight
         this.inHighlight(node);
-        // message 9
-        if(this.feedback){
-          this.message = "You should have explored…";
-          this.longMessage = "Given that some other path(s) do have higher scores than this path, you should have explored the highlighted node(s)."
-          this.setState({});
-        }
     }else if(node.getNext() === null){
         // is a leaf node
         this.inHighlight(node);
@@ -1422,7 +1483,7 @@ class Game extends React.Component{
                     if(sibling.getValue() > maxNode.getValue()){
                         maxNode.doNotExplore();
                         maxNode = sibling;
-                    }else if(sibling.getValue() < maxNode.getValue()){
+                    }else if(sibling.getValue() <= maxNode.getValue()){
                         sibling.doNotExplore();
                     }
                 }
@@ -1468,8 +1529,15 @@ class Game extends React.Component{
                 });    
             }else{
                 // is it larger than largest leaf wc?
-                if(wc > this.paths[this.largestLeaf.pos[0] + "," + this.largestLeaf.pos[1]][1]){
-                    this.replaceLargestLeaf(node, wc);
+                if(wc > this.paths[this.largestLeaf.pos[0] + "," + this.largestLeaf.pos[1]][0]){
+                    console.log("replace 1");
+                    this.replaceLargestLeaf(node);
+                }else if(wc === this.paths[this.largestLeaf.pos[0] + "," + this.largestLeaf.pos[1]][0]){
+                    // check if this is a 48
+                    if(node.getValue() === 48){
+                        console.log("replace 2")
+                        this.replaceLargestLeaf(node);
+                    }
                 }else{
                     // this is not the new largest leaf
                     this.paths[node.pos[0] + "," + node.pos[1]][0] = bc;
@@ -1624,7 +1692,8 @@ class Game extends React.Component{
                     bc = this.paths[node.pos[0] + ',' + node.pos[1]][0];
                     if(wc !== bc){
                         if(value[1] > this.paths[this.largestLeaf.pos[0] + ',' + this.largestLeaf.pos[1]][1]){
-                            this.replaceLargestLeaf(node, value[1]);
+                            console.log("replace 2");
+                            this.replaceLargestLeaf(node);
                         }
                     } 
                     
@@ -1691,14 +1760,21 @@ class Game extends React.Component{
     if(done === true && numPotentialLeaves <= 1){
         this.enoughInfo = true;
         console.log("enough info to end at this point");
+    }else{
+        if(this.numNodes === 1){
+            console.log("time to check");
+            // this.checkForSubOptimal();
+        }
     }
+    // Object.keys(this.paths).forEach(key=>{
+    //     key = key.split(",").map(Number);
+    //     var node = this.adjList[key[0]][key[1]];
+    // }) 
   }
 
-  replaceLargestLeaf(node, wc){
+  replaceLargestLeaf(node){
     console.log("replace largest leaf");
     // this is the new largest leaf
-    this.paths[node.pos[0] + "," + node.pos[1]][1] = wc;
-
     var bc = this.largestLeaf.getValue();
     var wc = this.largestLeaf.getValue();
     var prev = this.largestLeaf;
@@ -1725,6 +1801,7 @@ class Game extends React.Component{
     this.paths[this.largestLeaf.pos[0] + "," + this.largestLeaf.pos[1]][1] = wc;
 
     this.largestLeaf = node;
+    wc = this.paths[this.largestLeaf.pos[0] + "," + this.largestLeaf.pos[1]][1]
 
     // compare every single leaf to this new largest leaf's wc
     Object.keys(this.paths).forEach(key => {
@@ -1733,6 +1810,7 @@ class Game extends React.Component{
         if(leaf.explored() === false && leaf !== this.largestLeaf && leaf.selected == true){
             bc = this.paths[key][0];
             if(bc <= wc){
+                console.log(leaf.getID(), leaf.getValue())
                 leaf.doNotExplore();
                 if(leaf.selected === false){
                     this.numNodes-=1;
@@ -1758,7 +1836,7 @@ class Game extends React.Component{
             }
         }
     });  
-  }
+  }  
 
   inHighlight(selectedNode){
     // is this node in highlight?
