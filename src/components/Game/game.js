@@ -317,6 +317,10 @@ class Game extends React.Component{
       }
       if(!this.timeoutOn && !this.messageBoardDisplayed){
         if(event.code === 'Space'){
+            // save e
+            this.time = new Date().toLocaleTimeString();
+            var message = "hit space: " + this.time;
+            this.sendMessage({save: message});
           if(this.state.gameOver){
             this.setState({
               message: "",
@@ -329,6 +333,8 @@ class Game extends React.Component{
             });
           }
         }else{
+            // save f
+            this.time = new Date().toLocaleTimeString();
           if(!this.state.gameOver && !this.ctestDisplayed){
             if(this.avatarNode !== null){
                 if(this.avatarNode.getNext() !== null){
@@ -646,6 +652,10 @@ class Game extends React.Component{
           this.ctestMistakeNum++;
           console.log("CTEST: wrong move ")
         }
+        // save b : time quiz displayed
+        this.time = new Date().toLocaleTimeString();
+        var message  = "ctest displayed: " + this.time;
+        this.sendMessage({save: message});
         this.setState((prevState)=>({...prevState}));
       } 
       if(!this.moved && this.feedback){
@@ -668,7 +678,7 @@ class Game extends React.Component{
           this.setState((prevState)=>({...prevState}));
 
           // delay
-          this.addDelay(42);
+        this.addDelay(42);
         }else if(!this.enoughInfo){
           // check if they are moving towards a non 48 path
           var leaves = 0;
@@ -812,6 +822,9 @@ class Game extends React.Component{
     if(changed){
         this.avatarNode.drawText(this.canvas);
         this.avatarNode.visited = true;
+        // save f
+        var message = "moved: " + this.avatarNode.getID() + " , " + this.time;    
+        this.sendMessage({save: message});   
       this.pts += this.avatarNode.getValue();
       this.score += this.avatarNode.getValue();
       this.setState({gameOver: false});
@@ -819,7 +832,17 @@ class Game extends React.Component{
 		if(this.feedback){
 			this.checkSelectedPath();
 		}
-        this.setState({gameOver: true});
+        // display second type of confidence question if applicable
+        if(this.ctest){
+            this.ctest2displayed = true;
+            // save b : time quiz displayed
+            this.time = new Date().toLocaleTimeString();
+            var message  = "ctest2 displayed: " + this.time;
+            this.sendMessage({save: message});
+            this.setState((prevState)=>({...prevState}));
+        }else{
+            this.setState({ctestMessage: "", gameOver: true});
+        }
       }
 
       this.canvas.remove(avatar);
@@ -1043,92 +1066,100 @@ class Game extends React.Component{
 
   checkClickedObject(){
     this.canvas.on('mouse:down', (e) => {
-      if(!this.ctestDisplayed){
-        this.ctestChosenDecision = Math.random() > 0.5 ? true : false;
-      }
-      
-      if(this.feedback && this.enoughInfo && !this.state.gameOver){
-        // message 10
-        this.message = "You don’t need to explore further.";
-        this.longMessage = "You have enough information to move towards the best path. If you explore more nodes, you reduce your reward without gaining useful information.";
-        this.setState((prevState)=>({...prevState}));
-      }
+        // save a : time clicked
+        var timeClicked = new Date().toLocaleTimeString();
+        if(!this.ctestDisplayed){
+            this.ctestChosenDecision = Math.random() > 0.5 ? true : false;
+        }
+        
+        if(this.feedback && this.enoughInfo && !this.state.gameOver){
+            // message 10
+            this.message = "You don’t need to explore further.";
+            this.longMessage = "You have enough information to move towards the best path. If you explore more nodes, you reduce your reward without gaining useful information.";
+            this.setState((prevState)=>({...prevState}));
+        }
 
-      if(e.target && !this.isLargeGraph && !this.ctestDisplayed){
-        if(e.target.hoverCursor === "pointer" && !this.state.gameOver && !this.moved && !this.timeoutOn && !this.messageBoardDisplayed){
-          var x = e.target.aCoords.tl.x;
-          var y = e.target.aCoords.tl.y;
-          if(this.adjList!==[] && this.moved === false){
-            var found = false;
-            var i = 0;
-            while(!found && i<this.adjList.length){
-              for(var j=1; j<this.adjList[i].length; j++){
-                var object = this.adjList[i][j];
-                if(object!==null && object.selected === false){
-                  if(object.checkClicked(false, x,y)){
-                    object.drawText(this.canvas);
-                    object.selected = true;
-                    found = true;
-                    if(!this.enoughInfo){
-                      this.handleClick(object);    
-                    } 
-                    break;
-                  }
+        if(e.target && !this.isLargeGraph && !this.ctestDisplayed){
+            if(e.target.hoverCursor === "pointer" && !this.state.gameOver && !this.moved && !this.timeoutOn && !this.messageBoardDisplayed){
+            var x = e.target.aCoords.tl.x;
+            var y = e.target.aCoords.tl.y;
+            if(this.adjList!==[] && this.moved === false){
+                var found = false;
+                var i = 0;
+                while(!found && i<this.adjList.length){
+                for(var j=1; j<this.adjList[i].length; j++){
+                    var object = this.adjList[i][j];
+                    if(object!==null && object.selected === false){
+                    if(object.checkClicked(false, x,y)){
+                        // save a
+                        var message = "node clicked: " + object.getID().toString() + " , " + timeClicked;
+                        this.sendMessage({save: message});
+                        object.drawText(this.canvas);
+                        object.selected = true;
+                        found = true;
+                        if(!this.enoughInfo){
+                        this.handleClick(object);    
+                        } 
+                        break;
+                    }
+                    }
                 }
-              }
-              i++;
+                i++;
+                }
+            }  
+            }else if(this.moved && !this.state.gameOver){
+                this.inspectorMessage = "cannot use the node inspector after moving"
+                this.setState({inspectorMessage: this.inspectorMessage});
+            }else if(this.messageBoardDisplayed){
+            this.inspectorMessage = "cannot use node inspector while viewing explanation"
+            this.setState({inspectorMessage: this.inspectorMessage});
+            }else if(e.target.hoverCursor === "pointer" && this.timeoutOn){
+            this.inspectorMessage = "please wait.."
+            this.setState({inspectorMessage: this.inspectorMessage});
             }
-          }  
-        }else if(this.moved && !this.state.gameOver){
+        }else if(this.ctestDisplayed){
+            this.setState({ctestMessage: "Please answer to continue..."});
+        }
+
+        if(e.target && this.isLargeGraph && !this.ctestDisplayed){
+            if(e.target.hoverCursor === "pointer" && !this.state.gameOver && !this.moved){
+            var x = e.target.aCoords.tl.x;
+            var y = e.target.aCoords.tl.y;
+            if(this.adjList!==[]){
+                var found = false;
+                var i = 0;
+                while(!found && i<this.adjList.length){
+                for(var j=1; j<this.adjList[i].length; j++){
+                    var object = this.adjList[i][j];
+                    if(object!==null && object.selected === false){
+                    if(object.checkClicked(true, x,y)){
+                        object.drawText(this.canvas);
+                        object.selected = true;
+                        found = true;
+                        // save a
+                        var message = "node clicked: " + object.getID().toString() + " , " + timeClicked;
+                        this.sendMessage({save: message});
+                        // this.handleClick(object);    
+                        break;
+                    }
+                    }
+                }
+                i++;
+                }
+            } 
+            if(this.ctestChosenDecision && this.ctestNum < 3){
+                this.ctestNum++;
+                console.log("CTEST: ");
+                this.ctestDisplayed = true;
+                this.setState((prevState)=>({...prevState}));
+            }
+            }else if(this.moved && !this.state.gameOver){
             this.inspectorMessage = "cannot use the node inspector after moving"
             this.setState({inspectorMessage: this.inspectorMessage});
-        }else if(this.messageBoardDisplayed){
-          this.inspectorMessage = "cannot use node inspector while viewing explanation"
-          this.setState({inspectorMessage: this.inspectorMessage});
-        }else if(e.target.hoverCursor === "pointer" && this.timeoutOn){
-          this.inspectorMessage = "please wait.."
-          this.setState({inspectorMessage: this.inspectorMessage});
-        }
-      }else if(this.ctestDisplayed){
-        this.setState({ctestMessage: "Please answer to continue..."});
-      }
-
-      if(e.target && this.isLargeGraph && !this.ctestDisplayed){
-        if(e.target.hoverCursor === "pointer" && !this.state.gameOver && !this.moved){
-          var x = e.target.aCoords.tl.x;
-          var y = e.target.aCoords.tl.y;
-          if(this.adjList!==[]){
-            var found = false;
-            var i = 0;
-            while(!found && i<this.adjList.length){
-              for(var j=1; j<this.adjList[i].length; j++){
-                var object = this.adjList[i][j];
-                if(object!==null && object.selected === false){
-                  if(object.checkClicked(true, x,y)){
-                    object.drawText(this.canvas);
-                    object.selected = true;
-                    found = true;
-                    // this.handleClick(object);    
-                    break;
-                  }
-                }
-              }
-              i++;
             }
-          } 
-          if(this.ctestChosenDecision && this.ctestNum < 3){
-            this.ctestNum++;
-            console.log("CTEST: ");
-            this.ctestDisplayed = true;
-            this.setState((prevState)=>({...prevState}));
-          }
-        }else if(this.moved && !this.state.gameOver){
-          this.inspectorMessage = "cannot use the node inspector after moving"
-          this.setState({inspectorMessage: this.inspectorMessage});
+        }else if(e.target && this.isLargeGraph && this.ctestDisplayed){
+            this.setState({ctestMessage: "Please answer to continue..."});
         }
-      }else if(e.target && this.isLargeGraph && this.ctestDisplayed){
-        this.setState({ctestMessage: "Please answer to continue..."});
-      }
     })
   }
 
@@ -1977,14 +2008,45 @@ class Game extends React.Component{
   }
 
   changeMessageBoardDisplayed(){
+    if(this.messageBoardDisplayed === false){
+        // they clicked on question mark to read
+        // save c
+        this.time = new Date().toLocaleTimeString();
+        var message = "read more: " + this.time;
+        this.sendMessage({save: message}); 
+    }else{
+        // they crossed it off
+        // save c
+        this.time = new Date().toLocaleTimeString();
+        var message = "exit read more: " + this.time;
+        this.sendMessage({save: message}); 
+    }
     this.messageBoardDisplayed === false ? this.messageBoardDisplayed = true : this.messageBoardDisplayed = false;
     this.inspectorMessage = ""
     this.setState({inspectorMessage: this.inspectorMessage});
   }
 
-  changeCTDisplayed(){
-    this.ctestDisplayed = false;
-    this.setState({ctestMessage: ""});
+  changeCTDisplayed(change, selOption, tOption, tSubmitted){
+    if(change && this.ctestDisplayed){
+        // save b : selected option and time selected
+        var message = "ctest option selected: " + selOption.toString() + " , " + tOption;
+        this.sendMessage({save: message});
+        message = "ctest submitted: " + tSubmitted;
+        this.sendMessage({save: message});
+        this.ctestDisplayed = false;
+        this.ctest2displayed = false;
+        this.setState({ctestMessage: ""});
+    }else if(change && this.ctest2displayed){
+        // save b : selected option and time selected
+        var message = "ctest2 option selected: " + selOption.toString() + " , " + tOption;
+        this.sendMessage({save: message});
+        this.ctest2displayed = false;
+        message = "ctest2 submitted: " + tSubmitted;
+        this.sendMessage({save: message});
+        this.setState({ctestMessage: "", gameOver: true});
+    }else{
+        this.setState({ctestMessage: "please select an option"});
+    }
   }
 
   addDelay(seconds){
@@ -2011,7 +2073,7 @@ class Game extends React.Component{
           <h1 id="round">{this.numRound}/{this.totNumRound}</h1>
           <h1 id="score">{this.score} pts</h1>
           <NewMessageBoard message={this.message} longMessage={this.longMessage} setBoardDisplayed={this.changeMessageBoardDisplayed}/>  
-          <ConfidenceTest ctest = {this.ctestDisplayed} setCTDisplay = {this.changeCTDisplayed}></ConfidenceTest>
+          <ConfidenceTest ctest = {this.ctestDisplayed} ctest2 = {this.ctest2displayed} setCTDisplay = {this.changeCTDisplayed}></ConfidenceTest>
         </div>
         <canvas id="canvas"/>  
         {scoreMessage}
