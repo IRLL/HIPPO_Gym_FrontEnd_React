@@ -432,15 +432,15 @@ class Game extends React.Component{
               if(this.count == 1){
                 this.numRound = 1;
                 this.totNumRound = 2;
-                this.setState({});
+                this.setState((prevState)=>({...prevState}));
               }else if(this.count == 3){
                 this.numRound = 1;
                 this.totNumRound = 20;
-                this.setState({});
+                this.setState((prevState)=>({...prevState}));
               }else if(this.count == 23){
                 this.numRound = 1;
                 this.totNumRound = 11;
-                this.setState({});
+                this.setState((prevState)=>({...prevState}));
               }
             }else if(parsedData.VALUES){
               console.log("recieved values")
@@ -641,7 +641,7 @@ class Game extends React.Component{
           this.ctestMistakeNum++;
           console.log("CTEST: wrong move ")
         }
-        this.setState({});
+        this.setState((prevState)=>({...prevState}));
       } 
       if(!this.moved && this.feedback){
         var found = false;
@@ -660,7 +660,7 @@ class Game extends React.Component{
           // message 2
           this.message = "should explored before moving...";
           this.longMessage = "To find a good path to take, you need to know the immediate and long-term rewards/costs of your decision.";
-          this.setState({});
+          this.setState((prevState)=>({...prevState}));
         }else if(!this.enoughInfo){
           // check if they are moving towards a non 48 path
           var leaves = 0;
@@ -668,13 +668,15 @@ class Game extends React.Component{
           var done = false;
           while(!done){
             node = node.getNext();
-            if(Array.isArray(node)){
+            if(node.length > 1){
               leaves = node;
               done = true;
             }else if(node == null){
               done = true;
             }
+			node = node[0];
           }
+		  console.log(leaves)
           var fourtyEightPath = false;
           for(var l in leaves){
             if(leaves[l].getValue() === 48){
@@ -685,7 +687,7 @@ class Game extends React.Component{
             // message 5
             this.message = "You don't have enough info to move...";
             this.longMessage = "You cannot make a good decision with the amount of information you currently have. You should have continued exploring the nodes.";
-            this.setState({});
+            this.setState((prevState)=>({...prevState}));
           }
           
         }
@@ -700,24 +702,28 @@ class Game extends React.Component{
         if(dir === 'up'){
             if(this.adjList[0][2]){
                 this.avatarNode = this.adjList[0][2];
+				this.avatarNode.drawText(this.canvas);
                 changed = true;
             }
            
         }else if(dir === 'left'){
             if(this.adjList[0][3]){
                 this.avatarNode = this.adjList[0][3];
+				this.avatarNode.drawText(this.canvas);
                 changed = true; 
             }
             
         }else if(dir === 'right'){
             if(this.adjList[0][1]){
                 this.avatarNode = this.adjList[0][1];
+				this.avatarNode.drawText(this.canvas);
                 changed = true;  
             }
             
         }else if(dir === 'down'){
             if(this.adjList[0][4]){
                 this.avatarNode = this.adjList[0][4];
+				this.avatarNode.drawText(this.canvas);
                 changed = true; 
             }
             
@@ -738,6 +744,7 @@ class Game extends React.Component{
           if(found){
               if(this.adjList[row][2]){
                   this.avatarNode = this.adjList[row][2];
+				  this.avatarNode.drawText(this.canvas);
                   changed = true;
               }
           }
@@ -756,6 +763,7 @@ class Game extends React.Component{
           if(found){
               if(this.adjList[row][3]){
                   this.avatarNode = this.adjList[row][3];
+				  this.avatarNode.drawText(this.canvas);
                   changed = true;
               }
           }
@@ -774,6 +782,7 @@ class Game extends React.Component{
           if(found){
               if(this.adjList[row][1]){
                   this.avatarNode = this.adjList[row][1];
+				  this.avatarNode.drawText(this.canvas);
                   changed = true;
               }
           }
@@ -792,6 +801,7 @@ class Game extends React.Component{
           if(found){
               if(this.adjList[row][4]){
                   this.avatarNode = this.adjList[row][4];
+				  this.avatarNode.drawText(this.canvas);
                   changed = true;
               }
           }
@@ -802,7 +812,9 @@ class Game extends React.Component{
       this.score += this.avatarNode.getValue();
       this.setState({gameOver: false});
       if(this.avatarNode.getNext() === null){
-        this.checkSelectedPath();
+		if(this.feedback){
+			this.checkSelectedPath();
+		}
         this.setState({gameOver: true});
       }
 
@@ -850,7 +862,7 @@ class Game extends React.Component{
       // message 1
       this.message = "Good Job!";
       this.longMessage = ""
-      this.setState({});
+      this.setState((prevState)=>({...prevState}));
     }else if(this.avatarNode.getValue() === 48){
       // does this path have the minimum values for the other nodes
       var psum = checkPath(this.avatarNode);
@@ -859,7 +871,7 @@ class Game extends React.Component{
         // message 3
         this.message = "Good Job!";
         this.longMessage = "This was a good enough decision, but it doesn’t guarantee you achieved the optimal path or max score.";
-        this.setState({});
+        this.setState((prevState)=>({...prevState}));
       }else if(psum === 36){ // 48 - 8 - 4 = 36
         // check if there were any other 48 leaves selected
         var shouldSelectDiffPath = false;
@@ -881,7 +893,7 @@ class Game extends React.Component{
           // message 3
           this.message = "Good Job!";
           this.longMessage = "This was a good enough decision, but it doesn’t guarantee you achieved the optimal path or max score.";
-          this.setState({});
+          this.setState((prevState)=>({...prevState}));
         }
       }
       
@@ -889,8 +901,10 @@ class Game extends React.Component{
       // message 6
       this.message = "wrong path selected";
       this.longMessage = "Given that some other path(s)  do have higher scores than this path, this wasn’t the best decision you could have made.";
-      this.setState({});
-      this.highlightOptimalPath();
+      this.setState((prevState)=>({...prevState}));
+	  if(this.feedback){
+		this.highlightOptimalPath();
+	  }
     }else if(!this.enoughInfo && this.avatarNode.getValue() !== 48){
       var leaves = 0;
       var node = this.avatarNode;
@@ -910,7 +924,7 @@ class Game extends React.Component{
         // message 6
         this.message = "wrong path selected";
         this.longMessage = "Given that some other path(s) do have higher scores than this path, this wasn’t the best decision you could have made.";
-        this.setState({});
+        this.setState((prevState)=>({...prevState}));
       }
     }
   }
@@ -1030,11 +1044,11 @@ class Game extends React.Component{
         this.ctestChosenDecision = Math.random() > 0.5 ? true : false;
       }
       
-      if(this.feedback && this.enoughInfo){
+      if(this.feedback && this.enoughInfo && !this.state.gameOver){
         // message 10
         this.message = "You don’t need to explore further.";
         this.longMessage = "You have enough information to move towards the best path. If you explore more nodes, you reduce your reward without gaining useful information.";
-        this.setState({});
+        this.setState((prevState)=>({...prevState}));
       }
 
       if(e.target && !this.isLargeGraph && !this.ctestDisplayed){
@@ -1103,7 +1117,7 @@ class Game extends React.Component{
             this.ctestNum++;
             console.log("CTEST: ");
             this.ctestDisplayed = true;
-            this.setState({});
+            this.setState((prevState)=>({...prevState}));
           }
         }else if(this.moved && !this.state.gameOver){
           this.inspectorMessage = "cannot use the node inspector after moving"
@@ -1862,7 +1876,7 @@ class Game extends React.Component{
             if(this.feedback){
               this.message = "Good Job!";
               this.longMessage = "";
-              this.setState({});
+              this.setState((prevState)=>({...prevState}));
             } 
         }
     }    
@@ -1883,14 +1897,14 @@ class Game extends React.Component{
             }
         })
     }else{
-      if(!selectedNode.explored()){
+    //   if(!selectedNode.explored()){
         if(this.feedback){
           // message 7
           this.message = "You should have explored...";
           this.longMessage = "You should have explored one of the highlighted nodes instead";
-          this.setState({});
+          this.setState((prevState)=>({...prevState}));
         }
-      }
+    //   }
       for(var i in this.highlight){
           if(this.highlight[i].explored() === false && this.highlight[i].selected === false){
             if(this.feedback){
@@ -1905,7 +1919,13 @@ class Game extends React.Component{
             this.highlight.splice(i, 1);
         }
     }
-    
+
+	if(selectedNode.explored() && this.feedback){
+		// message 7
+		this.message = "You should have explored...";
+		this.longMessage = "You should have explored one of the highlighted nodes instead";
+		this.setState((prevState)=>({...prevState}));
+	}
   }
 
   populateHighlight(){
