@@ -732,9 +732,19 @@ class Game extends React.Component{
       this.score += this.avatarNode.getValue();
       this.setState({gameOver: false});
       if(this.avatarNode.getNext() === null){
-        this.setState({gameOver: true});
+        // display second type of confidence question if applicable
+        if(this.ctest){
+            this.ctest2displayed = true;
+            // save b : time quiz displayed
+            this.time = new Date().toLocaleTimeString();
+            var message  = "ctest2 displayed: " + this.time;
+            this.sendMessage({save: message});
+            this.setState((prevState)=>({...prevState}));
+        }else{
+            this.setState({ctestMessage: "", gameOver: true});
+        }
       }
-
+      
       this.canvas.remove(avatar);
       var canvas = this.canvas; 
       var avatarWidth = this.avatarWidth;
@@ -1345,9 +1355,27 @@ class Game extends React.Component{
     this.setState({inspectorMessage: this.inspectorMessage});
   }
 
-  changeCTDisplayed(){
-    this.ctestDisplayed = false;
-    this.setState({ctestMessage: ""});
+  changeCTDisplayed(change, selOption, tOption, tSubmitted){
+    if(change && this.ctestDisplayed){
+        // save b : selected option and time selected
+        var message = "ctest option selected: " + selOption.toString() + " , " + tOption;
+        this.sendMessage({save: message});
+        message = "ctest submitted: " + tSubmitted;
+        this.sendMessage({save: message});
+        this.ctestDisplayed = false;
+        this.ctest2displayed = false;
+        this.setState({ctestMessage: ""});
+    }else if(change && this.ctest2displayed){
+        // save b : selected option and time selected
+        var message = "ctest2 option selected: " + selOption.toString() + " , " + tOption;
+        this.sendMessage({save: message});
+        this.ctest2displayed = false;
+        message = "ctest2 submitted: " + tSubmitted;
+        this.sendMessage({save: message});
+        this.setState({ctestMessage: "", gameOver: true});
+    }else{
+        this.setState({ctestMessage: "please select an option"});
+    }
   }
 
   render(){
@@ -1363,7 +1391,7 @@ class Game extends React.Component{
           <h1 id="round">{this.numRound}/{this.totNumRound}</h1>
           <h1 id="score">{this.score} pts</h1>
           <MessageBoard message={this.message} setBoardDisplayed={this.changeMessageBoardDisplayed}/>  
-          <ConfidenceTest ctest = {this.ctestDisplayed} setCTDisplay = {this.changeCTDisplayed}></ConfidenceTest>
+          <ConfidenceTest ctest = {this.ctestDisplayed} ctest2 = {this.ctest2displayed} setCTDisplay = {this.changeCTDisplayed}></ConfidenceTest>
         </div>
         <canvas id="canvas"/>  
         {scoreMessage}
