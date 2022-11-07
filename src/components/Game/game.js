@@ -121,7 +121,7 @@ class circleObject {
   }
 
   resizeNode(canvas, radius){
-      if(!this.selected){
+      if(!this.selected && !this.visited){
           this.r = radius;
           this.o.setRadius(radius);
           this.o.left = this.x;
@@ -726,8 +726,8 @@ class Game extends React.Component{
       }
     }
     if(changed){
+      this.avatarNode.visited = true;
       this.avatarNode.drawText(this.canvas);
-      this.avatarNode.selected = true;
       this.pts += this.avatarNode.getValue();
       this.score += this.avatarNode.getValue();
       this.setState({gameOver: false});
