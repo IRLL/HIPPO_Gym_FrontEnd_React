@@ -125,7 +125,7 @@ class circleObject {
   }
 
   resizeNode(canvas, radius){
-      if(!this.selected){
+      if(!this.selected && !this.visited){
           this.r = radius;
           this.o.setRadius(radius);
           this.o.left = this.x;
@@ -232,6 +232,8 @@ class Game extends React.Component{
     this.inHighlight = this.inHighlight.bind(this);
     this.checkClickedObject = this.checkClickedObject.bind(this);
     this.highlightOptimalPath = this.highlightOptimalPath.bind(this);
+    this.addDelay = this.addDelay.bind(this);
+    this.endDelay = this.endDelay.bind(this);
     // this.checkForSubOptimal = this.checkForSubOptimal.bind(this);
     this.rerenderCanvas = this.rerenderCanvas.bind(this);
     this.count = 0;
@@ -302,6 +304,9 @@ class Game extends React.Component{
 
     this.gameOver = false;
     this.enoughInfo = false;
+
+    this.timeoutOn = false;
+    this.timeout = null;
   }
   
   componentDidMount(){
@@ -567,13 +572,13 @@ class Game extends React.Component{
     }
 
     if(this.avatarNode === null){
-        avatar.scaleToWidth(this.avatarWidth);
+        avatar.scaleToWidth(this.avatarWidth+20);
         avatar.left = cWidth/2;
         avatar.top = orPos;
         this.avatarX = cWidth;
         this.avatarY = cHeight;
     }else{
-        avatar.scaleToWidth(this.avatarWidth);
+        avatar.scaleToWidth(this.avatarWidth+20);
         avatar.left = this.avatarNode.getx();
         avatar.top = this.avatarNode.gety();
         this.avatarX = this.avatarNode.getx();
@@ -661,6 +666,9 @@ class Game extends React.Component{
           this.message = "should explored before moving...";
           this.longMessage = "To find a good path to take, you need to know the immediate and long-term rewards/costs of your decision.";
           this.setState((prevState)=>({...prevState}));
+
+          // delay
+          this.addDelay(42);
         }else if(!this.enoughInfo){
           // check if they are moving towards a non 48 path
           var leaves = 0;
@@ -688,6 +696,7 @@ class Game extends React.Component{
             this.message = "You don't have enough info to move...";
             this.longMessage = "You cannot make a good decision with the amount of information you currently have. You should have continued exploring the nodes.";
             this.setState((prevState)=>({...prevState}));
+            this.addDelay(3);
           }
           
         }
@@ -702,28 +711,24 @@ class Game extends React.Component{
         if(dir === 'up'){
             if(this.adjList[0][2]){
                 this.avatarNode = this.adjList[0][2];
-				this.avatarNode.drawText(this.canvas);
                 changed = true;
             }
            
         }else if(dir === 'left'){
             if(this.adjList[0][3]){
                 this.avatarNode = this.adjList[0][3];
-				this.avatarNode.drawText(this.canvas);
                 changed = true; 
             }
             
         }else if(dir === 'right'){
             if(this.adjList[0][1]){
                 this.avatarNode = this.adjList[0][1];
-				this.avatarNode.drawText(this.canvas);
                 changed = true;  
             }
             
         }else if(dir === 'down'){
             if(this.adjList[0][4]){
                 this.avatarNode = this.adjList[0][4];
-				this.avatarNode.drawText(this.canvas);
                 changed = true; 
             }
             
@@ -763,7 +768,6 @@ class Game extends React.Component{
           if(found){
               if(this.adjList[row][3]){
                   this.avatarNode = this.adjList[row][3];
-				  this.avatarNode.drawText(this.canvas);
                   changed = true;
               }
           }
@@ -782,7 +786,6 @@ class Game extends React.Component{
           if(found){
               if(this.adjList[row][1]){
                   this.avatarNode = this.adjList[row][1];
-				  this.avatarNode.drawText(this.canvas);
                   changed = true;
               }
           }
@@ -801,13 +804,14 @@ class Game extends React.Component{
           if(found){
               if(this.adjList[row][4]){
                   this.avatarNode = this.adjList[row][4];
-				  this.avatarNode.drawText(this.canvas);
                   changed = true;
               }
           }
       }
     }
     if(changed){
+        this.avatarNode.drawText(this.canvas);
+        this.avatarNode.visited = true;
       this.pts += this.avatarNode.getValue();
       this.score += this.avatarNode.getValue();
       this.setState({gameOver: false});
@@ -826,10 +830,9 @@ class Game extends React.Component{
           var img1 = img.set({ 
               left: avatarNode.x, 
               top: avatarNode.y,
-              originX: 'center',
-              originY: 'center'
+              originX: 'center'
           })
-          img1.scaleToWidth(avatarWidth);
+          img1.scaleToWidth(avatarWidth+20);
           img1.selectable = false;
           img1.hoverCursor = "default";
           canvas.add(img1); 
@@ -1431,9 +1434,8 @@ class Game extends React.Component{
               left: x/2, 
               top: orPos,
               originX: 'center',
-              originY: 'center',
           })
-          img1.scaleToWidth(avatarWidth);
+          img1.scaleToWidth(avatarWidth + 20);
           img1.selectable = false;
           img1.hoverCursor = "default";
           canvas.add(img1); 
@@ -1985,6 +1987,17 @@ class Game extends React.Component{
     this.setState({ctestMessage: ""});
   }
 
+  addDelay(seconds){
+    console.log("Delay: " + seconds + "seconds");
+    this.timeOut = setTimeout(this.endDelay, seconds*1000);
+    this.timeoutOn = true;
+  }
+
+  endDelay(){
+    this.timeoutOn = false;
+    clearTimeout(this.timeOut);
+  }
+
   render(){
     let gameOver;
     let scoreMessage;
@@ -2011,7 +2024,5 @@ class Game extends React.Component{
 }
         
 export default Game;
-        
-        
         
 
