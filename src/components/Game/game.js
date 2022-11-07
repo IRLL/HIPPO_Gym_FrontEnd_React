@@ -311,6 +311,7 @@ class Game extends React.Component{
   
   componentDidMount(){
     window.addEventListener('keydown', (event)=>{
+        this.gameOver = true;
       if(this.inspectorMessage !== ""){
         this.inspectorMessage = ""
         this.setState({inspectorMessage: this.inspectorMessage});
@@ -678,7 +679,7 @@ class Game extends React.Component{
           this.setState((prevState)=>({...prevState}));
 
           // delay
-        this.addDelay(42);
+        // this.addDelay(42);
         }else if(!this.enoughInfo){
           // check if they are moving towards a non 48 path
           var leaves = 0;
@@ -706,7 +707,7 @@ class Game extends React.Component{
             this.message = "You don't have enough info to move...";
             this.longMessage = "You cannot make a good decision with the amount of information you currently have. You should have continued exploring the nodes.";
             this.setState((prevState)=>({...prevState}));
-            this.addDelay(3);
+            // this.addDelay(3);
           }
           
         }
@@ -1072,8 +1073,9 @@ class Game extends React.Component{
             this.ctestChosenDecision = Math.random() > 0.5 ? true : false;
         }
         
-        if(this.feedback && this.enoughInfo && !this.state.gameOver){
+        if(this.feedback && this.enoughInfo && !this.gameOver){
             // message 10
+            console.log("DISPLAYED")
             this.message = "You don’t need to explore further.";
             this.longMessage = "You have enough information to move towards the best path. If you explore more nodes, you reduce your reward without gaining useful information.";
             this.setState((prevState)=>({...prevState}));
