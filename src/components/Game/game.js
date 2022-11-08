@@ -419,6 +419,7 @@ class Game extends React.Component{
                 this.totNumRound = 11;
                 this.setState({});
               }
+              this.pts = this.score; // we will calculate final difference by comparing to this original value
             }else if(parsedData.VALUES){
               console.log("recieved values")
               this.qVals = parsedData.VALUES;
@@ -728,10 +729,12 @@ class Game extends React.Component{
     if(changed){
       this.avatarNode.visited = true;
       this.avatarNode.drawText(this.canvas);
-      this.pts += this.avatarNode.getValue();
       this.score += this.avatarNode.getValue();
-      this.setState({gameOver: false});
+      this.setState((prevState)=>({...prevState}));
       if(this.avatarNode.getNext() === null){
+        // determine difference for the round (final score - original score)
+        this.pts = this.score - this.pts; 
+
         // display second type of confidence question if applicable
         if(this.ctest){
             this.ctest2displayed = true;
@@ -741,6 +744,10 @@ class Game extends React.Component{
             this.sendMessage({save: message});
             this.setState((prevState)=>({...prevState}));
         }else{
+            // save d : final score at end of round
+            var message = "score: " + this.score + " , " + this.pts;
+            this.sendMessage({save: message});
+
             this.setState({ctestMessage: "", gameOver: true});
         }
       }
@@ -841,6 +848,11 @@ class Game extends React.Component{
                     object.drawText(this.canvas);
                     object.selected = true;
                     found = true;
+                    
+                    // node inspector cost
+                    this.score -= 1;
+                    this.setState((prevState)=>({...prevState}));
+
                     this.handleClick(object);    
                     break;
                   }
@@ -878,6 +890,11 @@ class Game extends React.Component{
                     object.drawText(this.canvas);
                     object.selected = true;
                     found = true;
+
+                    // node inspector cost
+                    this.score -= 1;
+                    this.setState((prevState)=>({...prevState}));
+
                     // this.handleClick(object);    
                     break;
                   }
