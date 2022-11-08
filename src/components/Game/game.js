@@ -13,6 +13,7 @@ import {
   SERVER,
   DEBUG,
 } from "../../utils/constants";
+import { BsReplyAll } from "react-icons/bs";
 class circleObject {
   constructor(x, y, id, value, pos, r){
       this.maxVal = null;
@@ -250,6 +251,7 @@ class Game extends React.Component{
     this.nodesList = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
     this.graphInfo = null;
     this.graphValues = null;
+    this.listOfLeaves = [];
     // this.prevHighlightList = [];
     // this.highlightList = [];
 
@@ -307,6 +309,8 @@ class Game extends React.Component{
 
     this.timeoutOn = false;
     this.timeout = null;
+    
+    this.hasOpenedNodes = false;
   }
   
   componentDidMount(){
@@ -661,56 +665,57 @@ class Game extends React.Component{
         this.setState((prevState)=>({...prevState}));
       } 
       if(!this.moved && this.feedback){
-        var found = false;
-        for(var i=0; i<this.adjList.length; i++){
-          for(var j=1; j<this.adjList[i].length; j++){
-            if(this.adjList[i][j] && this.adjList[i][j].getSelected()){
-              found = true;
-              break;
-            }
-          }
-          if(found){
-            break;
-          }
-        }
-        if(!found){
+        if(!this.hasOpenedNodes){
           // message 2
-          this.message = "should explored before moving...";
+          this.message = "should have explored before moving...";
           this.longMessage = "To find a good path to take, you need to know the immediate and long-term rewards/costs of your decision.";
           this.setState((prevState)=>({...prevState}));
 
           // delay
         // this.addDelay(42);
-        }else if(!this.enoughInfo){
-          // check if they are moving towards a non 48 path
-          var leaves = 0;
-          var node = this.avatarNode;
-          var done = false;
-          while(!done){
-            node = node.getNext();
-            if(node.length > 1){
-              leaves = node;
-              done = true;
-            }else if(node == null){
-              done = true;
+        }else if(this.hasOpenedNodes && !this.enoughInfo){
+            // check if they move towards a non 48 path (i.e. 48 is not open in the selected path)
+            var leaves = 0;
+            var node = this.avatarNode;
+            var done = false;
+            while(!done){
+                node = node.getNext();
+                if(node.length > 1){
+                    leaves = node;
+                    done = true;
+                }else if(node == null){
+                    done = true;
+                }
+                node = node[0];
             }
-			node = node[0];
-          }
-		  console.log(leaves)
-          var fourtyEightPath = false;
-          for(var l in leaves){
-            if(leaves[l].getValue() === 48){
-              fourtyEightPath = true;
+
+            var fourtyEightPath = false;
+            for(var l in leaves){
+                if(leaves[l].getSelected() && leaves[l].getValue() === 48){
+                    fourtyEightPath = true;
+                }
             }
-          }
-          if(!this.enoughInfo && !fourtyEightPath){
-            // message 5
-            this.message = "You don't have enough info to move...";
-            this.longMessage = "You cannot make a good decision with the amount of information you currently have. You should have continued exploring the nodes.";
-            this.setState((prevState)=>({...prevState}));
-            // this.addDelay(3);
-          }
-          
+            if(!fourtyEightPath){
+                // check if any opened leaves anywhere in the graph have value of 48
+                var fourtyEightElsewhere = false;
+                for(var i=0; i<this.listOfLeaves.length; i++){
+                    if(this.listOfLeaves[i].getSelected() && this.listOfLeaves[i].getValue() === 48){
+                        fourtyEightElsewhere = true;
+                        break;
+                    }
+                }
+                if(fourtyEightElsewhere){
+                    this.message = "You dont have enough info to move in THAT direction/path.";
+                    this.longMessage = "reference guessing/there is a better path to take.";
+                    this.setState((prevState)=>({...prevState})); 
+                }else{
+                    // message 5
+                    this.message = "You don't have enough info to move...";
+                    this.longMessage = "You cannot make a good decision with the amount of information you currently have. You should have continued exploring the nodes.";
+                    this.setState((prevState)=>({...prevState}));
+                }
+                // this.addDelay(3); 
+            }
         }
       }
       this.moved = true; 
@@ -832,7 +837,7 @@ class Game extends React.Component{
       if(this.avatarNode.getNext() === null){
         // determine difference for the round (final score - original score)
         this.pts = this.score - this.pts; 
-		if(this.feedback){
+		if(this.feedback && this.avatarNode.getSelected()){
 			this.checkSelectedPath();
 		}
         // display second type of confidence question if applicable
@@ -890,12 +895,13 @@ class Game extends React.Component{
       }
       return pathSum;
     }
+
     if(this.enoughInfo && this.avatarNode.getID() === this.largestLeaf.getID()){
       // message 1
       this.message = "Good Job!";
       this.longMessage = ""
       this.setState((prevState)=>({...prevState}));
-    }else if(this.avatarNode.getValue() === 48){
+    }else if(!this.enoughInfo && this.avatarNode.getValue() === 48){
       // does this path have the minimum values for the other nodes
       var psum = checkPath(this.avatarNode);
       if(psum === null){
@@ -904,9 +910,9 @@ class Game extends React.Component{
         this.message = "Good Job!";
         this.longMessage = "This was a good enough decision, but it doesn’t guarantee you achieved the optimal path or max score.";
         this.setState((prevState)=>({...prevState}));
-      }else if(psum === 36){ // 48 - 8 - 4 = 36
-        // check if there were any other 48 leaves selected
-        var shouldSelectDiffPath = false;
+      }else if(psum === 36){ // means all nodes in this path are open with 36 = 48 - 8 - 4
+        // check if there were any other 48 leaves that should've been selected instead
+        var shouldSelectDiffPath = false; // this different path is a path with a leaf of 48, with either greater sum than selected path or better chance
         Object.keys(this.paths).forEach(key =>{
           var newkey = key.split(",").map(Number);
           var n = this.adjList[newkey[0]][newkey[1]];
@@ -927,16 +933,55 @@ class Game extends React.Component{
           this.longMessage = "This was a good enough decision, but it doesn’t guarantee you achieved the optimal path or max score.";
           this.setState((prevState)=>({...prevState}));
         }
+      }else if(psum !== null){ // check if there's another 48 path with all nodes open, where it's psum is greater than selected path's psum
+        var shouldSelectDiffPath = false; 
+        Object.keys(this.paths).forEach(key =>{
+          var newkey = key.split(",").map(Number);
+          var n = this.adjList[newkey[0]][newkey[1]];
+          if(n.getSelected() === true && n.getValue() === 48){
+            var newpsum = checkPath(n);
+            if(newpsum !== null && newpsum > psum){
+              shouldSelectDiffPath = true;
+            }
+          }
+        })
+
+        if(shouldSelectDiffPath){
+            this.message = "should have selected a different path...";
+            this.longMessage = "Given that some other path(s) have higher scores than this path, this wasn’t the best decision you could have made.";
+        }else{
+            // message 3
+            this.message = "Good Job!";
+            this.longMessage = "This was a good enough decision, but it doesn’t guarantee you achieved the optimal path or max score.";
+            this.setState((prevState)=>({...prevState}));
+        }
       }
       
-    }else if(this.enoughInfo && this.avatarNode.getValue() !== this.largestLeaf.getValue()){
-      // message 6
-      this.message = "wrong path selected";
-      this.longMessage = "Given that some other path(s)  do have higher scores than this path, this wasn’t the best decision you could have made.";
-      this.setState((prevState)=>({...prevState}));
-	  if(this.feedback){
-		this.highlightOptimalPath();
-	  }
+    }else if(this.enoughInfo && this.avatarNode.getID() !== this.largestLeaf.getID()){
+        // check if the avatarnode is a sibling of largestLeaf with the same value as it
+        var siblingsList = this.largestLeaf.getPrev().getNext();
+        var correctNode = false; // this selection is incorrect
+        for(var i=0; i<siblingsList.length; i++){
+            if(siblingsList[i].getID() === this.avatarNode.getID()){
+                correctNode = true; // this selection is correct
+                break;
+            }
+        }
+        if(correctNode){
+            // message 1
+            this.message = "Good Job!";
+            this.longMessage = ""
+            this.setState((prevState)=>({...prevState}));
+        }else{
+            // message 6
+            this.message = "wrong path selected";
+            this.longMessage = "Given that some other path(s)  do have higher scores than this path, this wasn’t the best decision you could have made.";
+            this.setState((prevState)=>({...prevState}));
+            if(this.feedback){
+                this.highlightOptimalPath();
+            }
+        }
+        
     }else if(!this.enoughInfo && this.avatarNode.getValue() !== 48){
       var leaves = 0;
       var node = this.avatarNode;
@@ -1106,6 +1151,8 @@ class Game extends React.Component{
                                 this.score -= 1;
                                 this.setState((prevState)=>({...prevState}));
 
+                                this.hasOpenedNodes = true;
+
                                 object.drawText(this.canvas);
                                 object.selected = true;
                                 found = true;
@@ -1153,6 +1200,8 @@ class Game extends React.Component{
                                 // node inspector cost
                                 this.score -= 1;
                                 this.setState((prevState)=>({...prevState}));
+
+                                this.hasOpenedNodes = true;
 
                                 break;
                             }
@@ -1265,12 +1314,13 @@ class Game extends React.Component{
                 }
             }
             if(isALeafNode){
-              var node = adjList[i][j];
-              if(node !== null){
-                  this.paths[node.pos[0] + "," + node.pos[1]] = [48+8+4, -48-8-4];
-                  this.highlight.push(adjList[i][j]);
-                  this.highlightCopy.push(adjList[i][j]);
-              }
+                var node = adjList[i][j];
+                if(node !== null){
+                    this.listOfLeaves.push(node);
+                    this.paths[node.pos[0] + "," + node.pos[1]] = [48+8+4, -48-8-4];
+                    this.highlight.push(adjList[i][j]);
+                    this.highlightCopy.push(adjList[i][j]);
+                }
           }
         }
     };
