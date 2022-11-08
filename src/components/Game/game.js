@@ -454,6 +454,7 @@ class Game extends React.Component{
                 this.totNumRound = 11;
                 this.setState((prevState)=>({...prevState}));
               }
+              this.pts = this.score; // we will calculate final difference by comparing to this original value
             }else if(parsedData.VALUES){
               console.log("recieved values")
               this.qVals = parsedData.VALUES;
@@ -826,10 +827,11 @@ class Game extends React.Component{
         // save f
         var message = "moved: " + this.avatarNode.getID() + " , " + this.time;    
         this.sendMessage({save: message});   
-      this.pts += this.avatarNode.getValue();
       this.score += this.avatarNode.getValue();
-      this.setState({gameOver: false});
+      this.setState((prevState)=>({...prevState}))
       if(this.avatarNode.getNext() === null){
+        // determine difference for the round (final score - original score)
+        this.pts = this.score - this.pts; 
 		if(this.feedback){
 			this.checkSelectedPath();
 		}
@@ -842,6 +844,9 @@ class Game extends React.Component{
             this.sendMessage({save: message});
             this.setState((prevState)=>({...prevState}));
         }else{
+            // save d : final score at end of round
+            var message = "score: " + this.score + " , " + this.pts;
+            this.sendMessage({save: message});
             this.setState({ctestMessage: "", gameOver: true});
         }
       }
@@ -1083,82 +1088,89 @@ class Game extends React.Component{
 
         if(e.target && !this.isLargeGraph && !this.ctestDisplayed){
             if(e.target.hoverCursor === "pointer" && !this.state.gameOver && !this.moved && !this.timeoutOn && !this.messageBoardDisplayed){
-            var x = e.target.aCoords.tl.x;
-            var y = e.target.aCoords.tl.y;
-            if(this.adjList!==[] && this.moved === false){
-                var found = false;
-                var i = 0;
-                while(!found && i<this.adjList.length){
-                for(var j=1; j<this.adjList[i].length; j++){
-                    var object = this.adjList[i][j];
-                    if(object!==null && object.selected === false){
-                    if(object.checkClicked(false, x,y)){
-                        // save a
-                        var message = "node clicked: " + object.getID().toString() + " , " + timeClicked;
-                        this.sendMessage({save: message});
-                        object.drawText(this.canvas);
-                        object.selected = true;
-                        found = true;
-                        if(!this.enoughInfo){
-                        this.handleClick(object);    
-                        } 
-                        break;
+                var x = e.target.aCoords.tl.x;
+                var y = e.target.aCoords.tl.y;
+                if(this.adjList!==[]){
+                    var found = false;
+                    var i = 0;
+                    while(!found && i<this.adjList.length){
+                    for(var j=1; j<this.adjList[i].length; j++){
+                        var object = this.adjList[i][j];
+                        if(object!==null && object.selected === false){
+                            if(object.checkClicked(false, x,y)){
+                                // save a
+                                var message = "node clicked: " + object.getID().toString() + " , " + timeClicked;
+                                this.sendMessage({save: message});
+
+                                // node inspector cost
+                                this.score -= 1;
+                                this.setState((prevState)=>({...prevState}));
+
+                                object.drawText(this.canvas);
+                                object.selected = true;
+                                found = true;
+                                this.handleClick(object);    
+                                break;
+                            }
+                        }
                     }
+                    i++;
                     }
-                }
-                i++;
-                }
-            }  
-            }else if(this.moved && !this.state.gameOver){
-                this.inspectorMessage = "cannot use the node inspector after moving"
+                }  
+                }else if(this.moved && !this.state.gameOver){
+                    this.inspectorMessage = "cannot use the node inspector after moving"
+                    this.setState({inspectorMessage: this.inspectorMessage});
+                }else if(this.messageBoardDisplayed){
+                this.inspectorMessage = "cannot use node inspector while viewing explanation"
                 this.setState({inspectorMessage: this.inspectorMessage});
-            }else if(this.messageBoardDisplayed){
-            this.inspectorMessage = "cannot use node inspector while viewing explanation"
-            this.setState({inspectorMessage: this.inspectorMessage});
-            }else if(e.target.hoverCursor === "pointer" && this.timeoutOn){
-            this.inspectorMessage = "please wait.."
-            this.setState({inspectorMessage: this.inspectorMessage});
-            }
+                }else if(e.target.hoverCursor === "pointer" && this.timeoutOn){
+                this.inspectorMessage = "please wait.."
+                this.setState({inspectorMessage: this.inspectorMessage});
+                }
         }else if(this.ctestDisplayed){
             this.setState({ctestMessage: "Please answer to continue..."});
         }
 
         if(e.target && this.isLargeGraph && !this.ctestDisplayed){
             if(e.target.hoverCursor === "pointer" && !this.state.gameOver && !this.moved){
-            var x = e.target.aCoords.tl.x;
-            var y = e.target.aCoords.tl.y;
-            if(this.adjList!==[]){
-                var found = false;
-                var i = 0;
-                while(!found && i<this.adjList.length){
-                for(var j=1; j<this.adjList[i].length; j++){
-                    var object = this.adjList[i][j];
-                    if(object!==null && object.selected === false){
-                    if(object.checkClicked(true, x,y)){
-                        object.drawText(this.canvas);
-                        object.selected = true;
-                        found = true;
-                        // save a
-                        var message = "node clicked: " + object.getID().toString() + " , " + timeClicked;
-                        this.sendMessage({save: message});
-                        // this.handleClick(object);    
-                        break;
+                var x = e.target.aCoords.tl.x;
+                var y = e.target.aCoords.tl.y;
+                if(this.adjList!==[]){
+                    var found = false;
+                    var i = 0;
+                    while(!found && i<this.adjList.length){
+                    for(var j=1; j<this.adjList[i].length; j++){
+                        var object = this.adjList[i][j];
+                        if(object!==null && object.selected === false){
+                            if(object.checkClicked(true, x,y)){
+                                object.drawText(this.canvas);
+                                object.selected = true;
+                                found = true;
+                                // save a
+                                var message = "node clicked: " + object.getID().toString() + " , " + timeClicked;
+                                this.sendMessage({save: message});
+
+                                // node inspector cost
+                                this.score -= 1;
+                                this.setState((prevState)=>({...prevState}));
+
+                                break;
+                            }
+                        }
                     }
+                    i++;
                     }
+                } 
+                if(this.ctestChosenDecision && this.ctestNum < 3){
+                    this.ctestNum++;
+                    console.log("CTEST: ");
+                    this.ctestDisplayed = true;
+                    this.setState((prevState)=>({...prevState}));
                 }
-                i++;
+                }else if(this.moved && !this.state.gameOver){
+                    this.inspectorMessage = "cannot use the node inspector after moving"
+                    this.setState({inspectorMessage: this.inspectorMessage});
                 }
-            } 
-            if(this.ctestChosenDecision && this.ctestNum < 3){
-                this.ctestNum++;
-                console.log("CTEST: ");
-                this.ctestDisplayed = true;
-                this.setState((prevState)=>({...prevState}));
-            }
-            }else if(this.moved && !this.state.gameOver){
-            this.inspectorMessage = "cannot use the node inspector after moving"
-            this.setState({inspectorMessage: this.inspectorMessage});
-            }
         }else if(e.target && this.isLargeGraph && this.ctestDisplayed){
             this.setState({ctestMessage: "Please answer to continue..."});
         }
