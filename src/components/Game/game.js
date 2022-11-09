@@ -638,7 +638,7 @@ class Game extends React.Component{
         }else{
             if(!this.moved && this.feedback){
                 if(this.opt_act !== dir){
-                    this.message = "wrong way";
+                    this.message = "Wrong way";
                     this.longMessage = ""
                     this.setState({message: this.message});
                 } 
@@ -667,7 +667,7 @@ class Game extends React.Component{
       if(!this.moved && this.feedback){
         if(!this.hasOpenedNodes){
           // message 2
-          this.message = "should have explored before moving...";
+          this.message = "You should have explored the nodes before moving, please wait 42 seconds ... ";
           this.longMessage = "To find a good path to take, you need to know the immediate and long-term rewards/costs of your decision.";
           this.setState((prevState)=>({...prevState}));
 
@@ -710,7 +710,7 @@ class Game extends React.Component{
                     this.setState((prevState)=>({...prevState})); 
                 }else{
                     // message 5
-                    this.message = "You don't have enough info to move...";
+                    this.message = "You don't have enough info to move, please wait 3 seconds ...";
                     this.longMessage = "You cannot make a good decision with the amount of information you currently have. You should have continued exploring the nodes.";
                     this.setState((prevState)=>({...prevState}));
                 }
@@ -898,7 +898,7 @@ class Game extends React.Component{
 
     if(this.enoughInfo && this.avatarNode.getID() === this.largestLeaf.getID()){
       // message 1
-      this.message = "Good Job!";
+      this.message = "You have correctly explored the right node!";
       this.longMessage = ""
       this.setState((prevState)=>({...prevState}));
     }else if(!this.enoughInfo && this.avatarNode.getValue() === 48){
@@ -907,7 +907,7 @@ class Game extends React.Component{
       if(psum === null){
         // correctly selected path
         // message 3
-        this.message = "Good Job!";
+        this.message = "You made a good decision to move!";
         this.longMessage = "This was a good enough decision, but it doesn’t guarantee you achieved the optimal path or max score.";
         this.setState((prevState)=>({...prevState}));
       }else if(psum === 36){ // means all nodes in this path are open with 36 = 48 - 8 - 4
@@ -925,11 +925,11 @@ class Game extends React.Component{
         })
         if(shouldSelectDiffPath){
           // message 4
-          this.message = "should have selected a different path...";
+          this.message = "You should have selected a different path, please wait 3 seconds ...";
           this.longMessage = "Given that some other path(s) are likely to have higher scores than this path, this wasn’t the best decision you could have made.";
         }else{
           // message 3
-          this.message = "Good Job!";
+          this.message = "You made a good decision to move!";
           this.longMessage = "This was a good enough decision, but it doesn’t guarantee you achieved the optimal path or max score.";
           this.setState((prevState)=>({...prevState}));
         }
@@ -951,7 +951,7 @@ class Game extends React.Component{
             this.longMessage = "Given that some other path(s) have higher scores than this path, this wasn’t the best decision you could have made.";
         }else{
             // message 3
-            this.message = "Good Job!";
+            this.message = "You made a good decision to move!";
             this.longMessage = "This was a good enough decision, but it doesn’t guarantee you achieved the optimal path or max score.";
             this.setState((prevState)=>({...prevState}));
         }
@@ -969,12 +969,12 @@ class Game extends React.Component{
         }
         if(correctNode){
             // message 1
-            this.message = "Good Job!";
+            this.message = "You have correctly explored the right node!";
             this.longMessage = ""
             this.setState((prevState)=>({...prevState}));
         }else{
             // message 6
-            this.message = "wrong path selected";
+            this.message = "Wrong path selected, please wait 3 seconds ...";
             this.longMessage = "Given that some other path(s)  do have higher scores than this path, this wasn’t the best decision you could have made.";
             this.setState((prevState)=>({...prevState}));
             if(this.feedback){
@@ -999,7 +999,7 @@ class Game extends React.Component{
       }
       if(fourtyEightPath){
         // message 6
-        this.message = "wrong path selected";
+        this.message = "Wrong path selected, please wait 3 seconds ...";
         this.longMessage = "Given that some other path(s) do have higher scores than this path, this wasn’t the best decision you could have made.";
         this.setState((prevState)=>({...prevState}));
       }
@@ -1971,7 +1971,7 @@ class Game extends React.Component{
             inHighlight = true;
             // message 1
             if(this.feedback){
-              this.message = "Good Job!";
+              this.message = "You have correctly explored the right node!";
               this.longMessage = "";
               this.setState((prevState)=>({...prevState}));
             } 
@@ -1997,7 +1997,7 @@ class Game extends React.Component{
         if(this.feedback && !this.enoughInfo){
           // message 7
           this.message = "You should have explored...";
-          this.longMessage = "You should have explored one of the highlighted nodes instead";
+          this.longMessage = "You should have explored one of the highlighted nodes because they offer you more information";
           this.setState((prevState)=>({...prevState}));
         }else if(this.feedback && this.enoughInfo){
             // message 10
@@ -2024,7 +2024,7 @@ class Game extends React.Component{
         if(!this.enoughInfo){
            // message 7
             this.message = "You should have explored...";
-            this.longMessage = "You should have explored one of the highlighted nodes instead";
+            this.longMessage = "You should have explored one of the highlighted nodes because they offer you more information";
             this.setState((prevState)=>({...prevState})); 
         }else if(this.enoughInfo){
             // message 10
