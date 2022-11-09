@@ -1125,7 +1125,6 @@ class Game extends React.Component{
         
         if(this.feedback && this.enoughInfo && !this.gameOver){
             // message 10
-            console.log("DISPLAYED")
             this.message = "You don’t need to explore further.";
             this.longMessage = "You have enough information to move towards the best path. If you explore more nodes, you reduce your reward without gaining useful information.";
             this.setState((prevState)=>({...prevState}));
@@ -1950,6 +1949,7 @@ class Game extends React.Component{
   }  
 
   inHighlight(selectedNode){
+    console.log("IN HIGHLIGHT")
     // is this node in highlight?
 
     // clear out anything that shouldn't be explored from highlight
@@ -1958,7 +1958,7 @@ class Game extends React.Component{
             this.highlight.splice(i, 1);
         }
     }
-    if(this.highlight.length === 0){
+    if(this.highlight.length === 0 && !this.enoughInfo){
         this.populateHighlight();
         while(this.highlight.length === 0){
             this.populateHighlight();
@@ -1994,14 +1994,17 @@ class Game extends React.Component{
             }
         })
     }else{
-    //   if(!selectedNode.explored()){
-        if(this.feedback){
+        if(this.feedback && !this.enoughInfo){
           // message 7
           this.message = "You should have explored...";
           this.longMessage = "You should have explored one of the highlighted nodes instead";
           this.setState((prevState)=>({...prevState}));
+        }else if(this.feedback && this.enoughInfo){
+            // message 10
+            this.message = "You don’t need to explore further.";
+            this.longMessage = "You have enough information to move towards the best path. If you explore more nodes, you reduce your reward without gaining useful information.";
+            this.setState((prevState)=>({...prevState}));
         }
-    //   }
       for(var i in this.highlight){
           if(this.highlight[i].explored() === false && this.highlight[i].selected === false){
             if(this.feedback){
@@ -2018,10 +2021,17 @@ class Game extends React.Component{
     }
 
 	if(selectedNode.explored() && this.feedback){
-		// message 7
-		this.message = "You should have explored...";
-		this.longMessage = "You should have explored one of the highlighted nodes instead";
-		this.setState((prevState)=>({...prevState}));
+        if(!this.enoughInfo){
+           // message 7
+            this.message = "You should have explored...";
+            this.longMessage = "You should have explored one of the highlighted nodes instead";
+            this.setState((prevState)=>({...prevState})); 
+        }else if(this.enoughInfo){
+            // message 10
+            this.message = "You don’t need to explore further.";
+            this.longMessage = "You have enough information to move towards the best path. If you explore more nodes, you reduce your reward without gaining useful information.";
+            this.setState((prevState)=>({...prevState}));
+        }
 	}
   }
 
