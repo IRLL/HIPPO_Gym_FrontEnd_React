@@ -288,6 +288,10 @@ class Game extends React.Component{
       }
       if(!this.timeoutOn && !this.messageBoardDisplayed){
         if(event.code === 'Space'){
+          // save e
+          this.time = new Date().toLocaleTimeString();
+          var message = "hit space: " + this.time;
+          this.sendMessage({save: message});
           if(this.state.gameOver){
             this.setState({
               message: "",
@@ -300,6 +304,8 @@ class Game extends React.Component{
             });
           }
         }else{
+          // save f
+          this.time = new Date().toLocaleTimeString();
           if(!this.state.gameOver && !this.ctestDisplayed){
             if(this.avatarNode !== null){
                 if(this.avatarNode.getNext() !== null){
@@ -598,7 +604,7 @@ class Game extends React.Component{
         }else{
             if(!this.moved && this.feedback){
                 if(this.opt_act !== dir){
-                    this.message = "wrong way";
+                    this.message = ""; //shouldn't give feedback if going in the wrong direction
                     this.setState({message: this.message});
                 } 
             }
@@ -617,6 +623,10 @@ class Game extends React.Component{
           this.ctestMistakeNum++;
           console.log("CTEST: wrong move ")
         }
+        // save b : time quiz displayed
+        this.time = new Date().toLocaleTimeString();
+        var message  = "ctest displayed: " + this.time;
+        this.sendMessage({save: message})
         this.setState({});
       } 
       this.moved = true; 
@@ -729,6 +739,9 @@ class Game extends React.Component{
     if(changed){
       this.avatarNode.visited = true;
       this.avatarNode.drawText(this.canvas);
+      // save f
+      var message = "moved: " + this.avatarNode.getID() + " , " + this.time;    
+      this.sendMessage({save: message});   
       this.score += this.avatarNode.getValue();
       this.setState((prevState)=>({...prevState}));
       if(this.avatarNode.getNext() === null){
@@ -743,6 +756,11 @@ class Game extends React.Component{
             var message  = "ctest2 displayed: " + this.time;
             this.sendMessage({save: message});
             this.setState((prevState)=>({...prevState}));
+            // save d : final score at end of round, b/c the ctest is always true at the end of the game, so it never reached the below condition to save the score
+            var message = "score: " + this.score + " , " + this.pts;
+            this.sendMessage({save: message});
+
+            this.setState({ctestMessage: "", gameOver: true});
         }else{
             // save d : final score at end of round
             var message = "score: " + this.score + " , " + this.pts;
@@ -827,9 +845,16 @@ class Game extends React.Component{
       });
   }
 
+
+  
+
+
+
   checkClickedObject(){
     this.canvas.on('mouse:down', (e) => {
-      if(!this.ctestDisplayed){
+        // save a : time clicked
+        var timeClicked = new Date().toLocaleTimeString(); 
+        if(!this.ctestDisplayed){
         this.ctestChosenDecision = Math.random() > 0.5 ? true : false;
       }
       
@@ -845,6 +870,11 @@ class Game extends React.Component{
                 var object = this.adjList[i][j];
                 if(object!==null && object.selected === false){
                   if(object.checkClicked(false,x,y)){
+                    // save a and g 
+    
+                    var message = "node clicked: " + object.getID().toString() + " , " + "node value: " +  object.getValue().toString() + " , " + timeClicked;
+                    this.sendMessage({save: message});
+
                     object.drawText(this.canvas);
                     object.selected = true;
                     found = true;
@@ -890,6 +920,10 @@ class Game extends React.Component{
                     object.drawText(this.canvas);
                     object.selected = true;
                     found = true;
+
+                    // save a
+                    var message = "node clicked: " + object.getID().toString() + " , " + timeClicked;
+                    this.sendMessage({save: message});
 
                     // node inspector cost
                     this.score -= 1;
@@ -1243,6 +1277,13 @@ class Game extends React.Component{
       command: "get next",
       info: this.gameState.toString().replaceAll(",", " ")
     });
+    //Just added these two lines
+    var message = {info: this.gameState.toString().replaceAll(",", " ")};
+    this.sendMessage({save: message});
+
+    
+    
+
   }
 
   handleGameState(){
