@@ -922,7 +922,8 @@ class Game extends React.Component{
                     found = true;
 
                     // save a
-                    var message = "node clicked: " + object.getID().toString() + " , " + timeClicked;
+                    var message = "node clicked: " + object.getID().toString() + " , " + "node value: " +  object.getValue().toString() + " , " + timeClicked;
+
                     this.sendMessage({save: message});
 
                     // node inspector cost
