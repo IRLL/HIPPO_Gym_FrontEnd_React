@@ -851,6 +851,11 @@ class Game extends React.Component{
             var message  = "ctest2 displayed: " + this.time;
             this.sendMessage({save: message});
             this.setState((prevState)=>({...prevState}));
+            
+            // save d : final score at end of round
+            var message = "score: " + this.score + " , " + this.pts;
+            this.sendMessage({save: message});
+            this.setState({ctestMessage: "", gameOver: true});
         }else{
             // save d : final score at end of round
             var message = "score: " + this.score + " , " + this.pts;
@@ -2119,11 +2124,6 @@ class Game extends React.Component{
         this.sendMessage({save: message});
         this.ctest2displayed = false;
         message = "ctest2 submitted: " + tSubmitted;
-        this.sendMessage({save: message});
-        this.setState({ctestMessage: "", gameOver: true});
-
-        // save d : final score at end of round
-        var message = "score: " + this.score + " , " + this.pts;
         this.sendMessage({save: message});
         this.setState({ctestMessage: "", gameOver: true});
     }else{
