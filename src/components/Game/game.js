@@ -1347,6 +1347,7 @@ class Game extends React.Component{
       if(this.canMove && !this.moved){
         this.message = "You shouldn't have inspected any more nodes.";
         this.setState({message: this.message});
+        this.addDelay(node) // this shows the delay in this case, before no delay was occuring here which is a mistake
       }else if(this.canMove && this.moved){
           this.message = "Good Job!";
           this.setState({message: this.message});
@@ -1384,6 +1385,25 @@ class Game extends React.Component{
     }
     
   }
+  addDelay(node){
+
+    var loss;
+    var delay;
+    var strictness = 10;
+    
+
+    loss = this.qVals[13] - this.qVals[node.getID()]; //moving was the best decision here so that's why i'm substracting this.qVals[node.getID()] from this.qVals[13]
+    
+    delay =  (2 + Math.round(strictness * loss));
+
+    console.log('DELAY', delay)
+    console.log('this.highestVal', this.highestVal)
+    console.log('this.qVals[13]', this.qVals[13])
+    console.log('this.qVals', this.qVals)
+    //this.timeOut = setTimeout(this.removeHighlight, delay*1000);
+    this.timeOut = setTimeout(this.removeHighlight, 0);
+    this.timeoutOn = true;
+  }
 
   addHighlight(node){
     for(var i in this.highlightList){
@@ -1402,8 +1422,13 @@ class Game extends React.Component{
     }
     delay =  (2 + Math.round(strictness * loss));
 
+    console.log('DELAY', delay)
+    console.log('this.highestVal', this.highestVal)
+    console.log('this.qVals[13]', this.qVals[13])
+    console.log('this.qVals', this.qVals)
+
     console.log(delay)
-    // this.timeOut = setTimeout(this.removeHighlight, delay*1000);
+    //this.timeOut = setTimeout(this.removeHighlight, delay*1000);
     this.timeOut = setTimeout(this.removeHighlight, 0);
     this.timeoutOn = true;
   }
