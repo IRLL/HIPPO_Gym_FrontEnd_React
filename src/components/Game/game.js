@@ -212,7 +212,10 @@ const pendingTime = 30;
 class Game extends React.Component{
   state = {
     message: "",
-    inspectorMessage: ""
+    inspectorMessage: "",
+    isLoading: !SERVER ? true : false, // if the server is ready to send out the data,
+    isConnection: false, // if the connection to the server is established
+    progress: 0, // the status of the server
   }
   // Send data to websocket server in JSON format
   sendMessage = (data) => {
@@ -371,13 +374,13 @@ class Game extends React.Component{
     // To update the progress of loading game content
     // Since we always need to wait 30 seconds before the game
     // content get loaded, we update the progress (100/30) per second
-    // this.updateProgress = setInterval(
-    //   () =>
-    //     this.setState((prevState) => ({
-    //       progress: prevState.progress + 100 / pendingTime,
-    //     })),
-    //   1000
-    // );
+    this.updateProgress = setInterval(
+      () =>
+        this.setState((prevState) => ({
+          progress: prevState.progress + 100 / pendingTime,
+        })),
+      1000
+    );
 
     // To ensure the websocket server is ready to connect
     // we try to connect the websocket server periodically
@@ -386,88 +389,88 @@ class Game extends React.Component{
       () => {
       //connect the websocket server
       this.websocket = new w3cwebsocket(WS_URL);
-      this.websocket.onopen = () => {
-      // Once the websocket connection has been established
-      // we remove all the unnecessary timer
-      clearTimeout(this.timer);
-      clearInterval(this.updateProgress);
-      console.log("WebSocket Client Connected");
-      this.setState({
-        isLoading: false,
-        isConnection: true,
-      });
+        this.websocket.onopen = () => {
+        // Once the websocket connection has been established
+        // we remove all the unnecessary timer
+        clearTimeout(this.timer);
+        clearInterval(this.updateProgress);
+        console.log("WebSocket Client Connected");
+        this.setState({
+            isLoading: false,
+            isConnection: true,
+        });
 
-      this.sendMessage({
-        userId: USER_ID,
-        projectId: PROJECT_ID,
-      });
-
-      this.websocket.onmessage = (message) => {
-          if (message.data === "done") {
+        this.sendMessage({
+            userId: USER_ID,
+            projectId: PROJECT_ID,
+        });
+        }
+        this.websocket.onmessage = (message) => {
+            if (message.data === "done") {
             //"done" means the game has ended
             // this.setState({
             //   isEnd: true,
             //   gameEndVisible: true,
             // });
-          }else{
+            }else{
             // parse the data from the websocket server
             let parsedData = JSON.parse(message.data);
             if (parsedData.UI){
-              this.count++;
-              this.numRound++;
-              console.log("recieved ui");
-              if(this.canvas){
+                this.count++;
+                this.numRound++;
+                console.log("recieved ui");
+                if(this.canvas){
                 this.canvas.clear();
-              }
-          
-              this.initialize();
-              if(parsedData.CTEST){
+                }
+            
+                this.initialize();
+                if(parsedData.CTEST){
                 this.ctest = true;
-              }
-              if(this.count === 1 || this.count === 33){
+                }
+                if(this.count === 1 || this.count === 33){
                 this.feedback = false;
                 this.isLargeGraph = true;
                 this.setState((prevState) => ({
-                  adjValues: parsedData.UI,
+                    adjValues: parsedData.UI,
                 }), () => { 
                     this.displayGraph();
                 });
-              }else{
-                if(!parsedData.FEEDBACK){
-                  this.feedback = false;
                 }else{
-                  this.feedback = true;
+                if(!parsedData.FEEDBACK){
+                    this.feedback = false;
+                }else{
+                    this.feedback = true;
                 }
                 this.graphValues = parsedData.UI;
                 this.opt_act = parsedData.OPT_ACT;
                 this.populateGraphValues();
-              }
-              if(this.count == 3 | this.count == 24){
+                }
+                if(this.count == 3 | this.count == 24){
                 this.score = 50;
-              }
-              if(this.count == 1){
+                }
+                if(this.count == 1){
                 this.numRound = 1;
                 this.totNumRound = 2;
                 this.setState((prevState)=>({...prevState}));
-              }else if(this.count == 3){
+                }else if(this.count == 3){
                 this.numRound = 1;
                 this.totNumRound = 20;
                 this.setState((prevState)=>({...prevState}));
-              }else if(this.count == 23){
+                }else if(this.count == 23){
                 this.numRound = 1;
                 this.totNumRound = 11;
                 this.setState((prevState)=>({...prevState}));
-              }
-              this.pts = this.score; // we will calculate final difference by comparing to this original value
+                }
+                this.pts = this.score; // we will calculate final difference by comparing to this original value
             }else if(parsedData.VALUES){
-              console.log("recieved values")
-              this.qVals = parsedData.VALUES;
-              // this.handleGameState();
+                console.log("recieved values")
+                this.qVals = parsedData.VALUES;
+                // this.handleGameState();
             }
-          }
-      }
-    }
+            }
+        }
     });
+    // SERVER ? 0 : pendingTime * 1000
   }
 
   rerenderCanvas(){
@@ -2116,6 +2119,11 @@ class Game extends React.Component{
         this.sendMessage({save: message});
         this.ctest2displayed = false;
         message = "ctest2 submitted: " + tSubmitted;
+        this.sendMessage({save: message});
+        this.setState({ctestMessage: "", gameOver: true});
+
+        // save d : final score at end of round
+        var message = "score: " + this.score + " , " + this.pts;
         this.sendMessage({save: message});
         this.setState({ctestMessage: "", gameOver: true});
     }else{
