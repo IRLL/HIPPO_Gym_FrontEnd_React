@@ -23,7 +23,7 @@ class Main extends React.Component {
     formContent: "", //html body content
     isLoading: SERVER ? false : true, //used to wait for http requests finished
     isGame: true,
-    // isGame: SERVER ? true : false, //if current page is the game page
+    //isGame: SERVER ? true : false, //if current page is the game page
     isWait: false, //if the websocket server has been resolved
     is400Error: false, //if there are any error occur
     ifRedirect: SERVER && REDIRECT ? true : false, //if redirect to another url after game ends
