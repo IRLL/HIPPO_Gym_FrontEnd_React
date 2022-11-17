@@ -717,6 +717,11 @@ class Game extends React.Component{
                 // this.addDelay(3); 
             }
         }
+        else {
+            this.message = "";
+            this.longMessage = "";
+            this.setState((prevState)=>({...prevState}));
+        }
       }
       this.moved = true; 
     }
@@ -898,7 +903,7 @@ class Game extends React.Component{
 
     if(this.enoughInfo && this.avatarNode.getID() === this.largestLeaf.getID()){
       // message 1
-      this.message = "You have correctly explored the right node!";
+      this.message = "You made a good decision to move!";
       this.longMessage = ""
       this.setState((prevState)=>({...prevState}));
     }else if(!this.enoughInfo && this.avatarNode.getValue() === 48){
