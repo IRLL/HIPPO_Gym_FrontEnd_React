@@ -717,6 +717,11 @@ class Game extends React.Component{
                 // this.addDelay(3); 
             }
         }
+        else {
+            this.message = "";
+            this.longMessage = "";
+            this.setState((prevState)=>({...prevState}));
+        }
       }
       this.moved = true; 
     }
@@ -896,9 +901,9 @@ class Game extends React.Component{
       return pathSum;
     }
 
-    if(this.enoughInfo && this.avatarNode.getID() === this.largestLeaf.getID()){
+    if(this.enoughInfo && this.avatarNode.getValue() === this.largestLeaf.getValue()){
       // message 1
-      this.message = "You have correctly explored the right node!";
+      this.message = "You made a good decision to move!";
       this.longMessage = ""
       this.setState((prevState)=>({...prevState}));
     }else if(!this.enoughInfo && this.avatarNode.getValue() === 48){
@@ -957,7 +962,7 @@ class Game extends React.Component{
         }
       }
       
-    }else if(this.enoughInfo && this.avatarNode.getID() !== this.largestLeaf.getID()){
+    }else if(this.enoughInfo && this.avatarNode.getValue() !== this.largestLeaf.getValue()){
         // check if the avatarnode is a sibling of largestLeaf with the same value as it
         var siblingsList = this.largestLeaf.getPrev().getNext();
         var correctNode = false; // this selection is incorrect
@@ -969,7 +974,7 @@ class Game extends React.Component{
         }
         if(correctNode){
             // message 1
-            this.message = "You have correctly explored the right node!";
+            this.message = "test b You have correctly explored the right node!";
             this.longMessage = ""
             this.setState((prevState)=>({...prevState}));
         }else{
