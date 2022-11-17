@@ -699,6 +699,22 @@ class Game extends React.Component{
                     fourtyEightPath = true;
                 }
             }
+            if (fourtyEightPath){
+                console.log('a 48 path exists')
+                var fourtyEightElsewhere = false;
+                for(var i=0; i<this.listOfLeaves.length; i++){
+                    if(this.listOfLeaves[i].getSelected() && this.listOfLeaves[i].getValue() === 48){
+                        fourtyEightElsewhere = true;
+                        break;
+                    }
+                }
+                if(fourtyEightElsewhere){
+                    this.message = "You dont have enough info to move in THAT direction/path.";
+                    this.longMessage = "Right now, you have limited information about the immediate and long-term rewards/costs in this path. You should have continued exploring the nodes in this path to ensure it's a good decision to make.";
+                    this.removeHighlight();
+                    this.setState((prevState)=>({...prevState})); 
+                }
+            }
             if(!fourtyEightPath){
                 // check if any opened leaves anywhere in the graph have value of 48
                 var fourtyEightElsewhere = false;
@@ -710,7 +726,7 @@ class Game extends React.Component{
                 }
                 if(fourtyEightElsewhere){
                     this.message = "You dont have enough info to move in THAT direction/path.";
-                    this.longMessage = "reference guessing/there is a better path to take.";
+                    this.longMessage = "Right now, you have limited information about the immediate and long-term rewards/costs in this path. You should have continued exploring the nodes in this path to ensure it's a good decision to make.";
                     this.removeHighlight();
                     this.setState((prevState)=>({...prevState})); 
                 }else{
@@ -913,8 +929,12 @@ class Game extends React.Component{
       return pathSum;
     }
 
-    if(this.enoughInfo && this.avatarNode.getValue() === this.largestLeaf.getValue()){
+    if(this.enoughInfo && this.avatarNode.getID() === this.largestLeaf.getID()){
       // message 1
+      
+      console.log('this.avatarNode.getValue()', this.avatarNode.getValue())
+      console.log('this.largestLeaf.getValue()',this.largestLeaf.getValue())
+      console.log('this.largestLeaf.getID()',this.largestLeaf.getID())
       this.message = "You made a good decision to move!";
       this.longMessage = ""
       this.removeHighlight();
@@ -979,8 +999,9 @@ class Game extends React.Component{
         }
       }
       
-    }else if(this.enoughInfo && this.avatarNode.getValue() !== this.largestLeaf.getValue()){
+    }else if(this.enoughInfo && this.avatarNode.getID() !== this.largestLeaf.getID()){
         // check if the avatarnode is a sibling of largestLeaf with the same value as it
+        console.log('should be in here')
         var siblingsList = this.largestLeaf.getPrev().getNext();
         var correctNode = false; // this selection is incorrect
         for(var i=0; i<siblingsList.length; i++){
@@ -991,9 +1012,18 @@ class Game extends React.Component{
         }
         if(correctNode){
             // message 1
-            this.message = "You have correctly explored the right node!"; //test b
-            this.longMessage = ""
-            this.setState((prevState)=>({...prevState}));
+            if(this.avatarNode.getValue() == this.largestLeaf.getValue())
+            {
+                this.message = "You made a good decision to move!"; //test b
+                this.longMessage = ""
+                this.setState((prevState)=>({...prevState}));
+            }
+            if(this.avatarNode.getValue() != this.largestLeaf.getValue())
+            {
+          this.message = "You should have selected a different path, please wait 3 seconds ...";
+          this.longMessage = "Given that some other path(s) are likely to have higher scores than this path, this wasn’t the best decision you could have made.";
+                this.setState((prevState)=>({...prevState}));
+            }
         }else{
             // message 6
             this.message = "Wrong path selected, please wait 3 seconds ...";
@@ -1996,7 +2026,7 @@ class Game extends React.Component{
             inHighlight = true;
             // message 1
             if(this.feedback){
-              this.message = "You have correctly explored the right node!";
+              this.message = "test a You have correctly explored the right node!";
               this.longMessage = "";
               this.setState((prevState)=>({...prevState}));
             } 
@@ -2021,7 +2051,7 @@ class Game extends React.Component{
     }else{
         if(this.feedback && !this.enoughInfo){
           // message 7
-          this.message = "You should have explored..."; //test a
+          this.message = "test a You should have explored..."; //test a
           this.longMessage = "You should have explored one of the highlighted nodes because they offer you more information";
           this.setState((prevState)=>({...prevState}));
         }else if(this.feedback && this.enoughInfo){
@@ -2049,9 +2079,9 @@ class Game extends React.Component{
 	if(selectedNode.explored() && this.feedback){
         if(!this.enoughInfo && !this.moved){
            // message 7
-            this.message = "You should have explored..."; //test b
+            this.message = "test b You should have explored..."; //test b
             this.longMessage = "You should have explored one of the highlighted nodes because they offer you more information";
-            this.moved = true
+            
             this.setState((prevState)=>({...prevState})); 
         }else if(this.enoughInfo){
             // message 10
