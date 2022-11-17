@@ -14,6 +14,10 @@ import {
   DEBUG,
 } from "../../utils/constants";
 import { BsReplyAll } from "react-icons/bs";
+const outer_node_ids = [3,4, 7,8,11,12];
+const mid_node_ids = [2,6,10];
+const inner_node_ids = [1,5, 9];
+
 class circleObject {
   constructor(x, y, id, value, pos, r){
       this.maxVal = null;
@@ -613,7 +617,7 @@ class Game extends React.Component{
             avatar = obj
         }
     })
-    
+
     var dir = null;
     if(event.key === 'ArrowUp'){
         dir = "up";
@@ -628,7 +632,7 @@ class Game extends React.Component{
         dir = "down";
         this.checkPos(dir, avatar);
     }
-
+    console.log('this.avatarNode', this.avatarNode)
     if(dir !== null){
       if(this.feedback){
         if(this.canMove === false){
@@ -679,6 +683,7 @@ class Game extends React.Component{
         // this.addDelay(42);
         }else if(this.hasOpenedNodes && !this.enoughInfo){
             // check if they move towards a non 48 path (i.e. 48 is not open in the selected path)
+            console.log('Im in this place')
             var leaves = 0;
             var node = this.avatarNode;
             var done = false;
@@ -699,24 +704,38 @@ class Game extends React.Component{
                     fourtyEightPath = true;
                 }
             }
-            if (fourtyEightPath){
-                console.log('a 48 path exists')
-                var fourtyEightElsewhere = false;
-                for(var i=0; i<this.listOfLeaves.length; i++){
-                    if(this.listOfLeaves[i].getSelected() && this.listOfLeaves[i].getValue() === 48){
-                        fourtyEightElsewhere = true;
-                        break;
-                    }
-                }
-                if(fourtyEightElsewhere){
-                    this.message = "You dont have enough info to move in THAT direction/path.";
-                    this.longMessage = "Right now, you have limited information about the immediate and long-term rewards/costs in this path. You should have continued exploring the nodes in this path to ensure it's a good decision to make.";
-                    this.removeHighlight();
-                    this.setState((prevState)=>({...prevState})); 
-                }
+            console.log('does a 48 path exist', fourtyEightPath)
+            console.log('this.avatarNode.getID()', this.avatarNode.getID())
+            console.log('outer_node_ids', outer_node_ids)
+            console.log('outer_node_ids.includes(this.avatarNode.getID()')
+            console.log(outer_node_ids.includes(this.avatarNode.getID()))
+            if (fourtyEightPath && inner_node_ids.includes(this.avatarNode.getID())){
+                console.log('a 48 path exists') //need to fix this. there is still an issue if you move to a 48 unexpectedly.
+                this.message = " ";
+                this.longMessage = "";
+                this.removeHighlight();
+                this.setState((prevState)=>({...prevState}));
+            // if (fourtyEightPath && inner_node_ids.includes(this.avatarNode.getID())){
+            //     console.log('a 48 path exists') //need to fix this. there is still an issue if you move to a 48 unexpectedly.
+            //     //this to check a few cases with 48 unexplored but moved there to match sure this case doesn't happen anymore. 
+            //     var fourtyEightElsewhere = false;
+            //     for(var i=0; i<this.listOfLeaves.length; i++){
+            //         if(this.listOfLeaves[i].getSelected() && this.listOfLeaves[i].getValue() === 48){
+            //             fourtyEightElsewhere = true;
+            //             break;
+            //         }
+            //     }
+            
+            //     if(fourtyEightElsewhere){
+            //         this.message = "You dont have enough info to move in THAT direction/path.";
+            //         this.longMessage = "Right now, you have limited information about the immediate and long-term rewards/costs in this path. You should have continued exploring the nodes in this path to ensure it's a good decision to make.";
+            //         this.removeHighlight();
+            //         this.setState((prevState)=>({...prevState})); 
+            //     }
             }
             if(!fourtyEightPath){
                 // check if any opened leaves anywhere in the graph have value of 48
+                
                 var fourtyEightElsewhere = false;
                 for(var i=0; i<this.listOfLeaves.length; i++){
                     if(this.listOfLeaves[i].getSelected() && this.listOfLeaves[i].getValue() === 48){
@@ -745,6 +764,22 @@ class Game extends React.Component{
             this.removeHighlight();
             this.setState((prevState)=>({...prevState}));
         }
+      }
+      else if (this.feedback && this.moved && this.avatarNode.selected == false) 
+      //Callie: I made this condition, not sure why this.feedback is true, but it is for some reason. 
+      // the goal of this condition is to give negative feedback if they land on an unexplored leaf on a branch where was there a 48 opened. 
+      {
+          console.log('right before my new condition')
+          console.log('outer_node_ids', outer_node_ids)
+          console.log('this.avatarNode.id', this.avatarNode.id)
+          if (this.largestLeaf != null && outer_node_ids.includes(this.avatarNode.id) && this.avatarNode.id != this.largestLeaf.id && this.largestLeaf.value == 48)
+          {
+            console.log('in my new condition')
+            this.message = "You dont have enough info to move in THAT direction/path.";
+            this.longMessage = "Right now, you have limited information about the immediate and long-term rewards/costs in this path. You should have continued exploring the nodes in this path to ensure it's a good decision to make.";
+            this.removeHighlight();
+            this.setState((prevState)=>({...prevState})); 
+          }
       }
       this.moved = true; 
     }
@@ -964,9 +999,12 @@ class Game extends React.Component{
         })
         if(shouldSelectDiffPath){
           // message 4
-          this.message = "You should have selected a different path, please wait 3 seconds ...";
+          this.message = "Wrong path selected, please wait 3 seconds ....";
           this.longMessage = "Given that some other path(s) are likely to have higher scores than this path, this wasn’t the best decision you could have made.";
           this.removeHighlight();
+          if(this.feedback){
+            this.highlightOptimalPath();
+        }
         }else{
           // message 3
           this.message = "You made a good decision to move!";
@@ -1020,10 +1058,14 @@ class Game extends React.Component{
             }
             if(this.avatarNode.getValue() != this.largestLeaf.getValue())
             {
-          this.message = "You should have selected a different path, please wait 3 seconds ...";
-          this.longMessage = "Given that some other path(s) are likely to have higher scores than this path, this wasn’t the best decision you could have made.";
+                this.message = "Wrong path selected, please wait 3 seconds ...";
+                this.longMessage = "Given that some other path(s) are likely to have higher scores than this path, this wasn’t the best decision you could have made.";
                 this.setState((prevState)=>({...prevState}));
+                if(this.feedback){
+                    this.highlightOptimalPath();
+                }
             }
+            
         }else{
             // message 6
             this.message = "Wrong path selected, please wait 3 seconds ...";
@@ -1056,6 +1098,9 @@ class Game extends React.Component{
         this.longMessage = "Given that some other path(s) do have higher scores than this path, this wasn’t the best decision you could have made.";
         this.removeHighlight();
         this.setState((prevState)=>({...prevState}));
+        if(this.feedback){
+            this.highlightOptimalPath();
+        }
       }
     }
   }
