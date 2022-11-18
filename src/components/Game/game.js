@@ -17,6 +17,20 @@ import { BsReplyAll } from "react-icons/bs";
 const outer_node_ids = [3,4, 7,8,11,12];
 const mid_node_ids = [2,6,10];
 const inner_node_ids = [1,5, 9];
+var clicked_nodes =new Array;
+ 
+function add_clicked_node_to_list(value)
+{
+   console.log('adding', value, 'to clicked nodes list')
+   clicked_nodes.push(value);//push function will insert values in the list array
+   console.log('updated clicked_nodes', clicked_nodes)
+}
+function clear_array(array)
+{
+    clicked_nodes.length = 0
+    console.log('cleared clicked_nodes', clicked_nodes)
+}
+ 
 
 class circleObject {
   constructor(x, y, id, value, pos, r){
@@ -423,6 +437,7 @@ class Game extends React.Component{
                 this.count++;
                 this.numRound++;
                 console.log("recieved ui");
+                clear_array(clicked_nodes)
                 if(this.canvas){
                 this.canvas.clear();
                 }
@@ -705,33 +720,14 @@ class Game extends React.Component{
                 }
             }
             console.log('does a 48 path exist', fourtyEightPath)
-            console.log('this.avatarNode.getID()', this.avatarNode.getID())
-            console.log('outer_node_ids', outer_node_ids)
-            console.log('outer_node_ids.includes(this.avatarNode.getID()')
-            console.log(outer_node_ids.includes(this.avatarNode.getID()))
+
             if (fourtyEightPath && inner_node_ids.includes(this.avatarNode.getID())){
                 console.log('a 48 path exists') //need to fix this. there is still an issue if you move to a 48 unexpectedly.
                 this.message = " ";
                 this.longMessage = "";
                 this.removeHighlight();
                 this.setState((prevState)=>({...prevState}));
-            // if (fourtyEightPath && inner_node_ids.includes(this.avatarNode.getID())){
-            //     console.log('a 48 path exists') //need to fix this. there is still an issue if you move to a 48 unexpectedly.
-            //     //this to check a few cases with 48 unexplored but moved there to match sure this case doesn't happen anymore. 
-            //     var fourtyEightElsewhere = false;
-            //     for(var i=0; i<this.listOfLeaves.length; i++){
-            //         if(this.listOfLeaves[i].getSelected() && this.listOfLeaves[i].getValue() === 48){
-            //             fourtyEightElsewhere = true;
-            //             break;
-            //         }
-            //     }
-            
-            //     if(fourtyEightElsewhere){
-            //         this.message = "You dont have enough info to move in THAT direction/path.";
-            //         this.longMessage = "Right now, you have limited information about the immediate and long-term rewards/costs in this path. You should have continued exploring the nodes in this path to ensure it's a good decision to make.";
-            //         this.removeHighlight();
-            //         this.setState((prevState)=>({...prevState})); 
-            //     }
+
             }
             if(!fourtyEightPath){
                 // check if any opened leaves anywhere in the graph have value of 48
@@ -893,7 +889,7 @@ class Game extends React.Component{
         this.avatarNode.drawText(this.canvas);
         this.avatarNode.visited = true;
         // save f
-        var message = "moved: " + this.avatarNode.getID() + " , " + this.time;    
+        var message = "moved: " + this.avatarNode.getID() +  " , " + "node value: " +  this.avatarNode.getValue().toString() + " , " + this.time;    
         this.sendMessage({save: message});   
       this.score += this.avatarNode.getValue();
       this.setState((prevState)=>({...prevState}))
@@ -1243,9 +1239,9 @@ class Game extends React.Component{
                         if(object!==null && object.selected === false){
                             if(object.checkClicked(false, x,y)){
                                 // save a
-                                var message = "node clicked: " + object.getID().toString() + " , " + timeClicked;
+                                var message = "node clicked: " + object.getID().toString() + " , " + "node value: " +  object.getValue().toString() + " , " + timeClicked;
                                 this.sendMessage({save: message});
-
+                                add_clicked_node_to_list(object.getID())
                                 // node inspector cost
                                 this.score -= 1;
                                 this.setState((prevState)=>({...prevState}));
@@ -1293,7 +1289,7 @@ class Game extends React.Component{
                                 object.selected = true;
                                 found = true;
                                 // save a
-                                var message = "node clicked: " + object.getID().toString() + " , " + timeClicked;
+                                var message = "node clicked: " + object.getID().toString() + " , " + "node value: " +  object.getValue().toString() + " , " + timeClicked;
                                 this.sendMessage({save: message});
 
                                 // node inspector cost
@@ -2097,7 +2093,7 @@ class Game extends React.Component{
         if(this.feedback && !this.enoughInfo){
           // message 7
           this.message = "test a You should have explored..."; //test a
-          this.longMessage = "You should have explored one of the highlighted nodes because they offer you more information";
+          this.longMessage = "You should have explored one of the highlighted nodes because they offer you more information.";
           this.setState((prevState)=>({...prevState}));
         }else if(this.feedback && this.enoughInfo){
             // message 10
