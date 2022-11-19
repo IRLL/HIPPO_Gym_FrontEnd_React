@@ -909,6 +909,7 @@ class Game extends React.Component{
           pathSum = null;
           done = true;
         }
+        node = prev //added this here
       }
       return pathSum;
     }
