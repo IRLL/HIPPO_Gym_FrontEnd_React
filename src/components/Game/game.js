@@ -234,7 +234,7 @@ class Game extends React.Component{
     this.changeCTDisplayed = this.changeCTDisplayed.bind(this);
     this.handleClick = this.handleClick.bind(this);
     this.inHighlight = this.inHighlight.bind(this);
-    this.checkClickedObject = this.checkClickedObject.bind(this);
+    //this.checkClickedObject = this.checkClickedObject.bind(this);
     this.highlightOptimalPath = this.highlightOptimalPath.bind(this);
     this.addDelay = this.addDelay.bind(this);
     this.endDelay = this.endDelay.bind(this);
@@ -1150,9 +1150,9 @@ class Game extends React.Component{
         
         if(this.feedback && this.enoughInfo && !this.gameOver){
             // message 10
-            this.message = "You don’t need to explore further.";
+            this.message = " test b You don’t need to explore further.";
             this.longMessage = "You have enough information to move towards the best path. If you explore more nodes, you reduce your reward without gaining useful information.";
-            this.removeHighlight();
+            //this.removeHighlight();
             this.setState((prevState)=>({...prevState}));
         }
 
@@ -2027,7 +2027,7 @@ class Game extends React.Component{
           this.setState((prevState)=>({...prevState}));
         }else if(this.feedback && this.enoughInfo){
             // message 10
-            this.message = "You don’t need to explore further.";
+            this.message = " test c You don’t need to explore further.";
             this.longMessage = "You have enough information to move towards the best path. If you explore more nodes, you reduce your reward without gaining useful information.";
             this.removeHighlight();
             this.setState((prevState)=>({...prevState}));
@@ -2056,7 +2056,7 @@ class Game extends React.Component{
             this.setState((prevState)=>({...prevState})); 
         }else if(this.enoughInfo){
             // message 10
-            this.message = "You don’t need to explore further.";
+            this.message = "test a You don’t need to explore further.";
             this.longMessage = "You have enough information to move towards the best path. If you explore more nodes, you reduce your reward without gaining useful information.";
             this.removeHighlight();
             this.setState((prevState)=>({...prevState}));
