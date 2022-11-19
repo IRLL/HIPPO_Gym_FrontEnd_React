@@ -2052,7 +2052,7 @@ class Game extends React.Component{
            // message 7
             this.message = "You should have explored..."; //test b
             this.longMessage = "You should have explored one of the highlighted nodes because they offer you more information";
-            this.moved = true
+            //this.moved = true
             this.setState((prevState)=>({...prevState})); 
         }else if(this.enoughInfo){
             // message 10
