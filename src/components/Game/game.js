@@ -17,6 +17,19 @@ import { BsReplyAll } from "react-icons/bs";
 const outer_node_ids = [3,4, 7,8,11,12];
 const mid_node_ids = [2,6,10];
 const inner_node_ids = [1,5, 9];
+var clicked_nodes =new Array;
+
+function add_clicked_node_to_list(value)
+{
+   console.log('adding', value, 'to clicked nodes list')
+   clicked_nodes.push(value);//push function will insert values in the list array
+   console.log('updated clicked_nodes', clicked_nodes)
+}
+function clear_array(array)
+{
+    clicked_nodes.length = 0
+    console.log('cleared clicked_nodes', clicked_nodes)
+}
 
 class circleObject {
   constructor(x, y, id, value, pos, r){
@@ -423,6 +436,7 @@ class Game extends React.Component{
                 this.count++;
                 this.numRound++;
                 console.log("recieved ui");
+                clear_array(clicked_nodes)
                 if(this.canvas){
                 this.canvas.clear();
                 }
@@ -714,7 +728,7 @@ class Game extends React.Component{
                 }
                 if(fourtyEightElsewhere){
                     this.message = "test a You dont have enough info to move in THAT direction/path.";
-                    this.longMessage = "reference guessing/there is a better path to take.";
+                    this.longMessage = "Right now, you have limited information about the immediate and long-term rewards/costs in this path. You should have continued exploring the nodes in this path to ensure it's a good decision to make.";
                     this.removeHighlight();
                     this.setState((prevState)=>({...prevState})); 
                 }else{
@@ -1202,6 +1216,7 @@ class Game extends React.Component{
                                 // save a
                                 var message = "node clicked: " + object.getID().toString() + " , " + "node value: " +  object.getValue().toString() + " , " + timeClicked;
                                 this.sendMessage({save: message});
+                                add_clicked_node_to_list(object.getID())
 
                                 // node inspector cost
                                 this.score -= 1;
@@ -1607,6 +1622,10 @@ class Game extends React.Component{
   }
   
   handleClick(node){    
+      if (clicked_nodes.length === 12)
+      {
+          this.enoughInfo = true
+      }
     if(node.explored() === false){
         this.numNodes -= 1;
     }
