@@ -713,7 +713,7 @@ class Game extends React.Component{
                     }
                 }
                 if(fourtyEightElsewhere){
-                    this.message = "You dont have enough info to move in THAT direction/path.";
+                    this.message = "test a You dont have enough info to move in THAT direction/path.";
                     this.longMessage = "reference guessing/there is a better path to take.";
                     this.removeHighlight();
                     this.setState((prevState)=>({...prevState})); 
@@ -744,9 +744,9 @@ class Game extends React.Component{
           if (this.largestLeaf != null && outer_node_ids.includes(this.avatarNode.id) && this.avatarNode.id != this.largestLeaf.id && this.largestLeaf.value == 48)
           {
             console.log('in my new condition')
-            this.message = "You dont have enough info to move in THAT direction/path.";
+            this.message = " test b You dont have enough info to move in THAT direction/path.";
             this.longMessage = "Right now, you have limited information about the immediate and long-term rewards/costs in this path. You should have continued exploring the nodes in this path to ensure it's a good decision to make.";
-            this.removeHighlight();
+            
             this.setState((prevState)=>({...prevState})); 
           }
       }
