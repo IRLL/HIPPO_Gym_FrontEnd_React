@@ -1012,9 +1012,20 @@ class Game extends React.Component{
         }
         if(correctNode){
             // message 1
-            this.message = "You have correctly explored the right node!"; //test b
-            this.longMessage = ""
-            this.setState((prevState)=>({...prevState}));
+            if (this.avatarNode.getValue() === this.largestLeaf.getValue())
+            {
+                this.message = "You made a good decision to move! test a"; //test b
+                this.longMessage = ""
+                this.setState((prevState)=>({...prevState}));
+            }
+            else
+            {
+                this.message = "Wrong path selected, please wait 3 seconds ... test a ";
+                this.longMessage = "Given that some other path(s)  do have higher scores than this path, this wasn’t the best decision you could have made.";
+                this.setState((prevState)=>({...prevState}));
+                this.highlightOptimalPath();
+            }
+
         }else{
             // message 6
             this.message = "Wrong path selected, please wait 3 seconds ...";
@@ -2017,7 +2028,7 @@ class Game extends React.Component{
             inHighlight = true;
             // message 1
             if(this.feedback){
-              this.message = "You have correctly explored the right node!";
+              this.message = "test b You have correctly explored the right node!";
               this.longMessage = "";
               this.setState((prevState)=>({...prevState}));
             } 
