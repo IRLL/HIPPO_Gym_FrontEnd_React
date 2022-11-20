@@ -862,7 +862,7 @@ class Game extends React.Component{
         this.avatarNode.drawText(this.canvas);
         this.avatarNode.visited = true;
         // save f
-        var message = "moved: " + this.avatarNode.getID() + " , " + this.time;    
+        var message = "moved: " + this.avatarNode.getID() +  " , " + "node value: " +  this.avatarNode.getValue().toString() + " , " + this.time;    
         this.sendMessage({save: message});   
       this.score += this.avatarNode.getValue();
       this.setState((prevState)=>({...prevState}))
@@ -1200,7 +1200,7 @@ class Game extends React.Component{
                         if(object!==null && object.selected === false){
                             if(object.checkClicked(false, x,y)){
                                 // save a
-                                var message = "node clicked: " + object.getID().toString() + " , " + timeClicked;
+                                var message = "node clicked: " + object.getID().toString() + " , " + "node value: " +  object.getValue().toString() + " , " + timeClicked;
                                 this.sendMessage({save: message});
 
                                 // node inspector cost
@@ -1250,7 +1250,7 @@ class Game extends React.Component{
                                 object.selected = true;
                                 found = true;
                                 // save a
-                                var message = "node clicked: " + object.getID().toString() + " , " + timeClicked;
+                                var message = "node clicked: " + object.getID().toString() + " , "  + "node value: " +  object.getValue().toString() + " , " + timeClicked;
                                 this.sendMessage({save: message});
 
                                 // node inspector cost
