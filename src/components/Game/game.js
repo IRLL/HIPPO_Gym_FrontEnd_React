@@ -737,13 +737,13 @@ class Game extends React.Component{
                     }
                 }
                 if(fourtyEightElsewhere){
-                    this.message = "test a You dont have enough info to move in THAT direction/path, please wait 3 seconds ...";
+                    this.message = "You dont have enough info to move in THAT direction/path, please wait 3 seconds ...";
                     this.longMessage = "Right now, you have limited information about the immediate and long-term rewards/costs in this path. You should have continued exploring the nodes in this path to ensure it's a good decision to make.";
                     this.removeHighlight();
                     this.setState((prevState)=>({...prevState})); 
                     if (use_delay)
                     {
-                        global_message = "test a You dont have enough info to move in THAT direction/path";
+                        global_message = "You dont have enough info to move in THAT direction/path";
                         global_long_message = "Right now, you have limited information about the immediate and long-term rewards/costs in this path. You should have continued exploring the nodes in this path to ensure it's a good decision to make.";
                         this.addDelay(3);
                     }
@@ -780,7 +780,7 @@ class Game extends React.Component{
           if (this.largestLeaf != null && outer_node_ids.includes(this.avatarNode.id) && this.avatarNode.id != this.largestLeaf.id && this.largestLeaf.value == 48)
           {
             console.log('in my new condition')
-            this.message = " test b You dont have enough info to move in THAT direction/path.";
+            this.message = "You dont have enough info to move in THAT direction/path.";
             this.longMessage = "Right now, you have limited information about the immediate and long-term rewards/costs in this path. You should have continued exploring the nodes in this path to ensure it's a good decision to make.";
             
             this.setState((prevState)=>({...prevState})); 
@@ -1056,13 +1056,13 @@ class Game extends React.Component{
             // message 1
             if (this.avatarNode.getValue() === this.largestLeaf.getValue())
             {
-                this.message = "You made a good decision to move! test a"; //test b
+                this.message = "You made a good decision to move!"; //test b
                 this.longMessage = ""
                 this.setState((prevState)=>({...prevState}));
             }
             else
             {
-                this.message = "You should have selected a different path... test a ";
+                this.message = "You should have selected a different path... ";
                 this.longMessage = "Given that some other path(s)  do have higher scores than this path, this wasn’t the best decision you could have made.";
                 this.setState((prevState)=>({...prevState}));
                 this.highlightOptimalPath();
@@ -1223,7 +1223,7 @@ class Game extends React.Component{
         
         if(this.feedback && this.enoughInfo && !this.gameOver){
             // message 10
-            this.message = " test b You don’t need to explore further.";
+            this.message = "You don’t need to explore further.";
             this.longMessage = "You have enough information to move towards the best path. If you explore more nodes, you reduce your reward without gaining useful information.";
             //this.removeHighlight();
             this.setState((prevState)=>({...prevState}));
@@ -2075,7 +2075,7 @@ class Game extends React.Component{
             inHighlight = true;
             // message 1
             if(this.feedback){
-              this.message = "test b You have correctly explored the right node!";
+              this.message = "You have correctly explored the right node!";
               this.longMessage = "";
               this.setState((prevState)=>({...prevState}));
             } 
@@ -2111,7 +2111,7 @@ class Game extends React.Component{
           }
         }else if(this.feedback && this.enoughInfo){
             // message 10
-            this.message = " test c You don’t need to explore further.";
+            this.message = "You don’t need to explore further.";
             this.longMessage = "You have enough information to move towards the best path. If you explore more nodes, you reduce your reward without gaining useful information.";
             this.removeHighlight();
             this.setState((prevState)=>({...prevState}));
@@ -2146,7 +2146,7 @@ class Game extends React.Component{
             this.setState((prevState)=>({...prevState})); 
         }else if(this.enoughInfo){
             // message 10
-            this.message = "test a You don’t need to explore further.";
+            this.message = "You don’t need to explore further.";
             this.longMessage = "You have enough information to move towards the best path. If you explore more nodes, you reduce your reward without gaining useful information.";
             this.removeHighlight();
             this.setState((prevState)=>({...prevState}));
