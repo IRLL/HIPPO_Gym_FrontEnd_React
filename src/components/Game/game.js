@@ -934,7 +934,7 @@ class Game extends React.Component{
       return pathSum;
     }
 
-    if(this.enoughInfo && this.avatarNode.getValue() === this.largestLeaf.getValue()){
+    if(this.enoughInfo && this.avatarNode.getID() === this.largestLeaf.getID()){
       // message 1
       this.message = "You made a good decision to move!";
       this.longMessage = ""
@@ -1000,7 +1000,7 @@ class Game extends React.Component{
         }
       }
       
-    }else if(this.enoughInfo && this.avatarNode.getValue() !== this.largestLeaf.getValue()){
+    }else if(this.enoughInfo && this.avatarNode.getID() !== this.largestLeaf.getID()){
         // check if the avatarnode is a sibling of largestLeaf with the same value as it
         var siblingsList = this.largestLeaf.getPrev().getNext();
         var correctNode = false; // this selection is incorrect
