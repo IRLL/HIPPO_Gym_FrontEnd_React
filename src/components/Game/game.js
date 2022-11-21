@@ -3,6 +3,7 @@ import { fabric } from "fabric";
 import './game.css'
 import NewMessageBoard from "../MessageBoard/NewMessageBoard";
 import ConfidenceTest from "../MessageBoard/ConfidenceTest";
+import Header from "../MessageBoard/Header";
 import aeroplane from '../images/aeroplane.png';
 import myData from "../data/increasing_prs.json";
 import { w3cwebsocket } from "websocket";
@@ -238,6 +239,7 @@ class Game extends React.Component{
     this.highlightOptimalPath = this.highlightOptimalPath.bind(this);
     this.addDelay = this.addDelay.bind(this);
     this.endDelay = this.endDelay.bind(this);
+    this.endHeader = this.endHeader.bind(this);
     // this.checkForSubOptimal = this.checkForSubOptimal.bind(this);
     this.rerenderCanvas = this.rerenderCanvas.bind(this);
     this.count = 0;
@@ -297,6 +299,8 @@ class Game extends React.Component{
     this.ctestChosenDecision = false;
     this.ctestDisplayed = false;
 
+    this.displayHeading = false;
+
     this.numNodes = 0;
     this.prevHighlight = [];
     this.highlight = [];
@@ -330,19 +334,21 @@ class Game extends React.Component{
             var message = "hit space: " + this.time;
             this.sendMessage({save: message});
           if(this.state.gameOver){
-            this.setState({
-              message: "",
-              gameOver: false,
-              isConnection: true
-            }, ()=>{
-              this.sendMessage({
-                command: "NEW GAME"
+              this.setState({
+                message: "",
+                gameOver: false,
+                isConnection: true
+              }, ()=>{
+                this.sendMessage({
+                  command: "NEW GAME"
+                });
               });
-            });
           }
         }else{
-            // save f
-            this.time = new Date().toLocaleTimeString();
+          // remove highlight
+          this.removeHighlight()
+          // save f
+          this.time = new Date().toLocaleTimeString();
           if(!this.state.gameOver && !this.ctestDisplayed){
             if(this.avatarNode !== null){
                 if(this.avatarNode.getNext() !== null){
@@ -416,26 +422,27 @@ class Game extends React.Component{
             // parse the data from the websocket server
             let parsedData = JSON.parse(message.data);
             if (parsedData.UI){
-                this.count++;
-                this.numRound++;
-                console.log("recieved ui");
-                if(this.canvas){
-                this.canvas.clear();
-                }
-            
-                this.initialize();
-                if(parsedData.CTEST){
-                this.ctest = true;
-                }
-                if(this.count === 1 || this.count === 33){
+              this.count++;
+              this.numRound++;
+              console.log("recieved ui");
+              if(this.canvas){
+              this.canvas.clear();
+              }
+          
+              this.initialize();
+              if(parsedData.CTEST){
+              this.ctest = true;
+              }
+
+              if(this.count === 1 || this.count === 33){
                 this.feedback = false;
                 this.isLargeGraph = true;
                 this.setState((prevState) => ({
-                    adjValues: parsedData.UI,
+                  adjValues: parsedData.UI,
                 }), () => { 
                     this.displayGraph();
                 });
-                }else{
+              }else{
                 if(!parsedData.FEEDBACK){
                     this.feedback = false;
                 }else{
@@ -444,28 +451,31 @@ class Game extends React.Component{
                 this.graphValues = parsedData.UI;
                 this.opt_act = parsedData.OPT_ACT;
                 this.populateGraphValues();
-                }
-                if(this.count == 3 | this.count == 24){
-                this.score = 50;
-                }
-                if(this.count == 1){
-                this.numRound = 1;
-                this.totNumRound = 2;
-                this.setState((prevState)=>({...prevState}));
-                }else if(this.count == 3){
-                this.numRound = 1;
-                this.totNumRound = 20;
-                this.setState((prevState)=>({...prevState}));
-                }else if(this.count == 23){
-                this.numRound = 1;
-                this.totNumRound = 11;
-                this.setState((prevState)=>({...prevState}));
-                }
-                this.pts = this.score; // we will calculate final difference by comparing to this original value
+              }
+              if(this.count == 3 | this.count == 24){
+              this.score = 50;
+              }
+              if(this.count == 1){
+              this.numRound = 1;
+              this.totNumRound = 2;
+              this.setState((prevState)=>({...prevState}));
+              }else if(this.count == 3){
+              this.numRound = 1;
+              this.totNumRound = 20;
+              this.setState((prevState)=>({...prevState}));
+              }else if(this.count == 23){
+              this.numRound = 1;
+              this.totNumRound = 11;
+              this.setState((prevState)=>({...prevState}));
+              }
             }else if(parsedData.VALUES){
                 console.log("recieved values")
                 this.qVals = parsedData.VALUES;
                 // this.handleGameState();
+            }else if(parsedData.HEADER){
+              console.log("DEADER PARSED")
+              this.displayHeading = true;
+              this.setState((prevState)=>({...prevState}));
             }
             }
         }
@@ -2142,6 +2152,20 @@ class Game extends React.Component{
     clearTimeout(this.timeOut);
   }
 
+  endHeader(){
+    // continue to game
+    this.displayHeading = false;
+    this.setState({
+      message: "",
+      gameOver: false,
+      isConnection: true
+    }, ()=>{
+      this.sendMessage({
+        command: "RESUME"
+      });
+    });
+  }
+
   render(){
     let gameOver;
     let scoreMessage;
@@ -2149,22 +2173,28 @@ class Game extends React.Component{
       scoreMessage = <h2>You made {this.pts} points this round!</h2>
       gameOver = <h3 id="next">press space to continue</h3>
     }
-    return(
-      <div id="wrapper">
-        <div id="info">
-          <h1 id="round">{this.numRound}/{this.totNumRound}</h1>
-          <h1 id="score">{this.score} pts</h1>
-          <NewMessageBoard message={this.message} longMessage={this.longMessage} setBoardDisplayed={this.changeMessageBoardDisplayed}/>  
-          <ConfidenceTest ctest = {this.ctestDisplayed} ctest2 = {this.ctest2displayed} setCTDisplay = {this.changeCTDisplayed}></ConfidenceTest>
-        </div>
-        <canvas id="canvas"/>  
-        {scoreMessage}
-        {gameOver}
-        <h3>{this.inspectorMessage}</h3>  
-        <h3>{this.state.ctestMessage}</h3>   
-      </div>   
-    );
-  }
+    if(!this.displayHeading){
+        return(
+        <div id="wrapper">
+          <div id="info">
+            <h1 id="round">{this.numRound}/{this.totNumRound}</h1>
+            <h1 id="score">{this.score} pts</h1>
+            <NewMessageBoard message={this.message} longMessage={this.longMessage} setBoardDisplayed={this.changeMessageBoardDisplayed}/>  
+            <ConfidenceTest ctest = {this.ctestDisplayed} ctest2 = {this.ctest2displayed} setCTDisplay = {this.changeCTDisplayed}></ConfidenceTest>
+          </div>
+          <canvas id="canvas"/>  
+          {scoreMessage}
+          {gameOver}
+          <h3>{this.inspectorMessage}</h3>  
+          <h3>{this.state.ctestMessage}</h3>   
+        </div>   
+      );
+    }else if(this.displayHeading){
+      return <Header message={"MESSAGEEEEE DISPLAYED"} endHeader={this.endHeader}></Header>
+    }
+
+    }
+    
 }
         
 export default Game;
