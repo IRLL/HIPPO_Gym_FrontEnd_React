@@ -662,7 +662,7 @@ class Game extends React.Component{
         }else{
             if(!this.moved && this.feedback){
                 if(this.opt_act !== dir){
-                    this.message = "Wrong way";
+                    this.message = "";
                     this.longMessage = ""
                     this.removeHighlight();
                     this.setState({message: this.message});
@@ -737,13 +737,13 @@ class Game extends React.Component{
                     }
                 }
                 if(fourtyEightElsewhere){
-                    this.message = "You dont have enough info to move in THAT direction/path, please wait 3 seconds ...";
+                    this.message = "You don't have enough info to move in THAT direction/path, please wait 3 seconds ...";
                     this.longMessage = "Right now, you have limited information about the immediate and long-term rewards/costs in this path. You should have continued exploring the nodes in this path to ensure it's a good decision to make.";
                     this.removeHighlight();
                     this.setState((prevState)=>({...prevState})); 
                     if (use_delay)
                     {
-                        global_message = "You dont have enough info to move in THAT direction/path";
+                        global_message = "You don't have enough info to move in THAT direction/path";
                         global_long_message = "Right now, you have limited information about the immediate and long-term rewards/costs in this path. You should have continued exploring the nodes in this path to ensure it's a good decision to make.";
                         this.addDelay(3);
                     }
@@ -759,6 +759,7 @@ class Game extends React.Component{
                         global_long_message = "You cannot make a good decision with the amount of information you currently have. You should have continued exploring the nodes.";
                         this.addDelay(3);
                     }
+                    //I might be able to add a condition here, so that the message that would print out upon moving is blank. This way the previous message wouldn't show up, 
                 }
                 // this.addDelay(3); 
             }
@@ -1844,6 +1845,7 @@ class Game extends React.Component{
         // }
 
         var isPartOf = false;
+        console.log('this.largestleaf', this.largestLeaf)
         for(var l in nextNode){
             if(this.largestLeaf !== null && nextNode[l].getID() === this.largestLeaf.getID()){
                 console.log("herreeee");
