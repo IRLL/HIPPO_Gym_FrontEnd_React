@@ -491,8 +491,9 @@ class Game extends React.Component{
                 this.qVals = parsedData.VALUES;
                 // this.handleGameState();
             }else if(parsedData.HEADER){
-              console.log("DEADER PARSED")
+              console.log("HEADER PARSED")
               this.displayHeading = true;
+              this.headerMessage = parsedData.HEADER;
               this.setState((prevState)=>({...prevState}));
             }
             }
@@ -2274,26 +2275,28 @@ class Game extends React.Component{
       scoreMessage = <h2>You made {this.pts} points this round!</h2>
       gameOver = <h3 id="next">press space to continue</h3>
     }
-    if(!this.displayHeading){
-        return(
-        <div id="wrapper">
-          <div id="info">
-            <h1 id="round">{this.numRound}/{this.totNumRound}</h1>
-            <h1 id="score">{this.score} pts</h1>
-            <NewMessageBoard message={this.message} longMessage={this.longMessage} setBoardDisplayed={this.changeMessageBoardDisplayed}/>  
-            <ConfidenceTest ctest = {this.ctestDisplayed} ctest2 = {this.ctest2displayed} setCTDisplay = {this.changeCTDisplayed}></ConfidenceTest>
-          </div>
-          <canvas id="canvas"/>  
-          {scoreMessage}
-          {gameOver}
-          <h3>{this.inspectorMessage}</h3>  
-          <h3>{this.state.ctestMessage}</h3>   
-        </div>   
-      );
-    }else if(this.displayHeading){
-      return <Header message={"MESSAGEEEEE DISPLAYED"} endHeader={this.endHeader}></Header>
+
+    let sec_header;
+    if(this.displayHeading){
+      sec_header = <Header message={this.headerMessage} endHeader={this.endHeader}></Header>
     }
 
+    return(
+      <div id="wrapper">
+        <div id="info">
+          <h1 id="round">{this.numRound}/{this.totNumRound}</h1>
+          <h1 id="score">{this.score} pts</h1>
+          <NewMessageBoard message={this.message} longMessage={this.longMessage} setBoardDisplayed={this.changeMessageBoardDisplayed}/>  
+          <ConfidenceTest ctest = {this.ctestDisplayed} ctest2 = {this.ctest2displayed} setCTDisplay = {this.changeCTDisplayed}></ConfidenceTest>
+        </div>
+        <canvas id="canvas"/>  
+        {scoreMessage}
+        {gameOver}
+        <h3>{this.inspectorMessage}</h3>  
+        <h3>{this.state.ctestMessage}</h3>   
+        {sec_header}
+      </div>   
+    );
     }
     
 }

@@ -3,7 +3,7 @@ const Header = ({message, endHeader}) => {
 
     return(
         <div>
-            <div>message</div>
+            <div>{message}</div>
             <button onClick={endHeader}>Next</button>
         </div>
     )
