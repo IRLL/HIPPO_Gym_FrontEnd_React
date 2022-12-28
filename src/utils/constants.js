@@ -8,7 +8,7 @@ let params = new URLSearchParams(search);
 let userId = params.get("userId");
 let redirect = params.get("redirect");
 let debug = params.get("debug");
-console.log("HOST before", host)
+
 if (host === "localhost" || host === "127.0.0.1") {
 	host = "irll.net";
 } else if (host.includes("testing")) {
@@ -16,7 +16,6 @@ if (host === "localhost" || host === "127.0.0.1") {
 } else if (host.includes("fingerprint")) {
 	host = host.replace("fingerprint.", "");
 }
-console.log("HOST", host)
 
 export const SERVER = params.get("server");
 export const REDIRECT = SERVER && redirect ? redirect : default_redirect;
