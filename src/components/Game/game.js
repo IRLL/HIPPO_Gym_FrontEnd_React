@@ -21,7 +21,7 @@ var clicked_nodes =new Array;
 var use_delay = true;
 var global_message = "global message";
 var global_long_message = "global message";
-
+//testing
 function add_clicked_node_to_list(value)
 {
    console.log('adding', value, 'to clicked nodes list')
