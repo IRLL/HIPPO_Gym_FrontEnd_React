@@ -6,6 +6,13 @@ import ConfidenceTest from "../MessageBoard/ConfidenceTest";
 import Header from "../MessageBoard/Header";
 import aeroplane from '../images/aeroplane.png';
 import myData from "../data/increasing_prs.json";
+import up from "../images/up.png";
+import down from "../images/down.png";
+import left from "../images/left.png";
+import right from "../images/right.png";
+import controller from "../images/controller.png";
+import moreinfo from "../images/moreinfo.png";
+import incorrect from "../images/incorrect.png";
 import { w3cwebsocket } from "websocket";
 import {
   WS_URL,
@@ -80,13 +87,13 @@ class circleObject {
       canvas.add(this.o);
   }
 
-  redraw(canvas){
+  redraw(canvas, color){
       if(this.selected === false){
         canvas.remove(this.o);
          this.o = new fabric.Circle({
               radius: this.r,
               fill: 'white',
-              stroke: 'black',
+              stroke: color,
               left: this.x,
               top: this.y,
               originX: 'center',
@@ -99,7 +106,7 @@ class circleObject {
           canvas.add(this.o); 
           canvas.sendBackwards(this.o);
       }else{
-          this.drawText(canvas);
+        this.drawText(canvas, color);
       } 
   }
 
@@ -169,12 +176,12 @@ class circleObject {
       }
   }
 
-  drawText(canvas){
+  drawText(canvas, color){
       canvas.remove(this.o);
       var circle = new fabric.Circle({
           radius: this.r,
           fill: 'white',
-          stroke: 'black',
+          stroke: color,
           originX: 'center',
           originY: 'center'
       })
@@ -183,7 +190,7 @@ class circleObject {
           originY: 'center',
           fontSize: this.r/2,
           fontFamily: 'Arial',
-          fill: 'black'
+          fill: color
       });
       this.o = new fabric.Group([circle, text],{
           left: this.x,
@@ -250,6 +257,10 @@ class Game extends React.Component{
     this.createAgent = this.createAgent.bind(this);
     this.removeHighlight = this.removeHighlight.bind(this);
     this.changeMessageBoardDisplayed = this.changeMessageBoardDisplayed.bind(this);
+    this.manageKeyPress = this.manageKeyPress.bind(this);
+    this.handleArrowPress = this.handleArrowPress.bind(this);
+    this.setController = this.setController.bind(this);
+    this.setMoreInfo = this.setMoreInfo.bind(this);
     this.changeCTDisplayed = this.changeCTDisplayed.bind(this);
     this.handleClick = this.handleClick.bind(this);
     this.inHighlight = this.inHighlight.bind(this);
@@ -264,6 +275,14 @@ class Game extends React.Component{
     this.score = 50;
     this.totNumRound = 0;
     this.numRound = 0;
+
+    // controller 
+    this.controller = false;
+
+    //instructions
+    this.moreinfo = false;
+    this.instr = "INSTRUCTIONS"
+    this.instructionMessage = "here is a summary of the instructions sjhdjhdsfjhsgfjhsdgfjhsdgfjhdgsfjhdgfjhsgfjhsgdfjhgfjdhsgfjdhsgfjhsdgfjhdsgfjdhsgfjhsdgfhsdgf hree operands: a condition followed by a question mark (?),  ";
   }
 
   initialize(){
@@ -298,7 +317,7 @@ class Game extends React.Component{
 
     this.feedback = true;
     this.isLargeGraph = false;
-    this.pts = 0;
+    this.pts = this.score;
 
     this.structure = [[0, [5], [1], [9]], 
                       [5, [6]], 
@@ -336,58 +355,67 @@ class Game extends React.Component{
     this.timeout = null;
     
     this.hasOpenedNodes = false;
+    this.selectedNode = null;
   }
-  
-  componentDidMount(){
-    window.addEventListener('keydown', (event)=>{
-        this.gameOver = true;
-      if(this.inspectorMessage !== ""){
+
+  manageKeyPress(key){
+    this.gameOver = true;
+    if(this.inspectorMessage !== ""){
         this.inspectorMessage = ""
         this.setState({inspectorMessage: this.inspectorMessage});
-      }
-      if(!this.timeoutOn && !this.messageBoardDisplayed){
-        if(event.code === 'Space'){
+    }
+    if(!this.timeoutOn && !this.messageBoardDisplayed){
+        if(key === 'Space'){
             // save e
             this.time = new Date().toLocaleTimeString();
             var message = "hit space: " + this.time;
             this.sendMessage({save: message});
-          if(this.state.gameOver){
-              this.setState({
+        if(this.state.gameOver){
+            this.setState({
                 message: "",
                 gameOver: false,
                 isConnection: true
-              }, ()=>{
+            }, ()=>{
                 this.sendMessage({
-                  command: "NEW GAME"
+                command: "NEW GAME"
                 });
-              });
-          }
+            });
+        }
         }else{
-          // remove highlight
-          this.removeHighlight()
-          // save f
-          this.time = new Date().toLocaleTimeString();
-          if(!this.state.gameOver && !this.ctestDisplayed){
-            if(this.avatarNode !== null){
-                if(this.avatarNode.getNext() !== null){
-                    this.movingAvatar(event);
+            // remove highlight
+            this.removeHighlight()
+            // save f
+            this.time = new Date().toLocaleTimeString();
+            if(!this.state.gameOver && !this.ctestDisplayed){
+                if(this.avatarNode !== null){
+                    if(this.avatarNode.getNext() !== null){
+                        this.movingAvatar(key);
+                    }
+                }else{
+                    this.movingAvatar(key);
                 }
-            }else{
-                this.movingAvatar(event);
-            }
-          }else if(this.ctestDisplayed){
-            this.setState({ctestMessage: "Please answer to continue..."})
-          } 
+            }else if(this.ctestDisplayed){
+                this.setState({ctestMessage: "Please answer to continue..."})
+            } 
         }
-      }else if(this.feedback){
+    }else if(this.feedback){
         if(this.messageBoardDisplayed){
-          this.inspectorMessage = "cannot move while viewing explanation"
-          this.setState({inspectorMessage: this.inspectorMessage});
+        this.inspectorMessage = "cannot move while viewing explanation"
+        this.setState({inspectorMessage: this.inspectorMessage});
         }else if(this.timeoutOn){
-          this.inspectorMessage = "please wait"
-          this.setState({inspectorMessage: this.inspectorMessage});
+        this.inspectorMessage = "please wait"
+        this.setState({inspectorMessage: this.inspectorMessage});
         }
-      }
+    }
+  }
+  
+  componentDidMount(){
+    window.addEventListener('keydown', (event)=>{
+        if(event.code == "Space"){
+            this.manageKeyPress(event.code);
+        }else{
+            this.manageKeyPress(event.key);
+        }
     });
 
     window.addEventListener('resize', (event)=>{
@@ -631,11 +659,13 @@ class Game extends React.Component{
     this.canvas.add(avatar);
 
     this.canvas.setWidth(this.cWidth);
-    this.canvas.setHeight(this.cHeight);
+    if(this.isLargeGraph){
+        this.canvas.setHeight(this.cHeight);
+    }
     this.canvas.renderAll();
   }
 
-  movingAvatar(event){
+  movingAvatar(key){
     var avatar = null;
     this.canvas.getObjects().forEach((obj)=>{
         if(obj._element){
@@ -644,20 +674,19 @@ class Game extends React.Component{
     })
 
     var dir = null;
-    if(event.key === 'ArrowUp'){
+    if(key === 'ArrowUp'){
         dir = "up";
         this.checkPos(dir, avatar);     
-    }else if(event.key === 'ArrowRight'){
+    }else if(key === 'ArrowRight'){
         dir = "right";
         this.checkPos(dir, avatar);
-    }else if(event.key === 'ArrowLeft'){
+    }else if(key === 'ArrowLeft'){
         dir = "left";
         this.checkPos(dir, avatar);
-    }else if(event.key === 'ArrowDown'){
+    }else if(key === 'ArrowDown'){
         dir = "down";
         this.checkPos(dir, avatar);
     }
-    console.log('this.avatarNode', this.avatarNode)
     if(dir !== null){
       if(this.feedback){
         if(this.canMove === false){
@@ -708,7 +737,6 @@ class Game extends React.Component{
         // this.addDelay(42);
         }else if(this.hasOpenedNodes && !this.enoughInfo){
             // check if they move towards a non 48 path (i.e. 48 is not open in the selected path)
-            console.log('Im in this place')
             var leaves = 0;
             var node = this.avatarNode;
             var done = false;
@@ -729,7 +757,6 @@ class Game extends React.Component{
                     fourtyEightPath = true;
                 }
             }
-            console.log('does a 48 path exist', fourtyEightPath)
 
             if (fourtyEightPath && inner_node_ids.includes(this.avatarNode.getID())){
                 console.log('a 48 path exists') //need to fix this. there is still an issue if you move to a 48 unexpectedly.
@@ -835,7 +862,7 @@ class Game extends React.Component{
           if(found){
               if(this.adjList[row][2]){
                   this.avatarNode = this.adjList[row][2];
-				  this.avatarNode.drawText(this.canvas);
+				  this.avatarNode.drawText(this.canvas, 'black');
                   changed = true;
               }
           }
@@ -896,7 +923,7 @@ class Game extends React.Component{
       }
     }
     if(changed){
-        this.avatarNode.drawText(this.canvas);
+        this.avatarNode.drawText(this.canvas, 'black');
         this.avatarNode.visited = true;
         // save f
         var message = "moved: " + this.avatarNode.getID() +  " , " + "node value: " +  this.avatarNode.getValue().toString() + " , " + this.time;    
@@ -972,7 +999,6 @@ class Game extends React.Component{
 
     if(this.enoughInfo && this.avatarNode.getID() === this.largestLeaf.getID()){
       // message 1
-      
       console.log('this.avatarNode.getValue()', this.avatarNode.getValue())
       console.log('this.largestLeaf.getValue()',this.largestLeaf.getValue())
       console.log('this.largestLeaf.getID()',this.largestLeaf.getID())
@@ -1258,7 +1284,7 @@ class Game extends React.Component{
 
                                 this.hasOpenedNodes = true;
 
-                                object.drawText(this.canvas);
+                                object.drawText(this.canvas, 'black');
                                 object.selected = true;
                                 found = true;
                                 this.handleClick(object);    
@@ -1295,7 +1321,7 @@ class Game extends React.Component{
                         var object = this.adjList[i][j];
                         if(object!==null && object.selected === false){
                             if(object.checkClicked(true, x,y)){
-                                object.drawText(this.canvas);
+                                object.drawText(this.canvas, 'black');
                                 object.selected = true;
                                 found = true;
                                 // save a
@@ -1656,6 +1682,9 @@ class Game extends React.Component{
   }
   
   handleClick(node){    
+    if(this.selectedNode){
+        this.selectedNode.redraw(this.canvas, 'black');
+    }
     if(node.explored() === false){
         this.numNodes -= 1;
     }
@@ -1746,12 +1775,10 @@ class Game extends React.Component{
             }else{
                 // is it larger than largest leaf wc?
                 if(wc > this.paths[this.largestLeaf.pos[0] + "," + this.largestLeaf.pos[1]][0]){
-                    console.log("replace 1");
                     this.replaceLargestLeaf(node);
                 }else if(wc === this.paths[this.largestLeaf.pos[0] + "," + this.largestLeaf.pos[1]][0]){
                     // check if this is a 48
                     if(node.getValue() === 48){
-                        console.log("replace 2")
                         this.replaceLargestLeaf(node);
                     }
                 }else{
@@ -1848,7 +1875,6 @@ class Game extends React.Component{
         var isPartOf = false;
         for(var l in nextNode){
             if(this.largestLeaf !== null && nextNode[l].getID() === this.largestLeaf.getID()){
-                console.log("herreeee");
                 isPartOf = true;
             }
         }
@@ -1864,15 +1890,16 @@ class Game extends React.Component{
             }   
         } 
         if(isPartOf){
-            console.log("a part of")
             // part of the largest leaf path
             // most likely its wc will increase
             // thus, check if every other leaf's bc < new wc
             // update wc and bc
             var wc = this.paths[this.largestLeaf.pos[0] + "," + this.largestLeaf.pos[1]][1];
+            console.log("worst case: " + this.largestLeaf.getID() + " " + wc);
             Object.keys(this.paths).forEach(key => {
                 var newkey = key.split(",").map(Number);
                 var n = this.adjList[newkey[0]][newkey[1]];
+                console.log("best case: " + n.getID() + " " + this.paths[key][0]);
                 if(n !== this.largestLeaf && n.explored() === false && this.paths[key][0] <= wc){
                     n.doNotExplore();
                     if(n.selected === false){
@@ -1898,7 +1925,6 @@ class Game extends React.Component{
                 }
             });    
         }else{
-            console.log("not a part")
             // first check if any of its leaves have surpassed largest leaf's wc 
             if(this.largestLeaf !== null){
                 Object.entries(this.paths).forEach(([key, value])=>{
@@ -1908,11 +1934,11 @@ class Game extends React.Component{
                     bc = this.paths[node.pos[0] + ',' + node.pos[1]][0];
                     if(wc !== bc){
                         if(value[1] > this.paths[this.largestLeaf.pos[0] + ',' + this.largestLeaf.pos[1]][1]){
-                            console.log("replace 2");
                             this.replaceLargestLeaf(node);
                         }
+                    }else if(wc > this.paths[this.largestLeaf.pos[0] + ',' + this.largestLeaf.pos[1]][1]){
+                        this.replaceLargestLeaf(node);
                     } 
-                    
                 });  
             }
             
@@ -1925,10 +1951,6 @@ class Game extends React.Component{
                 for(var i in nextNode){
                     var leaf = nextNode[i];
                     if(leaf.explored() === false){
-                        if(leaf.getID() === 8){
-                            console.log(this.paths[leaf.pos[0] + "," + leaf.pos[1]][0]);
-                            console.log(wc);
-                        }
                         if(this.paths[leaf.pos[0] + "," + leaf.pos[1]][0] <= wc){
                             leaf.doNotExplore();
                             if(leaf.selected === false){
@@ -1982,10 +2004,6 @@ class Game extends React.Component{
             // this.checkForSubOptimal();
         }
     }
-    // Object.keys(this.paths).forEach(key=>{
-    //     key = key.split(",").map(Number);
-    //     var node = this.adjList[key[0]][key[1]];
-    // }) 
   }
 
   replaceLargestLeaf(node){
@@ -2026,7 +2044,6 @@ class Game extends React.Component{
         if(leaf.explored() === false && leaf !== this.largestLeaf && leaf.selected == true){
             bc = this.paths[key][0];
             if(bc <= wc){
-                console.log(leaf.getID(), leaf.getValue())
                 leaf.doNotExplore();
                 if(leaf.selected === false){
                     this.numNodes-=1;
@@ -2055,7 +2072,6 @@ class Game extends React.Component{
   }  
 
   inHighlight(selectedNode){
-    console.log("IN HIGHLIGHT")
     // is this node in highlight?
 
     // clear out anything that shouldn't be explored from highlight
@@ -2104,7 +2120,12 @@ class Game extends React.Component{
           // message 7
           this.message = "test a You should have explored..."; //test a
           this.longMessage = "You should have explored one of the highlighted nodes because they offer you more information.";
-          this.setState((prevState)=>({...prevState}));
+
+          // selected node is incorrect, provide incorrect visual
+          selectedNode.redraw(this.canvas, 'red')
+          this.selectedNode = selectedNode;
+         
+         this.setState((prevState)=>({...prevState}));
         }else if(this.feedback && this.enoughInfo){
             // message 10
             this.message = "You don’t need to explore further.";
@@ -2197,7 +2218,7 @@ class Game extends React.Component{
 
   removeHighlight(){
     for(var i in this.prevHighlight){
-      this.prevHighlight[i].redraw(this.canvas);
+      this.prevHighlight[i].redraw(this.canvas, 'black');
     }
   }
 
@@ -2268,6 +2289,20 @@ class Game extends React.Component{
     });
   }
 
+  setController(){
+    this.controller = this.controller ? false : true;
+    this.setState((prevState)=>({...prevState}));
+  }
+
+  setMoreInfo(){
+    this.moreinfo = this.moreinfo ? false : true;
+    this.setState((prevState)=>({...prevState}));
+  }
+
+  handleArrowPress(key){
+    this.manageKeyPress(key);
+  }
+
   render(){
     let gameOver;
     let scoreMessage;
@@ -2281,21 +2316,47 @@ class Game extends React.Component{
       sec_header = <Header message={this.headerMessage} endHeader={this.endHeader}></Header>
     }
 
+    const displayController = () =>{
+        if(this.controller){
+            return(
+                <div className="arrowControl">
+                    <img className="arrow" src={up} onClick={() => this.handleArrowPress("ArrowUp")}></img>
+                    <div id="middlearrows">
+                        <img className="arrow" src={left} onClick={() => this.handleArrowPress("ArrowLeft")}></img>
+                        <img className="arrow" src={right} onClick={() => this.handleArrowPress("ArrowRight")}></img>
+                    </div>
+                    <img className="arrow" src={down} onClick={() => this.handleArrowPress("ArrowDown")}></img>
+                </div>
+            )
+        }
+    }
+
+    const displaymoreinfo = () => {
+        return <NewMessageBoard message={this.instr} longMessage={this.instructionMessage} setBoardDisplayed={this.changeMessageBoardDisplayed} currStatus={this.moreinfo}/>
+    }
+
     return(
       <div id="wrapper">
         <div id="info">
           <h1 id="round">{this.numRound}/{this.totNumRound}</h1>
-          <h1 id="score">{this.score} pts</h1>
-          <NewMessageBoard message={this.message} longMessage={this.longMessage} setBoardDisplayed={this.changeMessageBoardDisplayed}/>  
+          <div id="groupedbar">
+            <h1 id="score">{this.score} pts</h1>
+            <img className="option" id="controller" src={controller} onClick={this.setController}></img>
+            <img className="option" id="moreinfo" src={moreinfo} onClick={this.setMoreInfo}></img>
+          </div>
+          {displaymoreinfo()}
+          <NewMessageBoard message={this.message} longMessage={this.longMessage} setBoardDisplayed={this.changeMessageBoardDisplayed} currStatus={this.moreinfo}/>  
           <ConfidenceTest ctest = {this.ctestDisplayed} ctest2 = {this.ctest2displayed} setCTDisplay = {this.changeCTDisplayed}></ConfidenceTest>
         </div>
+    
         <canvas id="canvas"/>  
         {scoreMessage}
         {gameOver}
         <h3>{this.inspectorMessage}</h3>  
         <h3>{this.state.ctestMessage}</h3>   
         {sec_header}
-      </div>   
+        {displayController()}
+    </div>   
     );
     }
     

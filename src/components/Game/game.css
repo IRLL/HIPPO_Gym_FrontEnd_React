@@ -127,9 +127,36 @@
 }
 
 #score{
-	float: right;
 	/* right: 10vw; */
 	color: #047A27;
+}
+
+#groupedbar{
+	display: flex;
+	justify-content: space-around;
+	width: 200px;
+	float: right;
+}
+
+#controller{
+	object-fit: contain;
+	width: 40px;
+	height: 40px;
+}
+
+#moreinfo{
+	object-fit: contain;
+	width: 30px;
+	height: 30px;
+	margin-top: 3px;
+}
+
+.option:hover{
+	box-shadow: 0 0 10px #4e5154;
+	border-radius: 100px;
+}
+.arrow:hover{
+	box-shadow: 0 0 10px #4e5154;
 }
 
 #messageBoard img{
@@ -238,4 +265,24 @@
 		font-size: 1rem;
 	}
 }
+/* ARROW KEYS */
+#middlearrows{
+	display: flex;
+	justify-content: space-between;
+	width: 150px;
+}
+.arrowControl{
+	float: left;
+	display: flex;
+	justify-content: center;
+	width: 150px;
+	flex-wrap: wrap;
+}
+.arrow{
+	width: 55px;
+}
 
+
+/* #arrowsbackground{
+	background-color: green;
+} */
