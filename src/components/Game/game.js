@@ -3,6 +3,7 @@ import { fabric } from "fabric";
 import './game.css'
 import NewMessageBoard from "../MessageBoard/NewMessageBoard";
 import ConfidenceTest from "../MessageBoard/ConfidenceTest";
+import GoalReminder from "../MessageBoard/goal_reminder"
 import Header from "../MessageBoard/Header";
 import aeroplane from '../images/aeroplane.png';
 import myData from "../data/increasing_prs.json";
@@ -334,6 +335,7 @@ class Game extends React.Component{
     // this.qVals = null;
 
     this.ctest = false;
+    this.goal_reminder = false;
     this.ctestNum = 0;
     this.ctestMistakeNum = 0;
     this.ctestChosenDecision = false;
@@ -505,6 +507,7 @@ class Game extends React.Component{
               this.score = 50;
               }
               if(this.count == 1){
+                
               this.numRound = 1;
               this.totNumRound = 2;
               this.setState((prevState)=>({...prevState}));
@@ -515,8 +518,15 @@ class Game extends React.Component{
               }else if(this.count == 23){
               this.numRound = 1;
               this.totNumRound = 11;
+              this.goal_reminder = true;
               this.setState((prevState)=>({...prevState}));
               }
+              else if (this.count >23)
+              {
+              this.goal_reminder = false;
+              }
+              
+
             }else if(parsedData.VALUES){
                 console.log("recieved values")
                 this.qVals = parsedData.VALUES;
@@ -1291,6 +1301,7 @@ class Game extends React.Component{
         if(!this.ctestDisplayed){
             this.ctestChosenDecision = Math.random() > 0.5 ? true : false;
         }
+
         
         if(this.feedback && this.enoughInfo && !this.gameOver){
             // message 10
@@ -2323,7 +2334,13 @@ class Game extends React.Component{
         message = "ctest2 submitted: " + tSubmitted;
         this.sendMessage({save: message});
         this.setState({ctestMessage: "", gameOver: true});
-    }else{
+    }
+    else if(change && this.goal_reminder){
+
+        this.goal_reminder = false;
+        this.setState({ctestMessage: ""});
+    } 
+    else{
         this.setState({ctestMessage: "Please select an option"});
     }
   }
@@ -2407,12 +2424,12 @@ class Game extends React.Component{
         {
         this.round = "Pre test round:"
         }
-    if (this.count >=3 && this.count <=23)
+    if (this.count >=3 && this.count <23)
         {
         this.round = "Training round:"
         }
 
-    if (this.count >23)
+    if (this.count >=23)
         {
         this.round = "Test round:"
         }
@@ -2428,6 +2445,8 @@ class Game extends React.Component{
           {displaymoreinfo()}
           <NewMessageBoard message={this.message} longMessage={this.longMessage} setBoardDisplayed={this.changeMessageBoardDisplayed} currStatus={this.moreinfo}/>  
           <ConfidenceTest ctest = {this.ctestDisplayed} ctest2 = {this.ctest2displayed} setCTDisplay = {this.changeCTDisplayed}></ConfidenceTest>
+          <GoalReminder goal_reminder = {this.goal_reminder} setCTDisplay ={this.changeCTDisplayed} ></GoalReminder>
+
         </div>
     
         <canvas id="canvas"/>  
