@@ -26,7 +26,7 @@ const outer_node_ids = [3,4, 7,8,11,12];
 const mid_node_ids = [2,6,10];
 const inner_node_ids = [1,5, 9];
 var clicked_nodes =new Array;
-var use_delay = true;
+var use_delay = false;
 var global_message = "global message";
 var global_long_message = "global message";
 //testing
@@ -2403,10 +2403,23 @@ class Game extends React.Component{
         return <NewMessageBoard message={this.instr} longMessage={this.instructionMessage} setBoardDisplayed={this.changeMessageBoardDisplayed} currStatus={this.moreinfo}/>
     }
 
+    if(this.count == 1 | this.count == 2)
+        {
+        this.round = "Pre test round:"
+        }
+    if (this.count >=3 && this.count <=23)
+        {
+        this.round = "Training round:"
+        }
+
+    if (this.count >23)
+        {
+        this.round = "Test round:"
+        }
     return(
       <div id="wrapper">
         <div id="info">
-          <h1 id="round">{this.numRound}/{this.totNumRound}</h1>
+          <h1 id="round">{this.round} {this.numRound}/{this.totNumRound}</h1>
           <div id="groupedbar">
             <h1 id="score">{this.score} pts</h1>
             <img className="option" id="controller" src={controller} onClick={this.setController}></img>
