@@ -2126,7 +2126,7 @@ class Game extends React.Component{
             inHighlight = true;
             // message 1
             if(this.feedback){
-              this.message = "test a You have correctly explored the right node!";
+              this.message = "You have correctly explored the right node!";
               this.longMessage = "";
               this.setState((prevState)=>({...prevState}));
             } 
