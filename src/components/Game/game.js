@@ -501,7 +501,7 @@ class Game extends React.Component{
                 this.opt_act = parsedData.OPT_ACT;
                 this.populateGraphValues();
               }
-              if(this.count == 3 | this.count == 24){
+              if(this.count == 3 | this.count == 23){
               this.score = 50;
               }
               if(this.count == 1){
