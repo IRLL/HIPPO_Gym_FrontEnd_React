@@ -485,7 +485,7 @@ class Game extends React.Component{
                 if(parsedData.CTEST){
                 this.ctest = true;
                 }
-                if(this.count === 1 || this.count === 33){
+                if(this.count === 1 || this.count === 43){
                 this.feedback = false;
                 this.isLargeGraph = true;
                 this.setState((prevState) => ({
@@ -517,7 +517,7 @@ class Game extends React.Component{
               this.setState((prevState)=>({...prevState}));
               }else if(this.count == 23){
               this.numRound = 1;
-              this.totNumRound = 11;
+              this.totNumRound = 21;
               this.goal_reminder = true;
               this.setState((prevState)=>({...prevState}));
               }
