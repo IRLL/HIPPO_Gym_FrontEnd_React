@@ -834,28 +834,28 @@ class Game extends React.Component{
             this.setState((prevState)=>({...prevState}));
         }
       }
-    else if (this.feedback && this.moved && this.avatarNode.selected == false) 
-      //Callie: I made this condition, not sure why this.feedback is true, but it is for some reason. 
-      // the goal of this condition is to give negative feedback if they land on an unexplored leaf on a branch where was there a 48 opened. 
-      {
-          console.log('right before my new condition')
-          console.log('outer_node_ids', outer_node_ids)
-          console.log('this.avatarNode.id', this.avatarNode.id)
-          if (this.largestLeaf != null && outer_node_ids.includes(this.avatarNode.id) && this.avatarNode.id != this.largestLeaf.id && this.largestLeaf.value == 48)
-          {
-            console.log('in my new condition')
-            this.message = "You dont have enough info to move in THAT direction/path.";
-            this.longMessage = "Right now, you have limited information about the immediate and long-term rewards/costs in this path. You should have continued exploring the nodes in this path to ensure it's a good decision to make.";
-            this.removeRed();
-            this.setState((prevState)=>({...prevState})); 
-            // if (use_delay)
-            // {
-            //     global_message = " test b You dont have enough info to move in THAT direction/path";
-            //     global_long_message = "Right now, you have limited information about the immediate and long-term rewards/costs in this path. You should have continued exploring the nodes in this path to ensure it's a good decision to make.";
-            //     this.addDelay(3);
-            // }
-          }
-      }
+    // else if (this.feedback && this.moved && this.avatarNode.selected == false) 
+    //   //Callie: I made this condition, not sure why this.feedback is true, but it is for some reason. 
+    //   // the goal of this condition is to give negative feedback if they land on an unexplored leaf on a branch where was there a 48 opened. 
+    //   {
+    //       console.log('right before my new condition')
+    //       console.log('outer_node_ids', outer_node_ids)
+    //       console.log('this.avatarNode.id', this.avatarNode.id)
+    //       if (this.largestLeaf != null && outer_node_ids.includes(this.avatarNode.id) && this.avatarNode.id != this.largestLeaf.id && this.largestLeaf.value == 48)
+    //       {
+    //         console.log('in my new condition')
+    //         this.message = "You dont have enough info to move in THAT direction/path.";
+    //         this.longMessage = "Right now, you have limited information about the immediate and long-term rewards/costs in this path. You should have continued exploring the nodes in this path to ensure it's a good decision to make.";
+    //         this.removeRed();
+    //         this.setState((prevState)=>({...prevState})); 
+    //         // if (use_delay)
+    //         // {
+    //         //     global_message = " test b You dont have enough info to move in THAT direction/path";
+    //         //     global_long_message = "Right now, you have limited information about the immediate and long-term rewards/costs in this path. You should have continued exploring the nodes in this path to ensure it's a good decision to make.";
+    //         //     this.addDelay(3);
+    //         // }
+    //       }
+    //   }
       this.moved = true; 
     }
   }
