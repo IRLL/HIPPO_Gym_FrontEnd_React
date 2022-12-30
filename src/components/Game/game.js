@@ -2139,9 +2139,9 @@ class Game extends React.Component{
             if(this.feedback){
               this.message = "You have correctly explored the right node (highlighted in green)!";
               this.longMessage = "";
-            //   selectedNode.redraw(this.canvas, 'green')
-            //   this.selectedNode = selectedNode;
-            //   this.wrongNode = selectedNode
+              selectedNode.redraw(this.canvas, 'green')
+              this.selectedNode = selectedNode;
+              this.wrongNode = selectedNode
               this.setState((prevState)=>({...prevState}));
             } 
         }
