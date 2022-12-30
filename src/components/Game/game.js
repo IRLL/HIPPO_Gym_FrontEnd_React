@@ -2423,20 +2423,33 @@ class Game extends React.Component{
     if(this.count == 1 | this.count == 2)
         {
         this.round = "Pre test round:"
+        this.special_case_test_message = "";
         }
     if (this.count >=3 && this.count <23)
         {
         this.round = "Training round:"
+        this.special_case_test_message = "";
         }
 
     if (this.count >=23)
         {
         this.round = "Test round:"
+        this.special_case_test_message = "";
         }
+
+    if (this.count ==40 || this.count == 42)
+    {
+        this.special_case_test_message = "During this round, imagine you have to make a decision (i.e., choose a path) quickly. Your goal is still to make the best decision you can, but imagine you are now under time constraints. We have revealed the value of one of the nodes for you. ";
+    }
+    if (this.count == 41 || this.count == 39)
+    {
+    this.special_case_test_message = "During this round, imagine you are making a very important decision. For example, imagine that each path represents a different possible career. We have revealed the value of one of the nodes for you.";
+    }
     return(
       <div id="wrapper">
         <div id="info">
           <h1 id="round">{this.round} {this.numRound}/{this.totNumRound}</h1>
+          <h1 align="center">{this.special_case_test_message}</h1>
           <div id="groupedbar">
             <h1 id="score">{this.score} pts</h1>
             <img className="option" id="controller" src={controller} onClick={this.setController}></img>
