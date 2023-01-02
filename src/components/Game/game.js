@@ -390,7 +390,7 @@ class Game extends React.Component{
         }
         }else{
             // remove highlight
-            this.removeHighlight()
+            //this.removeHighlight()
             // save f
             this.time = new Date().toLocaleTimeString();
             if(!this.state.gameOver && !this.ctestDisplayed){
@@ -715,7 +715,7 @@ class Game extends React.Component{
                 if(this.opt_act !== dir){
                     this.message = "";
                     this.longMessage = ""
-                    this.removeHighlight();
+                    //this.removeHighlight();
                     this.setState({message: this.message});
                 } 
             }
@@ -783,7 +783,7 @@ class Game extends React.Component{
                 console.log('a 48 path exists') //need to fix this. there is still an issue if you move to a 48 unexpectedly.
                 this.message = " ";
                 this.longMessage = "";
-                this.removeHighlight();
+                //this.removeHighlight();
                 this.setState((prevState)=>({...prevState}));
 
             }
@@ -800,8 +800,8 @@ class Game extends React.Component{
                 if(fourtyEightElsewhere){
                     this.message = "";
                     this.longMessage = "";
-                    this.removeHighlight();
-                    this.removeRed();
+                    //this.removeHighlight();
+                    //this.removeRed();
                     this.setState((prevState)=>({...prevState})); 
                     if (use_delay)
                     {
@@ -814,8 +814,8 @@ class Game extends React.Component{
                     // message 5
                     this.message = "";
                     this.longMessage = "";
-                    this.removeHighlight();
-                    this.removeRed();
+                    //this.removeHighlight();
+                   // this.removeRed();
                     this.setState((prevState)=>({...prevState}));
                     if (use_delay)
                     {
@@ -831,7 +831,7 @@ class Game extends React.Component{
         else {
             this.message = "";
             this.longMessage = "";
-            this.removeHighlight();
+            //Highlight();
             this.setState((prevState)=>({...prevState}));
         }
       }
@@ -1048,8 +1048,8 @@ class Game extends React.Component{
       console.log('this.largestLeaf.getID()',this.largestLeaf.getID())
       this.message = "";
       this.longMessage = ""
-      this.removeHighlight();
-      this.removeRed();
+      //this.removeHighlight();
+      //this.removeRed();
       this.setState((prevState)=>({...prevState}));
     }else if(!this.enoughInfo && this.avatarNode.getValue() === 48){
       // does this path have the minimum values for the other nodes
@@ -1059,8 +1059,8 @@ class Game extends React.Component{
         // message 3
         this.message = " ";
         this.longMessage = "";
-        this.removeHighlight();
-        this.removeRed();
+        //this.removeHighlight();
+        //this.removeRed();
         this.setState((prevState)=>({...prevState}));
       }else if(psum === 36){ // means all nodes in this path are open with 36 = 48 - 8 - 4
         // check if there were any other 48 leaves that should've been selected instead
@@ -1079,17 +1079,17 @@ class Game extends React.Component{
           // message 4
           this.message = " ";
           this.longMessage = "";
-          this.removeHighlight();
-          this.removeRed();
-          if(this.feedback){
-            this.highlightOptimalPath();
-        }
+          //this.removeHighlight();
+          //this.removeRed();
+          //if(this.feedback){
+            //this.highlightOptimalPath();
+        //}
         }else{
           // message 3
           this.message = " ";
           this.longMessage = "";
-          this.removeHighlight();
-          this.removeRed();
+          //this.removeHighlight();
+          //this.removeRed();
           this.setState((prevState)=>({...prevState}));
         }
       }else if(psum !== null){ // check if there's another 48 path with all nodes open, where it's psum is greater than selected path's psum
@@ -1111,8 +1111,8 @@ class Game extends React.Component{
         }else{
             this.message = " ";
             this.longMessage = "";
-            this.removeHighlight();
-            this.removeRed();
+            //this.removeHighlight();
+            //this.removeRed();
             this.setState((prevState)=>({...prevState}));
         }
       }
@@ -1134,7 +1134,7 @@ class Game extends React.Component{
             {
                 this.message = ""; //test b
                 this.longMessage = "";
-                this.removeRed();
+                //this.removeRed();
                 this.setState((prevState)=>({...prevState}));
             }
             else
@@ -1142,19 +1142,19 @@ class Game extends React.Component{
                 this.message = " ";
                 this.longMessage = "";
                 this.setState((prevState)=>({...prevState}));
-                this.highlightOptimalPath();
-                this.removeRed();
+                //this.highlightOptimalPath();
+                //this.removeRed();
             }
 
         }else{
             // message 6
             this.message = " ";
             this.longMessage = "";
-            this.removeHighlight();
+            //this.removeHighlight();
             this.setState((prevState)=>({...prevState}));
-            if(this.feedback){
-                this.highlightOptimalPath();
-            }
+            // if(this.feedback){
+            //     this.highlightOptimalPath();
+            // }
         }
         
     }else if(!this.enoughInfo && this.avatarNode.getValue() !== 48){
@@ -1176,7 +1176,7 @@ class Game extends React.Component{
         // message 6
         this.message = " ";
         this.longMessage = "";
-        this.removeHighlight();
+        //this.removeHighlight();
         this.setState((prevState)=>({...prevState}));
         if(this.feedback){
             this.highlightOptimalPath();
@@ -1307,8 +1307,8 @@ class Game extends React.Component{
             // message 10
             this.message = " ";
             this.longMessage = "";
-            this.removeHighlight();
-            this.removeRed();
+            // this.removeHighlight();
+            // this.removeRed();
             this.setState((prevState)=>({...prevState}));
         }
 
@@ -1768,7 +1768,7 @@ class Game extends React.Component{
         this.numNodes -= 1;
     }
     node.selected = true;
-    this.removeHighlight();
+    //this.removeHighlight();
     if (node.explored() === true){
         console.log("do not click");
         // check highlight
@@ -2219,7 +2219,7 @@ class Game extends React.Component{
             // message 10
             this.message = " ";
             this.longMessage = "";
-            this.removeHighlight();
+            //this.removeHighlight();
             this.setState((prevState)=>({...prevState}));
         }
       for(var i in this.highlight){
@@ -2252,7 +2252,7 @@ class Game extends React.Component{
             // message 10
             this.message = " ";
             this.longMessage = "";
-            this.removeHighlight();
+            //this.removeHighlight();
             this.setState((prevState)=>({...prevState}));
         }
         else {
