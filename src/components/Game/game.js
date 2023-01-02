@@ -13,7 +13,6 @@ import left from "../images/left.png";
 import right from "../images/right.png";
 import controller from "../images/controller.png";
 import moreinfo from "../images/moreinfo.png";
-import incorrect from "../images/incorrect.png";
 import { w3cwebsocket } from "websocket";
 import {
   WS_URL,
