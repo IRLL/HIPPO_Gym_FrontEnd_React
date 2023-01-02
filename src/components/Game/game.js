@@ -285,7 +285,7 @@ class Game extends React.Component{
     //instructions
     this.moreinfo = false;
     this.instr = "INSTRUCTIONS"
-    this.instructionMessage = "In this study, you can practice your planning skills to make better decisions. <br> You will navigate an airplane across a network of airports (white circles). <br> Each circle has a value denoting how profitable it is to fly there. <br> When you move the plane to a circle (a node), the value of the node is revealed and added to your total score. <br> Each node in the game either contains a reward of up to $48 and a loss of up to -$48. <br> If you want to reveal the value of the node without having to move the airplane, simply click on a node. However, this will cost $1. <br> When you are ready to choose a path for your airplane, you can move the plane with the arrow keys, but only in the direction of the arrows between the nodes.";
+    this.instructionMessage = "In this study, you can practice your planning skills to make better decisions. You will navigate an airplane across a network of airports (white circles). Each circle has a value denoting how profitable it is to fly there. When you move the plane to a circle (a node), the value of the node is revealed and added to your total score. Each node in the game either contains a reward of up to $48 and a loss of up to -$48. If you want to reveal the value of the node without having to move the airplane, simply click on a node. However, this will cost $1. When you are ready to choose a path for your airplane, you can move the plane with the arrow keys, but only in the direction of the arrows between the nodes.";
   }
 
   initialize(){
@@ -2481,6 +2481,7 @@ class Game extends React.Component{
     this.special_case_test_message = "During this round, imagine you are making a very important decision. For example, imagine that each path represents a different possible career. We have revealed the value of one of the nodes for you.";
     }
     return(
+        
       <div id="wrapper">
         <div id="info">
           <h1 id="round">{this.round} {this.numRound}/{this.totNumRound}</h1>
@@ -2489,7 +2490,9 @@ class Game extends React.Component{
             <img className="option" id="controller" src={controller} onClick={this.setController}></img>
             <img className="option" id="moreinfo" src={moreinfo} onClick={this.setMoreInfo}></img>
           </div>
-          <h1 style="color:blue;" align="center">{this.special_case_test_message}</h1>
+
+          <h1 align="center">{this.special_case_test_message}</h1>
+
           {displaymoreinfo()}
           <NewMessageBoard message={this.message} longMessage={this.longMessage} setBoardDisplayed={this.changeMessageBoardDisplayed} currStatus={this.moreinfo}/>  
           <ConfidenceTest ctest = {this.ctestDisplayed} ctest2 = {this.ctest2displayed} setCTDisplay = {this.changeCTDisplayed}></ConfidenceTest>
