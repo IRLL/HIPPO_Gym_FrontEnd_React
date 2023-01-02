@@ -2405,6 +2405,15 @@ class Game extends React.Component{
   setMoreInfo(){
     this.moreinfo = this.moreinfo ? false : true;
     this.setState((prevState)=>({...prevState}));
+
+    // save that instructions have been selected
+    this.time = new Date().toLocaleTimeString();
+    if(this.moreinfo){
+        var message = "opened instructions: " + this.time;
+    }else{
+        var message = "closed instructions: " + this.time;
+    }
+    this.sendMessage({save: message});
   }
 
   handleArrowPress(key){
