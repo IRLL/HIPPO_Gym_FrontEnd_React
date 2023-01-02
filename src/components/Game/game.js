@@ -285,7 +285,7 @@ class Game extends React.Component{
     //instructions
     this.moreinfo = false;
     this.instr = "INSTRUCTIONS"
-    this.instructionMessage = "In this study, you can practice your planning skills to make better decisions. \n You will navigate an airplane across a network of airports (white circles). \n Each circle has a value denoting how profitable it is to fly there. \n When you move the plane to a circle (a node), the value of the node is revealed and added to your total score. \n Each node in the game either contains a reward of up to $48 and a loss of up to -$48. \n If you want to reveal the value of the node without having to move the airplane, simply click on a node. However, this will cost $1. \n When you are ready to choose a path for your airplane, you can move the plane with the arrow keys, but only in the direction of the arrows between the nodes.";
+    this.instructionMessage = "In this study, you can practice your planning skills to make better decisions. <br> You will navigate an airplane across a network of airports (white circles). <br> Each circle has a value denoting how profitable it is to fly there. <br> When you move the plane to a circle (a node), the value of the node is revealed and added to your total score. <br> Each node in the game either contains a reward of up to $48 and a loss of up to -$48. <br> If you want to reveal the value of the node without having to move the airplane, simply click on a node. However, this will cost $1. <br> When you are ready to choose a path for your airplane, you can move the plane with the arrow keys, but only in the direction of the arrows between the nodes.";
   }
 
   initialize(){
