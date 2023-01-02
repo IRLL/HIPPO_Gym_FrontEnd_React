@@ -478,18 +478,18 @@ class Game extends React.Component{
                 console.log("recieved ui");
                 clear_array(clicked_nodes)
                 if(this.canvas){
-                this.canvas.clear();
+                    this.canvas.clear();
                 }
             
                 this.initialize();
                 if(parsedData.CTEST){
-                this.ctest = true;
+                    this.ctest = true;
                 }
                 if(this.count === 1 || this.count === 43){
-                this.feedback = false;
-                this.isLargeGraph = true;
-                this.setState((prevState) => ({
-                  adjValues: parsedData.UI,
+                    this.feedback = false;
+                    this.isLargeGraph = true;
+                    this.setState((prevState) => ({
+                    adjValues: parsedData.UI,
                 }), () => { 
                     this.displayGraph();
                 });
@@ -508,22 +508,21 @@ class Game extends React.Component{
               }
               if(this.count == 1){
                 
-              this.numRound = 1;
-              this.totNumRound = 2;
-              this.setState((prevState)=>({...prevState}));
+                this.numRound = 1;
+                this.totNumRound = 2;
+                this.setState((prevState)=>({...prevState}));
               }else if(this.count == 3){
-              this.numRound = 1;
-              this.totNumRound = 20;
-              this.setState((prevState)=>({...prevState}));
+                this.numRound = 1;
+                this.totNumRound = 20;
+                this.setState((prevState)=>({...prevState}));
               }else if(this.count == 23){
-              this.numRound = 1;
-              this.totNumRound = 21;
-              this.goal_reminder = true;
-              this.setState((prevState)=>({...prevState}));
+                this.numRound = 1;
+                this.totNumRound = 21;
+                this.goal_reminder = true;
+                this.setState((prevState)=>({...prevState}));
               }
-              else if (this.count >23)
-              {
-              this.goal_reminder = false;
+              else if (this.count >23){
+                this.goal_reminder = false;
               }
               
 
@@ -1512,6 +1511,28 @@ class Game extends React.Component{
     createAdj(0, 0, 0); 
 
     this.adjList = adjList;
+    // special graphs, reveal relevant nodes
+    const revealNode = (nToRev) => {
+        for(var i=0; i < adjList.length; i++){
+            for(var j=1; j < adjList[i].length; j++){
+                if(adjList[i][j] !== null){
+                    if(adjList[i][j].getID() == nToRev){
+                        adjList[i][j].selected = true;
+                    }
+                }
+            }
+        }
+    }
+
+    if(this.count == 39){
+        revealNode(12)
+    }else if(this.count == 40){
+        revealNode(8)
+    }else if(this.count == 41){
+        revealNode(4)
+    }else if(this.count == 42){
+        revealNode(3)
+    }
 
     // create connections
     for(var row=0; row<this.adjList.length; row++){
@@ -1584,6 +1605,9 @@ class Game extends React.Component{
         for(var j=1; j<adjList[i].length; j++){
             if(adjList[i][j] !== null){
                adjList[i][j].drawCircle(this.canvas);
+               if(adjList[i][j].selected){
+                adjList[i][j].drawText(this.canvas, 'black')
+               }
             }
         }
     }  
@@ -2449,12 +2473,12 @@ class Game extends React.Component{
       <div id="wrapper">
         <div id="info">
           <h1 id="round">{this.round} {this.numRound}/{this.totNumRound}</h1>
-          <h1 align="center">{this.special_case_test_message}</h1>
           <div id="groupedbar">
             <h1 id="score">{this.score} pts</h1>
             <img className="option" id="controller" src={controller} onClick={this.setController}></img>
             <img className="option" id="moreinfo" src={moreinfo} onClick={this.setMoreInfo}></img>
           </div>
+          <h1 align="center">{this.special_case_test_message}</h1>
           {displaymoreinfo()}
           <NewMessageBoard message={this.message} longMessage={this.longMessage} setBoardDisplayed={this.changeMessageBoardDisplayed} currStatus={this.moreinfo}/>  
           <ConfidenceTest ctest = {this.ctestDisplayed} ctest2 = {this.ctest2displayed} setCTDisplay = {this.changeCTDisplayed}></ConfidenceTest>
