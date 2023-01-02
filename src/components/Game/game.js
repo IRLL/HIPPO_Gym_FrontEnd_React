@@ -2449,7 +2449,7 @@ class Game extends React.Component{
       <div id="wrapper">
         <div id="info">
           <h1 id="round">{this.round} {this.numRound}/{this.totNumRound}</h1>
-          <h1 align="center">{this.special_case_test_message}</h1>
+          <h1 style="color:blue;" align="center">{this.special_case_test_message}</h1>
           <div id="groupedbar">
             <h1 id="score">{this.score} pts</h1>
             <img className="option" id="controller" src={controller} onClick={this.setController}></img>
