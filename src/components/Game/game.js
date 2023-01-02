@@ -261,7 +261,7 @@ class Game extends React.Component{
     this.removeHighlight = this.removeHighlight.bind(this);
     this.changeMessageBoardDisplayed = this.changeMessageBoardDisplayed.bind(this);
     this.manageKeyPress = this.manageKeyPress.bind(this);
-    this.handleArrowPress = this.handleArrowPress.bind(this);
+    this.handleItemClick = this.handleItemClick.bind(this);
     this.setController = this.setController.bind(this);
     this.setMoreInfo = this.setMoreInfo.bind(this);
     this.changeCTDisplayed = this.changeCTDisplayed.bind(this);
@@ -2416,7 +2416,7 @@ class Game extends React.Component{
     this.sendMessage({save: message});
   }
 
-  handleArrowPress(key){
+  handleItemClick(key){
     this.manageKeyPress(key);
   }
 
@@ -2425,7 +2425,7 @@ class Game extends React.Component{
     let scoreMessage;
     if(this.state.gameOver){
       scoreMessage = <h2>You made {this.pts} points this round!</h2>
-      gameOver = <h3 id="next">Press space to continue</h3>
+      gameOver = <h3 id="next">Press <button onClick={() => this.handleItemClick('Space')}>space</button> to continue</h3>
     }
 
     let sec_header;
@@ -2437,12 +2437,12 @@ class Game extends React.Component{
         if(this.controller){
             return(
                 <div className="arrowControl">
-                    <img className="arrow" src={up} onClick={() => this.handleArrowPress("ArrowUp")}></img>
+                    <img className="arrow" src={up} onClick={() => this.handleItemClick("ArrowUp")}></img>
                     <div id="middlearrows">
-                        <img className="arrow" src={left} onClick={() => this.handleArrowPress("ArrowLeft")}></img>
-                        <img className="arrow" src={right} onClick={() => this.handleArrowPress("ArrowRight")}></img>
+                        <img className="arrow" src={left} onClick={() => this.handleItemClick("ArrowLeft")}></img>
+                        <img className="arrow" src={right} onClick={() => this.handleItemClick("ArrowRight")}></img>
                     </div>
-                    <img className="arrow" src={down} onClick={() => this.handleArrowPress("ArrowDown")}></img>
+                    <img className="arrow" src={down} onClick={() => this.handleItemClick("ArrowDown")}></img>
                 </div>
             )
         }
