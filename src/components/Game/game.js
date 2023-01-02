@@ -374,7 +374,7 @@ class Game extends React.Component{
             this.time = new Date().toLocaleTimeString();
             var message = "hit space: " + this.time;
             this.sendMessage({save: message});
-        if(this.state.gameOver){
+        if(this.state.gameOver && !this.ctest2displayed){
             this.setState({
                 message: "",
                 gameOver: false,
@@ -384,6 +384,9 @@ class Game extends React.Component{
                 command: "NEW GAME"
                 });
             });
+        }else if(this.ctest2displayed){
+            this.inspectorMessage = "please answer to continue..."
+            this.setState({inspectorMessage: this.inspectorMessage});
         }
         }else{
             // remove highlight
