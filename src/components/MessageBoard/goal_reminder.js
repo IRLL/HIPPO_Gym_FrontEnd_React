@@ -25,10 +25,10 @@ const GoalReminder = ({goal_reminder, setCTDisplay}) => {
     }
     var headerMessage;
     if(goal_reminder){
-        headerMessage = <h3>As a reminder, the objective of this study is to improve your decision making skills by ..</h3>;
+        headerMessage = <h3>As a reminder, the objective of this study is to learn how to make decisions that are aligned with the best long-term reward. Instead of making long-term decisions based solely on immediate pleasure. </h3>;
 
     }else if(goal_reminder){
-        headerMessage = <h3>As a reminder, the objective of this study is to improve your decision making skills by ..</h3>;
+        headerMessage = <h3>As a reminder, the objective of this study is to learn how to make decisions that are aligned with the best long-term reward. Instead of making long-term decisions based solely on immediate pleasure. </h3>;
     }
     if(goal_reminder||goal_reminder){
        return(
