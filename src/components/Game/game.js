@@ -506,7 +506,10 @@ class Game extends React.Component{
                 this.populateGraphValues();
               }
               if(this.count == 3 | this.count == 23){
+            
               this.score = 50;
+              this.pts = this.score;
+              console.log('reset score back to 50')
               }
               if(this.count == 1){
                 
@@ -972,10 +975,13 @@ class Game extends React.Component{
         var message = "moved: " + this.avatarNode.getID() +  " , " + "node value: " +  this.avatarNode.getValue().toString() + " , " + this.time;    
         this.sendMessage({save: message});   
       this.score += this.avatarNode.getValue();
+      console.log('upating score', this.score)
       this.setState((prevState)=>({...prevState}))
       if(this.avatarNode.getNext() === null){
         // determine difference for the round (final score - original score)
         this.pts = this.score - this.pts; 
+        console.log('this.score', this.score)
+        console.log('this.pts', this.pts)
 		if(this.feedback && this.avatarNode.getSelected()){
 			this.checkSelectedPath();
 		}
