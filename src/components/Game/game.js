@@ -506,7 +506,9 @@ class Game extends React.Component{
                 this.populateGraphValues();
               }
               if(this.count == 3 | this.count == 23){
+              
               this.score = 50;
+              this.pts = this.score;
               }
               if(this.count == 1){
                 
