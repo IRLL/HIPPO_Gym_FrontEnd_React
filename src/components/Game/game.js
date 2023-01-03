@@ -801,7 +801,7 @@ class Game extends React.Component{
                     }
                 }
                 if(fourtyEightElsewhere){
-                    this.message = "You don't have enough info to move in THAT direction/path, please wait 3 seconds ...";
+                    this.message = "You don't have enough info to move in THAT direction/path, please wait 7 seconds ...";
                     this.longMessage = "Right now, you have limited information about the immediate and long-term rewards/costs in this path. You should have continued exploring the nodes in this path to ensure it's a good decision to make.";
                     this.removeHighlight();
                     this.removeRed();
@@ -810,12 +810,12 @@ class Game extends React.Component{
                     {
                         global_message = "You don't have enough info to move in THAT direction/path";
                         global_long_message = "Right now, you have limited information about the immediate and long-term rewards/costs in this path. You should have continued exploring the nodes in this path to ensure it's a good decision to make.";
-                        this.addDelay(3);
+                        this.addDelay(7);
                         this.removeHighlight();
                     }
                 }else{
                     // message 5
-                    this.message = "You don't have enough info to move, please wait 3 seconds ...";
+                    this.message = "You don't have enough info to move, please wait 7 seconds ...";
                     this.longMessage = "You cannot make a good decision with the amount of information you currently have. You should have continued exploring the nodes.";
                     this.removeHighlight();
                     this.removeRed();
@@ -824,7 +824,7 @@ class Game extends React.Component{
                     {
                         global_message =  "You don't have enough info to move.";
                         global_long_message = "You cannot make a good decision with the amount of information you currently have. You should have continued exploring the nodes.";
-                        this.addDelay(3);
+                        this.addDelay(7);
                     }
                     //I might be able to add a condition here, so that the message that would print out upon moving is blank. This way the previous message wouldn't show up, 
                 }
@@ -2208,7 +2208,7 @@ class Game extends React.Component{
     }else{
         if(this.feedback && !this.enoughInfo){
           // message 7
-          this.message = "You should NOT have explored the red node. You SHOULD have explored the highlighted blue nodes, please wait 3 seconds ..."; //test a
+          this.message = "You should NOT have explored the red node. You SHOULD have explored the highlighted blue nodes, please wait 7 seconds ..."; //test a
           this.longMessage = "You should have explored one of the highlighted blue nodes because they offer you more information";
 
           // selected node is incorrect, provide incorrect visual
@@ -2221,7 +2221,7 @@ class Game extends React.Component{
           {
               global_message = "You should NOT have explored the red node. You SHOULD have explored the highlighted blue nodes."; //
               global_long_message = "You should have explored one of the highlighted blue nodes because they offer you more information";
-              this.addDelay(3);
+              this.addDelay(7);
           }
         }else if(this.feedback && this.enoughInfo){
             // message 10
@@ -2248,13 +2248,13 @@ class Game extends React.Component{
 	if(selectedNode.explored() && this.feedback){
         if(!this.enoughInfo && !this.moved){
            // message 7
-            this.message = "You should NOT have explored the red node. You SHOULD have explored the highlighted blue nodes, please wait 3 seconds ..."; //test b
+            this.message = "You should NOT have explored the red node. You SHOULD have explored the highlighted blue nodes, please wait 7 seconds ..."; //test b
             this.longMessage = "You should have explored one of the highlighted blue nodes because they offer you more information";
             if (use_delay)
             {
                 global_message = "You should NOT have explored the red node. You SHOULD have explored the highlighted blue nodes.";
                 global_long_message  = "You should have explored one of the highlighted blue nodes because they offer you more information";
-                this.addDelay(3);
+                this.addDelay(7);
             }
             //this.moved = true
             this.setState((prevState)=>({...prevState})); 
