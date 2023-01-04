@@ -2180,8 +2180,8 @@ class Game extends React.Component{
             inHighlight = true;
             // message 1
             if(this.feedback){
-              this.message = "You have correctly explored the right node (highlighted in green)!";
-              this.longMessage = "";
+              this.message = "You have correctly explored the right node (highlighted in green)! See Green ? for further explanation.";
+              this.longMessage = "Even if the node's value was really low, this node offered you the most information about which PATH is overall more or less rewarding.";
               selectedNode.redraw(this.canvas, 'green')
               this.selectedNode = selectedNode;
               this.wrongNode = selectedNode
@@ -2219,8 +2219,8 @@ class Game extends React.Component{
          this.setState((prevState)=>({...prevState}));
           if (use_delay)
           {
-              global_message = "You should NOT have explored the red node. You SHOULD have explored the highlighted blue nodes. See Green ? for further explanation."; //
-              global_long_message = "You should have explored one of the highlighted blue nodes because they offer you more information about which PATH is overall more or less rewarding.";
+              global_message = "You should NOT have explored the red node. You SHOULD have explored the blue nodes. See Green ? for further explanation."; //
+              global_long_message = "You should have explored one of the blue nodes because they offer you more information about which PATH is overall more or less rewarding.";
               this.addDelay(7);
           }
         }else if(this.feedback && this.enoughInfo){
@@ -2248,12 +2248,12 @@ class Game extends React.Component{
 	if(selectedNode.explored() && this.feedback){
         if(!this.enoughInfo && !this.moved){
            // message 7
-            this.message = "You should NOT have explored the red node. You SHOULD have explored the highlighted blue nodes, please wait 7 seconds ..."; //test b
-            this.longMessage = "You should have explored one of the highlighted blue nodes because they offer you more information";
+            this.message = "You should NOT have explored the red node. You SHOULD have explored the blue nodes, please wait 7 seconds ..."; //test b
+            this.longMessage = "You should have explored one of the blue nodes because they offer you more information about which PATH is overall more or less rewarding.";
             if (use_delay)
             {
-                global_message = "You should NOT have explored the red node. You SHOULD have explored the highlighted blue nodes. See Green ? for further explanation.";
-                global_long_message  = "You should have explored one of the highlighted blue nodes because they offer you more information";
+                global_message = "You should NOT have explored the red node. You SHOULD have explored the blue nodes. See Green ? for further explanation.";
+                global_long_message  = "You should have explored one of the blue nodes because they offer you more information about which PATH is overall more or less rewarding.";
                 this.addDelay(7);
             }
             //this.moved = true
