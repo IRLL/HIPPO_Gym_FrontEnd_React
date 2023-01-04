@@ -26,7 +26,7 @@ const outer_node_ids = [3,4, 7,8,11,12];
 const mid_node_ids = [2,6,10];
 const inner_node_ids = [1,5, 9];
 var clicked_nodes =new Array;
-var use_delay = false;
+var use_delay = true;
 var global_message = "global message";
 var global_long_message = "global message";
 //testing
@@ -753,7 +753,7 @@ class Game extends React.Component{
           // delay
         if (use_delay)
         {
-            global_message = "You should have explored the nodes before moving.";
+            global_message = "You should have explored the nodes before moving. See Green ? for further explanation.";
             global_long_message = "To find a good path to take, you need to know the immediate and long-term rewards/costs of your decision.";
             this.addDelay(42);
             
@@ -808,7 +808,7 @@ class Game extends React.Component{
                     this.setState((prevState)=>({...prevState})); 
                     if (use_delay)
                     {
-                        global_message = "You don't have enough info to move in THAT direction/path";
+                        global_message = "You don't have enough info to move in THAT direction/path. See Green ? for further explanation.";
                         global_long_message = "Right now, you have limited information about the immediate and long-term rewards/costs in this path. You should have continued exploring the nodes in this path to ensure it's a good decision to make.";
                         this.addDelay(7);
                         this.removeHighlight();
@@ -816,14 +816,14 @@ class Game extends React.Component{
                 }else{
                     // message 5
                     this.message = "You don't have enough info to move, please wait 7 seconds ...";
-                    this.longMessage = "You cannot make a good decision with the amount of information you currently have. You should have continued exploring the nodes.";
+                    this.longMessage = "You cannot find the best path with the amount of information you currently have. You should have continued exploring the nodes.";
                     this.removeHighlight();
                     this.removeRed();
                     this.setState((prevState)=>({...prevState}));
                     if (use_delay)
                     {
-                        global_message =  "You don't have enough info to move.";
-                        global_long_message = "You cannot make a good decision with the amount of information you currently have. You should have continued exploring the nodes.";
+                        global_message =  "You don't have enough info to move. See Green ? for further explanation.";
+                        global_long_message = "You cannot find the best path with the amount of information you currently have. You should have continued exploring the nodes.";
                         this.addDelay(7);
                     }
                     //I might be able to add a condition here, so that the message that would print out upon moving is blank. This way the previous message wouldn't show up, 
@@ -1083,7 +1083,7 @@ class Game extends React.Component{
         })
         if(shouldSelectDiffPath){
           // message 4
-          this.message = "You should have selected a different path.";
+          this.message = "You should have selected a different path. See Green ? for further explanation.";
           this.longMessage = "Given that some other path(s) are likely to have higher scores than this path, this wasn’t the best decision you could have made.";
           this.removeHighlight();
           this.removeRed();
@@ -1112,7 +1112,7 @@ class Game extends React.Component{
         })
 
         if(shouldSelectDiffPath){
-            this.message = "You should have selected a different path...";
+            this.message = "You should have selected a different path... See Green ? for further explanation.";
             this.longMessage = "Given that some other path(s) have higher scores than this path, this wasn’t the best decision you could have made.";
         }else{
             // message 3
@@ -1146,7 +1146,7 @@ class Game extends React.Component{
             }
             else
             {
-                this.message = "You should have selected a different path... ";
+                this.message = "You should have selected a different path... See Green ? for further explanation.";
                 this.longMessage = "Given that some other path(s)  do have higher scores than this path, this wasn’t the best decision you could have made.";
                 this.setState((prevState)=>({...prevState}));
                 this.highlightOptimalPath();
@@ -1155,7 +1155,7 @@ class Game extends React.Component{
 
         }else{
             // message 6
-            this.message = "You should have selected a different path....";
+            this.message = "You should have selected a different path....See Green ? for further explanation.";
             this.longMessage = "Given that some other path(s)  do have higher scores than this path, this wasn’t the best decision you could have made.";
             this.removeHighlight();
             this.setState((prevState)=>({...prevState}));
@@ -1181,7 +1181,7 @@ class Game extends React.Component{
       }
       if(fourtyEightPath){
         // message 6
-        this.message = "You should have selected a different path...";
+        this.message = "You should have selected a different path...See Green ? for further explanation.";
         this.longMessage = "Given that some other path(s) do have higher scores than this path, this wasn’t the best decision you could have made.";
         this.removeHighlight();
         this.setState((prevState)=>({...prevState}));
@@ -1312,7 +1312,7 @@ class Game extends React.Component{
         
         if(this.feedback && this.enoughInfo && !this.gameOver){
             // message 10
-            this.message = "You don’t need to explore further.";
+            this.message = "You don’t need to explore further. See Green ? for further explanation.";
             this.longMessage = "You have enough information to move towards the best path. If you explore more nodes, you reduce your reward without gaining useful information.";
             this.removeHighlight();
             this.removeRed();
@@ -2208,8 +2208,8 @@ class Game extends React.Component{
     }else{
         if(this.feedback && !this.enoughInfo){
           // message 7
-          this.message = "You should NOT have explored the red node. You SHOULD have explored the highlighted blue nodes, please wait 7 seconds ..."; //test a
-          this.longMessage = "You should have explored one of the highlighted blue nodes because they offer you more information";
+          this.message = "You should NOT have explored the red node. You SHOULD have explored the blue nodes, please wait 7 seconds ..."; //test a
+          this.longMessage = "You should have explored one of the blue nodes because they offer you more information about which PATH is overall more or less rewarding.";
 
           // selected node is incorrect, provide incorrect visual
           selectedNode.redraw(this.canvas, 'red')
@@ -2219,14 +2219,14 @@ class Game extends React.Component{
          this.setState((prevState)=>({...prevState}));
           if (use_delay)
           {
-              global_message = "You should NOT have explored the red node. You SHOULD have explored the highlighted blue nodes."; //
-              global_long_message = "You should have explored one of the highlighted blue nodes because they offer you more information";
+              global_message = "You should NOT have explored the red node. You SHOULD have explored the highlighted blue nodes. See Green ? for further explanation."; //
+              global_long_message = "You should have explored one of the highlighted blue nodes because they offer you more information about which PATH is overall more or less rewarding.";
               this.addDelay(7);
           }
         }else if(this.feedback && this.enoughInfo){
             // message 10
-            this.message = "You don’t need to explore further.";
-            this.longMessage = "You have enough information to move towards the best path. If you explore more nodes, you reduce your reward without gaining useful information.";
+            this.message = "You don’t need to explore further. See Green ? for further explanation. ";
+            this.longMessage = "You have enough information to move towards the best path. If you explore more nodes, you reduce your total points without gaining useful information.";
             this.removeHighlight();
             this.setState((prevState)=>({...prevState}));
         }
@@ -2252,7 +2252,7 @@ class Game extends React.Component{
             this.longMessage = "You should have explored one of the highlighted blue nodes because they offer you more information";
             if (use_delay)
             {
-                global_message = "You should NOT have explored the red node. You SHOULD have explored the highlighted blue nodes.";
+                global_message = "You should NOT have explored the red node. You SHOULD have explored the highlighted blue nodes. See Green ? for further explanation.";
                 global_long_message  = "You should have explored one of the highlighted blue nodes because they offer you more information";
                 this.addDelay(7);
             }
@@ -2260,7 +2260,7 @@ class Game extends React.Component{
             this.setState((prevState)=>({...prevState})); 
         }else if(this.enoughInfo){
             // message 10
-            this.message = "You don’t need to explore further.";
+            this.message = "You don’t need to explore further. See Green ? for further explanation.";
             this.longMessage = "You have enough information to move towards the best path. If you explore more nodes, you reduce your reward without gaining useful information.";
             this.removeHighlight();
             this.setState((prevState)=>({...prevState}));
