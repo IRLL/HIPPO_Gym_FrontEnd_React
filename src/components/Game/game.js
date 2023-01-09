@@ -1528,11 +1528,11 @@ class Game extends React.Component{
     }
 
     if(this.count == 39){
-        revealNode(12)
+        revealNode(4)
     }else if(this.count == 40){
         revealNode(8)
     }else if(this.count == 41){
-        revealNode(4)
+        revealNode(11)
     }else if(this.count == 42){
         revealNode(3)
     }
