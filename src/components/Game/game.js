@@ -817,6 +817,7 @@ class Game extends React.Component{
                     // message 5
                     this.message = "You don't have enough info to move, please wait 7 seconds ...";
                     this.longMessage = "You cannot find the best path with the amount of information you currently have. You should have continued exploring the nodes.";
+                    console.log('clicked_nodes', clicked_nodes)
                     this.removeHighlight();
                     this.removeRed();
                     this.setState((prevState)=>({...prevState}));
@@ -1533,11 +1534,11 @@ class Game extends React.Component{
     }
 
     if(this.count == 39){
-        revealNode(12)
+        revealNode(4)
     }else if(this.count == 40){
         revealNode(8)
     }else if(this.count == 41){
-        revealNode(4)
+        revealNode(11)
     }else if(this.count == 42){
         revealNode(3)
     }
@@ -2183,6 +2184,7 @@ class Game extends React.Component{
               this.message = "You have correctly explored the right node (highlighted in green)! See Green ? for further explanation.";
               this.longMessage = "Even if the node's value was really low, this node offered you the most information about which PATH is overall more or less rewarding.";
               selectedNode.redraw(this.canvas, 'green')
+              console.log('selected_noded', selectedNode)
               this.selectedNode = selectedNode;
               this.wrongNode = selectedNode
               this.setState((prevState)=>({...prevState}));
