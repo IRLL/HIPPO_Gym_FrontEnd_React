@@ -2,8 +2,16 @@ import React from "react";
 import { fabric } from "fabric";
 import './game.css'
 import MessageBoard from "../MessageBoard/MessageBoard";
+import NewMessageBoard from "../MessageBoard/NewMessageBoard";
 import ConfidenceTest from "../MessageBoard/ConfidenceTest";
+import Header from "../MessageBoard/Header";
 import aeroplane from '../images/aeroplane.png';
+import controller from "../images/controller.png";
+import moreinfo from "../images/moreinfo.png";
+import up from "../images/up.png";
+import down from "../images/down.png";
+import left from "../images/left.png";
+import right from "../images/right.png";
 import myData from "../data/increasing_prs.json";
 import { w3cwebsocket } from "websocket";
 import {
@@ -224,10 +232,19 @@ class Game extends React.Component{
     this.removeHighlight = this.removeHighlight.bind(this);
     this.changeMessageBoardDisplayed = this.changeMessageBoardDisplayed.bind(this);
     this.changeCTDisplayed = this.changeCTDisplayed.bind(this);
+    this.setController = this.setController.bind(this);
+    this.setMoreInfo = this.setMoreInfo.bind(this);
+    this.handleItemClick = this.handleItemClick.bind(this);
+    this.manageKeyPress = this.manageKeyPress.bind(this);
+    this.endHeader = this.endHeader.bind(this);
     this.count = 0;
     this.score = 50;
     this.totNumRound = 0;
     this.numRound = 0;
+
+    this.controller = false;
+    this.instr = "INSTRUCTIONS";
+    this.moreinfo = false;
   }
 
   initialize(){
@@ -278,54 +295,67 @@ class Game extends React.Component{
     this.ctestMistakeNum = 0;
     this.ctestChosenDecision = false;
     this.ctestDisplayed = false;
+
+    this.displayHeading = false;
+  }
+
+  manageKeyPress(key){
+    if(this.inspectorMessage !== ""){
+      this.inspectorMessage = ""
+      this.setState({inspectorMessage: this.inspectorMessage});
+    }
+    if(!this.timeoutOn && !this.messageBoardDisplayed){
+      if(key === 'Space'){
+        // save e
+        this.time = new Date().toLocaleTimeString();
+        var message = "hit space: " + this.time;
+        this.sendMessage({save: message});
+        if(this.state.gameOver && !this.ctest2displayed){
+          this.setState({
+            message: "",
+            gameOver: false,
+            isConnection: true
+          }, ()=>{
+            this.sendMessage({
+              command: "NEW GAME"
+            });
+          });
+        }else if(this.ctest2displayed){
+          this.inspectorMessage = "please answer to continue..."
+          this.setState({inspectorMessage: this.inspectorMessage});
+        }
+      }else{
+        // save f
+        this.time = new Date().toLocaleTimeString();
+        if(!this.state.gameOver && !this.ctestDisplayed){
+          if(this.avatarNode !== null){
+              if(this.avatarNode.getNext() !== null){
+                  this.movingAvatar(key);
+              }
+          }else{
+              this.movingAvatar(key);
+          }
+        }else if(this.ctestDisplayed){
+          this.setState({ctestMessage: "Please answer to continue..."})
+        } 
+      }
+    }else if(this.feedback){
+      if(this.messageBoardDisplayed){
+        this.inspectorMessage = "cannot move while viewing explanation"
+        this.setState({inspectorMessage: this.inspectorMessage});
+      }else if(this.timeoutOn){
+        this.inspectorMessage = "please wait"
+        this.setState({inspectorMessage: this.inspectorMessage});
+      }
+    }
   }
   
   componentDidMount(){
     window.addEventListener('keydown', (event)=>{
-      if(this.inspectorMessage !== ""){
-        this.inspectorMessage = ""
-        this.setState({inspectorMessage: this.inspectorMessage});
-      }
-      if(!this.timeoutOn && !this.messageBoardDisplayed){
-        if(event.code === 'Space'){
-          // save e
-          this.time = new Date().toLocaleTimeString();
-          var message = "hit space: " + this.time;
-          this.sendMessage({save: message});
-          if(this.state.gameOver){
-            this.setState({
-              message: "",
-              gameOver: false,
-              isConnection: true
-            }, ()=>{
-              this.sendMessage({
-                command: "NEW GAME"
-              });
-            });
-          }
-        }else{
-          // save f
-          this.time = new Date().toLocaleTimeString();
-          if(!this.state.gameOver && !this.ctestDisplayed){
-            if(this.avatarNode !== null){
-                if(this.avatarNode.getNext() !== null){
-                    this.movingAvatar(event);
-                }
-            }else{
-                this.movingAvatar(event);
-            }
-          }else if(this.ctestDisplayed){
-            this.setState({ctestMessage: "Please answer to continue..."})
-          } 
-        }
-      }else if(this.feedback){
-        if(this.messageBoardDisplayed){
-          this.inspectorMessage = "cannot move while viewing explanation"
-          this.setState({inspectorMessage: this.inspectorMessage});
-        }else if(this.timeoutOn){
-          this.inspectorMessage = "please wait"
-          this.setState({inspectorMessage: this.inspectorMessage});
-        }
+      if(event.code == "Space"){
+        this.manageKeyPress(event.code);
+      }else{
+          this.manageKeyPress(event.key);
       }
     });
 
@@ -390,7 +420,7 @@ class Game extends React.Component{
               if(parsedData.CTEST){
                 this.ctest = true;
               }
-              if(this.count === 1 || this.count === 33){
+              if(this.count === 1 || this.count === 43){
                 this.feedback = false;
                 this.isLargeGraph = true;
                 this.setState((prevState) => ({
@@ -408,7 +438,7 @@ class Game extends React.Component{
                 this.opt_act = parsedData.OPT_ACT;
                 this.populateGraphValues();
               }
-              if(this.count == 3 | this.count == 24){
+              if(this.count == 3 | this.count == 23){
                 this.score = 50;
               }
           
@@ -422,7 +452,7 @@ class Game extends React.Component{
                 this.setState({});
               }else if(this.count == 23){
                 this.numRound = 1;
-                this.totNumRound = 11;
+                this.totNumRound = 21;
                 this.setState({});
               }
               this.pts = this.score; // we will calculate final difference by comparing to this original value
@@ -430,6 +460,11 @@ class Game extends React.Component{
               console.log("recieved values")
               this.qVals = parsedData.VALUES;
               this.handleGameState();
+            }else if(parsedData.HEADER){
+              console.log("HEADER PARSED")
+              this.displayHeading = true;
+              this.headerMessage = parsedData.HEADER;
+              this.setState((prevState)=>({...prevState}));
             }
           }
       }
@@ -570,7 +605,7 @@ class Game extends React.Component{
     this.canvas.renderAll();
   }
 
-  movingAvatar(event){
+  movingAvatar(key){
     var avatar = null;
     this.canvas.getObjects().forEach((obj)=>{
         if(obj._element){
@@ -579,16 +614,16 @@ class Game extends React.Component{
     })
     
     var dir = null;
-    if(event.key === 'ArrowUp'){
+    if(key === 'ArrowUp'){
         dir = "up";
         this.checkPos(dir, avatar);     
-    }else if(event.key === 'ArrowRight'){
+    }else if(key === 'ArrowRight'){
         dir = "right";
         this.checkPos(dir, avatar);
-    }else if(event.key === 'ArrowLeft'){
+    }else if(key === 'ArrowLeft'){
         dir = "left";
         this.checkPos(dir, avatar);
-    }else if(event.key === 'ArrowDown'){
+    }else if(key === 'ArrowDown'){
         dir = "down";
         this.checkPos(dir, avatar);
     }
@@ -1048,6 +1083,28 @@ class Game extends React.Component{
     createAdj(0, 0, 0); 
 
     this.adjList = adjList;
+    // special graphs, reveal relevant nodes
+    const revealNode = (nToRev) => {
+      for(var i=0; i < adjList.length; i++){
+        for(var j=1; j < adjList[i].length; j++){
+          if(adjList[i][j] !== null){
+            if(adjList[i][j].getID() == nToRev){
+              adjList[i][j].selected = true;
+            }
+          } 
+        }
+      }
+    }
+
+    if(this.count == 39){
+        revealNode(4)
+    }else if(this.count == 40){
+        revealNode(8)
+    }else if(this.count == 41){
+        revealNode(11)
+    }else if(this.count == 42){
+        revealNode(3)
+    }
 
     // create connections
     for(var row=0; row<this.adjList.length; row++){
@@ -1119,7 +1176,10 @@ class Game extends React.Component{
     for(var i=0; i<adjList.length; i++){
         for(var j=1; j<adjList[i].length; j++){
             if(adjList[i][j] !== null){
-               adjList[i][j].drawCircle(this.canvas);
+              adjList[i][j].drawCircle(this.canvas);
+              if(adjList[i][j].selected){
+              adjList[i][j].drawText(this.canvas)
+              }
             }
         }
     }  
@@ -1437,18 +1497,114 @@ class Game extends React.Component{
     }
   }
 
+  endHeader(){
+    // continue to game
+    this.displayHeading = false;
+    this.setState({
+      message: "",
+      gameOver: false,
+      isConnection: true
+    }, ()=>{
+      this.sendMessage({
+        command: "RESUME"
+      });
+    });
+  }
+
+  setController(){
+    this.controller = this.controller ? false : true;
+    this.setState((prevState)=>({...prevState}));
+  }
+
+  setMoreInfo(){
+    this.moreinfo = this.moreinfo ? false : true;
+    this.setState((prevState)=>({...prevState}));
+
+    // save that instructions have been selected
+    this.time = new Date().toLocaleTimeString();
+    if(this.moreinfo){
+        var message = "opened instructions: " + this.time;
+    }else{
+        var message = "closed instructions: " + this.time;
+    }
+    this.sendMessage({save: message});
+  }
+
+  handleItemClick(key){
+    this.manageKeyPress(key);
+  }
+
   render(){
     let gameOver;
     let scoreMessage;
     if(this.state.gameOver){
       scoreMessage = <h2>You made {this.pts} points this round!</h2>
-      gameOver = <h3 id="next">press space to continue</h3>
+      gameOver = <h3 id="next">Press <button onClick={() => this.handleItemClick('Space')}>space</button> to continue</h3>
     }
+
+    let sec_header;
+    if(this.displayHeading){
+      sec_header = <Header message={this.headerMessage} endHeader={this.endHeader}></Header>
+    }
+
+    const displayController = () =>{
+      if(this.controller){
+        return(
+            <div className="arrowControl">
+                <img className="arrow" src={up} onClick={() => this.handleItemClick("ArrowUp")}></img>
+                <div id="middlearrows">
+                    <img className="arrow" src={left} onClick={() => this.handleItemClick("ArrowLeft")}></img>
+                    <img className="arrow" src={right} onClick={() => this.handleItemClick("ArrowRight")}></img>
+                </div>
+                <img className="arrow" src={down} onClick={() => this.handleItemClick("ArrowDown")}></img>
+            </div>
+        )
+      }
+    }
+
+    const displaymoreinfo = () => {
+      return <NewMessageBoard message={this.instr} longMessage={this.instructionMessage} setBoardDisplayed={this.changeMessageBoardDisplayed} currStatus={this.moreinfo}/>
+    }
+
+    if(this.count == 1 | this.count == 2)
+        {
+        this.round = "Pre test round:"
+        this.special_case_test_message = "";
+        }
+    if (this.count >=3 && this.count <23)
+        {
+        this.round = "Training round:"
+        this.special_case_test_message = "";
+        }
+
+    if (this.count >=23)
+        {
+        this.round = "Test round:"
+        this.special_case_test_message = "";
+        }
+
+    if (this.count ==40 || this.count == 42)
+    {
+        this.special_case_test_message = "During this round, imagine you have to make a decision (i.e., choose a path) quickly. Your goal is still to make the best decision you can, but imagine you are now under time constraints. We have revealed the value of one of the nodes for you. ";
+    }
+    if (this.count == 41 || this.count == 39)
+    {
+    this.special_case_test_message = "During this round, imagine you are making a very important decision. For example, imagine that each path represents a different possible career. We have revealed the value of one of the nodes for you.";
+    }
+    
     return(
       <div id="wrapper">
         <div id="info">
           <h1 id="round">{this.numRound}/{this.totNumRound}</h1>
-          <h1 id="score">{this.score} pts</h1>
+          <div id="groupedbar">
+            <h1 id="score">{this.score} pts</h1>
+            <img className="option" id="controller" src={controller} onClick={this.setController}></img>
+            <img className="option" id="moreinfo" src={moreinfo} onClick={this.setMoreInfo}></img>
+          </div>
+
+          <h1 align="center">{this.special_case_test_message}</h1>
+          {displaymoreinfo()}
+
           <MessageBoard message={this.message} setBoardDisplayed={this.changeMessageBoardDisplayed}/>  
           <ConfidenceTest ctest = {this.ctestDisplayed} ctest2 = {this.ctest2displayed} setCTDisplay = {this.changeCTDisplayed}></ConfidenceTest>
         </div>
@@ -1457,6 +1613,8 @@ class Game extends React.Component{
         {gameOver}
         <h3>{this.inspectorMessage}</h3>  
         <h3>{this.state.ctestMessage}</h3>   
+        {sec_header}
+        {displayController()}
       </div>   
     );
   }
