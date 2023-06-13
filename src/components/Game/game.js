@@ -232,7 +232,7 @@ class Game extends React.Component{
     this.removeHighlight = this.removeHighlight.bind(this);
     this.changeMessageBoardDisplayed = this.changeMessageBoardDisplayed.bind(this);
     this.changeCTDisplayed = this.changeCTDisplayed.bind(this);
-    this.setController = this.setController.bind(this);
+    // this.setController = this.setController.bind(this);
     this.setMoreInfo = this.setMoreInfo.bind(this);
     this.handleItemClick = this.handleItemClick.bind(this);
     this.manageKeyPress = this.manageKeyPress.bind(this);
@@ -242,7 +242,7 @@ class Game extends React.Component{
     this.totNumRound = 0;
     this.numRound = 0;
 
-    this.controller = false;
+    // this.controller = false;
     this.instr = "INSTRUCTIONS";
     this.moreinfo = false;
   }
@@ -1536,10 +1536,10 @@ class Game extends React.Component{
     });
   }
 
-  setController(){
-    this.controller = this.controller ? false : true;
-    this.setState((prevState)=>({...prevState}));
-  }
+  // setController(){
+  //   this.controller = this.controller ? false : true;
+  //   this.setState((prevState)=>({...prevState}));
+  // }
 
   setMoreInfo(){
     this.moreinfo = this.moreinfo ? false : true;
@@ -1572,20 +1572,20 @@ class Game extends React.Component{
       sec_header = <Header message={this.headerMessage} endHeader={this.endHeader}></Header>
     }
 
-    const displayController = () =>{
-      if(this.controller){
-        return(
-            <div className="arrowControl">
-                <img className="arrow" src={up} onClick={() => this.handleItemClick("ArrowUp")}></img>
-                <div id="middlearrows">
-                    <img className="arrow" src={left} onClick={() => this.handleItemClick("ArrowLeft")}></img>
-                    <img className="arrow" src={right} onClick={() => this.handleItemClick("ArrowRight")}></img>
-                </div>
-                <img className="arrow" src={down} onClick={() => this.handleItemClick("ArrowDown")}></img>
-            </div>
-        )
-      }
-    }
+    // const displayController = () =>{
+    //   if(this.controller){
+    //     return(
+    //         <div className="arrowControl">
+    //             <img className="arrow" src={up} onClick={() => this.handleItemClick("ArrowUp")}></img>
+    //             <div id="middlearrows">
+    //                 <img className="arrow" src={left} onClick={() => this.handleItemClick("ArrowLeft")}></img>
+    //                 <img className="arrow" src={right} onClick={() => this.handleItemClick("ArrowRight")}></img>
+    //             </div>
+    //             <img className="arrow" src={down} onClick={() => this.handleItemClick("ArrowDown")}></img>
+    //         </div>
+    //     )
+    //   }
+    // }
 
     const displaymoreinfo = () => {
       return <NewMessageBoard message={this.instr} longMessage={this.instructionMessage} setBoardDisplayed={this.changeMessageBoardDisplayed} currStatus={this.moreinfo}/>
@@ -1623,8 +1623,8 @@ class Game extends React.Component{
           <h1 id="round">{this.numRound}/{this.totNumRound}</h1>
           <div id="groupedbar">
             <h1 id="score">{this.score} pts</h1>
-            <img className="option" id="controller" src={controller} onClick={this.setController}></img>
-            <img className="option" id="moreinfo" src={moreinfo} onClick={this.setMoreInfo}></img>
+            {/* <img className="option" id="controller" src={controller} onClick={this.setController}></img> */}
+            {/* <img className="option" id="moreinfo" src={moreinfo} onClick={this.setMoreInfo}></img> */}
           </div>
 
           <h1 align="center">{this.special_case_test_message}</h1>
@@ -1639,7 +1639,7 @@ class Game extends React.Component{
         <h3>{this.inspectorMessage}</h3>  
         <h3>{this.state.ctestMessage}</h3>   
         {sec_header}
-        {displayController()}
+        {/* {displayController()} */}
       </div>   
     );
   }
