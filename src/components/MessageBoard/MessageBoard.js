@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 const MessageBoard = ({message, setBoardDisplayed}) => {
     const [displayBoard, setDisplayBoard] = useState(false);
-
     if(!displayBoard){
         return(
             <div id="shortMessageGroup">

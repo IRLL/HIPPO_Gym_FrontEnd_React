@@ -636,9 +636,10 @@ class Game extends React.Component{
         if(this.canMove === false){
             this.message = "You should have inspected one of the highlighted nodes."
             this.setState({message: this.message});
-            if(!this.moved && this.feedback){
-              this.addHighlight("moved");
-            }
+            // if(!this.moved && this.feedback){
+            //   this.addHighlight("moved");
+            // }
+            this.addHighlight("moved");
         }else{
             if(!this.moved && this.feedback){
                 if(this.opt_act !== dir){
@@ -1463,8 +1464,10 @@ class Game extends React.Component{
     console.log('this.highestVal', this.highestVal)
     console.log('this.qVals[13]', this.qVals[13])
     console.log('this.qVals', this.qVals)
-    this.setState({delay: delay})
-    this.timeOut = setTimeout(this.removeHighlight, delay*1000);
+    // this.setState({delay: delay})
+    // this.timeOut = setTimeout(this.removeHighlight, delay*1000);
+    this.setState(prevState => ({delay: 1}))
+    this.timeOut = setTimeout(this.removeHighlight, 1000);
     this.updateTimer();
     //this.timeOut = setTimeout(this.removeHighlight, 0);
     this.timeoutOn = true;
@@ -1472,11 +1475,13 @@ class Game extends React.Component{
 
   updateTimer(){
     if(this.state.delay >= 0){
-      this.setState({ delay: this.state.delay - 1, timerMessage: "please wait " + this.state.delay + " seconds" }, () => {
+      this.setState(prevState => ({ delay: this.state.delay - 1, timerMessage: "please wait " + this.state.delay + " seconds" }), () => {
         this.timeoutID = setTimeout(() => {
           this.updateTimer();
         }, 1000);
       });
+    }else{
+      this.setState({timerMessage: ""})
     }
   }
 
@@ -1506,8 +1511,10 @@ class Game extends React.Component{
     //this.timeOut = setTimeout(this.removeHighlight, delay*1000);
     //this.timeOut = setTimeout(this.removeHighlight, 0);
     //this.timeoutOn = true;
-    this.setState({delay: delay})
-    this.timeOut = setTimeout(this.removeHighlight, delay*1000);
+    // this.setState({delay: delay})
+    // this.timeOut = setTimeout(this.removeHighlight, delay*1000);
+    this.setState(prevState => ({delay: 1}))
+    this.timeOut = setTimeout(this.removeHighlight, 1000);
     this.updateTimer();
     this.timeoutOn = true;
   }
