@@ -901,6 +901,9 @@ class Game extends React.Component{
       }
       
       if(e.target && !this.isLargeGraph && !this.ctestDisplayed){
+        this.message = "";
+        this.setState(prevState => ({message: this.message}))
+        
         if(e.target.hoverCursor === "pointer" && !this.state.gameOver && !this.moved && !this.timeoutOn && !this.messageBoardDisplayed){
           var x = e.target.aCoords.tl.x;
           var y = e.target.aCoords.tl.y;
