@@ -226,6 +226,8 @@ class Game extends React.Component{
 
   constructor(props){
     super(props);
+    this.state = {delay: 0};
+    this.updateTimer = this.updateTimer.bind(this);
     this.checkClickedObject = this.checkClickedObject.bind(this);
     this.displayGraph = this.displayGraph.bind(this);
     this.createAgent = this.createAgent.bind(this);
@@ -343,10 +345,11 @@ class Game extends React.Component{
       if(this.messageBoardDisplayed){
         this.inspectorMessage = "cannot move while viewing explanation"
         this.setState({inspectorMessage: this.inspectorMessage});
-      }else if(this.timeoutOn){
-        this.inspectorMessage = "please wait"
-        this.setState({inspectorMessage: this.inspectorMessage});
       }
+      // }else if(this.timeoutOn){
+      //   this.inspectorMessage = "please wait"
+      //   this.setState({inspectorMessage: this.inspectorMessage});
+      // }
     }
   }
   
@@ -1460,9 +1463,21 @@ class Game extends React.Component{
     console.log('this.highestVal', this.highestVal)
     console.log('this.qVals[13]', this.qVals[13])
     console.log('this.qVals', this.qVals)
-    //this.timeOut = setTimeout(this.removeHighlight, delay*1000);
-    this.timeOut = setTimeout(this.removeHighlight, 0);
+    this.setState({delay: delay})
+    this.timeOut = setTimeout(this.removeHighlight, delay*1000);
+    this.updateTimer();
+    //this.timeOut = setTimeout(this.removeHighlight, 0);
     this.timeoutOn = true;
+  }
+
+  updateTimer(){
+    if(this.state.delay >= 0){
+      this.setState({ delay: this.state.delay - 1, timerMessage: "please wait " + this.state.delay + " seconds" }, () => {
+        this.timeoutID = setTimeout(() => {
+          this.updateTimer();
+        }, 1000);
+      });
+    }
   }
 
   addHighlight(node){
@@ -1489,7 +1504,11 @@ class Game extends React.Component{
 
     console.log(delay)
     //this.timeOut = setTimeout(this.removeHighlight, delay*1000);
-    this.timeOut = setTimeout(this.removeHighlight, 0);
+    //this.timeOut = setTimeout(this.removeHighlight, 0);
+    //this.timeoutOn = true;
+    this.setState({delay: delay})
+    this.timeOut = setTimeout(this.removeHighlight, delay*1000);
+    this.updateTimer();
     this.timeoutOn = true;
   }
 
@@ -1633,6 +1652,7 @@ class Game extends React.Component{
           <MessageBoard message={this.message} setBoardDisplayed={this.changeMessageBoardDisplayed}/>  
           <ConfidenceTest ctest = {this.ctestDisplayed} ctest2 = {this.ctest2displayed} setCTDisplay = {this.changeCTDisplayed}></ConfidenceTest>
         </div>
+        <h4>{this.state.timerMessage}</h4>{/* timer */}
         <canvas id="canvas"/>  
         {scoreMessage}
         {gameOver}
