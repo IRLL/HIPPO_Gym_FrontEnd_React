@@ -1447,6 +1447,10 @@ class Game extends React.Component{
         this.prevHighlightList[i].redraw(this.canvas);
       }
     }
+
+    if(this.avatarNode){
+      this.avatarNode.drawText(this.canvas);
+    }
     
   }
   addDelay(node){
