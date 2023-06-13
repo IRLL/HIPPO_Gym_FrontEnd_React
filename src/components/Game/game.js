@@ -609,6 +609,9 @@ class Game extends React.Component{
   }
 
   movingAvatar(key){
+    this.message = "";
+    this.setState(prevState => ({message: this.message}))
+
     var avatar = null;
     this.canvas.getObjects().forEach((obj)=>{
         if(obj._element){
