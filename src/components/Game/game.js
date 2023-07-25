@@ -29,7 +29,13 @@ var clicked_nodes =new Array;
 var use_delay = true;
 var global_message = "global message";
 var global_long_message = "global message";
-//testing
+let accumulated_messages = [];
+
+function saveMessage(message) {
+    accumulated_messages.push({save: message});
+}
+
+
 function add_clicked_node_to_list(value)
 {
    console.log('adding', value, 'to clicked nodes list')
@@ -287,7 +293,7 @@ class Game extends React.Component{
     this.instr = "INSTRUCTIONS"
     this.instructionMessage = "In this study, you can practice your planning skills to make better decisions. You will navigate an airplane across a network of airports (white circles). Each circle has a value denoting how profitable it is to fly there. When you move the plane to a circle (a node), the value of the node is revealed and added to your total score. Each node in the game either contains a reward of up to $48 and a loss of up to -$48. If you want to reveal the value of the node without having to move the airplane, simply click on a node. However, this will cost $1. When you are ready to choose a path for your airplane, you can move the plane with the arrow keys, but only in the direction of the arrows between the nodes.";
     this.sendMessage = (routeKey, data) => {
-        // action: 'message' is added to indicate the routeKey for the backend.
+        // action is added to indicate the routeKey for the backend.
         this.websocket.send(JSON.stringify({
         action: routeKey,
         ...data
@@ -296,7 +302,6 @@ class Game extends React.Component{
   }
 
   initialize(){
-    console.log("initalize ran line 292")
     this.cWidth = document.body.clientWidth;
     this.cHeight = document.body.clientHeight;  
     this.adjList = [];
@@ -382,11 +387,9 @@ class Game extends React.Component{
             // save e
             this.time = new Date().toLocaleTimeString();
             var message = "hit space: " + this.time;
+            saveMessage(message);
             // this.sendMessage("save",{
-            //     save: message,
-            //     userId: USER_ID,
-            //     projectId: PROJECT_ID,
-            
+            //     save: message
             // });
         if(this.state.gameOver && !this.ctest2displayed){
             this.setState({
@@ -395,9 +398,7 @@ class Game extends React.Component{
                 isConnection: true
             }, ()=>{
                 this.sendMessage("command",{
-                command: "NEW GAME",
-                userId: USER_ID,
-                projectId: PROJECT_ID,
+                command: "NEW GAME"
                 });
             });
         }else if(this.ctest2displayed){
@@ -490,12 +491,15 @@ class Game extends React.Component{
         this.websocket.onmessage = (message) => {
             // parse the data from the websocket server
             let parsedData = JSON.parse(message.data);
-            if (parsedData.response === "Message received"){
-                console.log("Recieved message from websocket!");
-            }
-            if (message.data === "done") {
+            console.log("parsedData :", parsedData)
+            console.log("message.data :", message.data) 
+            if (parsedData.done === "done") {
                 console.log("Done");
                 //"done" means the game has ended
+                this.sendMessage("save",
+                {
+                    save: accumulated_messages
+                });
                 this.setState({
                     isEnd: true,
                     gameEndVisible: true,
@@ -778,13 +782,7 @@ class Game extends React.Component{
         // save b : time quiz displayed
         this.time = new Date().toLocaleTimeString();
         var message  = "ctest displayed: " + this.time;
-        // this.sendMessage("save",
-        // {
-        //     save: message,
-        //     userId: USER_ID,
-        //     projectId: PROJECT_ID,
-        
-        // });
+        saveMessage(message);
         this.setState((prevState)=>({...prevState}));
       } 
       if(!this.moved && this.feedback){
@@ -1018,11 +1016,10 @@ class Game extends React.Component{
         this.avatarNode.visited = true;
         // save f
         var message = "moved: " + this.avatarNode.getID() +  " , " + "node value: " +  this.avatarNode.getValue().toString() + " , " + this.time;    
+        saveMessage(message);
         // this.sendMessage("save",
         // {
-        //     save: message,
-        //     userId: USER_ID,
-        //     projectId: PROJECT_ID,
+        //     save: message
         
         // });  
       this.score += this.avatarNode.getValue();
@@ -1042,33 +1039,28 @@ class Game extends React.Component{
             // save b : time quiz displayed
             this.time = new Date().toLocaleTimeString();
             var message  = "ctest2 displayed: " + this.time;
+            saveMessage(message);
             // this.sendMessage("save",
             // {
-            //     save: message,
-            //     userId: USER_ID,
-            //     projectId: PROJECT_ID,
-            
+            //     save: message
             // });
             this.setState((prevState)=>({...prevState}));
             
             // save d : final score at end of round
             var message = "score: " + this.score + " , " + this.pts;
+            saveMessage(message);
             // this.sendMessage("save",
             // {
-            //     save: message,
-            //     userId: USER_ID,
-            //     projectId: PROJECT_ID,
-            
+            //     save: message
             // });
             this.setState({ctestMessage: "", gameOver: true});
         }else{
             // save d : final score at end of round
             var message = "score: " + this.score + " , " + this.pts;
+            saveMessage(message);
             // this.sendMessage("save",
             // {
-            //     save: message,
-            //     userId: USER_ID,
-            //     projectId: PROJECT_ID,
+            //     save: message
             
             // });
             this.setState({ctestMessage: "", gameOver: true});
@@ -1404,11 +1396,10 @@ class Game extends React.Component{
                                 var message = "node clicked: " + object.getID().toString() + " , " + "node value: " +  object.getValue().toString() + " , " + timeClicked;
                                 // this.sendMessage("save",
                                 // {
-                                //     save: message,
-                                //     userId: USER_ID,
-                                //     projectId: PROJECT_ID,
+                                //     save: message
                                 
                                 // });
+                                saveMessage(message);
                                 add_clicked_node_to_list(object.getID())
                                 // node inspector cost
                                 this.score -= 1;
@@ -1460,13 +1451,12 @@ class Game extends React.Component{
                                 var message = "node clicked: " + object.getID().toString() + " , "  + "node value: " +  object.getValue().toString() + " , " + timeClicked;
                                 // this.sendMessage("save",
                                 // {
-                                //     save: message,
-                                //     userId: USER_ID,
-                                //     projectId: PROJECT_ID,
+                                //     save: message
                                 
                                 // });
 
                                 // node inspector cost
+                                saveMessage(message);
                                 this.score -= 1;
                                 this.setState((prevState)=>({...prevState}));
 
@@ -2419,21 +2409,19 @@ class Game extends React.Component{
         var message = "read more: " + this.time;
         // this.sendMessage("save",
         // {
-        //     save: message,
-        //     userId: USER_ID,
-        //     projectId: PROJECT_ID,
+        //     save: message
         
         // });
+        saveMessage(message);
     }else{
         // they crossed it off
         // save c
         this.time = new Date().toLocaleTimeString();
         var message = "exit read more: " + this.time;
+        saveMessage(message);
         // this.sendMessage("save",
         // {
-        //     save: message,
-        //     userId: USER_ID,
-        //     projectId: PROJECT_ID,
+        //     save: message
         
         // });
     }
@@ -2446,19 +2434,17 @@ class Game extends React.Component{
     if(change && this.ctestDisplayed){
         // save b : selected option and time selected
         var message = "ctest option selected: " + selOption.toString() + " , " + tOption;
+        saveMessage(message);
         // this.sendMessage("save",
         // {
-        //     save: message,
-        //     userId: USER_ID,
-        //     projectId: PROJECT_ID,
+        //     save: message
         
         // });
         message = "ctest submitted: " + tSubmitted;
+        saveMessage(message);
         // this.sendMessage("save",
         // {
-        //     save: message,
-        //     userId: USER_ID,
-        //     projectId: PROJECT_ID,
+        //     save: message
         
         // });
         this.ctestDisplayed = false;
@@ -2467,20 +2453,17 @@ class Game extends React.Component{
     }else if(change && this.ctest2displayed){
         // save b : selected option and time selected
         var message = "ctest2 option selected: " + selOption.toString() + " , " + tOption;
+        saveMessage(message);
         // this.sendMessage("save",
         // {
-        //     save: message,
-        //     userId: USER_ID,
-        //     projectId: PROJECT_ID,
-        
+        //     save: message
         // });
         this.ctest2displayed = false;
         message = "ctest2 submitted: " + tSubmitted;
+        saveMessage(message);
         // this.sendMessage("save",
         // {
-        //     save: message,
-        //     userId: USER_ID,
-        //     projectId: PROJECT_ID,
+        //     save: message
         
         // });
         this.setState({ctestMessage: "", gameOver: true});
@@ -2519,9 +2502,7 @@ class Game extends React.Component{
       isConnection: true
     }, ()=>{
       this.sendMessage("command",{
-        command: "RESUME",
-        userId: USER_ID,
-        projectId: PROJECT_ID,
+        command: "RESUME"
       });
 
 
@@ -2544,10 +2525,9 @@ class Game extends React.Component{
     }else{
         var message = "closed instructions: " + this.time;
     }
+    saveMessage(message);
     // this.sendMessage("save",{
-    //     save: message,
-    //     userId: USER_ID,
-    //     projectId: PROJECT_ID,
+    //     save: message
     // });
   }
 
