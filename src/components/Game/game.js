@@ -30,7 +30,6 @@ var use_delay = true;
 var global_message = "global message";
 var global_long_message = "global message";
 let accumulated_messages = [];
-
 function saveMessage(message) {
     accumulated_messages.push({save: message});
 }
@@ -252,12 +251,25 @@ class Game extends React.Component{
     isConnection: false, // if the connection to the server is established
     progress: 0, // the status of the server
   }
+
+//   sendMessage = (data) => {
+//     if (this.state.isConnection) {
+//       this.websocket.send(JSON.stringify(data));
+//     }
+//   };
+
+
   // Send data to websocket server in JSON format
-  sendMessage = (data) => {
-    if (this.state.isConnection) {
-      this.websocket.send(JSON.stringify(data));
+  sendMessage = (routeKey, data) => {
+    // action is added to indicate the routeKey for the backend.
+    if (this.state.isConnection){
+        this.websocket.send(JSON.stringify({
+            action: routeKey,
+            ...data
+            }));
     }
-  };
+    
+};
 
   constructor(props){
     super(props);
@@ -292,13 +304,7 @@ class Game extends React.Component{
     this.moreinfo = false;
     this.instr = "INSTRUCTIONS"
     this.instructionMessage = "In this study, you can practice your planning skills to make better decisions. You will navigate an airplane across a network of airports (white circles). Each circle has a value denoting how profitable it is to fly there. When you move the plane to a circle (a node), the value of the node is revealed and added to your total score. Each node in the game either contains a reward of up to $48 and a loss of up to -$48. If you want to reveal the value of the node without having to move the airplane, simply click on a node. However, this will cost $1. When you are ready to choose a path for your airplane, you can move the plane with the arrow keys, but only in the direction of the arrows between the nodes.";
-    this.sendMessage = (routeKey, data) => {
-        // action is added to indicate the routeKey for the backend.
-        this.websocket.send(JSON.stringify({
-        action: routeKey,
-        ...data
-        }));
-    };
+
   }
 
   initialize(){
@@ -400,6 +406,12 @@ class Game extends React.Component{
                 this.sendMessage("command",{
                 command: "NEW GAME"
                 });
+
+                // this.sendMessage("save", {
+                //     save: accumulated_messages
+                // })
+
+
             });
         }else if(this.ctest2displayed){
             this.inspectorMessage = "please answer to continue..."
@@ -482,6 +494,36 @@ class Game extends React.Component{
                 userId: USER_ID,
                 projectId: PROJECT_ID,
             });
+
+        
+            // let data = [];
+            // for (let i = 0; i < 3; i++) { // 3 time steps
+            //     let x_pos = Math.random() * 2 - 1;
+            //     let y_pos = Math.random() * 2 - 1;
+            //     let x_vel = Math.random() * 0.1 - 0.05;
+            //     let y_vel = Math.random() * 0.1 - 0.05;
+            //     let angle = Math.random() * 0.2 - 0.1;
+            //     let ang_vel = Math.random() * 0.1 - 0.05;
+            //     let left_leg = Math.round(Math.random());
+            //     let right_leg = Math.round(Math.random());
+                
+            //     let time_step = {
+            //         x_pos: x_pos,
+            //         y_pos: y_pos,
+            //         x_vel: x_vel,
+            //         y_vel: y_vel,
+            //         angle: angle,
+            //         ang_vel: ang_vel,
+            //         left_leg: left_leg,
+            //         right_leg: right_leg
+            //     };
+                
+            //     data.push(time_step);
+            // }
+            //             // RouteKey:     data to be sent
+
+            // this.sendMessage("Modality", {feedback : data, modality: "demonstrationModality"});
+
 
         }
 
@@ -783,6 +825,9 @@ class Game extends React.Component{
         this.time = new Date().toLocaleTimeString();
         var message  = "ctest displayed: " + this.time;
         saveMessage(message);
+        // this.sendMessage("save",{
+        //     save: message
+        // });
         this.setState((prevState)=>({...prevState}));
       } 
       if(!this.moved && this.feedback){
@@ -1017,11 +1062,7 @@ class Game extends React.Component{
         // save f
         var message = "moved: " + this.avatarNode.getID() +  " , " + "node value: " +  this.avatarNode.getValue().toString() + " , " + this.time;    
         saveMessage(message);
-        // this.sendMessage("save",
-        // {
-        //     save: message
-        
-        // });  
+        // this.sendMessage("save",{save: message});  
       this.score += this.avatarNode.getValue();
       console.log('upating score', this.score)
       this.setState((prevState)=>({...prevState}))
@@ -1394,11 +1435,7 @@ class Game extends React.Component{
                             if(object.checkClicked(false, x,y)){
                                 // save a
                                 var message = "node clicked: " + object.getID().toString() + " , " + "node value: " +  object.getValue().toString() + " , " + timeClicked;
-                                // this.sendMessage("save",
-                                // {
-                                //     save: message
-                                
-                                // });
+                                // this.sendMessage("save",{save: message});
                                 saveMessage(message);
                                 add_clicked_node_to_list(object.getID())
                                 // node inspector cost
@@ -2462,10 +2499,7 @@ class Game extends React.Component{
         message = "ctest2 submitted: " + tSubmitted;
         saveMessage(message);
         // this.sendMessage("save",
-        // {
-        //     save: message
-        
-        // });
+        // {save: message});
         this.setState({ctestMessage: "", gameOver: true});
     }
     else if(change && this.goal_reminder){
@@ -2504,6 +2538,10 @@ class Game extends React.Component{
       this.sendMessage("command",{
         command: "RESUME"
       });
+
+    //   this.sendMessage("save", {
+    //     save: accumulated_messages
+    // })
 
 
     });

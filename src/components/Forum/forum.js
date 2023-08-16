@@ -16,6 +16,8 @@ class Forum extends React.Component {
 		}
 	}
 
+	
+
 	render() {
 		const { is400Error, content } = this.props;
 
