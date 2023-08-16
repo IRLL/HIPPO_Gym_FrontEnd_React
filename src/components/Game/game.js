@@ -404,6 +404,7 @@ class Game extends React.Component{
                 isConnection: true
             }, ()=>{
                 this.sendMessage("command",{
+                userId: USER_ID,
                 command: "NEW GAME"
                 });
 
@@ -489,7 +490,7 @@ class Game extends React.Component{
         });
 
 
-        this.sendMessage("message", 
+        this.sendMessage("start", 
             {
                 userId: USER_ID,
                 projectId: PROJECT_ID,
@@ -540,6 +541,7 @@ class Game extends React.Component{
                 //"done" means the game has ended
                 this.sendMessage("save",
                 {
+                    userId: USER_ID,
                     save: accumulated_messages
                 });
                 this.setState({
@@ -2536,6 +2538,7 @@ class Game extends React.Component{
       isConnection: true
     }, ()=>{
       this.sendMessage("command",{
+        userId: USER_ID,
         command: "RESUME"
       });
 
