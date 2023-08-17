@@ -22,6 +22,7 @@ import {
   DEBUG,
 } from "../../utils/constants";
 import { BsReplyAll } from "react-icons/bs";
+import userEvent from "@testing-library/user-event";
 const outer_node_ids = [3,4, 7,8,11,12];
 const mid_node_ids = [2,6,10];
 const inner_node_ids = [1,5, 9];
@@ -265,6 +266,8 @@ class Game extends React.Component{
     if (this.state.isConnection){
         this.websocket.send(JSON.stringify({
             action: routeKey,
+            userID: USER_ID,
+            sendTo: "backend",
             ...data
             }));
     }
