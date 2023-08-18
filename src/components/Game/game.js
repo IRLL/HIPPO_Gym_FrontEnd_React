@@ -539,6 +539,17 @@ class Game extends React.Component{
             let parsedData = JSON.parse(message.data);
             console.log("parsedData :", parsedData)
             console.log("message.data :", message.data) 
+
+            if (parsedData.modality){
+                console.log("recieved modality")
+                console.log(parsedData.modality)
+                console.log(parsedData.feedback)
+            }
+
+
+
+
+
             if (parsedData.done === "done") {
                 console.log("Done");
                 //"done" means the game has ended
@@ -631,6 +642,8 @@ class Game extends React.Component{
                     this.setState((prevState)=>({...prevState}));
                 }
             }
+
+
         }
     });
     // SERVER ? 0 : pendingTime * 1000
