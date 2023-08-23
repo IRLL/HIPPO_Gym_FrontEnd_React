@@ -104,6 +104,10 @@ class Game extends React.Component {
     grid: null,
   };
 
+
+
+
+
   componentDidMount() {
     // To update the progress of loading game content
     // Since we always need to wait 30 seconds before the game
@@ -502,19 +506,32 @@ class Game extends React.Component {
   };
 
   // Send data to websocket server in JSON format
-  sendMessage = (data) => {
-    if (this.state.isConnection) {
-      const allData = {
-        ...data,
-        frameCount: this.state.frameCount,
-        frameId: this.state.frameId,
-      };
-      this.setState((prevState) => ({
-        outMessage: [allData, ...prevState.outMessage],
-      }));
-      this.websocket.send(JSON.stringify(allData));
+//   sendMessage = (data) => {
+//     if (this.state.isConnection) {
+//       const allData = {
+//         ...data,
+//         frameCount: this.state.frameCount,
+//         frameId: this.state.frameId,
+//       };
+//       this.setState((prevState) => ({
+//         outMessage: [allData, ...prevState.outMessage],
+//       }));
+//       this.websocket.send(JSON.stringify(allData));
+//     }
+//   };
+
+  // New send Data method
+
+    // Send data to websocket server in JSON format
+    sendMessage = (routeKey, data) => {
+        // action is added to indicate the routeKey for the backend.
+        if (this.state.isConnection){
+            this.websocket.send(JSON.stringify({
+                action: routeKey,
+                ...data
+                }));
+        }
     }
-  };
 
   // Send game control commands to the websocket server
   handleCommand = (status) => {
