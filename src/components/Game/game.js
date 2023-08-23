@@ -534,11 +534,12 @@ class Game extends React.Component {
             this.websocket.send(JSON.stringify({
                 action: routeKey,
                 userId: USER_ID,
-                sendTo : "frontend",
+                sendTo: "backend",
                 ...data
                 }));
         }
-    }
+        
+    };
 
   // Send game control commands to the websocket server
   handleCommand = (status) => {
