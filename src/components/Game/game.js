@@ -266,7 +266,7 @@ class Game extends React.Component{
     if (this.state.isConnection){
         this.websocket.send(JSON.stringify({
             action: routeKey,
-            userID: USER_ID,
+            userId: USER_ID,
             sendTo: "backend",
             ...data
             }));
@@ -541,9 +541,12 @@ class Game extends React.Component{
             console.log("message.data :", message.data) 
 
             if (parsedData.modality){
-                console.log("recieved modality")
-                console.log(parsedData.modality)
-                console.log(parsedData.feedback)
+                console.log("Recieved Modality")
+                console.log("Modality Type: ", parsedData.modality)
+                console.log("Budget Wall Clock Time ",parsedData.feedback, "(s)")
+
+                // 30 s delay
+                setTimeout(() => this.sendMessage("Modality", {"modality": parsedData.modality, "feedback": "budgetExceeded"}), 30000);
             }
 
 
