@@ -533,6 +533,8 @@ class Game extends React.Component {
         if (this.state.isConnection){
             this.websocket.send(JSON.stringify({
                 action: routeKey,
+                userId: USER_ID,
+                sendTo : "frontend",
                 ...data
                 }));
         }
