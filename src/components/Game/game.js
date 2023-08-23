@@ -137,10 +137,15 @@ class Game extends React.Component {
             isLoading: false,
             isConnection: true,
           });
-          this.sendMessage({
-            userId: USER_ID,
-            projectId: PROJECT_ID,
+
+          this.sendMessage("start", 
+          {
+              userId: USER_ID,
+              projectId: PROJECT_ID,
           });
+
+
+
         };
 
         // Listen to the data from the websocket server
