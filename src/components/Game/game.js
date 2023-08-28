@@ -126,7 +126,7 @@ class Game extends React.Component {
     this.timer = setTimeout(
       () => {
         //connect the websocket server
-        this.websocket = new w3cwebsocket(WS_URL);
+        this.websocket = new w3cwebsocket(WS_URL+ '?connection_type=frontend');
         this.websocket.onopen = () => {
           // Once the websocket connection has been established
           // we remove all the unnecessary timer
@@ -159,7 +159,7 @@ class Game extends React.Component {
           } else {
             //parse the data from the websocket server
             let parsedData = JSON.parse(message.data);
-
+            console.log("parsedData: ",parsedData);
             //Check if budget bar should be loaded
             if (parsedData.inputBudget) {
               this.setState({
@@ -167,8 +167,10 @@ class Game extends React.Component {
                 usedInputBudget: parsedData.usedInputBudget,
               });
             }
+            // parsedData.env
             //Check if UI in response
             if (parsedData.UI) {
+                console.log("parsedData: ",parsedData.UI);
               this.setState({
                 UIlist: parsedData.UI,
               });
@@ -284,9 +286,10 @@ class Game extends React.Component {
             }
 
             //Check if frame related information in response
-            if (parsedData.frame && parsedData.frameId) {
-              let frame = parsedData.frame;
-              let frameId = parsedData.frameId;
+
+            if (parsedData.env.frame && parsedData.env.frameId) {
+              let frame = parsedData.env.frame;
+              let frameId = parsedData.env.frameId;
               // set new border color
               if ("borderColor" in parsedData) {
                 this.setState({
@@ -411,8 +414,7 @@ class Game extends React.Component {
       }
 
       if (!event.repeat){
-        this.sendMessage({
-          // TODO: add mod event
+        this.sendMessage("command",{
           "KeyboardEvent": {
             "KEYDOWN": [event.key, event.key.charCodeAt(0)]
           }
@@ -429,10 +431,10 @@ class Game extends React.Component {
         if (this.state.holdKey === dataToSend.actionType) {
           this.setState({ holdKey: null });
         }
-        this.sendMessage(dataToSend);
+        this.sendMessage("",dataToSend);
       }
 
-      this.sendMessage({
+      this.sendMessage("command",{
         "KeyboardEvent": {
           "KEYUP": [event.key]
         }
@@ -528,6 +530,7 @@ class Game extends React.Component {
   // New send Data method
 
     // Send data to websocket server in JSON format
+    
     sendMessage = (routeKey, data) => {
         // action is added to indicate the routeKey for the backend.
         if (this.state.isConnection){
@@ -549,7 +552,7 @@ class Game extends React.Component {
     }
 
     if (status === "start") {
-      this.sendMessage({
+      this.sendMessage("command",{
         command: status,
         system: osName,
         systemVersion: osVersion,
@@ -564,12 +567,14 @@ class Game extends React.Component {
     } else if (status === "reset") {
       if (this.state.grid) {
         this.resetGrid();
-        this.sendMessage({
+        this.sendMessage("command",{
           command: status,
           info: "reset grid",
         });
       } else {
-        this.sendMessage({
+        console.log("else")
+        console.log("status is: ", status)
+        this.sendMessage("command",{
           command: status,
         })
       }
@@ -578,7 +583,7 @@ class Game extends React.Component {
         this.submitGrid();
       }
 
-      this.sendMessage({
+      this.sendMessage("command",{
         command: status,
       });
     }

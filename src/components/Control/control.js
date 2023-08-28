@@ -30,6 +30,11 @@ class ControlPanel extends React.Component {
       redoEnabled,
       blockButtons,
     } = this.props;
+
+    
+
+
+
     const directions = [
       "left",
       "leftUp",
@@ -352,9 +357,11 @@ class ControlPanel extends React.Component {
                   src={blockButtons[i].image}
                   alt="blockButton"
                   onClick={() =>
-                    sendMessage({
+                    this.props.sendMessage("command",
+                    {
                       command: blockButtons[i].value,
-                    })
+                    }
+                    )
                   }
                 />
               </Tooltip>
@@ -383,9 +390,10 @@ class ControlPanel extends React.Component {
                 id="currentBlock"
                 alt="blockButton"
                 onClick={() =>
-                  sendMessage({
+                  this.props.sendMessage("command",{
                     command: blockButtons[1].value,
                   })
+                  
                 }
               />
             </Tooltip>
