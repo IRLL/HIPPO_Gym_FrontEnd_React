@@ -396,10 +396,10 @@ class Game extends React.Component{
             // save e
             this.time = new Date().toLocaleTimeString();
             var message = "hit space: " + this.time;
-            saveMessage(message);
-            // this.sendMessage("save",{
-            //     save: message
-            // });
+            // saveMessage(message);
+            this.sendMessage("save",{
+                save: message
+            });
         if(this.state.gameOver && !this.ctest2displayed){
             this.setState({
                 message: "",
@@ -845,10 +845,10 @@ class Game extends React.Component{
         // save b : time quiz displayed
         this.time = new Date().toLocaleTimeString();
         var message  = "ctest displayed: " + this.time;
-        saveMessage(message);
-        // this.sendMessage("save",{
-        //     save: message
-        // });
+        // saveMessage(message);
+        this.sendMessage("save",{
+            save: message
+        });
         this.setState((prevState)=>({...prevState}));
       } 
       if(!this.moved && this.feedback){
@@ -1082,8 +1082,8 @@ class Game extends React.Component{
         this.avatarNode.visited = true;
         // save f
         var message = "moved: " + this.avatarNode.getID() +  " , " + "node value: " +  this.avatarNode.getValue().toString() + " , " + this.time;    
-        saveMessage(message);
-        // this.sendMessage("save",{save: message});  
+        // saveMessage(message);
+        this.sendMessage("save",{save: message});  
       this.score += this.avatarNode.getValue();
       console.log('upating score', this.score)
       this.setState((prevState)=>({...prevState}))
@@ -1101,30 +1101,30 @@ class Game extends React.Component{
             // save b : time quiz displayed
             this.time = new Date().toLocaleTimeString();
             var message  = "ctest2 displayed: " + this.time;
-            saveMessage(message);
-            // this.sendMessage("save",
-            // {
-            //     save: message
-            // });
+            // saveMessage(message);
+            this.sendMessage("save",
+            {
+                save: message
+            });
             this.setState((prevState)=>({...prevState}));
             
             // save d : final score at end of round
             var message = "score: " + this.score + " , " + this.pts;
-            saveMessage(message);
-            // this.sendMessage("save",
-            // {
-            //     save: message
-            // });
+            // saveMessage(message);
+            this.sendMessage("save",
+            {
+                save: message
+            });
             this.setState({ctestMessage: "", gameOver: true});
         }else{
             // save d : final score at end of round
             var message = "score: " + this.score + " , " + this.pts;
-            saveMessage(message);
-            // this.sendMessage("save",
-            // {
-            //     save: message
+            // saveMessage(message);
+            this.sendMessage("save",
+            {
+                save: message
             
-            // });
+            });
             this.setState({ctestMessage: "", gameOver: true});
         }
       }
@@ -1456,8 +1456,8 @@ class Game extends React.Component{
                             if(object.checkClicked(false, x,y)){
                                 // save a
                                 var message = "node clicked: " + object.getID().toString() + " , " + "node value: " +  object.getValue().toString() + " , " + timeClicked;
-                                // this.sendMessage("save",{save: message});
-                                saveMessage(message);
+                                this.sendMessage("save",{save: message});
+                                // saveMessage(message);
                                 add_clicked_node_to_list(object.getID())
                                 // node inspector cost
                                 this.score -= 1;
@@ -1507,14 +1507,14 @@ class Game extends React.Component{
                                 found = true;
                                 // save a
                                 var message = "node clicked: " + object.getID().toString() + " , "  + "node value: " +  object.getValue().toString() + " , " + timeClicked;
-                                // this.sendMessage("save",
-                                // {
-                                //     save: message
+                                this.sendMessage("save",
+                                {
+                                    save: message
                                 
-                                // });
+                                });
 
                                 // node inspector cost
-                                saveMessage(message);
+                                // saveMessage(message);
                                 this.score -= 1;
                                 this.setState((prevState)=>({...prevState}));
 
@@ -2465,23 +2465,23 @@ class Game extends React.Component{
         // save c
         this.time = new Date().toLocaleTimeString();
         var message = "read more: " + this.time;
-        // this.sendMessage("save",
-        // {
-        //     save: message
+        this.sendMessage("save",
+        {
+            save: message
         
-        // });
-        saveMessage(message);
+        });
+        // saveMessage(message);
     }else{
         // they crossed it off
         // save c
         this.time = new Date().toLocaleTimeString();
         var message = "exit read more: " + this.time;
-        saveMessage(message);
-        // this.sendMessage("save",
-        // {
-        //     save: message
+        // saveMessage(message);
+        this.sendMessage("save",
+        {
+            save: message
         
-        // });
+        });
     }
     this.messageBoardDisplayed === false ? this.messageBoardDisplayed = true : this.messageBoardDisplayed = false;
     this.inspectorMessage = ""
@@ -2492,35 +2492,35 @@ class Game extends React.Component{
     if(change && this.ctestDisplayed){
         // save b : selected option and time selected
         var message = "ctest option selected: " + selOption.toString() + " , " + tOption;
-        saveMessage(message);
-        // this.sendMessage("save",
-        // {
-        //     save: message
+        // saveMessage(message);
+        this.sendMessage("save",
+        {
+            save: message
         
-        // });
+        });
         message = "ctest submitted: " + tSubmitted;
-        saveMessage(message);
-        // this.sendMessage("save",
-        // {
-        //     save: message
+        // saveMessage(message);
+        this.sendMessage("save",
+        {
+            save: message
         
-        // });
+        });
         this.ctestDisplayed = false;
         this.ctest2displayed = false;
         this.setState({ctestMessage: ""});
     }else if(change && this.ctest2displayed){
         // save b : selected option and time selected
         var message = "ctest2 option selected: " + selOption.toString() + " , " + tOption;
-        saveMessage(message);
-        // this.sendMessage("save",
-        // {
-        //     save: message
-        // });
+        // saveMessage(message);
+        this.sendMessage("save",
+        {
+            save: message
+        });
         this.ctest2displayed = false;
         message = "ctest2 submitted: " + tSubmitted;
-        saveMessage(message);
-        // this.sendMessage("save",
-        // {save: message});
+        // saveMessage(message);
+        this.sendMessage("save",
+        {save: message});
         this.setState({ctestMessage: "", gameOver: true});
     }
     else if(change && this.goal_reminder){
@@ -2585,10 +2585,10 @@ class Game extends React.Component{
     }else{
         var message = "closed instructions: " + this.time;
     }
-    saveMessage(message);
-    // this.sendMessage("save",{
-    //     save: message
-    // });
+    // saveMessage(message);
+    this.sendMessage("save",{
+        save: message
+    });
   }
 
   handleItemClick(key){
